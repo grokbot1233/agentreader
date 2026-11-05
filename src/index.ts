@@ -4,8 +4,10 @@ import { ExactEvmScheme } from "@x402/evm/exact/server";
 import { HTTPFacilitatorClient } from "@x402/core/server";
 import { bazaarResourceServerExtension, declareDiscoveryExtension } from "@x402/extensions/bazaar";
 import { readUrl, linksFor, checkDomain, UserError } from "./core";
+import { handleMcp } from "./mcp";
+import { dashboardHtml } from "./dashboard";
 
-type Env = { LOG: KVNamespace; STATS_SECRET: string; PAY_TO: string; FACILITATOR_URL: string };
+type Env = { LOG: KVNamespace; STATS_SECRET: string; DASHBOARD_KEY: string; PAY_TO: string; FACILITATOR_URL: string };
 const NETWORK = "eip155:8453";
 const USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 const PRICES = { "/read": "$0.002", "/links": "$0.001", "/check": "$0.001" } as const;
@@ -127,21 +129,40 @@ app.get("/", (c) => {
   return c.text(llms(base(c), c.env.PAY_TO));
 });
 
-app.get("/stats", async (c) => {
-  const auth = c.req.header("authorization")?.replace(/^Bearer\s+/i, "") || c.req.query("key") || "";
-  const s = c.env.STATS_SECRET || "";
-  const enc = new TextEncoder(); const [x, y] = await Promise.all([crypto.subtle.digest("SHA-256", enc.encode(auth)), crypto.subtle.digest("SHA-256", enc.encode(s))]);
-  const eq = s.length > 0 && new Uint8Array(x).every((v, i) => v === new Uint8Array(y)[i]);
-  if (!eq) return c.json({ error: "unauthorized" }, 401);
+async function keyOk(given: string, s: string) {
+  const enc = new TextEncoder(); const [x, y] = await Promise.all([crypto.subtle.digest("SHA-256", enc.encode(given)), crypto.subtle.digest("SHA-256", enc.encode(s))]);
+  return s.length > 0 && new Uint8Array(x).every((v, i) => v === new Uint8Array(y)[i]);
+}
+async function stats(env: Env) {
   const recs: any[] = []; let cursor: string | undefined;
-  do { const l: any = await c.env.LOG.list({ prefix: "pay:", cursor }); recs.push(...l.keys.map((k: any) => k.metadata).filter(Boolean)); cursor = l.list_complete ? undefined : l.cursor; } while (cursor);
-  const ok = recs.filter((r) => r.success !== false);
+  do { const l: any = await env.LOG.list({ prefix: "pay:", cursor }); recs.push(...l.keys.map((k: any) => k.metadata).filter(Boolean)); cursor = l.list_complete ? undefined : l.cursor; } while (cursor);
+  const ok = recs.filter((r) => r.success !== false).sort((a, b) => a.ts < b.ts ? -1 : 1);
   const byEndpoint: any = {}, byDay: any = {}; const payers = new Set<string>(); let atomic = 0;
   for (const r of ok) { const a = Number(r.amount || 0); atomic += a; if (r.payer) payers.add(r.payer.toLowerCase());
     (byEndpoint[r.endpoint] ??= { calls: 0, revenue_usdc: 0 }).calls++; byEndpoint[r.endpoint].revenue_usdc += a / 1e6;
     const d = r.ts.slice(0, 10); (byDay[d] ??= { calls: 0, revenue_usdc: 0 }).calls++; byDay[d].revenue_usdc += a / 1e6; }
-  return c.json({ paid_calls: ok.length, revenue_usdc: atomic / 1e6, unique_payers: payers.size, by_endpoint: byEndpoint, by_day: byDay, recent: ok.slice(-20) });
+  return { paid_calls: ok.length, revenue_usdc: atomic / 1e6, unique_payers: payers.size, by_endpoint: byEndpoint, by_day: byDay, recent: ok.slice(-20).reverse(), generated: new Date().toISOString() };
+}
+export async function logPay(env: Env, r: any) {
+  const rec = { ts: new Date().toISOString(), ...r };
+  await env.LOG.put(`pay:${rec.ts}:${crypto.randomUUID().slice(0, 8)}`, "1", { metadata: rec });
+}
+app.get("/stats", async (c) => {
+  const auth = c.req.header("authorization")?.replace(/^Bearer\s+/i, "") || c.req.query("key") || "";
+  if (!(await keyOk(auth, c.env.STATS_SECRET || ""))) return c.json({ error: "unauthorized" }, 401);
+  return c.json(await stats(c.env));
 });
+app.get("/dashboard", async (c) => {
+  if (!(await keyOk(c.req.query("key") || "", c.env.DASHBOARD_KEY || ""))) return c.text("unauthorized", 401);
+  c.header("cache-control", "no-store"); return c.html(dashboardHtml());
+});
+app.get("/dashboard/data", async (c) => {
+  if (!(await keyOk(c.req.query("key") || "", c.env.DASHBOARD_KEY || ""))) return c.json({ error: "unauthorized" }, 401);
+  const t = Date.now(); let health: any = { ok: true };
+  try { await c.env.LOG.get("health-probe"); health.kv_ms = Date.now() - t; } catch (e: any) { health = { ok: false, error: String(e) }; }
+  c.header("cache-control", "no-store"); return c.json({ ...(await stats(c.env)), health });
+});
+app.all("/mcp", (c) => handleMcp(c.req.raw, c.env, (r) => logPay(c.env, r)));
 
 // Paid routes: payment middleware ALWAYS runs first. No bypass.
 app.use("/read", (c, n) => getMw(c.env)(c, n));

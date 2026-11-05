@@ -2,3 +2,6 @@ node_modules
 .dev.vars
 .stats_secret
 .wrangler
+.dashboard_key
+.test_wallet_key
+.env
