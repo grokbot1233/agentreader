@@ -14,6 +14,7 @@ a{color:#7cb7ff;word-break:break-all}.ok{color:#4ade80}.bad{color:#f87171}.warn{
 <h2>Services &amp; endpoints</h2><div class="card wrap"><table><thead><tr><th>Service</th><th>Price</th><th>URL</th></tr></thead><tbody id=svc></tbody></table><div class=sub id=pay></div></div>
 <h2>Distribution / listings</h2><div class="card wrap"><table><thead><tr><th>Listing</th><th>Status</th><th>Link</th></tr></thead><tbody id=lst></tbody></table></div>
 <h2>Grow / cut rule</h2><div class=card id=rule></div>
+<h2>Replacement queue (ranked ideas)</h2><div class=card id=queue></div>
 <h2>Next steps</h2><div class=card id=next></div>
 <div class=sub id=metaupd style="margin-top:12px"></div>
 </main><script>
@@ -37,7 +38,7 @@ chart(d.by_day);$('recent').innerHTML=d.recent.length?d.recent.map(p=>'<tr><td>'
 $('svc').innerHTML=d.services.map(s=>'<tr><td>'+esc(s.name)+'</td><td>'+esc(s.price)+'</td><td>'+lnk(s.url)+'</td></tr>').join('');
 $('pay').textContent='Payments: USDC on '+d.network+' → '+d.payTo;
 const m=d.meta||{};$('lst').innerHTML=(m.listings||[]).map(l=>'<tr><td>'+esc(l.name)+'</td><td class="'+cls(l.status)+'">'+esc(l.status)+'</td><td>'+lnk(l.url)+'</td></tr>').join('')||'<tr><td colspan=3 class=sub>none recorded</td></tr>';
-$('rule').innerHTML=m.rule?esc(m.rule):'<span class=sub>not set</span>';$('next').innerHTML=list(m.next_steps);$('check').innerHTML=list(m.checklist);
+$('rule').innerHTML=m.rule?esc(m.rule):'<span class=sub>not set</span>';$('next').innerHTML=list(m.next_steps);$('queue').innerHTML=m.queue&&m.queue.length?'<ol>'+m.queue.map(q=>'<li>'+esc(q)+'</li>').join('')+'</ol>':'<span class=sub>empty</span>';$('check').innerHTML=list(m.checklist);
 $('metaupd').textContent=m.updated?'Listings/next steps/checklist last updated '+tz(m.updated)+' (London)':'';
 $('upd').textContent='updated '+tz(d.generated)+' (London)'}catch(e){$('upd').textContent='error: '+e.message;$('health').innerHTML='<span class=bad>ERR</span>'}}
 load();setInterval(load,15000);
