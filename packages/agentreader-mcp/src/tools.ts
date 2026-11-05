@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const ORIGIN = process.env.AGENTREADER_ORIGIN || "https://api.axiomworks.co.uk";
-export const VERSION = "1.6.1";
+export const VERSION = "1.7.0";
 
 const CH = z.enum(["base", "ethereum", "arbitrum", "optimism", "polygon"]).optional();
 const qs = (a: Record<string, unknown>) =>
@@ -253,6 +253,46 @@ export const TOOLS: ToolDef[] = [
       a.number
         ? `${ORIGIN}/uk-charity?number=${encodeURIComponent(a.number)}${a.suffix != null ? `&suffix=${encodeURIComponent(a.suffix)}` : ""}`
         : `${ORIGIN}/uk-charity?name=${encodeURIComponent(a.name || "")}`,
+    previewable: true,
+  },
+
+  {
+    name: "us_sec",
+    description:
+      "US SEC EDGAR company snapshot by ticker or CIK: filings, SIC, addresses. $0.05 USDC.",
+    price: "$0.05",
+    schema: { ticker: z.string().optional(), cik: z.string().optional() },
+    http: (a) =>
+      a.ticker
+        ? `${ORIGIN}/us-sec?ticker=${encodeURIComponent(a.ticker)}`
+        : `${ORIGIN}/us-sec?cik=${encodeURIComponent(a.cik || "")}`,
+    previewable: true,
+  },
+  {
+    name: "us_sec_full",
+    description:
+      "US SEC full DD: lite + us-gaap highlights + red-flag heuristics. $0.25 USDC.",
+    price: "$0.25",
+    schema: { ticker: z.string().optional(), cik: z.string().optional() },
+    http: (a) =>
+      a.ticker
+        ? `${ORIGIN}/us-sec-full?ticker=${encodeURIComponent(a.ticker)}`
+        : `${ORIGIN}/us-sec-full?cik=${encodeURIComponent(a.cik || "")}`,
+    previewable: true,
+  },
+  {
+    name: "eu_vat",
+    description: "EU VIES VAT validation: valid, name, address. $0.01 USDC.",
+    price: "$0.01",
+    schema: {
+      vat: z.string().optional(),
+      country: z.string().optional(),
+      number: z.string().optional(),
+    },
+    http: (a) =>
+      a.vat
+        ? `${ORIGIN}/eu-vat?vat=${encodeURIComponent(a.vat)}`
+        : `${ORIGIN}/eu-vat?country=${encodeURIComponent(a.country || "")}&number=${encodeURIComponent(a.number || "")}`,
     previewable: true,
   },
   {

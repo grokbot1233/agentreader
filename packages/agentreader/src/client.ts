@@ -4,7 +4,7 @@ import { privateKeyToAccount } from "viem/accounts";
 import type { Chain, ClientOptions, RequestOpts } from "./types.js";
 
 const DEFAULT_ORIGIN = "https://api.axiomworks.co.uk";
-const VERSION = "1.6.1";
+const VERSION = "1.7.0";
 
 function normalizeKey(raw?: string): `0x${string}` | undefined {
   if (!raw) return undefined;
@@ -222,6 +222,15 @@ export class AgentReaderClient {
   }
   ukCharityFull(input: { number?: string; name?: string; suffix?: string }, opts?: RequestOpts) {
     return this.get("/uk-charity-full", input, opts);
+  }
+  usSec(input: { ticker?: string; cik?: string }, opts?: RequestOpts) {
+    return this.get("/us-sec", input, opts);
+  }
+  usSecFull(input: { ticker?: string; cik?: string }, opts?: RequestOpts) {
+    return this.get("/us-sec-full", input, opts);
+  }
+  euVat(input: { vat?: string; country?: string; number?: string }, opts?: RequestOpts) {
+    return this.get("/eu-vat", input, opts);
   }
 }
 

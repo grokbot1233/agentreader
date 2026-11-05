@@ -18,6 +18,8 @@ export const VALIDATE: Record<string, (b: any) => string | null> = {
   "/company": (b) => domainish(b.domain || b.name || b.url), "/company-full": (b) => domainish(b.domain || b.name || b.url),
   "/uk-company": (b) => uk(b), "/uk-company-lite": (b) => uk(b),
   "/uk-charity": (b) => charity(b), "/uk-charity-full": (b) => charity(b),
+  "/us-sec": (b) => sec(b), "/us-sec-full": (b) => sec(b),
+  "/eu-vat": (b) => vat(b),
   "/monitor": (b) => first(url(b.url), url(b.webhook, "webhook"), s(b.webhook) && !s(b.webhook).startsWith("https://") ? "webhook must be https" : null),
   "/wallet": (b) => first(addr(b.address, "address"), chain(b.chain), s(b.tokens) && s(b.tokens).split(",").some((t) => !ADDR.test(t.trim())) ? "tokens must be comma-separated 0x addresses" : null, s(b.tokens).split(",").length > 10 ? "max 10 tokens" : null),
   "/tx": (b) => first(!s(b.hash) ? "missing hash" : HASH.test(s(b.hash)) ? null : "hash must be 0x + 64 hex chars", chain(b.chain)),
@@ -39,10 +41,31 @@ export const VALIDATE: Record<string, (b: any) => string | null> = {
     s(b.radius) && !(Number(b.radius) >= 50 && Number(b.radius) <= 1000) ? "radius must be 50-1000 metres" : null, s(b.limit) && !(Number(b.limit) >= 5 && Number(b.limit) <= 200) ? "limit must be 5-200" : null),
   "/uk-area": (b) => (!s(b.postcode) ? "missing postcode" : PC.test(s(b.postcode)) ? null : "postcode must be a full UK postcode, e.g. SW1A 2AA"),
 };
+
+function sec(b: any) {
+  const t = s(b.ticker), c = s(b.cik);
+  if (!t && !c) return "missing ticker or cik";
+  if (t && !/^[A-Za-z][A-Za-z0-9.\-]{0,9}$/.test(t)) return "ticker must look like AAPL or BRK.B";
+  if (c && !/^\d{1,10}$/.test(c)) return "cik must be 1-10 digits";
+  return null;
+}
+function vat(b: any) {
+  const v = s(b.vat).toUpperCase().replace(/[\s.-]/g, "");
+  const country = s(b.country).toUpperCase();
+  const number = s(b.number).toUpperCase().replace(/[\s.-]/g, "");
+  if (v) {
+    if (!/^(?:GR|[A-Z]{2})[A-Z0-9]{2,12}$/.test(v)) return "vat must look like DE123456789 or IE6388047V";
+    return null;
+  }
+  if (!country || !number) return "missing vat (e.g. IE6388047V) or country+number";
+  if (!/^[A-Z]{2}$/.test(country)) return "country must be a 2-letter code (EL for Greece)";
+  if (!/^[A-Z0-9]{2,12}$/.test(number)) return "number must be 2-12 alphanumeric";
+  return null;
+}
 function uk(b: any) { const n = s(b.number), m = s(b.name); if (!n && !m) return "missing number or name"; if (n && !CHNUM.test(n)) return "number must be a Companies House number: 8 digits (e.g. 00445790) or 2 letters + 6 digits (e.g. SC123456)"; if (!n && m.length < 2) return "name too short"; return null; }
 const CNUM = /^\d{5,8}(?:[-\/]\d{1,2})?$/;
 function charity(b: any) { const n = s(b.number), m = s(b.name); if (!n && !m) return "missing number or name"; if (n && !CNUM.test(n)) return "number must be a Charity Commission registered number, e.g. 1089464 or 1089464/0"; if (s(b.suffix) && !/^\d{1,2}$/.test(s(b.suffix))) return "suffix must be 0-99"; if (!n && m.length < 2) return "name too short"; return null; }
 
 export const TOOL_PATH: Record<string, string> = { read_url: "/read", extract_links: "/links", check_domain: "/check", company_research: "/company", uk_company: "/uk-company", uk_company_lite: "/uk-company-lite",
   company_full: "/company-full", convert_document: "/convert", create_monitor: "/monitor", wallet_balances: "/wallet", tx_status: "/tx", token_check: "/token-check", fx_rates: "/fx",
-  ens_lookup: "/ens", token_metadata: "/token", token_allowance: "/allowance", contract_info: "/contract", gas_fees: "/gas", block_lookup: "/block", nft_lookup: "/nft", web_search: "/search", uk_property_prices: "/uk-property", uk_area_profile: "/uk-area", uk_charity: "/uk-charity", uk_charity_full: "/uk-charity-full" };
+  ens_lookup: "/ens", token_metadata: "/token", token_allowance: "/allowance", contract_info: "/contract", gas_fees: "/gas", block_lookup: "/block", nft_lookup: "/nft", web_search: "/search", uk_property_prices: "/uk-property", uk_area_profile: "/uk-area", uk_charity: "/uk-charity", uk_charity_full: "/uk-charity-full", us_sec: "/us-sec", us_sec_full: "/us-sec-full", eu_vat: "/eu-vat" };

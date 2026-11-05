@@ -3,13 +3,14 @@ import { CANONICAL } from "./facilitator";
 const PREVIEW_LIMIT = 8; // per IP per UTC day across all preview kinds
 const PREVIEW_PREFIX = "prev:";
 
-export type PreviewKind = "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full";
+export type PreviewKind = "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat";
 
 const PRICE: Record<PreviewKind, string> = {
   read: "$0.002", links: "$0.001", check: "$0.001",
   company: "$0.25", "uk-company": "$0.50", "uk-company-lite": "$0.05",
   convert: "$0.03", "company-full": "$0.65",
   "uk-charity": "$0.05", "uk-charity-full": "$0.25",
+  "us-sec": "$0.05", "us-sec-full": "$0.25", "eu-vat": "$0.01",
 };
 
 const PAID_CALL: Record<PreviewKind, string> = {
@@ -23,6 +24,9 @@ const PAID_CALL: Record<PreviewKind, string> = {
   "company-full": `${CANONICAL}/company-full?domain=DOMAIN`,
   "uk-charity": `${CANONICAL}/uk-charity?number=NUM`,
   "uk-charity-full": `${CANONICAL}/uk-charity-full?number=NUM`,
+  "us-sec": `${CANONICAL}/us-sec?ticker=TICKER`,
+  "us-sec-full": `${CANONICAL}/us-sec-full?ticker=TICKER`,
+  "eu-vat": `${CANONICAL}/eu-vat?vat=VAT`,
 };
 
 function dayKey() { return new Date().toISOString().slice(0, 10); }
@@ -154,6 +158,30 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         charity_preview: data.charity ? { name: data.charity.name, status: data.charity.status, registered_number: data.charity.registered_number } : { included: false, reason: data.charity_skip_reason || "no charity signals" },
         omitted: ["full company research", "full UK due-diligence pack", "full charity profile"],
       };
+
+    case "us-sec":
+      return {
+        ...u,
+        cik: data.cik, name: data.name, tickers: (data.tickers || []).slice(0, 3),
+        sic: data.sic, filings_preview: (data.recent_filings || []).slice(0, 2),
+        omitted: ["full filings list", "addresses", "formerNames", "phone/ein detail"],
+      };
+    case "us-sec-full":
+      return {
+        ...u,
+        cik: data.cik, name: data.name,
+        facts_keys: Object.keys(data.companyfacts_highlights || {}).slice(0, 4),
+        red_flag_count: data.red_flag_count ?? (data.red_flags || []).length,
+        red_flags_preview: (data.red_flags || []).slice(0, 2),
+        omitted: ["full companyfacts highlights", "full filings", "addresses"],
+      };
+    case "eu-vat":
+      return {
+        ...u,
+        valid: data.valid, countryCode: data.countryCode, vatNumber: data.vatNumber,
+        name: data.name, address_preview: data.address ? String(data.address).slice(0, 80) : null,
+        omitted: ["full address lines"],
+      };
     default:
       return { ...u, error: "unknown preview kind" };
   }
@@ -194,6 +222,17 @@ export const STATIC_SAMPLES: Record<string, any> = {
     url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
     detected_format: "pdf", title: null, pages: 1, word_count: 1,
     text_preview: "Dummy PDF file…",
+  },
+  "us-sec": {
+    cik: "0000320193", name: "Apple Inc.", tickers: ["AAPL"], sic: "3571",
+    recent_filings: [{ form: "10-K", filed: "2025-11-01" }],
+  },
+  "us-sec-full": {
+    cik: "0000320193", name: "Apple Inc.", companyfacts_highlights: { Assets: { value: 1 } }, red_flags: [], red_flag_count: 0,
+  },
+  "eu-vat": {
+    valid: true, countryCode: "IE", vatNumber: "6388047V", name: "GOOGLE IRELAND LIMITED",
+    address: "3RD FLOOR, GORDON HOUSE, BARROW STREET, DUBLIN 4",
   },
   read: {
     url: "https://example.com", title: "Example Domain", word_count: 16, language: "en",

@@ -1,7 +1,7 @@
 {
   "name": "@axiomworks/agentreader",
-  "version": "1.6.1",
-  "description": "Axiom Works AgentReader typed JS/TS SDK \u2014 createClient({ privateKey }) with one method per tool, auto x402 USDC payment on Base, free preview mode. Web read, UK company/charity/property, EVM, FX, search.",
+  "version": "1.7.0",
+  "description": "Axiom Works AgentReader typed JS/TS SDK \u2014 createClient({ privateKey }) with one method per tool, auto x402 USDC payment on Base, free preview mode. Web read, UK company/charity/property, US SEC, EU VAT, EVM, FX, search.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

@@ -2,7 +2,7 @@
  "openapi": "3.1.0",
  "info": {
   "title": "Axiom Works AgentReader",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "contact": {
    "email": "info@axiomworks.co.uk",
    "url": "https://github.com/grokbot1233/agentreader"
@@ -4802,6 +4802,575 @@
     }
    }
   },
+  "/us-sec": {
+   "get": {
+    "summary": "Use this for a cheap US SEC EDGAR company snapshot by ticker or CIK: name, tickers/exchanges, SIC, EIN, addresses, phone, former names, last ~15 filings (form/filed/accession/primaryDocument/reportDate), website. Fair-use EDGAR. Example: {ticker:\"AAPL\"} or {cik:\"320193\"}. Upsell /us-sec-full. $0.05.",
+    "parameters": [
+     {
+      "name": "ticker",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "US ticker symbol, e.g. AAPL"
+     },
+     {
+      "name": "cik",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "SEC CIK (with or without leading zeros), e.g. 320193"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "cik": {
+           "type": "string"
+          },
+          "name": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "tickers": {
+           "type": "array"
+          },
+          "exchanges": {
+           "type": "array"
+          },
+          "sic": {},
+          "sicDescription": {},
+          "ein": {},
+          "addresses": {
+           "type": "object"
+          },
+          "phone": {},
+          "formerNames": {
+           "type": "array"
+          },
+          "recent_filings": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          },
+          "website": {},
+          "source": {
+           "type": "string"
+          },
+          "fair_use": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.05 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.05",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.05",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "50000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "50000"
+    }
+   },
+   "post": {
+    "summary": "Use this for a cheap US SEC EDGAR company snapshot by ticker or CIK: name, tickers/exchanges, SIC, EIN, addresses, phone, former names, last ~15 filings (form/filed/accession/primaryDocument/reportDate), website. Fair-use EDGAR. Example: {ticker:\"AAPL\"} or {cik:\"320193\"}. Upsell /us-sec-full. $0.05.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "ticker": {
+          "type": "string",
+          "description": "US ticker symbol, e.g. AAPL"
+         },
+         "cik": {
+          "type": "string",
+          "description": "SEC CIK (with or without leading zeros), e.g. 320193"
+         }
+        },
+        "anyOf": [
+         {
+          "required": [
+           "ticker"
+          ]
+         },
+         {
+          "required": [
+           "cik"
+          ]
+         }
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "cik": {
+           "type": "string"
+          },
+          "name": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "tickers": {
+           "type": "array"
+          },
+          "exchanges": {
+           "type": "array"
+          },
+          "sic": {},
+          "sicDescription": {},
+          "ein": {},
+          "addresses": {
+           "type": "object"
+          },
+          "phone": {},
+          "formerNames": {
+           "type": "array"
+          },
+          "recent_filings": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          },
+          "website": {},
+          "source": {
+           "type": "string"
+          },
+          "fair_use": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.05 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.05",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.05",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "50000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "50000"
+    }
+   }
+  },
+  "/us-sec-full": {
+   "get": {
+    "summary": "Use this for fuller US SEC DD: lite snapshot + key us-gaap companyfacts highlights (Assets, Liabilities, StockholdersEquity, Revenues, NetIncomeLoss, EPS diluted \u2014 last reported) + red-flag heuristics (NT 10-K, Item 4.02, bankruptcy/going-concern signals). Example: {ticker:\"AAPL\"}. $0.25.",
+    "parameters": [
+     {
+      "name": "ticker",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "US ticker symbol, e.g. AAPL"
+     },
+     {
+      "name": "cik",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "SEC CIK (with or without leading zeros), e.g. 320193"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "cik": {},
+          "name": {},
+          "recent_filings": {
+           "type": "array"
+          },
+          "companyfacts_highlights": {
+           "type": "object"
+          },
+          "red_flags": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          },
+          "red_flag_count": {},
+          "source": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.25 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.25",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.25",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "250000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "250000"
+    }
+   },
+   "post": {
+    "summary": "Use this for fuller US SEC DD: lite snapshot + key us-gaap companyfacts highlights (Assets, Liabilities, StockholdersEquity, Revenues, NetIncomeLoss, EPS diluted \u2014 last reported) + red-flag heuristics (NT 10-K, Item 4.02, bankruptcy/going-concern signals). Example: {ticker:\"AAPL\"}. $0.25.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "ticker": {
+          "type": "string",
+          "description": "US ticker symbol, e.g. AAPL"
+         },
+         "cik": {
+          "type": "string",
+          "description": "SEC CIK (with or without leading zeros), e.g. 320193"
+         }
+        },
+        "anyOf": [
+         {
+          "required": [
+           "ticker"
+          ]
+         },
+         {
+          "required": [
+           "cik"
+          ]
+         }
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "cik": {},
+          "name": {},
+          "recent_filings": {
+           "type": "array"
+          },
+          "companyfacts_highlights": {
+           "type": "object"
+          },
+          "red_flags": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          },
+          "red_flag_count": {},
+          "source": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.25 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.25",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.25",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "250000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "250000"
+    }
+   }
+  },
+  "/eu-vat": {
+   "get": {
+    "summary": "Use this to validate an EU VAT number via official VIES: valid flag, registered name/address when available, requestDate. Input vat like DE123456789 or IE6388047V (or country+number; use EL for Greece). Cached 24h when valid. Example: {vat:\"IE6388047V\"}. $0.01.",
+    "parameters": [
+     {
+      "name": "vat",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "EU VAT id with country prefix, e.g. DE123456789 or IE6388047V"
+     },
+     {
+      "name": "country",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Optional 2-letter country (EL for Greece) if number given separately"
+     },
+     {
+      "name": "number",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "VAT number without country prefix"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "valid": {
+           "type": "boolean"
+          },
+          "countryCode": {
+           "type": "string"
+          },
+          "vatNumber": {
+           "type": "string"
+          },
+          "vat": {
+           "type": "string"
+          },
+          "name": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "address": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "requestDate": {},
+          "source": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.01 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.01",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.01",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "10000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "10000"
+    }
+   },
+   "post": {
+    "summary": "Use this to validate an EU VAT number via official VIES: valid flag, registered name/address when available, requestDate. Input vat like DE123456789 or IE6388047V (or country+number; use EL for Greece). Cached 24h when valid. Example: {vat:\"IE6388047V\"}. $0.01.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "vat": {
+          "type": "string",
+          "description": "EU VAT id with country prefix, e.g. DE123456789 or IE6388047V"
+         },
+         "country": {
+          "type": "string",
+          "description": "Optional 2-letter country (EL for Greece) if number given separately"
+         },
+         "number": {
+          "type": "string",
+          "description": "VAT number without country prefix"
+         }
+        },
+        "anyOf": [
+         {
+          "required": [
+           "vat"
+          ]
+         },
+         {
+          "required": [
+           "country",
+           "number"
+          ]
+         }
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "valid": {
+           "type": "boolean"
+          },
+          "countryCode": {
+           "type": "string"
+          },
+          "vatNumber": {
+           "type": "string"
+          },
+          "vat": {
+           "type": "string"
+          },
+          "name": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "address": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "requestDate": {},
+          "source": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.01 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.01",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.01",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "10000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "10000"
+    }
+   }
+  },
   "/monitor/{id}": {
    "get": {
     "summary": "Free monitor status (id is the secret)",
@@ -4843,7 +5412,10 @@
         "uk-company-lite",
         "convert",
         "uk-charity",
-        "uk-charity-full"
+        "uk-charity-full",
+        "us-sec",
+        "us-sec-full",
+        "eu-vat"
        ]
       }
      }

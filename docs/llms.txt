@@ -1,7 +1,7 @@
 # Axiom Works AgentReader
 
 > Pay-per-call tools for AI agents. No API keys: x402 (HTTP 402) + USDC on Base (eip155:8453), payTo 0x88b1c747c33A5868A34057D8C57318E5602b3ff6.
-> Free truncated samples: https://api.axiomworks.co.uk/samples/{read|company|uk-company|uk-company-lite|convert|uk-charity|uk-charity-full} (8/IP/day). Or add &preview=1 on paid GETs (same limit).
+> Free truncated samples: https://api.axiomworks.co.uk/samples/{read|company|uk-company|uk-company-lite|convert|uk-charity|uk-charity-full|us-sec|us-sec-full|eu-vat} (8/IP/day). Or add &preview=1 on paid GETs (same limit).
 
 ## When to use which (pick one)
 
@@ -28,6 +28,11 @@
 | Open research search | https://api.axiomworks.co.uk/search?q= | $0.003 | Wikipedia+OpenAlex+arXiv+Crossref merged/ranked |
 | UK house prices | https://api.axiomworks.co.uk/uk-property?postcode= | $0.01 | HM Land Registry Price Paid near postcode |
 | UK postcode profile | https://api.axiomworks.co.uk/uk-area?postcode= | $0.005 | ONS geography + police crime + FSA hygiene |
+| UK charity snapshot | https://api.axiomworks.co.uk/uk-charity?number= | $0.05 | Charity Commission E&W OGL |
+| UK charity full DD | https://api.axiomworks.co.uk/uk-charity-full?number= | $0.25 | Trustees, finances, red flags |
+| US SEC EDGAR snapshot | https://api.axiomworks.co.uk/us-sec?ticker=AAPL | $0.05 | CIK resolve, filings summary, fair-use EDGAR |
+| US SEC full + facts | https://api.axiomworks.co.uk/us-sec-full?ticker=AAPL | $0.25 | us-gaap highlights + red-flag heuristics |
+| EU VAT (VIES) | https://api.axiomworks.co.uk/eu-vat?vat=IE6388047V | $0.01 | Official VIES valid/name/address |
 | FX rates (ECB) | https://api.axiomworks.co.uk/fx?base=GBP&symbols=USD | $0.002 | Official ECB rates, history, conversion |
 | Hourly change alerts | POST https://api.axiomworks.co.uk/monitor | $1.00/30d | Webhook on change; GET /monitor/:id free |
 

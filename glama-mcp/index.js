@@ -9,7 +9,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 
 const ORIGIN = process.env.AGENTREADER_ORIGIN || "https://api.axiomworks.co.uk";
-const VERSION = "1.6.0";
+const VERSION = "1.7.0";
 
 const qs = (a) => new URLSearchParams(Object.entries(a).filter(([, v]) => v != null && v !== "")).toString();
 const CH = z.enum(["base", "ethereum", "arbitrum", "optimism", "polygon"]).optional();
