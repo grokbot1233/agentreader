@@ -12,6 +12,6 @@ Username: **`ultramarine_gusto`**. Self-contained Actors (official registries / 
 | [uk-charity-check](uk-charity-check/) | `U5SXH0NdSJYbd4wcE` | charity-check | 0.030 | [open](https://console.apify.com/actors/U5SXH0NdSJYbd4wcE) |
 | [web-to-markdown](web-to-markdown/) | `LuMtxOYvNwMjjPi1S` | page-markdown | 0.005 | [open](https://console.apify.com/actors/LuMtxOYvNwMjjPi1S) |
 
-**Status (2026-11-05 Europe/London):** built + SUCCEEDED on platform; SEO/title/categories set via API; **not yet Store-public** — blocked on owner Console: public profile, Store Terms, payout billing, KYC for FULL_PERMISSIONS. See **[OWNER_CONSOLE_STEPS.md](OWNER_CONSOLE_STEPS.md)**.
+**Status (2026-11-05 17:05 Europe/London):** PPE pricing set on all 7; public: uk-company-dd, uk-new-company-leads, us-sec-edgar-snapshot, eu-vat-vies-check, web-to-markdown. agent-kyb-check + uk-charity-check pending (daily 5-publication limit; KYC under review).
 
 Secrets: named KVS `axiom-secrets` (`CH_API_KEY`, `CHARITY_KEY`) — not committed.

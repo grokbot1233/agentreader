@@ -32,6 +32,21 @@ Payment: x402 v2, scheme `exact`, network `eip155:8453`, asset USDC `0x833589fCD
 
 Free discovery: [`/llms.txt`](https://api.axiomworks.co.uk/llms.txt) · [`/openapi.json`](https://api.axiomworks.co.uk/openapi.json) · [`/.well-known/x402`](https://api.axiomworks.co.uk/.well-known/x402) · [`/.well-known/agent.json`](https://api.axiomworks.co.uk/.well-known/agent.json) · `/health`
 
+## Apify Store
+
+Same data as no-wallet Apify Actors (pay per event, billed by Apify) — profile: https://apify.com/ultramarine_gusto
+
+| Actor | Price per result | Status |
+|---|---|---|
+| [uk-company-dd](https://apify.com/ultramarine_gusto/uk-company-dd) | $0.025 | public |
+| [uk-new-company-leads](https://apify.com/ultramarine_gusto/uk-new-company-leads) | $0.040 | public |
+| [agent-kyb-check](https://apify.com/ultramarine_gusto/agent-kyb-check) | $0.120 | pending |
+| [us-sec-edgar-snapshot](https://apify.com/ultramarine_gusto/us-sec-edgar-snapshot) | $0.030 | public |
+| [eu-vat-vies-check](https://apify.com/ultramarine_gusto/eu-vat-vies-check) | $0.010 | public |
+| [uk-charity-check](https://apify.com/ultramarine_gusto/uk-charity-check) | $0.030 | pending |
+| [web-to-markdown](https://apify.com/ultramarine_gusto/web-to-markdown) | $0.005 | public |
+
+
 ## HTTP: @x402/fetch
 
 ```ts
