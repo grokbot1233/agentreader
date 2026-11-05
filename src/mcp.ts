@@ -151,6 +151,14 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
     "Use this before buying, accepting or listing an ERC20 token: name/symbol/supply, owner renounced?, upgradeable proxy, DEX price/liquidity/volume/pair age + rule-based risk flags, 0-100 score and verdict. Not financial advice. $0.01 USDC.",
     { address: z.string(), chain: chainZ },
     (await mk("$0.01", "token_check", 10000))(async (a: any) => { try { return json(await tokenCheck(a)); } catch (e) { return err(e); } }) as any);
+  server.tool("au_company",
+    "Use this for an Australian company lookup from the ASIC register by ACN (9 digits) or ABN (11 digits): name, former names, type, class, status, registration/deregistration dates. ASIC Company Dataset (CC BY 3.0 AU). $0.02 USDC.",
+    { acn: z.string().optional(), abn: z.string().optional() },
+    (await mk("$0.02", "au_company", 20000))(async (a: any) => { try {
+      const raw = String(a.acn || a.abn || "").replace(/\s/g, ""); const acn = /^\d{11}$/.test(raw) ? raw.slice(2) : raw;
+      if (!/^\d{9}$/.test(acn)) throw new Error("acn must be 9 digits (or abn 11 digits)");
+      const r = await env.AU.fetch(`https://au.internal/internal/au?acn=${acn}`, { headers: { "x-internal-key": env.AU_INTERNAL_KEY || "" } });
+      return json(await r.json()); } catch (e) { return err(e); } }) as any);
   server.tool("fx_rates",
     "Use this for official ECB currency exchange rates (~30 fiat incl GBP/EUR/USD/JPY), latest or a historical date (YYYY-MM-DD), with optional amount conversion. $0.002 USDC.",
     { base: z.string().optional(), symbols: z.string().optional(), date: z.string().optional(), amount: z.string().optional() },
@@ -193,6 +201,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       tx_status: { price: "$0.003", when: "did my tx/payment land" },
       token_check: { price: "$0.01", when: "ERC20 token risk/liquidity" },
       fx_rates: { price: "$0.002", when: "ECB fiat FX rates" },
+      au_company: { price: "$0.02", when: "Australian ASIC company lookup by ACN/ABN" },
       ens_lookup: { price: "$0.002", when: "ENS name <-> address" }, token_metadata: { price: "$0.001", when: "ERC20 name/symbol/decimals/supply" },
       token_allowance: { price: "$0.002", when: "ERC20 approval check" }, contract_info: { price: "$0.003", when: "proxy/clone/standards/verified name" },
       gas_fees: { price: "$0.001", when: "current fees + USD cost" }, block_lookup: { price: "$0.001", when: "block by number or timestamp" }, nft_lookup: { price: "$0.002", when: "NFT owner + metadata" },

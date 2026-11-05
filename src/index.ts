@@ -944,6 +944,7 @@ const ONCHAIN: Record<string, [(b: any) => Promise<any>, string[], number, strin
   "/search": [(b) => search(b), ["q", "sources", "limit", "lang"], 900, ["q"]], "/uk-property": [(b) => ukProperty(b), ["postcode", "radius", "limit"], 86400, ["postcode"]], "/uk-area": [(b) => ukArea(b), ["postcode"], 21600, ["postcode"]], "/fx": [(b) => fx(b), ["base", "symbols", "date", "amount"], 600, []],
 };
 for (const r of CHAIN_ROUTES) ONCHAIN[r.path] = [r.fn, r.keys, r.ttl, (r.in.required as string[] | undefined) ?? []];
+function auSlim(d: any) { return { acn: d.acn, name: d.name, status: d.status, status_desc: d.status_desc, omitted: ["abn", "former_names", "type", "class", "registered", "deregistered"] }; }
 function nftSlim(d: any) { const m = d?.metadata; return { ...slim(d), metadata: m ? { name: m.name ?? null, image: m.image ? String(m.image).slice(0, 60) + "…" : null, attributes_count: Array.isArray(m.attributes) ? m.attributes.length : 0, truncated: "full metadata/attributes in paid call" } : null }; }
 function slim(d: any): any { if (Array.isArray(d)) return d.slice(0, 2); if (d && typeof d === "object") { const o: any = {}; for (const [k, v] of Object.entries(d)) o[k] = Array.isArray(v) ? (v as any[]).slice(0, 2) : (k === "rates" || k === "converted") && v ? Object.fromEntries(Object.entries(v as any).slice(0, 3)) : v; return o; } return d; }
 for (const [p, [fn, keys, ttl, need]] of Object.entries(ONCHAIN)) for (const m of ["get", "post"] as const) app[m](p, async (c) => {
@@ -951,7 +952,7 @@ for (const [p, [fn, keys, ttl, need]] of Object.entries(ONCHAIN)) for (const m o
   for (const r of need ?? [keys[0]]) if (!r.split("|").some((k) => args[k])) return c.json({ error: `missing ${r.replace("|", " or ")}`, example: EX[p] }, 400);
   if (c.req.query("preview") === "1" && m === "get") {
     const q = await checkPreviewQuota(c.env, clientIp(c)); if (!q.ok) return c.json(q, 429);
-    try { return c.json({ preview: true, truncated: "arrays cut to 2 items; pay for full result", data: p === "/nft" ? nftSlim(await fn(args)) : slim(await fn(args)), paid_call: `${CANONICAL}${p}?${new URLSearchParams(args)}`, price: PRICES[p as keyof typeof PRICES], preview_remaining: q.remaining }); }
+    try { return c.json({ preview: true, truncated: "arrays cut to 2 items; pay for full result", data: p === "/au-company" ? auSlim(await fn(args)) : p === "/nft" ? nftSlim(await fn(args)) : slim(await fn(args)), paid_call: `${CANONICAL}${p}?${new URLSearchParams(args)}`, price: PRICES[p as keyof typeof PRICES], preview_remaining: q.remaining }); }
     catch (e: any) { return c.json({ error: e?.message || String(e), preview: true }, (e instanceof UserError ? e.status : 502) as any); }
   }
   return cached(c, `${p.slice(1)}?${new URLSearchParams(Object.entries(args).sort() as any)}`, () => fn(args), ttl);
