@@ -409,6 +409,18 @@ app.get("/.well-known/agent.json", (c) => {
     mcp: `${b}/mcp`, payments: { protocol: "x402", network: NETWORK, asset: USDC, payTo: c.env.PAY_TO },
   });
 });
+app.get("/.well-known/mcp.json", (c) => {
+  const b = base(c);
+  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.12.0",
+    description: "x402 pay-per-call MCP: web reader, UK/AU company registries, SEC, VAT, sanctions, EVM chain data.",
+    transport: { type: "streamable-http", url: `${b}/mcp` }, documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
+    payments: { protocol: "x402", network: NETWORK, asset: USDC } });
+});
+app.get("/sitemap.xml", (c) => {
+  const b = base(c);
+  const urls = ["/", "/llms.txt", "/openapi.json", "/.well-known/x402", "/.well-known/agent.json", "/.well-known/mcp.json", ...Object.keys(PRICES)];
+  return c.body(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map((u) => `<url><loc>${b}${u}</loc></url>`).join("")}</urlset>`, 200, { "content-type": "application/xml" });
+});
 const ALIAS_DOCS: [string, string, string[]][] = [
   ["/tx/{hash}", "/tx", ["hash"]], ["/ens/{name}", "/ens", ["name"]], ["/contract/{address}", "/contract", ["address"]],
   ["/wallet/{address}", "/wallet", ["address"]], ["/address/{address}", "/wallet", ["address"]], ["/token/{address}", "/token", ["address"]],
