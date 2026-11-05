@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "axiom-works-agentreader": {
+      "url": "https://api.axiomworks.co.uk/mcp"
+    },
+    "axiom-works-agentreader-stdio": {
+      "command": "npx",
+      "args": ["-y", "@axiomworks/agentreader-mcp"]
+    }
+  }
+}
