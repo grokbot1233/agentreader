@@ -37,6 +37,7 @@ const USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 const PRICES = {
   "/au-company": "$0.02",
   "/ca-company": "$0.02",
+  "/registry-batch": "$0.25",
   "/read": "$0.002",
   "/links": "$0.001",
   "/check": "$0.001",
@@ -62,6 +63,7 @@ const PRICES = {
 const ATOMIC: Record<string, number> = {
   "/au-company": 20000,
   "/ca-company": 20000,
+  "/registry-batch": 250000,
   "/read": 2000, "/links": 1000, "/check": 1000,
   "/company": 250000, "/uk-company": 500000, "/uk-company-lite": 50000, "/company-full": 650000,
   "/convert": 30000, "/monitor": 1000000,
@@ -140,6 +142,8 @@ const txIn = { type: "object", properties: { hash: { type: "string", description
 const txOut = { type: "object", properties: { status: { type: "string" }, block: { type: ["integer", "null"] }, timestamp: { type: ["string", "null"] }, from: { type: "string" }, to: { type: ["string", "null"] }, value_native: { type: "string" }, fee_native: { type: "string" }, erc20_transfers: { type: "array", items: { type: "object" } } } };
 const tokenIn = { type: "object", properties: { address: { type: "string", description: "0x ERC20 token contract address" }, chain: chainP }, required: ["address"] };
 const tokenOut = { type: "object", properties: { name: { type: ["string", "null"] }, symbol: { type: ["string", "null"] }, decimals: { type: ["integer", "null"] }, total_supply: { type: "string" }, owner: { type: ["string", "null"] }, proxy: { type: "object" }, market: { type: ["object", "null"] }, risk_flags: { type: "array", items: { type: "object" } }, risk_score: { type: "integer" }, verdict: { type: "string" } } };
+const rbIn = { type: "object", properties: { au: { type: "string", description: "Comma-separated ACNs (9) or ABNs (11)" }, ca: { type: "string", description: "Comma-separated Canadian corporation numbers or 9-digit BNs" } } };
+const rbOut = { type: "object", properties: { count: { type: "number" }, found: { type: "number" }, results: { type: "array" } } };
 const caIn = { type: "object", properties: { number: { type: "string", description: "Corporations Canada corporation number (up to 8 digits)" }, bn: { type: "string", description: "9-digit CRA Business Number (alternative)" } } };
 const caOut = { type: "object", properties: { corporation_number: { type: "string" }, business_number: { type: "string" }, name: { type: "string" }, name_alt: { type: "string" }, governing_legislation: { type: "string" }, status: { type: "string" }, status_detail: { type: "string" }, anniversary_date: { type: "string" }, last_annual_filing_year: { type: "string" }, last_annual_meeting: { type: "string" }, registered_office: { type: "string" }, directors_min: { type: "number" }, directors_max: { type: "number" }, matches: { type: "array" }, source: { type: "string" } } };
 const auIn = { type: "object", properties: { acn: { type: "string", description: "9-digit Australian Company Number" }, abn: { type: "string", description: "11-digit ABN (alternative to acn)" } } };
@@ -230,6 +234,7 @@ const officerOut = { type: "object", properties: {
   officers: { type: "array", items: { type: "object" } }, notes: { type: "array" }, attribution: { type: "string" } } };
 
 const DESC: Record<string, string> = {
+  "/registry-batch": "Use this to verify up to 25 Australian (ASIC, ACN/ABN) and Canadian (Corporations Canada, corp number/BN) companies in one call: name, status, type/act, dates, registered office (CA). Not-found IDs are reported inline. ~$0.01 per company vs $0.02 single. Example: {au:\"009661901,004028077\", ca:\"8660115\"}. $0.25.",
   "/ca-company": "Use this for a Canadian federal corporation lookup (Corporations Canada, CBCA + NFP/coop/BOTA) by corporation number or 9-digit Business Number (BN): legal name (EN/FR), governing act, status, anniversary date, last annual filing year, last AGM, registered office address, min/max directors. Source: Corporations Canada open data (OGL-Canada), ~697k active corporations. Example: {number:\"8660115\"}. $0.02.",
   "/au-company": "Use this for an Australian company lookup from the ASIC register by ACN or ABN: current name, former names, type (proprietary/public…), class, status (registered/deregistered/strike-off/external admin), registration and deregistration dates, ABN. Source: ASIC Company Dataset (data.gov.au, CC BY 3.0 AU), monthly snapshot. Example: {acn:\"009661901\"} (Qantas). $0.02.",
   "/search": "Use this for cheap research search over open sources: Wikipedia + OpenAlex (250M scholarly works) + arXiv + Crossref, merged, deduplicated (DOI/title) and ranked, with snippets, authors, dates, DOIs and citation counts. Not a general web index. Example: {q:\"x402 agent payments\"}. $0.003.",
@@ -300,8 +305,8 @@ const kybOut = { type: "object", properties: {
   product: { type: "string" }, disclaimer: { type: "string" }, website: {}, uk: {}, eu_vat: {},
   trust: { type: "object", properties: { flag: { type: "string" }, score: { type: "integer" }, reasons: { type: "array" } } } } };
 
-const OUT: any = { "/ca-company": caOut, "/au-company": auOut, "/uk-officer": officerOut, "/sanctions": sanctionsOut, "/sanctions-batch": sanctionsBatchOut, "/uk-leads": leadsOut, "/uk-leads-lite": leadsOut, "/uk-leads-feed": leadsFeedOut, "/uk-watch": ukWatchOut, "/kyb": kybOut, "/search": searchOut, "/uk-property": propOut, "/uk-area": areaOut, "/uk-charity": charityOut, "/uk-charity-full": charityFullOut, "/us-sec": secOut, "/us-sec-full": secFullOut, "/eu-vat": vatOut, "/ens": ensOut, "/token": tokenMetaOut, "/allowance": allowOut, "/contract": contractOut, "/gas": gasOut, "/block": blockOut, "/nft": nftOut, "/wallet": walletOut, "/tx": txOut, "/token-check": tokenOut, "/fx": fxOut, "/read": readOut, "/links": linksOut, "/check": checkOut, "/company": companyOut, "/uk-company": ukOut, "/uk-company-lite": ukLiteOut, "/company-full": companyFullOut, "/convert": convertOut, "/monitor": monitorOut };
-const EX: any = { "/ca-company": { number: "8660115" }, "/au-company": { acn: "009661901" }, "/uk-officer": { name: "Ken Olisa", limit: 10 }, "/sanctions": { name: "BANCO NACIONAL DE CUBA" }, "/sanctions-batch": { names: ["BANCO NACIONAL DE CUBA", "Alice Wonderland"] }, "/uk-leads": { sic: "62012", days: 1, limit: 25 }, "/uk-leads-lite": { sic: "62", location: "London", days: 1 }, "/uk-leads-feed": { sic: "62012", webhook: "https://api.axiomworks.co.uk/hooks/sink" }, "/uk-watch": { number: "00445790", webhook: "https://api.axiomworks.co.uk/hooks/sink" }, "/kyb": { domain: "tesco.com", number: "00445790" }, 
+const OUT: any = { "/registry-batch": rbOut, "/ca-company": caOut, "/au-company": auOut, "/uk-officer": officerOut, "/sanctions": sanctionsOut, "/sanctions-batch": sanctionsBatchOut, "/uk-leads": leadsOut, "/uk-leads-lite": leadsOut, "/uk-leads-feed": leadsFeedOut, "/uk-watch": ukWatchOut, "/kyb": kybOut, "/search": searchOut, "/uk-property": propOut, "/uk-area": areaOut, "/uk-charity": charityOut, "/uk-charity-full": charityFullOut, "/us-sec": secOut, "/us-sec-full": secFullOut, "/eu-vat": vatOut, "/ens": ensOut, "/token": tokenMetaOut, "/allowance": allowOut, "/contract": contractOut, "/gas": gasOut, "/block": blockOut, "/nft": nftOut, "/wallet": walletOut, "/tx": txOut, "/token-check": tokenOut, "/fx": fxOut, "/read": readOut, "/links": linksOut, "/check": checkOut, "/company": companyOut, "/uk-company": ukOut, "/uk-company-lite": ukLiteOut, "/company-full": companyFullOut, "/convert": convertOut, "/monitor": monitorOut };
+const EX: any = { "/registry-batch": { au: "009661901,004028077", ca: "8660115" }, "/ca-company": { number: "8660115" }, "/au-company": { acn: "009661901" }, "/uk-officer": { name: "Ken Olisa", limit: 10 }, "/sanctions": { name: "BANCO NACIONAL DE CUBA" }, "/sanctions-batch": { names: ["BANCO NACIONAL DE CUBA", "Alice Wonderland"] }, "/uk-leads": { sic: "62012", days: 1, limit: 25 }, "/uk-leads-lite": { sic: "62", location: "London", days: 1 }, "/uk-leads-feed": { sic: "62012", webhook: "https://api.axiomworks.co.uk/hooks/sink" }, "/uk-watch": { number: "00445790", webhook: "https://api.axiomworks.co.uk/hooks/sink" }, "/kyb": { domain: "tesco.com", number: "00445790" }, 
   "/search": { q: "x402 agent payments" }, "/uk-property": { postcode: "CB1 2AB" }, "/uk-area": { postcode: "SW1A 2AA" },
   "/uk-charity": { number: "1089464" }, "/uk-charity-full": { number: "1089464" },
   "/us-sec": { ticker: "AAPL" }, "/us-sec-full": { ticker: "AAPL" }, "/eu-vat": { vat: "IE6388047V" },
@@ -316,7 +321,7 @@ const EX: any = { "/ca-company": { number: "8660115" }, "/au-company": { acn: "0
   "/convert": { url: "https://raw.githubusercontent.com/mozilla/pdf.js/master/web/compressed.tracemonkey-pldi-09.pdf", format: "markdown" },
   "/monitor": { url: "https://example.com", webhook: "https://api.axiomworks.co.uk/hooks/sink" },
 };
-const IN: any = { "/ca-company": caIn, "/au-company": auIn, "/uk-officer": officerIn, "/sanctions": sanctionsIn, "/sanctions-batch": sanctionsBatchIn, "/uk-leads": leadsIn, "/uk-leads-lite": leadsIn, "/uk-leads-feed": leadsFeedIn, "/uk-watch": ukWatchIn, "/kyb": kybIn, "/search": searchIn, "/uk-property": pcIn, "/uk-area": areaIn, "/uk-charity": charityIn, "/uk-charity-full": charityIn, "/us-sec": secIn, "/us-sec-full": secIn, "/eu-vat": vatIn, "/ens": ensIn, "/token": tokenMetaIn, "/allowance": allowIn, "/contract": contractIn, "/gas": gasIn, "/block": blockIn, "/nft": nftIn, "/wallet": walletIn, "/tx": txIn, "/token-check": tokenIn, "/fx": fxIn, "/read": urlIn, "/links": urlIn, "/check": checkIn, "/company": companyIn, "/uk-company": ukIn, "/uk-company-lite": ukLiteIn, "/company-full": companyFullIn, "/convert": convertIn, "/monitor": monitorIn };
+const IN: any = { "/registry-batch": rbIn, "/ca-company": caIn, "/au-company": auIn, "/uk-officer": officerIn, "/sanctions": sanctionsIn, "/sanctions-batch": sanctionsBatchIn, "/uk-leads": leadsIn, "/uk-leads-lite": leadsIn, "/uk-leads-feed": leadsFeedIn, "/uk-watch": ukWatchIn, "/kyb": kybIn, "/search": searchIn, "/uk-property": pcIn, "/uk-area": areaIn, "/uk-charity": charityIn, "/uk-charity-full": charityIn, "/us-sec": secIn, "/us-sec-full": secIn, "/eu-vat": vatIn, "/ens": ensIn, "/token": tokenMetaIn, "/allowance": allowIn, "/contract": contractIn, "/gas": gasIn, "/block": blockIn, "/nft": nftIn, "/wallet": walletIn, "/tx": txIn, "/token-check": tokenIn, "/fx": fxIn, "/read": urlIn, "/links": urlIn, "/check": checkIn, "/company": companyIn, "/uk-company": ukIn, "/uk-company-lite": ukLiteIn, "/company-full": companyFullIn, "/convert": convertIn, "/monitor": monitorIn };
 const METHODS: Record<string, ("GET" | "POST")[]> = {
   "/read": ["GET", "POST"], "/links": ["GET", "POST"], "/check": ["GET", "POST"],
   "/company": ["GET", "POST"], "/uk-company": ["GET", "POST"], "/uk-company-lite": ["GET", "POST"], "/company-full": ["GET", "POST"], "/convert": ["GET", "POST"],
@@ -331,6 +336,7 @@ const METHODS: Record<string, ("GET" | "POST")[]> = {
   "/uk-officer": ["GET", "POST"],
   "/au-company": ["GET", "POST"],
   "/ca-company": ["GET", "POST"],
+  "/registry-batch": ["GET", "POST"],
 };
 
 for (const r of CHAIN_ROUTES) { (PRICES as any)[r.path] = r.price; ATOMIC[r.path] = r.atomic; (DESC as any)[r.path] = r.desc; OUT[r.path] = r.out; IN[r.path] = r.in; EX[r.path] = r.ex; METHODS[r.path] = ["GET", "POST"]; VALIDATE[r.path] = r.validate; }
@@ -502,6 +508,9 @@ const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
 | Agent KYB pack | ${b}/kyb?domain=&number=&vat= | $2.00 | Website + UK CH + EU VAT + sanctions + trust flag |
 | Sanctions screen | ${b}/sanctions?name= | $0.05 | OFAC SDN/CONS + UK FCDO + UN SC + EU FSF fuzzy |
 | Sanctions batch | POST ${b}/sanctions-batch | $1.00 | Up to 50 names |
+| AU company | GET ${b}/au-company?acn=009661901 | $0.02 | ASIC register, ~4M cos (free: &preview=1) |
+| CA company | GET ${b}/ca-company?number=8660115 | $0.02 | Corporations Canada, ~697k federal corps (free: &preview=1) |
+| AU+CA batch | GET ${b}/registry-batch?au=009661901,004028077&ca=8660115 | $0.25 | Up to 25 company IDs (~$0.01 each) |
 | Hourly change alerts | POST ${b}/monitor | $1.00/30d | Webhook on change; GET /monitor/:id free |
 
 ## Free
@@ -952,6 +961,15 @@ async function caCompany(b: any) {
   const j: any = await r.json(); if (r.status === 404) throw new UserError(`No active federal corporation found for ${q}`, 404); if (!r.ok) throw new Error(j?.error || "ca backend error");
   return j;
 }
+async function registryBatch(b: any) {
+  const split = (v: any) => String(v || "").split(/[\s,;]+/).map((x) => x.replace(/\D/g, "")).filter(Boolean);
+  const au = split(b.au), ca = split(b.ca); if (au.length + ca.length > 25) throw new UserError("max 25 ids total", 400);
+  if (!au.length && !ca.length) throw new UserError("au or ca ids required", 400);
+  const one = async (country: string, id: string) => { try { const d = country === "AU" ? await auCompany({ acn: id }) : await caCompany(id.length === 9 ? { bn: id } : { number: id }); return { country, id, found: true, data: d }; } catch (e: any) { return { country, id, found: false, error: e?.message || String(e) }; } };
+  const results = await Promise.all([...au.map((i) => one("AU", i)), ...ca.map((i) => one("CA", i))]);
+  return { count: results.length, found: results.filter((r) => r.found).length, results, sources: ["ASIC Company Dataset (CC BY 3.0 AU)", "Corporations Canada open data (OGL-Canada)"] };
+}
+function rbSlim(d: any) { return { count: d.count, found: d.found, results: d.results.slice(0, 2).map((r: any) => ({ country: r.country, id: r.id, found: r.found, name: r.data?.name ?? null })), omitted: "full records + remaining results" }; }
 function caSlim(d: any) { const x = d.matches ? d.matches[0] : d; return { corporation_number: x.corporation_number, name: x.name, status: x.status, omitted: ["business_number", "registered_office", "filings", "directors", "governing_legislation"] }; }
 async function auCompany(b: any) {
   const env = currentEnv!; const raw = String(b.acn || b.abn || "").replace(/\s/g, "");
@@ -964,6 +982,7 @@ async function auCompany(b: any) {
 }
 const ONCHAIN: Record<string, [(b: any) => Promise<any>, string[], number, string[]?]> = {
   "/au-company": [(b) => auCompany(b), ["acn", "abn"], 86400, ["acn|abn"]],
+  "/registry-batch": [(b) => registryBatch(b), ["au", "ca"], 86400, ["au|ca"]],
   "/ca-company": [(b) => caCompany(b), ["number", "bn"], 86400, ["number|bn"]],
   "/ens": [(b) => ens(b), ["name", "address"], 900, ["name|address"]], "/token": [(b) => tokenMeta(b), ["address", "chain"], 3600],
   "/allowance": [(b) => allowance(b), ["token", "owner", "spender", "chain"], 20, ["token", "owner", "spender"]], "/contract": [(b) => contractInfo(b), ["address", "chain"], 1800],
@@ -981,7 +1000,7 @@ for (const [p, [fn, keys, ttl, need]] of Object.entries(ONCHAIN)) for (const m o
   for (const r of need ?? [keys[0]]) if (!r.split("|").some((k) => args[k])) return c.json({ error: `missing ${r.replace("|", " or ")}`, example: EX[p] }, 400);
   if (c.req.query("preview") === "1" && m === "get") {
     const q = await checkPreviewQuota(c.env, clientIp(c)); if (!q.ok) return c.json(q, 429);
-    try { return c.json({ preview: true, truncated: "arrays cut to 2 items; pay for full result", data: p === "/ca-company" ? caSlim(await fn(args)) : p === "/au-company" ? auSlim(await fn(args)) : p === "/nft" ? nftSlim(await fn(args)) : slim(await fn(args)), paid_call: `${CANONICAL}${p}?${new URLSearchParams(args)}`, price: PRICES[p as keyof typeof PRICES], preview_remaining: q.remaining }); }
+    try { return c.json({ preview: true, truncated: "arrays cut to 2 items; pay for full result", data: p === "/registry-batch" ? rbSlim(await fn(args)) : p === "/ca-company" ? caSlim(await fn(args)) : p === "/au-company" ? auSlim(await fn(args)) : p === "/nft" ? nftSlim(await fn(args)) : slim(await fn(args)), paid_call: `${CANONICAL}${p}?${new URLSearchParams(args)}`, price: PRICES[p as keyof typeof PRICES], preview_remaining: q.remaining }); }
     catch (e: any) { return c.json({ error: e?.message || String(e), preview: true }, (e instanceof UserError ? e.status : 502) as any); }
   }
   return cached(c, `${p.slice(1)}?${new URLSearchParams(Object.entries(args).sort() as any)}`, () => fn(args), ttl);

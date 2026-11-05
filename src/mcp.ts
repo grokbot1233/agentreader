@@ -167,6 +167,16 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       const q = num && num.length <= 8 ? `number=${num}` : bn.length === 9 ? `bn=${bn}` : null; if (!q) throw new Error("number (up to 8 digits) or bn (9 digits) required");
       const r = await env.AU.fetch(`https://au.internal/internal/ca?${q}`, { headers: { "x-internal-key": env.AU_INTERNAL_KEY || "" } });
       return json(await r.json()); } catch (e) { return err(e); } }) as any);
+  server.tool("registry_batch",
+    "Use this to verify up to 25 Australian (ACN/ABN) and Canadian (corp number/BN) companies in one call (~$0.01 each): name, status, type, dates. Comma-separated ids. $0.25 USDC.",
+    { au: z.string().optional(), ca: z.string().optional() },
+    (await mk("$0.25", "registry_batch", 250000))(async (a: any) => { try {
+      const sp = (v: any) => String(v || "").split(/[\s,;]+/).map((x) => x.replace(/\D/g, "")).filter(Boolean);
+      const au = sp(a.au), ca = sp(a.ca); if (!au.length && !ca.length) throw new Error("au or ca ids required"); if (au.length + ca.length > 25) throw new Error("max 25 ids");
+      const h = { headers: { "x-internal-key": env.AU_INTERNAL_KEY || "" } };
+      const one = async (c: string, id: string) => { const q = c === "AU" ? `au?acn=${id.length === 11 ? id.slice(2) : id}` : `ca?${id.length === 9 ? "bn" : "number"}=${id}`; const r = await env.AU.fetch(`https://au.internal/internal/${q}`, h); return { country: c, id, found: r.ok, data: r.ok ? await r.json() : null }; };
+      const results = await Promise.all([...au.map((i) => one("AU", i)), ...ca.map((i) => one("CA", i))]);
+      return json({ count: results.length, found: results.filter((r) => r.found).length, results }); } catch (e) { return err(e); } }) as any);
   server.tool("fx_rates",
     "Use this for official ECB currency exchange rates (~30 fiat incl GBP/EUR/USD/JPY), latest or a historical date (YYYY-MM-DD), with optional amount conversion. $0.002 USDC.",
     { base: z.string().optional(), symbols: z.string().optional(), date: z.string().optional(), amount: z.string().optional() },
@@ -210,6 +220,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       token_check: { price: "$0.01", when: "ERC20 token risk/liquidity" },
       fx_rates: { price: "$0.002", when: "ECB fiat FX rates" },
       au_company: { price: "$0.02", when: "Australian ASIC company lookup by ACN/ABN" },
+      registry_batch: { price: "$0.25", when: "Batch up to 25 AU+CA company ids" },
       ca_company: { price: "$0.02", when: "Canadian federal corporation lookup by number/BN" },
       ens_lookup: { price: "$0.002", when: "ENS name <-> address" }, token_metadata: { price: "$0.001", when: "ERC20 name/symbol/decimals/supply" },
       token_allowance: { price: "$0.002", when: "ERC20 approval check" }, contract_info: { price: "$0.003", when: "proxy/clone/standards/verified name" },

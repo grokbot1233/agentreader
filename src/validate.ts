@@ -20,6 +20,7 @@ export const VALIDATE: Record<string, (b: any) => string | null> = {
   "/uk-charity": (b) => charity(b), "/uk-charity-full": (b) => charity(b),
   "/us-sec": (b) => sec(b), "/us-sec-full": (b) => sec(b),
   "/eu-vat": (b) => vat(b),
+  "/registry-batch": (b) => { const n = (s(b.au) + "," + s(b.ca)).split(/[\s,;]+/).filter((x) => /\d/.test(x)).length; return n === 0 ? "au or ca ids required" : n > 25 ? "max 25 ids total" : null; },
   "/ca-company": (b) => { const n = s(b.number).replace(/\D/g, ""), bn = s(b.bn).replace(/\D/g, ""); return (n && n.length <= 8) || bn.length >= 9 ? null : "number (up to 8 digits) or bn (9 digits) required"; },
   "/au-company": (b) => { const r = s(b.acn || b.abn).replace(/\s/g, ""); return /^(\d{9}|\d{11})$/.test(r) ? null : "acn must be 9 digits (or abn 11 digits)"; },
   "/monitor": (b) => first(url(b.url), url(b.webhook, "webhook"), s(b.webhook) && !s(b.webhook).startsWith("https://") ? "webhook must be https" : null),
@@ -131,5 +132,5 @@ function kyb(b: any) {
 }
 
 export const TOOL_PATH: Record<string, string> = { read_url: "/read", extract_links: "/links", check_domain: "/check", company_research: "/company", uk_company: "/uk-company", uk_company_lite: "/uk-company-lite",
-  company_full: "/company-full", convert_document: "/convert", create_monitor: "/monitor", wallet_balances: "/wallet", tx_status: "/tx", token_check: "/token-check", fx_rates: "/fx", au_company: "/au-company", ca_company: "/ca-company",
+  company_full: "/company-full", convert_document: "/convert", create_monitor: "/monitor", wallet_balances: "/wallet", tx_status: "/tx", token_check: "/token-check", fx_rates: "/fx", au_company: "/au-company", ca_company: "/ca-company", registry_batch: "/registry-batch",
   ens_lookup: "/ens", token_metadata: "/token", token_allowance: "/allowance", contract_info: "/contract", gas_fees: "/gas", block_lookup: "/block", nft_lookup: "/nft", web_search: "/search", uk_property_prices: "/uk-property", uk_area_profile: "/uk-area", uk_charity: "/uk-charity", uk_charity_full: "/uk-charity-full", us_sec: "/us-sec", us_sec_full: "/us-sec-full", eu_vat: "/eu-vat", uk_leads: "/uk-leads", uk_leads_lite: "/uk-leads-lite", uk_leads_feed: "/uk-leads-feed", uk_watch: "/uk-watch", kyb_report: "/kyb", sanctions_screen: "/sanctions", sanctions_batch: "/sanctions-batch", uk_officer: "/uk-officer" };
