@@ -341,7 +341,7 @@ app.get("/.well-known/agent.json", (c) => {
   return c.json({
     name: "Axiom Works AgentReader", description: "x402 pay-per-call web reader, company research, UK Companies House + Charity Commission + US SEC EDGAR + EU VIES VAT due diligence, document conversion, change monitoring, EVM wallet/tx/token risk checks and ECB FX rates for AI agents.",
     url: b, provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk", email: CONTACT },
-    version: "1.9.0", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
+    version: "1.10.0", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     skills: Object.entries(PRICES).map(([p, price]) => ({ id: p.slice(1), name: p, description: DESC[p], price, endpoint: `${b}${p}` })),
     mcp: `${b}/mcp`, payments: { protocol: "x402", network: NETWORK, asset: USDC, payTo: c.env.PAY_TO },
   });
@@ -363,7 +363,7 @@ app.get("/openapi.json", (c) => {
   paths["/monitor/{id}"] = { get: { summary: "Free monitor status (id is the secret)", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { "200": { description: "Monitor status" }, "404": { description: "Not found" } }, "x-price": "free" } };
   paths["/samples/{kind}"] = { get: { summary: "Free truncated sample (rate-limited 8/IP/day) with x402 upsell", parameters: [{ name: "kind", in: "path", required: true, schema: { type: "string", enum: ["read","company","uk-company","uk-company-lite","convert","uk-charity","uk-charity-full","us-sec","us-sec-full","eu-vat","uk-leads","uk-leads-lite","kyb"] } }], responses: { "200": { description: "Truncated sample" }, "429": { description: "Preview quota exceeded" } }, "x-price": "free" } };
   paths["/hooks/sink"] = { post: { summary: "Free webhook test sink for /monitor", responses: { "200": { description: "Stored" } }, "x-price": "free" } };
-  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.9.0", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, company research, UK due diligence, document conversion, change monitoring. Payments: USDC on Base mainnet (eip155:8453)." },
+  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.10.0", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, company research, UK due diligence, document conversion, change monitoring. Payments: USDC on Base mainnet (eip155:8453)." },
     servers: [{ url: b }], paths });
 });
 const llms = (b: string, payTo: string) => `# Axiom Works AgentReader

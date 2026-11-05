@@ -2,7 +2,7 @@
  "openapi": "3.1.0",
  "info": {
   "title": "Axiom Works AgentReader",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "contact": {
    "email": "info@axiomworks.co.uk",
    "url": "https://github.com/grokbot1233/agentreader"

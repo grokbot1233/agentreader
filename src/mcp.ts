@@ -54,7 +54,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       await log({ endpoint: `mcp:${tool}`, payer: settlement?.payer || null, amount: settlement?.amount || String(atomic), network: settlement?.network, tx: settlement?.transaction, success: settlement?.success });
     } },
   } as any);
-  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.9.0" });
+  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.10.0" });
   const json = (d: any) => ({ content: [{ type: "text" as const, text: JSON.stringify(d) }] });
   const err = (e: any) => ({ isError: true, content: [{ type: "text" as const, text: String(e?.message || e) }] });
 
