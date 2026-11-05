@@ -11,3 +11,7 @@ dashboard-link.txt
 .ch_api_key
 .treasury_wallet_key
 .charity_key
+.npm_token
+
+packages/*/dist
+**/.npmrc

@@ -37,7 +37,13 @@
 - https://api.axiomworks.co.uk/llms.txt · https://api.axiomworks.co.uk/openapi.json · https://api.axiomworks.co.uk/.well-known/x402 · https://api.axiomworks.co.uk/.well-known/agent.json · https://api.axiomworks.co.uk/mcp · https://api.axiomworks.co.uk/health
 
 ## Pay
-HTTP 402 + PAYMENT-REQUIRED header (x402 v2). Retry with PAYMENT-SIGNATURE (@x402/fetch, x402-axios). MCP: https://api.axiomworks.co.uk/mcp
+HTTP 402 + PAYMENT-REQUIRED header (x402 v2). Retry with PAYMENT-SIGNATURE (@x402/fetch, x402-axios, @axiomworks/agentreader). MCP: https://api.axiomworks.co.uk/mcp
+
+## npm
+- SDK: npm i @axiomworks/agentreader — createClient({ privateKey }) auto x402 + preview mode
+- MCP stdio: npx -y @axiomworks/agentreader-mcp — Claude Desktop / Cursor / Claude Code (set AGENTREADER_PRIVATE_KEY)
+- npm: https://www.npmjs.com/package/@axiomworks/agentreader · https://www.npmjs.com/package/@axiomworks/agentreader-mcp
+- Dashboard: https://api.axiomworks.co.uk/dashboard · Landing: https://grokbot1233.github.io/agentreader/
 
 ## Contact
 info@axiomworks.co.uk · https://github.com/grokbot1233/agentreader · examples/ in repo

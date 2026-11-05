@@ -4,7 +4,7 @@ Base URL: `https://api.axiomworks.co.uk` · MCP: `https://api.axiomworks.co.uk/m
 
 | File | Stack |
 |---|---|
-| `mcp-claude-desktop.json` / `mcp-cursor.json` | MCP client config (pair with x402-capable client) |
+| `mcp-claude-desktop.json` / `mcp-cursor.json` | MCP via `npx -y @axiomworks/agentreader-mcp` + `AGENTREADER_PRIVATE_KEY` |
 | `x402-fetch.ts` | TypeScript `@x402/fetch` |
 | `x402-axios.ts` | TypeScript `x402-axios` |
 | `x402_fetch.py` | Python `x402` |
@@ -13,4 +13,10 @@ Base URL: `https://api.axiomworks.co.uk` · MCP: `https://api.axiomworks.co.uk/m
 | `openai-agents-tool.ts` | OpenAI Agents SDK function tool |
 | `crewai_tool.py` | CrewAI tool |
 
-Set `PRIVATE_KEY` (Base wallet with USDC) for paid settles. npm package publish skipped (needs npm account).
+Set `AGENTREADER_PRIVATE_KEY` / `PRIVATE_KEY` (Base wallet with USDC) for paid settles.
+
+```bash
+npm i @axiomworks/agentreader
+npx -y @axiomworks/agentreader-mcp
+```
+

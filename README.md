@@ -83,7 +83,32 @@ Copy-paste clients in [`examples/`](./examples/): MCP (Claude Desktop / Cursor),
 
 Free quality proof: [`/samples/company`](https://api.axiomworks.co.uk/samples/company) (and `uk-company`, `uk-company-lite`, `convert`, `read`) — truncated, rate-limited, with the exact paid call to make. Or add `&preview=1` on a paid GET.
 
-npm package: not published yet (needs an npm account).
+### npm packages (Axiom Works)
+
+```bash
+# Typed SDK
+npm i @axiomworks/agentreader
+
+# Stdio MCP (Claude Desktop / Cursor / Claude Code)
+npx -y @axiomworks/agentreader-mcp
+```
+
+```json
+{
+  "mcpServers": {
+    "agentreader": {
+      "command": "npx",
+      "args": ["-y", "@axiomworks/agentreader-mcp"],
+      "env": { "AGENTREADER_PRIVATE_KEY": "0xYOUR_BASE_USDC_PAYER_KEY" }
+    }
+  }
+}
+```
+
+- [`@axiomworks/agentreader`](https://www.npmjs.com/package/@axiomworks/agentreader) — `createClient({ privateKey? })`, one method per tool, auto x402, preview mode
+- [`@axiomworks/agentreader-mcp`](https://www.npmjs.com/package/@axiomworks/agentreader-mcp) — stdio MCP; set `AGENTREADER_PRIVATE_KEY` / `EVM_PRIVATE_KEY` to auto-pay
+
+> Unscoped `agentreader-mcp` on npm is a **different** product; use the `@axiomworks` scope.
 
 ## Limits
 

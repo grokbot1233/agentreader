@@ -324,7 +324,13 @@ const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
 - ${b}/llms.txt · ${b}/openapi.json · ${b}/.well-known/x402 · ${b}/.well-known/agent.json · ${b}/mcp · ${b}/health
 
 ## Pay
-HTTP 402 + PAYMENT-REQUIRED header (x402 v2). Retry with PAYMENT-SIGNATURE (@x402/fetch, x402-axios). MCP: ${b}/mcp
+HTTP 402 + PAYMENT-REQUIRED header (x402 v2). Retry with PAYMENT-SIGNATURE (@x402/fetch, x402-axios, @axiomworks/agentreader). MCP: ${b}/mcp
+
+## npm
+- SDK: npm i @axiomworks/agentreader — createClient({ privateKey }) auto x402 + preview mode
+- MCP stdio: npx -y @axiomworks/agentreader-mcp — Claude Desktop / Cursor / Claude Code (set AGENTREADER_PRIVATE_KEY)
+- npm: https://www.npmjs.com/package/@axiomworks/agentreader · https://www.npmjs.com/package/@axiomworks/agentreader-mcp
+- Dashboard: ${b}/dashboard · Landing: https://grokbot1233.github.io/agentreader/
 
 ## Contact
 ${CONTACT} · https://github.com/grokbot1233/agentreader · examples/ in repo

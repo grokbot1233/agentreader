@@ -1,9 +1,11 @@
 {
   "mcpServers": {
     "agentreader": {
-      "url": "https://api.axiomworks.co.uk/mcp",
-      "transport": "streamable-http",
-      "description": "AgentReader paid tools via x402 (configure an x402-capable MCP client / wallet)"
+      "command": "npx",
+      "args": ["-y", "@axiomworks/agentreader-mcp"],
+      "env": {
+        "AGENTREADER_PRIVATE_KEY": "0xYOUR_BASE_USDC_PAYER_KEY"
+      }
     }
   }
 }

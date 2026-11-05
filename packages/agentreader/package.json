@@ -1,0 +1,80 @@
+{
+  "name": "@axiomworks/agentreader",
+  "version": "1.6.1",
+  "description": "Axiom Works AgentReader typed JS/TS SDK \u2014 createClient({ privateKey }) with one method per tool, auto x402 USDC payment on Base, free preview mode. Web read, UK company/charity/property, EVM, FX, search.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsup",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "agentreader",
+    "axiomworks",
+    "axiom-works",
+    "x402",
+    "ai-agent",
+    "agents",
+    "sdk",
+    "typescript",
+    "mcp",
+    "model-context-protocol",
+    "web-scraping",
+    "markdown",
+    "companies-house",
+    "uk-company",
+    "uk-charity",
+    "charity-commission",
+    "due-diligence",
+    "blockchain",
+    "base",
+    "usdc",
+    "crypto",
+    "evm",
+    "ens",
+    "nft",
+    "fx",
+    "langchain",
+    "pay-per-call",
+    "fetch"
+  ],
+  "author": "Axiom Works <info@axiomworks.co.uk>",
+  "license": "MIT",
+  "homepage": "https://grokbot1233.github.io/agentreader/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/grokbot1233/agentreader.git",
+    "directory": "packages/agentreader"
+  },
+  "bugs": {
+    "url": "https://github.com/grokbot1233/agentreader/issues"
+  },
+  "dependencies": {
+    "@x402/evm": "^2.30.0",
+    "@x402/fetch": "^2.30.0",
+    "viem": "^2.57.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "tsup": "^8.4.0",
+    "typescript": "^5.7.3"
+  },
+  "allowScripts": {
+    "esbuild@0.27.7": true
+  }
+}

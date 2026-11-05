@@ -1,8 +1,11 @@
 {
   "mcpServers": {
     "agentreader": {
-      "url": "https://api.axiomworks.co.uk/mcp",
-      "transport": "http"
+      "command": "npx",
+      "args": ["-y", "@axiomworks/agentreader-mcp"],
+      "env": {
+        "AGENTREADER_PRIVATE_KEY": "0xYOUR_BASE_USDC_PAYER_KEY"
+      }
     }
   }
 }
