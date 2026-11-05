@@ -55,3 +55,7 @@ jdsadminllc/awesome-design-skills A curated registry of 67 design system skills 
 - claudemarketplaces.com: free GitHub-login submit exists (human); priority $4 — skip paid.
 - vawe-hq/awesome-agent-skills-directories: meta-list of skill directories; useful for future skill packaging, not an API join.
 - NEW candidate lists (stars floors often block us at 0★): heilcheng/awesome-agent-skills (20★), travisvn/awesome-claude-skills (10★), VoltAgent/awesome-agent-skills (usage bar).
+
+== x402-list.com ==
+Already listed free: slug=agentreader, status=online, payment_ready=true, compliance A (14/14), uptime_24h≈97%, endpoint_count=7 (older subset). POST /api/v1/submit exists and is free for custom domains; $1 USDC only for free-host URLs — not needed. Do not re-submit (7-day email cooldown / already_pending).
+Owner-update flow at /services/{slug}/update could refresh endpoint count later (optional, free).
