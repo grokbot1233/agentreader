@@ -1,7 +1,7 @@
 # Axiom Works AgentReader
 
 > Pay-per-call tools for AI agents. No API keys: x402 (HTTP 402) + USDC on Base (eip155:8453), payTo 0x88b1c747c33A5868A34057D8C57318E5602b3ff6.
-> Free truncated samples: https://api.axiomworks.co.uk/samples/{read|company|uk-company|uk-company-lite|convert} (8/IP/day). Or add &preview=1 on paid GETs (same limit).
+> Free truncated samples: https://api.axiomworks.co.uk/samples/{read|company|uk-company|uk-company-lite|convert|uk-charity|uk-charity-full} (8/IP/day). Or add &preview=1 on paid GETs (same limit).
 
 ## When to use which (pick one)
 

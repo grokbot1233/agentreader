@@ -2,7 +2,7 @@
  "openapi": "3.1.0",
  "info": {
   "title": "Axiom Works AgentReader",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "contact": {
    "email": "info@axiomworks.co.uk",
    "url": "https://github.com/grokbot1233/agentreader"
@@ -4420,6 +4420,388 @@
     }
    }
   },
+  "/uk-charity": {
+   "get": {
+    "summary": "Use this for a cheap UK charity snapshot from the Charity Commission register (England & Wales): status, registration/removal dates, income/spending, trustees count, website, activities. Lookup by registered number or name. OGL v3. Example: {number:\"1089464\"} or {name:\"Cancer Research UK\"}. Upsell /uk-charity-full. $0.05.",
+    "parameters": [
+     {
+      "name": "number",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Charity Commission registered number, e.g. 1089464"
+     },
+     {
+      "name": "name",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Registered charity name to search"
+     },
+     {
+      "name": "suffix",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Optional group/subsidiary suffix (default 0)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "registered_number": {},
+          "name": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "status": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "income": {},
+          "spending": {},
+          "trustees_count": {},
+          "contact": {
+           "type": "object"
+          },
+          "activities": {},
+          "source": {
+           "type": "string"
+          },
+          "licence": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.05 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.05",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.05",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "50000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "50000"
+    }
+   },
+   "post": {
+    "summary": "Use this for a cheap UK charity snapshot from the Charity Commission register (England & Wales): status, registration/removal dates, income/spending, trustees count, website, activities. Lookup by registered number or name. OGL v3. Example: {number:\"1089464\"} or {name:\"Cancer Research UK\"}. Upsell /uk-charity-full. $0.05.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "number": {
+          "type": "string",
+          "description": "Charity Commission registered number, e.g. 1089464"
+         },
+         "name": {
+          "type": "string",
+          "description": "Registered charity name to search"
+         },
+         "suffix": {
+          "type": "string",
+          "description": "Optional group/subsidiary suffix (default 0)"
+         }
+        },
+        "anyOf": [
+         {
+          "required": [
+           "number"
+          ]
+         },
+         {
+          "required": [
+           "name"
+          ]
+         }
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "registered_number": {},
+          "name": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "status": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "income": {},
+          "spending": {},
+          "trustees_count": {},
+          "contact": {
+           "type": "object"
+          },
+          "activities": {},
+          "source": {
+           "type": "string"
+          },
+          "licence": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.05 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.05",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.05",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "50000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "50000"
+    }
+   }
+  },
+  "/uk-charity-full": {
+   "get": {
+    "summary": "Use this for full UK charity due diligence: trustees, 5-year financial history, assets/liabilities, governance, areas of operation, regulatory/insolvency flags, linked charities, other names + red-flag summary (removed, late accounts, income collapse). OGL v3. Example: {number:\"1089464\"}. $0.25.",
+    "parameters": [
+     {
+      "name": "number",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Charity Commission registered number, e.g. 1089464"
+     },
+     {
+      "name": "name",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Registered charity name to search"
+     },
+     {
+      "name": "suffix",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Optional group/subsidiary suffix (default 0)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "registered_number": {},
+          "name": {},
+          "trustees": {
+           "type": "array"
+          },
+          "financial_history": {
+           "type": "array"
+          },
+          "assets_liabilities": {},
+          "governance": {},
+          "areas_of_operation": {},
+          "regulatory_reports": {},
+          "linked_charities": {},
+          "other_names": {},
+          "red_flags": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          },
+          "source": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.25 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.25",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.25",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "250000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "250000"
+    }
+   },
+   "post": {
+    "summary": "Use this for full UK charity due diligence: trustees, 5-year financial history, assets/liabilities, governance, areas of operation, regulatory/insolvency flags, linked charities, other names + red-flag summary (removed, late accounts, income collapse). OGL v3. Example: {number:\"1089464\"}. $0.25.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "number": {
+          "type": "string",
+          "description": "Charity Commission registered number, e.g. 1089464"
+         },
+         "name": {
+          "type": "string",
+          "description": "Registered charity name to search"
+         },
+         "suffix": {
+          "type": "string",
+          "description": "Optional group/subsidiary suffix (default 0)"
+         }
+        },
+        "anyOf": [
+         {
+          "required": [
+           "number"
+          ]
+         },
+         {
+          "required": [
+           "name"
+          ]
+         }
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "registered_number": {},
+          "name": {},
+          "trustees": {
+           "type": "array"
+          },
+          "financial_history": {
+           "type": "array"
+          },
+          "assets_liabilities": {},
+          "governance": {},
+          "areas_of_operation": {},
+          "regulatory_reports": {},
+          "linked_charities": {},
+          "other_names": {},
+          "red_flags": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          },
+          "source": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.25 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.25",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.25",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "250000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "250000"
+    }
+   }
+  },
   "/monitor/{id}": {
    "get": {
     "summary": "Free monitor status (id is the secret)",
@@ -4459,7 +4841,9 @@
         "company",
         "uk-company",
         "uk-company-lite",
-        "convert"
+        "convert",
+        "uk-charity",
+        "uk-charity-full"
        ]
       }
      }

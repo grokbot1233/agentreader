@@ -17,6 +17,7 @@ export const VALIDATE: Record<string, (b: any) => string | null> = {
   "/check": (b) => domainish(b.domain),
   "/company": (b) => domainish(b.domain || b.name || b.url), "/company-full": (b) => domainish(b.domain || b.name || b.url),
   "/uk-company": (b) => uk(b), "/uk-company-lite": (b) => uk(b),
+  "/uk-charity": (b) => charity(b), "/uk-charity-full": (b) => charity(b),
   "/monitor": (b) => first(url(b.url), url(b.webhook, "webhook"), s(b.webhook) && !s(b.webhook).startsWith("https://") ? "webhook must be https" : null),
   "/wallet": (b) => first(addr(b.address, "address"), chain(b.chain), s(b.tokens) && s(b.tokens).split(",").some((t) => !ADDR.test(t.trim())) ? "tokens must be comma-separated 0x addresses" : null, s(b.tokens).split(",").length > 10 ? "max 10 tokens" : null),
   "/tx": (b) => first(!s(b.hash) ? "missing hash" : HASH.test(s(b.hash)) ? null : "hash must be 0x + 64 hex chars", chain(b.chain)),
@@ -39,7 +40,9 @@ export const VALIDATE: Record<string, (b: any) => string | null> = {
   "/uk-area": (b) => (!s(b.postcode) ? "missing postcode" : PC.test(s(b.postcode)) ? null : "postcode must be a full UK postcode, e.g. SW1A 2AA"),
 };
 function uk(b: any) { const n = s(b.number), m = s(b.name); if (!n && !m) return "missing number or name"; if (n && !CHNUM.test(n)) return "number must be a Companies House number: 8 digits (e.g. 00445790) or 2 letters + 6 digits (e.g. SC123456)"; if (!n && m.length < 2) return "name too short"; return null; }
+const CNUM = /^\d{5,8}(?:[-\/]\d{1,2})?$/;
+function charity(b: any) { const n = s(b.number), m = s(b.name); if (!n && !m) return "missing number or name"; if (n && !CNUM.test(n)) return "number must be a Charity Commission registered number, e.g. 1089464 or 1089464/0"; if (s(b.suffix) && !/^\d{1,2}$/.test(s(b.suffix))) return "suffix must be 0-99"; if (!n && m.length < 2) return "name too short"; return null; }
 
 export const TOOL_PATH: Record<string, string> = { read_url: "/read", extract_links: "/links", check_domain: "/check", company_research: "/company", uk_company: "/uk-company", uk_company_lite: "/uk-company-lite",
   company_full: "/company-full", convert_document: "/convert", create_monitor: "/monitor", wallet_balances: "/wallet", tx_status: "/tx", token_check: "/token-check", fx_rates: "/fx",
-  ens_lookup: "/ens", token_metadata: "/token", token_allowance: "/allowance", contract_info: "/contract", gas_fees: "/gas", block_lookup: "/block", nft_lookup: "/nft", web_search: "/search", uk_property_prices: "/uk-property", uk_area_profile: "/uk-area" };
+  ens_lookup: "/ens", token_metadata: "/token", token_allowance: "/allowance", contract_info: "/contract", gas_fees: "/gas", block_lookup: "/block", nft_lookup: "/nft", web_search: "/search", uk_property_prices: "/uk-property", uk_area_profile: "/uk-area", uk_charity: "/uk-charity", uk_charity_full: "/uk-charity-full" };

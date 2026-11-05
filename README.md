@@ -15,7 +15,9 @@ No API keys, no accounts. Agents pay per request in **USDC on Base mainnet** usi
 | `GET/POST /company?domain=` | `company_research` | $0.25 | Company research report (tech, contacts, DNS, RDAP, SSL, news) with sources |
 | `GET/POST /uk-company?number=` / `?name=` | `uk_company` | $0.50 | Full UK Companies House due-diligence (API) + insolvency + red flags |
 | `GET/POST /uk-company-lite?number=` / `?name=` | `uk_company_lite` | $0.05 | UK company snapshot: profile, status, compliance + red flags |
-| `GET/POST /company-full?domain=` | `company_full` | $0.65 | Bundle: website research + UK DD when detected ($0.10 off) |
+| `GET/POST /company-full?domain=` | `company_full` | $0.65 | Bundle: website research + UK DD when detected ($0.10 off); charity lite when signals present |
+| `GET/POST /uk-charity?number=` / `?name=` | `uk_charity` | $0.05 | UK Charity Commission snapshot (status, income, trustees count, activities) |
+| `GET/POST /uk-charity-full?number=` / `?name=` | `uk_charity_full` | $0.25 | Full charity DD: trustees, 5y finances, assets, governance, regulatory + red flags |
 | `GET/POST /convert?url=` | `convert_document` | $0.03 | PDF/DOCX/HTML → markdown or text |
 | `GET /samples/:kind` | — | free* | Truncated real sample + upsell (*8/IP/day) |
 | `POST /monitor` | `create_monitor` | $1.00 / 30d | Hourly change monitor → webhook |
@@ -42,7 +44,7 @@ console.log(await r.json());
 
 Remote MCP server, streamable HTTP, stateless: `https://api.axiomworks.co.uk/mcp`
 
-Tools: `read_url`, `extract_links`, `check_domain`, `company_research`, `uk_company`, `uk_company_lite`, `company_full`, `convert_document`, `create_monitor` (paid) and `pricing` (free).
+Tools: `read_url`, `extract_links`, `check_domain`, `company_research`, `uk_company`, `uk_company_lite`, `company_full`, `uk_charity`, `uk_charity_full`, `convert_document`, `create_monitor`, plus on-chain/FX/search/UK property tools (paid) and `pricing` (free).
 
 ```ts
 import { createx402MCPClient } from "@x402/mcp";

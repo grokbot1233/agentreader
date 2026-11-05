@@ -3,12 +3,13 @@ import { CANONICAL } from "./facilitator";
 const PREVIEW_LIMIT = 8; // per IP per UTC day across all preview kinds
 const PREVIEW_PREFIX = "prev:";
 
-export type PreviewKind = "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full";
+export type PreviewKind = "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full";
 
 const PRICE: Record<PreviewKind, string> = {
   read: "$0.002", links: "$0.001", check: "$0.001",
   company: "$0.25", "uk-company": "$0.50", "uk-company-lite": "$0.05",
   convert: "$0.03", "company-full": "$0.65",
+  "uk-charity": "$0.05", "uk-charity-full": "$0.25",
 };
 
 const PAID_CALL: Record<PreviewKind, string> = {
@@ -20,6 +21,8 @@ const PAID_CALL: Record<PreviewKind, string> = {
   "uk-company-lite": `${CANONICAL}/uk-company-lite?number=NUM`,
   convert: `${CANONICAL}/convert?url=URL`,
   "company-full": `${CANONICAL}/company-full?domain=DOMAIN`,
+  "uk-charity": `${CANONICAL}/uk-charity?number=NUM`,
+  "uk-charity-full": `${CANONICAL}/uk-charity-full?number=NUM`,
 };
 
 function dayKey() { return new Date().toISOString().slice(0, 10); }
@@ -120,12 +123,36 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         text_preview: String(data.markdown || data.text || "").slice(0, 350) + "…",
         omitted: ["full markdown/text body"],
       };
+    case "uk-charity":
+      return {
+        ...u,
+        name: data.name,
+        status: data.status,
+        income: data.income,
+        spending: data.spending,
+        trustees_count: data.trustees_count,
+        website: data.contact?.website || null,
+        activities_preview: data.activities ? String(data.activities).slice(0, 180) + (String(data.activities).length > 180 ? "…" : "") : null,
+        omitted: ["full activities", "classifications detail"],
+      };
+    case "uk-charity-full":
+      return {
+        ...u,
+        name: data.name,
+        status: data.status,
+        trustees_preview: (data.trustees || []).slice(0, 2),
+        financial_history_years: Array.isArray(data.financial_history) ? data.financial_history.length : 0,
+        red_flag_count: data.red_flag_count ?? (data.red_flags || []).length,
+        red_flags_preview: (data.red_flags || []).slice(0, 2),
+        omitted: ["full trustees", "full financial_history", "assets", "governance", "linked charities"],
+      };
     case "company-full":
       return {
         ...u, domain: data.domain,
         company_preview: data.company ? truncateSample("company", data.company, PAID_CALL.company) : null,
         uk_preview: data.uk ? truncateSample("uk-company", data.uk, PAID_CALL["uk-company"]) : { included: false, reason: data.uk_skip_reason || "no UK company detected" },
-        omitted: ["full company research", "full UK due-diligence pack"],
+        charity_preview: data.charity ? { name: data.charity.name, status: data.charity.status, registered_number: data.charity.registered_number } : { included: false, reason: data.charity_skip_reason || "no charity signals" },
+        omitted: ["full company research", "full UK due-diligence pack", "full charity profile"],
       };
     default:
       return { ...u, error: "unknown preview kind" };
@@ -148,6 +175,16 @@ export const STATIC_SAMPLES: Record<string, any> = {
     company_number: "00445790", name: "TESCO PLC", status: "active", sic_codes: ["47110"],
     officers_count: 74, charges_outstanding: 2, red_flag_names: ["outstanding_charges"],
     mass_formation_office: { matched: false },
+  },
+  "uk-charity": {
+    name: "CANCER RESEARCH UK", status: "Registered", income: 734753802, spending: 714723789,
+    trustees_count: 14, contact: { website: "www.cancerresearchuk.org" },
+    activities: "Cancer Research UK is dedicated to saving lives through research…",
+    source: "Contains public sector information licensed under the Open Government Licence v3.0 (Charity Commission for England & Wales)",
+  },
+  "uk-charity-full": {
+    name: "CANCER RESEARCH UK", status: "Registered", trustees: [{ name: "Example Trustee" }],
+    financial_history: [{ period_end: "2025-03-31", income: 734753802 }], red_flags: [], red_flag_count: 0,
   },
   "uk-company-lite": {
     company_number: "00445790", name: "TESCO PLC", status: "active", incorporation_date: "1947-11-27",

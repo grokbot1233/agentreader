@@ -16,12 +16,13 @@ import { MICRO_DESC } from "./micro-desc";
 import { VALIDATE, TOOL_PATH } from "./validate";
 import { search } from "./search";
 import { ukProperty, ukArea } from "./ukdata";
+import { ukCharity } from "./uk-charity";
 const EXAMPLES: Record<string, any> = { "/read": { url: "https://example.com" }, "/links": { url: "https://example.com" }, "/check": { domain: "example.com" }, "/company": { domain: "stripe.com" }, "/company-full": { domain: "tesco.com" },
   "/uk-company": { number: "00445790" }, "/uk-company-lite": { number: "00445790" }, "/convert": { url: "https://example.com/doc.pdf" }, "/monitor": { url: "https://example.com", webhook: "https://your.app/hook" },
   "/wallet": { address: "0x88b1c747c33A5868A34057D8C57318E5602b3ff6" }, "/tx": { hash: "0x" + "ab".repeat(32) }, "/token-check": { address: "0x940181a94A35A4569E4529A3CDfB74e38FD98631" }, "/token": { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" },
   "/contract": { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" }, "/fx": { base: "GBP", symbols: "USD,EUR" }, "/ens": { name: "vitalik.eth" }, "/allowance": { token: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", owner: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045", spender: "0x000000000022D473030F116dDEE9F6B43aC78BA3" },
   "/gas": { chain: "base" }, "/block": { timestamp: "2026-01-01T00:00:00Z" }, "/nft": { contract: "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D", token_id: "1", chain: "ethereum" },
-  "/search": { q: "x402 agent payments" }, "/uk-property": { postcode: "CB1 2AB" }, "/uk-area": { postcode: "SW1A 2AA" } };
+  "/search": { q: "x402 agent payments" }, "/uk-property": { postcode: "CB1 2AB" }, "/uk-area": { postcode: "SW1A 2AA" }, "/uk-charity": { number: "1089464" }, "/uk-charity-full": { number: "1089464" } };
 
 const NETWORK = "eip155:8453";
 let rs: any = null; let ready: Promise<any> | null = null;
@@ -38,13 +39,13 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
     if (e) return { isError: true, content: [{ type: "text" as const, text: JSON.stringify({ error: e, free: true, note: "Input rejected before payment; you were not charged.", example: EXAMPLES[p] || null }) }] };
     return paid(a, extra); }; }; };
   const mk0 = async (price: string, tool: string, atomic: number) => createPaymentWrapper(rs, {
-    resource: { url: `mcp://tool/${tool}`, description: `Axiom Works AgentReader ${tool}`, mimeType: "application/json", serviceName: "Axiom Works AgentReader", tags: ["web", "scraping", "markdown", "dns", "company", "uk", "pdf", "monitor", "x402", "onchain", "wallet", "token", "fx"] },
+    resource: { url: `mcp://tool/${tool}`, description: `Axiom Works AgentReader ${tool}`, mimeType: "application/json", serviceName: "Axiom Works AgentReader", tags: ["x402", "uk", "web", "onchain", "charity"] },
     accepts: await rs.buildPaymentRequirements({ scheme: "exact", network: NETWORK, payTo: env.PAY_TO, price, maxTimeoutSeconds: 120 }),
     hooks: { onAfterSettlement: async ({ settlement }: any) => {
       await log({ endpoint: `mcp:${tool}`, payer: settlement?.payer || null, amount: settlement?.amount || String(atomic), network: settlement?.network, tx: settlement?.transaction, success: settlement?.success });
     } },
   } as any);
-  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.5.0" });
+  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.6.0" });
   const json = (d: any) => ({ content: [{ type: "text" as const, text: JSON.stringify(d) }] });
   const err = (e: any) => ({ isError: true, content: [{ type: "text" as const, text: String(e?.message || e) }] });
 
@@ -79,9 +80,19 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
     (await mk("$0.05", "uk_company_lite", 50000))(async (a: any) => { try { return json(await ukCompany(env, { number: a.number, name: a.name, lite: true })); } catch (e) { return err(e); } }) as any);
 
   server.tool("company_full",
-    "Use this for website company research + UK Companies House pack in one call ($0.65 vs $0.75 separate). Attaches UK DD when .uk TLD or CH number detected. Example: {domain:\"tesco.com\"} → {company, uk, uk_included}. $0.65 USDC.",
+    "Use this for website company research + UK Companies House pack in one call ($0.65 vs $0.75 separate). Attaches UK DD when .uk TLD or CH number detected; optional Charity Commission lite attach for .org.uk / charity signals. Example: {domain:\"tesco.com\"} → {company, uk, uk_included}. $0.65 USDC.",
     { domain: z.string() },
     (await mk("$0.65", "company_full", 650000))(async (a: any) => { try { return json(await companyFull(env, { domain: a.domain })); } catch (e) { return err(e); } }) as any);
+
+  server.tool("uk_charity",
+    "Use this for a cheap UK charity snapshot (Charity Commission E&W): status, registration/removal, income/spending, trustees count, website, activities. Lookup by registered number or name. OGL v3. Example: {number:\"1089464\"}. Upsell uk_charity_full. $0.05 USDC.",
+    { number: z.string().optional(), name: z.string().optional(), suffix: z.string().optional() },
+    (await mk("$0.05", "uk_charity", 50000))(async (a: any) => { try { return json(await ukCharity(env, { number: a.number, name: a.name, suffix: a.suffix })); } catch (e) { return err(e); } }) as any);
+
+  server.tool("uk_charity_full",
+    "Use this for full UK charity due diligence: trustees, 5-year finances, assets/liabilities, governance, areas of operation, regulatory/insolvency flags, linked charities, other names + red-flag summary. OGL v3. Example: {number:\"1089464\"}. $0.25 USDC.",
+    { number: z.string().optional(), name: z.string().optional(), suffix: z.string().optional() },
+    (await mk("$0.25", "uk_charity_full", 250000))(async (a: any) => { try { return json(await ukCharity(env, { number: a.number, name: a.name, suffix: a.suffix, full: true })); } catch (e) { return err(e); } }) as any);
 
   server.tool("convert_document",
     "Use this when converting a public PDF/DOCX/HTML/text URL to markdown or plain text for RAG/summaries. Example: {url, format:\"markdown\"} → {detected_format, markdown, pages, word_count}. $0.03 USDC.",
@@ -133,7 +144,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
 
   server.tool("pricing", "Free: list Axiom Works AgentReader tools, prices, when-to-use hints and payment details.", {}, async () => json({
     network: NETWORK, asset: "USDC", payTo: env.PAY_TO,
-    samples: "https://api.axiomworks.co.uk/samples/{read|company|uk-company|uk-company-lite|convert}",
+    samples: "https://api.axiomworks.co.uk/samples/{read|company|uk-company|uk-company-lite|convert|uk-charity|uk-charity-full}",
     tools: {
       read_url: { price: "$0.002", when: "page → Markdown + metadata" },
       extract_links: { price: "$0.001", when: "links only" },
@@ -152,6 +163,8 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       token_allowance: { price: "$0.002", when: "ERC20 approval check" }, contract_info: { price: "$0.003", when: "proxy/clone/standards/verified name" },
       gas_fees: { price: "$0.001", when: "current fees + USD cost" }, block_lookup: { price: "$0.001", when: "block by number or timestamp" }, nft_lookup: { price: "$0.002", when: "NFT owner + metadata" },
       web_search: { price: "$0.003", when: "open research search (Wikipedia/OpenAlex/arXiv/Crossref)" }, uk_property_prices: { price: "$0.01", when: "E&W Land Registry sold prices near postcode" }, uk_area_profile: { price: "$0.005", when: "UK postcode geography/crime/food hygiene" },
+      uk_charity: { price: "$0.05", when: "UK Charity Commission snapshot" },
+      uk_charity_full: { price: "$0.25", when: "full UK charity DD + red flags" },
       pricing: { price: "free" },
     },
     how: "Paid tools return x402 PaymentRequired; retry with _meta['x402/payment'] via @x402/mcp createx402MCPClient.",

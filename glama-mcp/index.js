@@ -9,7 +9,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 
 const ORIGIN = process.env.AGENTREADER_ORIGIN || "https://api.axiomworks.co.uk";
-const VERSION = "1.5.0";
+const VERSION = "1.6.0";
 
 const qs = (a) => new URLSearchParams(Object.entries(a).filter(([, v]) => v != null && v !== "")).toString();
 const CH = z.enum(["base", "ethereum", "arbitrum", "optimism", "polygon"]).optional();
@@ -100,6 +100,22 @@ const TOOLS = [
   { name: "web_search", description: "Open research search: Wikipedia + OpenAlex + arXiv + Crossref merged, deduped, ranked with snippets. $0.003 USDC.", schema: { q: z.string(), sources: z.string().optional(), limit: z.string().optional() }, http: (a) => `${ORIGIN}/search?${qs(a)}` },
   { name: "uk_property_prices", description: "England & Wales Land Registry sold prices near a postcode + medians. $0.01 USDC.", schema: { postcode: z.string(), radius: z.string().optional() }, http: (a) => `${ORIGIN}/uk-property?${qs(a)}` },
   { name: "uk_area_profile", description: "UK postcode profile: ONS geography, police crime, FSA hygiene. $0.005 USDC.", schema: { postcode: z.string() }, http: (a) => `${ORIGIN}/uk-area?${qs(a)}` },
+  {
+    name: "uk_charity",
+    description: "UK Charity Commission snapshot: status, income, trustees count, activities. $0.05 USDC.",
+    schema: { number: z.string().optional(), name: z.string().optional(), suffix: z.string().optional() },
+    http: (a) => a.number
+      ? `${ORIGIN}/uk-charity?number=${encodeURIComponent(a.number)}${a.suffix != null ? `&suffix=${encodeURIComponent(a.suffix)}` : ""}`
+      : `${ORIGIN}/uk-charity?name=${encodeURIComponent(a.name || "")}`,
+  },
+  {
+    name: "uk_charity_full",
+    description: "Full UK charity DD: trustees, finances, assets, governance, regulatory + red flags. $0.25 USDC.",
+    schema: { number: z.string().optional(), name: z.string().optional(), suffix: z.string().optional() },
+    http: (a) => a.number
+      ? `${ORIGIN}/uk-charity-full?number=${encodeURIComponent(a.number)}${a.suffix != null ? `&suffix=${encodeURIComponent(a.suffix)}` : ""}`
+      : `${ORIGIN}/uk-charity-full?name=${encodeURIComponent(a.name || "")}`,
+  },
 ];
 
 function b64json(header) {

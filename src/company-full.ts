@@ -1,5 +1,6 @@
 import { companyResearch } from "./company";
 import { ukCompany } from "./uk-company";
+import { ukCharity } from "./uk-charity";
 
 const UK_TLDS = /\.(co\.uk|org\.uk|me\.uk|gov\.uk|ac\.uk|uk)$/i;
 const WELL_KNOWN_UK = /^(tesco|sainsbury|sainsburys|barclays|lloyds|bt|vodafone|easyjet|bbc|revolut|monzo|wise)$/i;
@@ -52,6 +53,27 @@ export async function companyFull(env: any, opts: { domain: string }) {
     uk_skip_reason = "No UK company signals (non-UK TLD and no Companies House number on site). company research only; still charged at bundle rate.";
   }
 
+  // Cheap charity attach: explicit charity number on site, or .org.uk name search (lite only).
+  let charity: any = null;
+  let charity_skip_reason: string | null = null;
+  const charityNum = (() => {
+    for (const m of blob.matchAll(/\b(?:registered\s+)?charity(?:\s+(?:no\.?|number))?\s*[:#]?\s*(\d{5,7})\b/gi)) return m[1];
+    return null;
+  })();
+  try {
+    if (charityNum) {
+      charity = await ukCharity(env, { number: charityNum });
+    } else if (/charit/i.test(domain) || /charit/i.test(company.homepage?.title || "") || /charit/i.test(company.homepage?.description || "") || /registered charity/i.test(blob)) {
+      const name = extractPossibleName(company) || sld;
+      charity = await ukCharity(env, { name });
+    } else {
+      charity_skip_reason = "No charity signals (no registered charity number or charity keywords).";
+    }
+  } catch (e: any) {
+    charity_skip_reason = `Charity lookup skipped: ${e?.message || e}`;
+    charity = null;
+  }
+
   return {
     queried_at: new Date().toISOString(),
     domain,
@@ -63,8 +85,11 @@ export async function companyFull(env: any, opts: { domain: string }) {
     uk,
     uk_included: !!uk,
     uk_skip_reason,
+    charity,
+    charity_included: !!charity,
+    charity_skip_reason,
     note: uk
-      ? "Includes company research + UK Companies House due-diligence pack."
-      : "Includes company research. UK pack attached when a UK company is detected; otherwise see uk_skip_reason.",
+      ? "Includes company research + UK Companies House due-diligence pack." + (charity ? " Charity Commission lite profile also attached." : "")
+      : "Includes company research. UK pack attached when a UK company is detected; otherwise see uk_skip_reason." + (charity ? " Charity Commission lite profile attached." : ""),
   };
 }

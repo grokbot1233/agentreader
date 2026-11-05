@@ -1,6 +1,7 @@
 import { VALIDATE } from "./validate";
 import { search } from "./search";
 import { ukProperty, ukArea } from "./ukdata";
+import { ukCharity } from "./uk-charity";
 import { Hono } from "hono";
 import { paymentMiddleware, x402ResourceServer } from "@x402/hono";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
@@ -18,7 +19,7 @@ import { dashboardHtml } from "./dashboard";
 import { wallet, tx, tokenCheck, fx, CHAINS } from "./onchain";
 import { ens, tokenMeta, allowance, contractInfo, gas, block, nft } from "./micro";
 
-type Env = { LOG: KVNamespace; STATS_SECRET: string; DASHBOARD_KEY: string; PAY_TO: string; FACILITATOR_URL: string; CDP_API_KEY_ID?: string; CDP_API_KEY_SECRET?: string; FACILITATOR?: string; CH_API_KEY?: string };
+type Env = { LOG: KVNamespace; STATS_SECRET: string; DASHBOARD_KEY: string; PAY_TO: string; FACILITATOR_URL: string; CDP_API_KEY_ID?: string; CDP_API_KEY_SECRET?: string; FACILITATOR?: string; CH_API_KEY?: string; CHARITY_KEY?: string };
 const NETWORK = "eip155:8453";
 const USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 
@@ -38,6 +39,7 @@ const PRICES = {
   "/fx": "$0.002",
   "/ens": "$0.002", "/token": "$0.001", "/allowance": "$0.002", "/contract": "$0.003", "/gas": "$0.001", "/block": "$0.001", "/nft": "$0.002",
   "/search": "$0.003", "/uk-property": "$0.01", "/uk-area": "$0.005",
+  "/uk-charity": "$0.05", "/uk-charity-full": "$0.25",
 } as const;
 const ATOMIC: Record<string, number> = {
   "/read": 2000, "/links": 1000, "/check": 1000,
@@ -46,6 +48,7 @@ const ATOMIC: Record<string, number> = {
   "/wallet": 3000, "/tx": 3000, "/token-check": 10000, "/fx": 2000,
   "/ens": 2000, "/token": 1000, "/allowance": 2000, "/contract": 3000, "/gas": 1000, "/block": 1000, "/nft": 2000,
   "/search": 3000, "/uk-property": 10000, "/uk-area": 5000,
+  "/uk-charity": 50000, "/uk-charity-full": 250000,
 };
 
 const urlIn = { type: "object", properties: { url: { type: "string", format: "uri", description: "Public http(s) URL to fetch" } }, required: ["url"] };
@@ -135,10 +138,24 @@ const pcIn = { type: "object", properties: { postcode: A("Full UK postcode, e.g.
 const propOut = { type: "object", properties: { postcode: { type: "string" }, area: { type: "object" }, summary: { type: "object" }, sales: { type: "array", items: { type: "object" } }, source: { type: "string" } } };
 const areaIn = { type: "object", properties: { postcode: A("Full UK postcode, e.g. SW1A 2AA") }, required: ["postcode"] };
 const areaOut = { type: "object", properties: { postcode: { type: "string" }, location: { type: "object" }, geography: { type: "object" }, crime: { type: "object" }, food_hygiene: { type: "object" } } };
+const charityIn = { type: "object", properties: {
+  number: { type: "string", description: "Charity Commission registered number, e.g. 1089464" },
+  name: { type: "string", description: "Registered charity name to search" },
+  suffix: { type: "string", description: "Optional group/subsidiary suffix (default 0)" },
+}, anyOf: [{ required: ["number"] }, { required: ["name"] }] };
+const charityOut = { type: "object", properties: {
+  registered_number: {}, name: { type: ["string", "null"] }, status: { type: ["string", "null"] }, income: {}, spending: {},
+  trustees_count: {}, contact: { type: "object" }, activities: {}, source: { type: "string" }, licence: { type: "string" } } };
+const charityFullOut = { type: "object", properties: {
+  registered_number: {}, name: {}, trustees: { type: "array" }, financial_history: { type: "array" }, assets_liabilities: {},
+  governance: {}, areas_of_operation: {}, regulatory_reports: {}, linked_charities: {}, other_names: {},
+  red_flags: { type: "array", items: { type: "object" } }, source: { type: "string" } } };
 const DESC: Record<string, string> = {
   "/search": "Use this for cheap research search over open sources: Wikipedia + OpenAlex (250M scholarly works) + arXiv + Crossref, merged, deduplicated (DOI/title) and ranked, with snippets, authors, dates, DOIs and citation counts. Not a general web index. Example: {q:\"x402 agent payments\"}. $0.003.",
   "/uk-property": "Use this for UK (England & Wales) house prices around a postcode: HM Land Registry Price Paid sales (address, price, date, type, tenure, new-build) within a radius, plus median overall/last-12m/by type. OGL data. Example: {postcode:\"CB1 2AB\"}. $0.01.",
   "/uk-area": "Use this for a UK postcode profile: ONS geography (LA, ward, constituency, LSOA, codes), lat/lon, police street crime last month by category (~1 mile), and FSA food hygiene rating mix nearby. All OGL. Example: {postcode:\"SW1A 2AA\"}. $0.005.",
+  "/uk-charity": "Use this for a cheap UK charity snapshot from the Charity Commission register (England & Wales): status, registration/removal dates, income/spending, trustees count, website, activities. Lookup by registered number or name. OGL v3. Example: {number:\"1089464\"} or {name:\"Cancer Research UK\"}. Upsell /uk-charity-full. $0.05.",
+  "/uk-charity-full": "Use this for full UK charity due diligence: trustees, 5-year financial history, assets/liabilities, governance, areas of operation, regulatory/insolvency flags, linked charities, other names + red-flag summary (removed, late accounts, income collapse). OGL v3. Example: {number:\"1089464\"}. $0.25.",
   "/ens": "Use this to resolve an ENS name to its address plus avatar/url/twitter/github/description records, or reverse-resolve an address to its primary name (forward-verified). Example: {name:\"vitalik.eth\"} or {address:\"0x…\"}. $0.002.",
   "/token": "Use this for just an ERC20's name, symbol, decimals and total supply (formatted + raw) on Base/Ethereum/Arbitrum/Optimism/Polygon — e.g. before formatting amounts. Cheaper than /token-check. Example: {address:\"0x…\", chain:\"base\"}. $0.001.",
   "/allowance": "Use this before transferFrom/x402/Permit flows or for approval hygiene: ERC20 allowance owner→spender, unlimited flag, owner balance and spendable-now amount. Multi-chain. Example: {token, owner, spender, chain:\"base\"}. $0.002.",
@@ -160,9 +177,10 @@ const DESC: Record<string, string> = {
   "/convert": "Use this when an agent needs PDF/DOCX/HTML/text as clean markdown or plain text (RAG, summarisation). PDF via unpdf; DOCX via mammoth. Example: {url, format:\"markdown\"} → {detected_format, markdown, pages, word_count}. $0.03.",
   "/monitor": "Use this when you need 30 days of hourly page-change alerts to your webhook (pricing pages, status, jobs). Returns id; GET /monitor/:id free. Example POST {url, webhook, selector?}. $1.00/30d.",
 };
-const OUT: any = { "/search": searchOut, "/uk-property": propOut, "/uk-area": areaOut, "/ens": ensOut, "/token": tokenMetaOut, "/allowance": allowOut, "/contract": contractOut, "/gas": gasOut, "/block": blockOut, "/nft": nftOut, "/wallet": walletOut, "/tx": txOut, "/token-check": tokenOut, "/fx": fxOut, "/read": readOut, "/links": linksOut, "/check": checkOut, "/company": companyOut, "/uk-company": ukOut, "/uk-company-lite": ukLiteOut, "/company-full": companyFullOut, "/convert": convertOut, "/monitor": monitorOut };
+const OUT: any = { "/search": searchOut, "/uk-property": propOut, "/uk-area": areaOut, "/uk-charity": charityOut, "/uk-charity-full": charityFullOut, "/ens": ensOut, "/token": tokenMetaOut, "/allowance": allowOut, "/contract": contractOut, "/gas": gasOut, "/block": blockOut, "/nft": nftOut, "/wallet": walletOut, "/tx": txOut, "/token-check": tokenOut, "/fx": fxOut, "/read": readOut, "/links": linksOut, "/check": checkOut, "/company": companyOut, "/uk-company": ukOut, "/uk-company-lite": ukLiteOut, "/company-full": companyFullOut, "/convert": convertOut, "/monitor": monitorOut };
 const EX: any = {
   "/search": { q: "x402 agent payments" }, "/uk-property": { postcode: "CB1 2AB" }, "/uk-area": { postcode: "SW1A 2AA" },
+  "/uk-charity": { number: "1089464" }, "/uk-charity-full": { number: "1089464" },
   "/ens": { name: "vitalik.eth" }, "/token": { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", chain: "base" },
   "/allowance": { token: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", owner: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045", spender: "0x000000000022D473030F116dDEE9F6B43aC78BA3", chain: "base" },
   "/contract": { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", chain: "base" }, "/gas": { chain: "base" }, "/block": { timestamp: "2026-01-01T00:00:00Z", chain: "base" },
@@ -174,7 +192,7 @@ const EX: any = {
   "/convert": { url: "https://raw.githubusercontent.com/mozilla/pdf.js/master/web/compressed.tracemonkey-pldi-09.pdf", format: "markdown" },
   "/monitor": { url: "https://example.com", webhook: "https://api.axiomworks.co.uk/hooks/sink" },
 };
-const IN: any = { "/search": searchIn, "/uk-property": pcIn, "/uk-area": areaIn, "/ens": ensIn, "/token": tokenMetaIn, "/allowance": allowIn, "/contract": contractIn, "/gas": gasIn, "/block": blockIn, "/nft": nftIn, "/wallet": walletIn, "/tx": txIn, "/token-check": tokenIn, "/fx": fxIn, "/read": urlIn, "/links": urlIn, "/check": checkIn, "/company": companyIn, "/uk-company": ukIn, "/uk-company-lite": ukLiteIn, "/company-full": companyFullIn, "/convert": convertIn, "/monitor": monitorIn };
+const IN: any = { "/search": searchIn, "/uk-property": pcIn, "/uk-area": areaIn, "/uk-charity": charityIn, "/uk-charity-full": charityIn, "/ens": ensIn, "/token": tokenMetaIn, "/allowance": allowIn, "/contract": contractIn, "/gas": gasIn, "/block": blockIn, "/nft": nftIn, "/wallet": walletIn, "/tx": txIn, "/token-check": tokenIn, "/fx": fxIn, "/read": urlIn, "/links": urlIn, "/check": checkIn, "/company": companyIn, "/uk-company": ukIn, "/uk-company-lite": ukLiteIn, "/company-full": companyFullIn, "/convert": convertIn, "/monitor": monitorIn };
 const METHODS: Record<string, ("GET" | "POST")[]> = {
   "/read": ["GET", "POST"], "/links": ["GET", "POST"], "/check": ["GET", "POST"],
   "/company": ["GET", "POST"], "/uk-company": ["GET", "POST"], "/uk-company-lite": ["GET", "POST"], "/company-full": ["GET", "POST"], "/convert": ["GET", "POST"],
@@ -182,6 +200,7 @@ const METHODS: Record<string, ("GET" | "POST")[]> = {
   "/wallet": ["GET", "POST"], "/tx": ["GET", "POST"], "/token-check": ["GET", "POST"], "/fx": ["GET", "POST"],
   "/ens": ["GET", "POST"], "/token": ["GET", "POST"], "/allowance": ["GET", "POST"], "/contract": ["GET", "POST"], "/gas": ["GET", "POST"], "/block": ["GET", "POST"], "/nft": ["GET", "POST"],
   "/search": ["GET", "POST"], "/uk-property": ["GET", "POST"], "/uk-area": ["GET", "POST"],
+  "/uk-charity": ["GET", "POST"], "/uk-charity-full": ["GET", "POST"],
 };
 
 function routes(payTo: string) {
@@ -227,7 +246,7 @@ app.options("*", (c) => c.body(null, 204, { "access-control-allow-origin": "*", 
 function base(_c: any) { return CANONICAL; }
 function discovery(c: any) {
   const b = base(c);
-  return { x402Version: 2, name: "Axiom Works AgentReader", description: "Pay-per-call web reading, company research, UK due diligence, document conversion, change monitoring, EVM wallet/tx/token checks and FX rates for AI agents. USDC on Base via x402.",
+  return { x402Version: 2, name: "Axiom Works AgentReader", description: "Pay-per-call web reading, company research, UK company/charity due diligence, document conversion, change monitoring, EVM wallet/tx/token checks and FX rates for AI agents. USDC on Base via x402.",
     resources: Object.keys(PRICES).map((p) => `${b}${p}`),
     items: Object.entries(PRICES).map(([p, price]) => ({ resource: `${b}${p}`, methods: METHODS[p], description: DESC[p], mimeType: "application/json",
       accepts: [{ scheme: "exact", network: NETWORK, amount: String(ATOMIC[p]), price, asset: USDC, payTo: c.env.PAY_TO, maxTimeoutSeconds: 120, extra: { name: "USD Coin", version: "2" } }],
@@ -241,9 +260,9 @@ app.get("/.well-known/x402.json", (c) => c.json(discovery(c)));
 app.get("/.well-known/agent.json", (c) => {
   const b = base(c);
   return c.json({
-    name: "Axiom Works AgentReader", description: "x402 pay-per-call web reader, company research, UK Companies House due diligence, document conversion, change monitoring, EVM wallet/tx/token risk checks and ECB FX rates for AI agents.",
+    name: "Axiom Works AgentReader", description: "x402 pay-per-call web reader, company research, UK Companies House + Charity Commission due diligence, document conversion, change monitoring, EVM wallet/tx/token risk checks and ECB FX rates for AI agents.",
     url: b, provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk", email: CONTACT },
-    version: "1.5.0", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
+    version: "1.6.0", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     skills: Object.entries(PRICES).map(([p, price]) => ({ id: p.slice(1), name: p, description: DESC[p], price, endpoint: `${b}${p}` })),
     mcp: `${b}/mcp`, payments: { protocol: "x402", network: NETWORK, asset: USDC, payTo: c.env.PAY_TO },
   });
@@ -261,15 +280,15 @@ app.get("/openapi.json", (c) => {
     if (METHODS[p].includes("POST")) paths[p].post = { summary: DESC[p], requestBody: { content: { "application/json": { schema: IN[p] } } }, responses: resp, "x-price": price, "x-payment-info": payInfo, "x-402": { network: NETWORK, asset: USDC, amount: String(ATOMIC[p]) } };
   }
   paths["/monitor/{id}"] = { get: { summary: "Free monitor status (id is the secret)", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { "200": { description: "Monitor status" }, "404": { description: "Not found" } }, "x-price": "free" } };
-  paths["/samples/{kind}"] = { get: { summary: "Free truncated sample (rate-limited 8/IP/day) with x402 upsell", parameters: [{ name: "kind", in: "path", required: true, schema: { type: "string", enum: ["read","company","uk-company","uk-company-lite","convert"] } }], responses: { "200": { description: "Truncated sample" }, "429": { description: "Preview quota exceeded" } }, "x-price": "free" } };
+  paths["/samples/{kind}"] = { get: { summary: "Free truncated sample (rate-limited 8/IP/day) with x402 upsell", parameters: [{ name: "kind", in: "path", required: true, schema: { type: "string", enum: ["read","company","uk-company","uk-company-lite","convert","uk-charity","uk-charity-full"] } }], responses: { "200": { description: "Truncated sample" }, "429": { description: "Preview quota exceeded" } }, "x-price": "free" } };
   paths["/hooks/sink"] = { post: { summary: "Free webhook test sink for /monitor", responses: { "200": { description: "Stored" } }, "x-price": "free" } };
-  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.5.0", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, company research, UK due diligence, document conversion, change monitoring. Payments: USDC on Base mainnet (eip155:8453)." },
+  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.6.0", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, company research, UK due diligence, document conversion, change monitoring. Payments: USDC on Base mainnet (eip155:8453)." },
     servers: [{ url: b }], paths });
 });
 const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
 
 > Pay-per-call tools for AI agents. No API keys: x402 (HTTP 402) + USDC on Base (eip155:8453), payTo ${payTo}.
-> Free truncated samples: ${b}/samples/{read|company|uk-company|uk-company-lite|convert} (8/IP/day). Or add &preview=1 on paid GETs (same limit).
+> Free truncated samples: ${b}/samples/{read|company|uk-company|uk-company-lite|convert|uk-charity|uk-charity-full} (8/IP/day). Or add &preview=1 on paid GETs (same limit).
 
 ## When to use which (pick one)
 
@@ -402,7 +421,7 @@ app.get("/samples", (c) => c.json({
   samples: Object.keys(STATIC_SAMPLES),
   live_preview: "Add ?preview=1 to paid GET routes (same IP daily quota)",
   limit: "8 previews/IP/UTC day",
-  kinds: ["read","links","check","company","uk-company","uk-company-lite","convert","company-full"],
+  kinds: ["read","links","check","company","uk-company","uk-company-lite","convert","company-full","uk-charity","uk-charity-full"],
 }));
 app.get("/samples/:kind", async (c) => {
   const kind = c.req.param("kind") as PreviewKind;
@@ -538,6 +557,20 @@ for (const m of ["get", "post"] as const) {
     if (c.req.query("preview") === "1" && m === "get")
       return livePreview(c, "company-full", () => companyFull(c.env, { domain }), `${CANONICAL}/company-full?domain=${encodeURIComponent(domain)}`);
     return cached(c, `company-full?domain=${encodeURIComponent(domain)}`, () => companyFull(c.env, { domain }), 60);
+  });
+  app[m]("/uk-charity", async (c) => {
+    const b = await bodyObj(c);
+    const key = b.number ? `number=${b.number}` : `name=${b.name}`;
+    if (c.req.query("preview") === "1" && m === "get")
+      return livePreview(c, "uk-charity", () => ukCharity(c.env, { number: b.number, name: b.name, suffix: b.suffix }), `${CANONICAL}/uk-charity?${key}`);
+    return cached(c, `uk-charity?${encodeURIComponent(key)}`, () => ukCharity(c.env, { number: b.number, name: b.name, suffix: b.suffix }), 300);
+  });
+  app[m]("/uk-charity-full", async (c) => {
+    const b = await bodyObj(c);
+    const key = b.number ? `number=${b.number}` : `name=${b.name}`;
+    if (c.req.query("preview") === "1" && m === "get")
+      return livePreview(c, "uk-charity-full", () => ukCharity(c.env, { number: b.number, name: b.name, suffix: b.suffix, full: true }), `${CANONICAL}/uk-charity-full?${key}`);
+    return cached(c, `uk-charity-full?${encodeURIComponent(key)}`, () => ukCharity(c.env, { number: b.number, name: b.name, suffix: b.suffix, full: true }), 300);
   });
   app[m]("/convert", async (c) => {
     const b = await bodyObj(c);

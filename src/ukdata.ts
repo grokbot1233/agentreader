@@ -1,5 +1,5 @@
 import { UserError } from "./core";
-const UA = "AxiomWorksAgentReader/1.5 (+https://api.axiomworks.co.uk; info@axiomworks.co.uk)";
+const UA = "AxiomWorksAgentReader/1.6 (+https://api.axiomworks.co.uk; info@axiomworks.co.uk)";
 export const PC = /^[A-Z]{1,2}[0-9][A-Z0-9]?\s?[0-9][A-Z]{2}$/i;
 const T = (ms: number) => AbortSignal.timeout(ms);
 const median = (a: number[]) => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y); const m = s.length >> 1; return s.length % 2 ? s[m] : Math.round((s[m - 1] + s[m]) / 2); };
