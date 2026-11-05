@@ -1,0 +1,14 @@
+node_modules
+.git
+.wrangler
+*.key
+.*_key
+.ch_api_key
+.test_wallet_key
+.dashboard_key
+.github_token
+.zoho_oauth.json
+dashboard-meta.json
+agent-tools
+dist
+coverage

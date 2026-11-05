@@ -57,6 +57,21 @@ await client.connect(new StreamableHTTPClientTransport(new URL("https://api.axio
 const res = await client.callTool("company_research", { domain: "stripe.com" });
 ```
 
+## Glama / local stdio MCP
+
+For [Glama](https://glama.ai/mcp/servers) “Runs from source” checks and local clients that prefer stdio, this repo includes a minimal Node MCP server that answers `initialize` and `tools/list` with **no secrets**, and proxies paid tool calls to the live API (unpaid calls return x402 `payment-required` JSON).
+
+```bash
+# Without Docker
+node glama-mcp/index.js
+
+# With Docker
+docker build -t agentreader-mcp .
+docker run -i --rm agentreader-mcp
+```
+
+`glama.json` claims maintainers for the Glama listing. The hosted streamable-HTTP MCP remains `https://api.axiomworks.co.uk/mcp`.
+
 ## Integrations
 
 Copy-paste clients in [`examples/`](./examples/): MCP (Claude Desktop / Cursor), `@x402/fetch`, `x402-axios`, Python x402, LangChain, Vercel AI SDK, OpenAI Agents SDK, CrewAI.
