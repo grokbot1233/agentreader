@@ -23,6 +23,7 @@ import { euVat } from "./eu-vat";
 import { ukLeads, createLeadsFeed } from "./uk-leads";
 import { createUkWatch } from "./uk-watch";
 import { kybReport } from "./kyb";
+import { screenSanctions, screenSanctionsBatch } from "./sanctions";
 import { CHAIN_ROUTES } from "./chain";
 import { upsell } from "./upsell";
 for (const r of CHAIN_ROUTES) { TOOL_PATH["chain_" + r.path.slice(7).replace(/-/g, "_")] = r.path; EXAMPLES_CHAIN[r.path] = r.ex; }
@@ -31,7 +32,7 @@ const EXAMPLES: Record<string, any> = { "/read": { url: "https://example.com" },
   "/wallet": { address: "0x88b1c747c33A5868A34057D8C57318E5602b3ff6" }, "/tx": { hash: "0x" + "ab".repeat(32) }, "/token-check": { address: "0x940181a94A35A4569E4529A3CDfB74e38FD98631" }, "/token": { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" },
   "/contract": { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" }, "/fx": { base: "GBP", symbols: "USD,EUR" }, "/ens": { name: "vitalik.eth" }, "/allowance": { token: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", owner: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045", spender: "0x000000000022D473030F116dDEE9F6B43aC78BA3" },
   "/gas": { chain: "base" }, "/block": { timestamp: "2026-01-01T00:00:00Z" }, "/nft": { contract: "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D", token_id: "1", chain: "ethereum" },
-  "/search": { q: "x402 agent payments" }, "/uk-property": { postcode: "CB1 2AB" }, "/uk-area": { postcode: "SW1A 2AA" }, "/uk-charity": { number: "1089464" }, "/uk-charity-full": { number: "1089464" }, "/us-sec": { ticker: "AAPL" }, "/us-sec-full": { ticker: "AAPL" }, "/eu-vat": { vat: "IE6388047V" }, "/uk-leads": { sic: "62012", days: 1 }, "/uk-leads-lite": { sic: "62", location: "London" }, "/uk-leads-feed": { sic: "62012", webhook: "https://your.app/hook" }, "/uk-watch": { number: "00445790", webhook: "https://your.app/hook" }, "/kyb": { domain: "tesco.com", number: "00445790" } };
+  "/search": { q: "x402 agent payments" }, "/uk-property": { postcode: "CB1 2AB" }, "/uk-area": { postcode: "SW1A 2AA" }, "/uk-charity": { number: "1089464" }, "/uk-charity-full": { number: "1089464" }, "/us-sec": { ticker: "AAPL" }, "/us-sec-full": { ticker: "AAPL" }, "/eu-vat": { vat: "IE6388047V" }, "/uk-leads": { sic: "62012", days: 1 }, "/uk-leads-lite": { sic: "62", location: "London" }, "/uk-leads-feed": { sic: "62012", webhook: "https://your.app/hook" }, "/uk-watch": { number: "00445790", webhook: "https://your.app/hook" }, "/kyb": { domain: "tesco.com", number: "00445790" }, "/sanctions": { name: "BANCO NACIONAL DE CUBA" }, "/sanctions-batch": { names: ["BANCO NACIONAL DE CUBA", "Alice Wonderland"] } };
 
 const NETWORK = "eip155:8453";
 function EXAMPLES_CHAIN_GET(p: string) { return EXAMPLES_CHAIN[p]; }
@@ -55,7 +56,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       await log({ endpoint: `mcp:${tool}`, payer: settlement?.payer || null, amount: settlement?.amount || String(atomic), network: settlement?.network, tx: settlement?.transaction, success: settlement?.success });
     } },
   } as any);
-  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.10.0" });
+  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.11.0" });
   { const orig = (server as any).tool.bind(server); (server as any).tool = (name: string, desc: any, ...rest: any[]) => orig(name, typeof desc === "string" ? upsell(TOOL_PATH[name] || "", desc) : desc, ...rest); }
   const json = (d: any) => ({ content: [{ type: "text" as const, text: JSON.stringify(d) }] });
   const err = (e: any) => ({ isError: true, content: [{ type: "text" as const, text: String(e?.message || e) }] });
@@ -76,7 +77,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
     (await mk("$0.001", "check_domain", 1000))(async (a: any) => { try { return json(await checkDomain(a.domain)); } catch (e) { return err(e); } }) as any);
 
   server.tool("company_research",
-    "Use this when researching a company from its website domain (not UK Companies House). Sourced tech stack, socials, emails/phones, DNS/MX/SPF/DMARC, RDAP, SSL, sitemap, news — no LLM fiction. Example: {domain:\"stripe.com\"}. Prefer uk_company* for UK filings. $0.25 USDC.",
+    "Use this when researching a company from its website domain (not UK Companies House). Sourced tech stack, socials, emails/phones, DNS/MX/SPF/DMARC, RDAP, SSL, sitemap, news - no LLM fiction. Example: {domain:\"stripe.com\"}. Prefer uk_company* for UK filings. $0.25 USDC.",
     { domain: z.string() },
     (await mk("$0.25", "company_research", 250000))(async (a: any) => { try { return json(await companyResearch({ domain: a.domain })); } catch (e) { return err(e); } }) as any);
 
@@ -200,6 +201,9 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       us_sec: { price: "$0.05", when: "US SEC EDGAR company snapshot" },
       us_sec_full: { price: "$0.25", when: "SEC + us-gaap highlights + red flags" },
       eu_vat: { price: "$0.01", when: "EU VIES VAT validation" },
+      sanctions_screen: { price: "$0.05", when: "OFAC/UK/UN/EU name sanctions screen" },
+      sanctions_batch: { price: "$1.00", when: "batch <=50 sanctions screens" },
+      kyb_report: { price: "$2.00", when: "website+UK+VAT+sanctions KYB pack" },
       ...Object.fromEntries(CHAIN_ROUTES.map((r) => ["chain_" + r.path.slice(7).replace(/-/g, "_"), { price: r.price, when: r.desc.split(".")[0].slice(0, 90) }])),
       pricing: { price: "free" },
     },
@@ -226,9 +230,20 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
     (await mk("$5.00", "uk_watch", 5000000))(async (a: any) => { try { return json(await createUkWatch(env, a)); } catch (e) { return err(e); } }) as any);
 
   server.tool("kyb_report",
-    "Use this for one-shot agent KYB: website research + UK CH DD + EU VIES VAT → trust flag. Screening only, not a regulated determination. $2.00 USDC.",
+    "Use this for one-shot agent KYB: website research + UK CH DD + EU VIES VAT + public sanctions screen → trust flag. Screening only, not a regulated determination. $2.00 USDC.",
     { domain: z.string().optional(), number: z.string().optional(), name: z.string().optional(), vat: z.string().optional(), country: z.string().optional(), vat_number: z.string().optional() },
     (await mk("$2.00", "kyb_report", 2000000))(async (a: any) => { try { return json(await kybReport(env, a)); } catch (e) { return err(e); } }) as any);
+
+  server.tool("sanctions_screen",
+    "Use this to screen a person or entity name against public OFAC SDN (+non-SDN), UK FCDO, UN SC and EU financial sanctions lists. Fuzzy match with scores, programmes, aliases, DOB/nationality where present. Screening aid only - not a regulated AML/KYC determination. Example: {name:\"BANCO NACIONAL DE CUBA\"}. Batch: sanctions_batch $1. $0.05 USDC.",
+    { name: z.string(), country: z.string().optional(), dob: z.string().optional(), year: z.union([z.string(), z.number()]).optional(), type: z.string().optional() },
+    (await mk("$0.05", "sanctions_screen", 50000))(async (a: any) => { try { return json(await screenSanctions(env, a)); } catch (e) { return err(e); } }) as any);
+
+  server.tool("sanctions_batch",
+    "Use this to screen up to 50 names in one call against OFAC/UK/UN/EU public lists. Screening aid only. Example: {names:[\"BANCO NACIONAL DE CUBA\",\"Alice Wonderland\"]}. $1.00 USDC.",
+    { names: z.any() },
+    (await mk("$1.00", "sanctions_batch", 1000000))(async (a: any) => { try { return json(await screenSanctionsBatch(env, a)); } catch (e) { return err(e); } }) as any);
+
 
 
   const transport = new WebStandardStreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true });

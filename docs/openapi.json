@@ -2,7 +2,7 @@
  "openapi": "3.1.0",
  "info": {
   "title": "Axiom Works AgentReader",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "contact": {
    "email": "info@axiomworks.co.uk",
    "url": "https://github.com/grokbot1233/agentreader"
@@ -5962,7 +5962,7 @@
   },
   "/kyb": {
    "get": {
-    "summary": "Use this for a one-shot agent KYB/due-diligence pack: optional website research + UK Companies House DD + EU VIES VAT \u2192 composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not a regulated determination. Example: {domain:\"tesco.com\",number:\"00445790\"} or {vat:\"IE6388047V\"}. $2.00.",
+    "summary": "Use this for a one-shot agent KYB/due-diligence pack: optional website research + UK Companies House DD + EU VIES VAT + public sanctions screen (entity + directors) \u2192 composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not a regulated determination. Example: {domain:\"tesco.com\",number:\"00445790\"} or {vat:\"IE6388047V\"}. $2.00.",
     "parameters": [
      {
       "name": "domain",
@@ -6073,7 +6073,7 @@
     }
    },
    "post": {
-    "summary": "Use this for a one-shot agent KYB/due-diligence pack: optional website research + UK Companies House DD + EU VIES VAT \u2192 composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not a regulated determination. Example: {domain:\"tesco.com\",number:\"00445790\"} or {vat:\"IE6388047V\"}. $2.00.",
+    "summary": "Use this for a one-shot agent KYB/due-diligence pack: optional website research + UK Companies House DD + EU VIES VAT + public sanctions screen (entity + directors) \u2192 composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not a regulated determination. Example: {domain:\"tesco.com\",number:\"00445790\"} or {vat:\"IE6388047V\"}. $2.00.",
     "requestBody": {
      "content": {
       "application/json": {
@@ -6161,6 +6161,374 @@
      "network": "eip155:8453",
      "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
      "amount": "2000000"
+    }
+   }
+  },
+  "/sanctions": {
+   "get": {
+    "summary": "Screen a person or entity name against public OFAC SDN/CONS, UK FCDO, UN SC and EU financial sanctions lists. Fuzzy scored matches with list/programme/id/aliases/DOB/nationality. Screening aid only - not a regulated AML/KYC determination. Example: {name:\"BANCO NACIONAL DE CUBA\"}. $0.05.",
+    "parameters": [
+     {
+      "name": "name",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Person or entity name to screen"
+     },
+     {
+      "name": "country",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Optional country / nationality hint"
+     },
+     {
+      "name": "dob",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Optional date of birth (any common format)"
+     },
+     {
+      "name": "year",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Optional birth year YYYY"
+     },
+     {
+      "name": "type",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Optional individual|entity (person|company also accepted)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "product": {
+           "type": "string"
+          },
+          "disclaimer": {
+           "type": "string"
+          },
+          "query": {
+           "type": "object"
+          },
+          "match_count": {
+           "type": "integer"
+          },
+          "possible_match": {
+           "type": "boolean"
+          },
+          "highest_score": {
+           "type": "number"
+          },
+          "matches": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          },
+          "lists": {
+           "type": "object"
+          },
+          "index_built_at": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.05 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.05",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.05",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "50000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "50000"
+    }
+   },
+   "post": {
+    "summary": "Screen a person or entity name against public OFAC SDN/CONS, UK FCDO, UN SC and EU financial sanctions lists. Fuzzy scored matches with list/programme/id/aliases/DOB/nationality. Screening aid only - not a regulated AML/KYC determination. Example: {name:\"BANCO NACIONAL DE CUBA\"}. $0.05.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "name": {
+          "type": "string",
+          "description": "Person or entity name to screen"
+         },
+         "country": {
+          "type": "string",
+          "description": "Optional country / nationality hint"
+         },
+         "dob": {
+          "type": "string",
+          "description": "Optional date of birth (any common format)"
+         },
+         "year": {
+          "type": "string",
+          "description": "Optional birth year YYYY"
+         },
+         "type": {
+          "type": "string",
+          "description": "Optional individual|entity (person|company also accepted)"
+         }
+        },
+        "required": [
+         "name"
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "product": {
+           "type": "string"
+          },
+          "disclaimer": {
+           "type": "string"
+          },
+          "query": {
+           "type": "object"
+          },
+          "match_count": {
+           "type": "integer"
+          },
+          "possible_match": {
+           "type": "boolean"
+          },
+          "highest_score": {
+           "type": "number"
+          },
+          "matches": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          },
+          "lists": {
+           "type": "object"
+          },
+          "index_built_at": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.05 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.05",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.05",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "50000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "50000"
+    }
+   }
+  },
+  "/sanctions-batch": {
+   "get": {
+    "summary": "Screen up to 50 names against OFAC/UK/UN/EU public sanctions lists. Screening aid only. Example: {names:[\"BANCO NACIONAL DE CUBA\",\"Alice Wonderland\"]}. $1.00.",
+    "parameters": [
+     {
+      "name": "names",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "1-50 names (strings or {name,country?,dob?,year?,type?} objects)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "product": {
+           "type": "string"
+          },
+          "disclaimer": {
+           "type": "string"
+          },
+          "count": {
+           "type": "integer"
+          },
+          "possible_match_count": {
+           "type": "integer"
+          },
+          "results": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $1.00 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$1.00",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "1.00",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "1000000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "1000000"
+    }
+   },
+   "post": {
+    "summary": "Screen up to 50 names against OFAC/UK/UN/EU public sanctions lists. Screening aid only. Example: {names:[\"BANCO NACIONAL DE CUBA\",\"Alice Wonderland\"]}. $1.00.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "names": {
+          "type": "array",
+          "description": "1-50 names (strings or {name,country?,dob?,year?,type?} objects)",
+          "items": {
+           "type": [
+            "string",
+            "object"
+           ]
+          }
+         }
+        },
+        "required": [
+         "names"
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "product": {
+           "type": "string"
+          },
+          "disclaimer": {
+           "type": "string"
+          },
+          "count": {
+           "type": "integer"
+          },
+          "possible_match_count": {
+           "type": "integer"
+          },
+          "results": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $1.00 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$1.00",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "1.00",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "1000000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "1000000"
     }
    }
   },

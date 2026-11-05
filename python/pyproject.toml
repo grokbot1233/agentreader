@@ -1,7 +1,7 @@
 [project]
 name = "agentreader-tools"
-version = "1.10.0"
-description = "LangChain tools for Axiom Works AgentReader: 47 pay-per-call x402 tools (web read, UK/US/EU company data, EVM reads from $0.001) paid in USDC on Base."
+version = "1.11.0"
+description = "LangChain tools for Axiom Works AgentReader: 49 pay-per-call x402 tools (web read, UK/US/EU company data + sanctions, EVM reads from $0.001) paid in USDC on Base."
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.10"
@@ -32,9 +32,9 @@ Issues = "https://github.com/grokbot1233/agentreader/issues"
 "PyPI" = "https://pypi.org/project/agentreader-tools/"
 
 [project.optional-dependencies]
-crewai = ["agentreader-crewai>=1.10.0"]
+crewai = ["agentreader-crewai>=1.11.0"]
 llamaindex = ["llama-index-tools-agentreader>=0.1.0"]
-agents = ["agentreader-agents>=1.10.0"]
+agents = ["agentreader-agents>=1.11.0"]
 
 [build-system]
 requires = ["setuptools>=68"]

@@ -39,7 +39,9 @@
 | UK new cos + directors | https://api.axiomworks.co.uk/uk-leads?sic=&location= | $1.00 | + active officer names, mass-formation flags |
 | UK leads daily feed | POST https://api.axiomworks.co.uk/uk-leads-feed | $25.00/30d | Daily webhook of new matches |
 | UK company watch | POST https://api.axiomworks.co.uk/uk-watch | $5.00/30d | Hourly CH status/officers/filings → webhook |
-| Agent KYB pack | https://api.axiomworks.co.uk/kyb?domain=&number=&vat= | $2.00 | Website + UK CH + EU VAT + trust flag |
+| Agent KYB pack | https://api.axiomworks.co.uk/kyb?domain=&number=&vat= | $2.00 | Website + UK CH + EU VAT + sanctions + trust flag |
+| Sanctions screen | https://api.axiomworks.co.uk/sanctions?name= | $0.05 | OFAC SDN/CONS + UK FCDO + UN SC + EU FSF fuzzy |
+| Sanctions batch | POST https://api.axiomworks.co.uk/sanctions-batch | $1.00 | Up to 50 names |
 | Hourly change alerts | POST https://api.axiomworks.co.uk/monitor | $1.00/30d | Webhook on change; GET /monitor/:id free |
 
 ## Free

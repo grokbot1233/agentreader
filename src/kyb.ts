@@ -2,6 +2,7 @@ import { UserError } from "./core";
 import { companyResearch } from "./company";
 import { ukCompany } from "./uk-company";
 import { euVat } from "./eu-vat";
+import { kybSanctionsScreen } from "./sanctions";
 
 type Env = { LOG: KVNamespace; CH_API_KEY?: string };
 
@@ -30,7 +31,7 @@ export async function kybReport(env: Env, input: {
   const out: any = {
     product: "kyb",
     price: "$2.00",
-    disclaimer: "Screening over public registries only. Not a KYC/KYB/AML determination, credit score, or investment advice. Confirm identifiers at source before onboarding, contracting, or paying.",
+    disclaimer: "Screening over public registries and public sanctions lists only. Not a KYC/KYB/AML determination, credit score, or investment advice. Sanctions matches are scored candidates — never a certainty. Confirm identifiers at source before onboarding, contracting, or paying.",
     inputs: { domain: domain || null, number: number || null, name: name || null, vat: vat || null },
     website: null as any,
     uk: null as any,
@@ -90,6 +91,35 @@ export async function kybReport(env: Env, input: {
 
   await Promise.all(tasks);
 
+  // Sanctions screen (entity + directors) — soft-fail; does not change $2 price
+  out.sanctions = null as any;
+  try {
+    const entityName =
+      out.uk?.name ||
+      out.uk?.profile?.company_name ||
+      out.uk?.overview?.company_name ||
+      out.eu_vat?.name ||
+      name ||
+      null;
+    const officers = out.uk?.officers?.items || out.uk?.officers || [];
+    const directors: string[] = [];
+    if (Array.isArray(officers)) {
+      for (const o of officers) {
+        if (directors.length >= 3) break;
+        const n = o?.name;
+        if (!n) continue;
+        const role = String(o?.officer_role || o?.role || "").toLowerCase();
+        const resigned = !!(o?.resigned_on || o?.resignedOn);
+        if (resigned) continue;
+        if (!role || /director|member/.test(role)) directors.push(String(n));
+      }
+    }
+    out.sanctions = await kybSanctionsScreen(env, { entityName, directors });
+    out.sources.sanctions_lists = out.sanctions?.skipped ? false : true;
+  } catch (e: any) {
+    out.sanctions = { error: String(e?.message || e), disclaimer: "Screening aid only; not a regulated AML/KYC determination." };
+  }
+
   // Composite trust heuristic (transparent, non-regulatory)
   let score = 0;
   const reasons: string[] = [];
@@ -116,6 +146,11 @@ export async function kybReport(env: Env, input: {
     const issues = out.website?.dns?.issues || out.website?.issues || [];
     if (Array.isArray(issues) && issues.length >= 3) { score -= 5; reasons.push("website has multiple DNS/email issues"); }
   }
+  if (out.sanctions && !out.sanctions.error && !out.sanctions.skipped && out.sanctions.possible_match) {
+    const hs = Number(out.sanctions.highest_score || 0);
+    if (hs >= 0.92) { score -= 35; reasons.push(`possible sanctions match (score ${hs}) — review required`); }
+    else if (hs >= 0.8) { score -= 15; reasons.push(`possible sanctions match (score ${hs})`); }
+  }
 
   score = Math.max(0, Math.min(100, score));
   let flag = "INSUFFICIENT_DATA";
@@ -130,6 +165,7 @@ export async function kybReport(env: Env, input: {
     deeper_uk: { path: "/uk-company", price: "$0.50" },
     monitor: { path: "/uk-watch", price: "$5.00/30d", why: "webhook when officers/status/filings change" },
     leads: { path: "/uk-leads", price: "$1.00", why: "new incorporations by SIC/area with directors" },
+    sanctions: { path: "/sanctions", price: "$0.05", why: "screen any extra names (OFAC/UK/UN/EU)" },
   };
   return out;
 }

@@ -667,7 +667,7 @@
   "name": "kyb",
   "path": "/kyb",
   "price": "$2.00",
-  "description": "Use this for a one-shot agent KYB/due-diligence pack: optional website research + UK Companies House DD + EU VIES VAT \u2192 composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not a regulated determination. Example: {domain:\"tesco.com\",number:\"00445790\"} or {vat:\"IE6388047V\"}. $2.00.",
+  "description": "Use this for a one-shot agent KYB/due-diligence pack: optional website research + UK Companies House DD + EU VIES VAT + public sanctions screen (entity + directors) \u2192 composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not a regulated determination. Example: {domain:\"tesco.com\",number:\"00445790\"} or {vat:\"IE6388047V\"}. $2.00.",
   "params": [
    {
     "name": "domain",
@@ -704,6 +704,58 @@
     "required": false,
     "type": "string",
     "description": ""
+   }
+  ]
+ },
+ {
+  "name": "sanctions",
+  "path": "/sanctions",
+  "price": "$0.05",
+  "description": "Screen a person or entity name against public OFAC SDN/CONS, UK FCDO, UN SC and EU financial sanctions lists. Fuzzy scored matches with list/programme/id/aliases/DOB/nationality. Screening aid only - not a regulated AML/KYC determination. Example: {name:\"BANCO NACIONAL DE CUBA\"}. $0.05.",
+  "params": [
+   {
+    "name": "name",
+    "required": true,
+    "type": "string",
+    "description": "Person or entity name to screen"
+   },
+   {
+    "name": "country",
+    "required": false,
+    "type": "string",
+    "description": "Optional country / nationality hint"
+   },
+   {
+    "name": "dob",
+    "required": false,
+    "type": "string",
+    "description": "Optional date of birth (any common format)"
+   },
+   {
+    "name": "year",
+    "required": false,
+    "type": "string",
+    "description": "Optional birth year YYYY"
+   },
+   {
+    "name": "type",
+    "required": false,
+    "type": "string",
+    "description": "Optional individual|entity (person|company also accepted)"
+   }
+  ]
+ },
+ {
+  "name": "sanctions_batch",
+  "path": "/sanctions-batch",
+  "price": "$1.00",
+  "description": "Screen up to 50 names against OFAC/UK/UN/EU public sanctions lists. Screening aid only. Example: {names:[\"BANCO NACIONAL DE CUBA\",\"Alice Wonderland\"]}. $1.00.",
+  "params": [
+   {
+    "name": "names",
+    "required": true,
+    "type": "string",
+    "description": "1-50 names (strings or {name,country?,dob?,year?,type?} objects)"
    }
   ]
  },

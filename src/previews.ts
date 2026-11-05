@@ -3,7 +3,7 @@ import { CANONICAL } from "./facilitator";
 const PREVIEW_LIMIT = 8; // per IP per UTC day across all preview kinds
 const PREVIEW_PREFIX = "prev:";
 
-export type PreviewKind = "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "uk-leads" | "uk-leads-lite" | "kyb";
+export type PreviewKind = "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "uk-leads" | "uk-leads-lite" | "kyb" | "sanctions" | "sanctions-batch";
 
 const PRICE: Record<PreviewKind, string> = {
   read: "$0.002", links: "$0.001", check: "$0.001",
@@ -12,6 +12,7 @@ const PRICE: Record<PreviewKind, string> = {
   "uk-charity": "$0.05", "uk-charity-full": "$0.25",
   "us-sec": "$0.05", "us-sec-full": "$0.25", "eu-vat": "$0.01",
   "uk-leads": "$1.00", "uk-leads-lite": "$0.25", kyb: "$2.00",
+  sanctions: "$0.05", "sanctions-batch": "$1.00",
 };
 
 const PAID_CALL: Record<PreviewKind, string> = {
@@ -29,6 +30,7 @@ const PAID_CALL: Record<PreviewKind, string> = {
   "us-sec-full": `${CANONICAL}/us-sec-full?ticker=TICKER`,
   "eu-vat": `${CANONICAL}/eu-vat?vat=VAT`,
   "uk-leads": `${CANONICAL}/uk-leads?sic=62012`, "uk-leads-lite": `${CANONICAL}/uk-leads-lite?sic=62`, kyb: `${CANONICAL}/kyb?domain=tesco.com&number=00445790`,
+  sanctions: `${CANONICAL}/sanctions?name=BANCO+NACIONAL+DE+CUBA`, "sanctions-batch": `${CANONICAL}/sanctions-batch`,
 };
 
 function dayKey() { return new Date().toISOString().slice(0, 10); }
@@ -204,7 +206,26 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         has_website: !!data.website && !data.website.error,
         has_uk: !!data.uk && !data.uk.error,
         has_eu_vat: !!data.eu_vat && !data.eu_vat.error,
-        omitted: ["full website/uk/eu_vat payloads — pay for complete pack"],
+        has_sanctions: !!data.sanctions && !data.sanctions.error && !data.sanctions.skipped,
+        omitted: ["full website/uk/eu_vat/sanctions payloads — pay for complete pack"],
+      };
+    case "sanctions":
+      return {
+        ...u,
+        product: data.product, disclaimer: data.disclaimer,
+        query: data.query, match_count: data.match_count, possible_match: data.possible_match,
+        highest_score: data.highest_score,
+        matches_preview: (data.matches || []).slice(0, 2),
+        lists: data.lists ? Object.keys(data.lists) : [],
+        omitted: ["full match list", "full aliases", "list publication detail"],
+      };
+    case "sanctions-batch":
+      return {
+        ...u,
+        product: data.product, disclaimer: data.disclaimer, count: data.count,
+        possible_match_count: data.possible_match_count,
+        results_preview: (data.results || []).slice(0, 2),
+        omitted: ["full per-name match payloads"],
       };
     default:
       return { ...u, error: "unknown preview kind" };
@@ -224,7 +245,17 @@ export const STATIC_SAMPLES: Record<string, any> = {
   },
   kyb: {
     product: "kyb", trust: { flag: "CLEAR", score: 85, reasons: ["UK company status active", "website research completed"] },
-    disclaimer: "Screening over public registries only. Not a regulated KYC/KYB/AML determination.",
+    disclaimer: "Screening over public registries and public sanctions lists only. Not a regulated KYC/KYB/AML determination.",
+  },
+  sanctions: {
+    product: "sanctions", possible_match: true, match_count: 1, highest_score: 1,
+    query: { name: "BANCO NACIONAL DE CUBA" },
+    matches_preview: [{ score: 1, list: "OFAC-SDN", name: "BANCO NACIONAL DE CUBA", program: "CUBA" }],
+    disclaimer: "Screening aid only; not a regulated AML/KYC determination.",
+  },
+  "sanctions-batch": {
+    product: "sanctions-batch", count: 2, possible_match_count: 1,
+    results_preview: [{ name: "BANCO NACIONAL DE CUBA", possible_match: true }],
   },
 
   company: {

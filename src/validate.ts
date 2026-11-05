@@ -47,6 +47,8 @@ export const VALIDATE: Record<string, (b: any) => string | null> = {
   "/uk-leads-feed": (b) => first(leadsFilter(b), url(b.webhook, "webhook"), s(b.webhook) && !s(b.webhook).startsWith("https://") ? "webhook must be https" : null),
   "/uk-watch": (b) => first(!s(b.number) ? "missing number" : CHNUM.test(s(b.number)) ? null : "number must be a Companies House number", url(b.webhook, "webhook"), s(b.webhook) && !s(b.webhook).startsWith("https://") ? "webhook must be https" : null),
   "/kyb": (b) => kyb(b),
+  "/sanctions": (b) => sanctions(b),
+  "/sanctions-batch": (b) => sanctionsBatch(b),
 };
 
 function sec(b: any) {
@@ -85,6 +87,29 @@ function leadsFilter(b: any) {
   return null;
 }
 function leads(b: any) { return leadsFilter(b); }
+function sanctions(b: any) {
+  const n = s(b.name);
+  if (n.length < 2) return "missing name (2+ chars)";
+  if (n.length > 200) return "name max 200 chars";
+  if (s(b.type) && !/^(individual|person|entity|company|organisation|organization)$/i.test(s(b.type))) return "type must be individual|entity (or person|company)";
+  if (s(b.year) && !/^(19|20)\d{2}$/.test(s(b.year))) return "year must be a 4-digit year";
+  if (s(b.dob) && s(b.dob).length > 32) return "dob too long";
+  if (s(b.country) && s(b.country).length > 64) return "country too long";
+  return null;
+}
+function sanctionsBatch(b: any) {
+  let names = b.names;
+  if (typeof names === "string") {
+    try { names = JSON.parse(names); } catch { names = String(names).split(/[\n;]/).map((x: string) => x.trim()).filter(Boolean); }
+  }
+  if (!Array.isArray(names) || !names.length) return "missing names array (1-50 items)";
+  if (names.length > 50) return "names max 50 per call";
+  for (const item of names.slice(0, 3)) {
+    const n = typeof item === "string" ? item : s(item?.name);
+    if (!n || n.length < 2) return "each names[] item needs a name (2+ chars)";
+  }
+  return null;
+}
 function kyb(b: any) {
   const domain = s(b.domain), number = s(b.number), name = s(b.name), vat = s(b.vat);
   if (!domain && !number && !name && !vat && !(s(b.country) && s(b.vat_number))) return "provide domain and/or UK number/name and/or EU vat";
@@ -96,4 +121,4 @@ function kyb(b: any) {
 
 export const TOOL_PATH: Record<string, string> = { read_url: "/read", extract_links: "/links", check_domain: "/check", company_research: "/company", uk_company: "/uk-company", uk_company_lite: "/uk-company-lite",
   company_full: "/company-full", convert_document: "/convert", create_monitor: "/monitor", wallet_balances: "/wallet", tx_status: "/tx", token_check: "/token-check", fx_rates: "/fx",
-  ens_lookup: "/ens", token_metadata: "/token", token_allowance: "/allowance", contract_info: "/contract", gas_fees: "/gas", block_lookup: "/block", nft_lookup: "/nft", web_search: "/search", uk_property_prices: "/uk-property", uk_area_profile: "/uk-area", uk_charity: "/uk-charity", uk_charity_full: "/uk-charity-full", us_sec: "/us-sec", us_sec_full: "/us-sec-full", eu_vat: "/eu-vat", uk_leads: "/uk-leads", uk_leads_lite: "/uk-leads-lite", uk_leads_feed: "/uk-leads-feed", uk_watch: "/uk-watch", kyb_report: "/kyb" };
+  ens_lookup: "/ens", token_metadata: "/token", token_allowance: "/allowance", contract_info: "/contract", gas_fees: "/gas", block_lookup: "/block", nft_lookup: "/nft", web_search: "/search", uk_property_prices: "/uk-property", uk_area_profile: "/uk-area", uk_charity: "/uk-charity", uk_charity_full: "/uk-charity-full", us_sec: "/us-sec", us_sec_full: "/us-sec-full", eu_vat: "/eu-vat", uk_leads: "/uk-leads", uk_leads_lite: "/uk-leads-lite", uk_leads_feed: "/uk-leads-feed", uk_watch: "/uk-watch", kyb_report: "/kyb", sanctions_screen: "/sanctions", sanctions_batch: "/sanctions-batch" };
