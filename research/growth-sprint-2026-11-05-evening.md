@@ -6,7 +6,7 @@
 - x402scan `checkDiscovery` on `https://api.axiomworks.co.uk` (OpenAPI-first; 57 unique paths / 106 method rows).
 - Manual x402scan register for `/sanctions` + `/sanctions-batch` (both HTTP 200).
 - Cross-check onesource.io path shapes vs our query-param routes; ASIC data.gov.au + DSP policy; prior notes in `market-2026-11-05.md` / `bigger-plays-2026-11-05.md`.
-- Live OpenAPI version **1.11.0**; `/uk-officer` **not** on openapi (sibling not shipped).
+- Live OpenAPI started sprint at **1.11.0**; mid-sprint sibling shipped `/uk-officer` **$0.15** → OpenAPI **1.12.0** (registered on x402scan + 402index in this half).
 
 ## Top observations
 1. **Path-param aliases still look valuable.** onesource keeps 200–500 unique payers on `/api/chain/tx/:hash` (283), `/block/:number` (305), `/ens/:input` (356), `/contract/:address` (398). Explorer/crawler agents hit REST-shaped paths harder than `?hash=` query forms. Our `/tx`, `/ens`, `/contract`, `/chain/*` are query-only — same facts, weaker discovery surface.
