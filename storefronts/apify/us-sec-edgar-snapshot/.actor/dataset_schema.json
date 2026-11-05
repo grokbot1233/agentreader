@@ -16,19 +16,21 @@
         "component": "table",
         "properties": {
           "ticker": {
-            "label": "ticker"
+            "label": "Ticker"
           },
           "cik": {
-            "label": "cik"
+            "label": "Cik"
           },
           "name": {
-            "label": "name"
+            "label": "Name"
           },
           "recent_filings": {
-            "label": "recent_filings"
+            "label": "Recent filings"
           }
         }
-      }
+      },
+      "description": "Main results table"
     }
-  }
+  },
+  "title": "US SEC EDGAR Company Snapshot (Ticker or CIK) results"
 }

@@ -2,7 +2,7 @@
   "$schema": "https://apify.com/schemas/v1/actor.ide.json",
   "actorSpecification": 1,
   "name": "uk-new-company-leads",
-  "title": "UK New Company Leads \u2014 Fresh Incorporations by SIC & Location",
+  "title": "UK New Company Leads — Fresh Incorporations by SIC & Location",
   "description": "Daily UK new-incorporation leads from the official Companies House register. Filter by SIC code, location or postcode area and optionally enrich with active director names. Built for sales teams, lenders and AI agents hunting brand-new UK companies.",
   "version": "1.0",
   "buildTag": "latest",
@@ -16,5 +16,9 @@
     "AI",
     "BUSINESS"
   ],
-  "inputSchema": "./input_schema.json"
+  "inputSchema": "./input_schema.json",
+  "output": "./output_schema.json",
+  "storages": {
+    "dataset": "./dataset_schema.json"
+  }
 }

@@ -2,8 +2,8 @@
   "$schema": "https://apify.com/schemas/v1/actor.ide.json",
   "actorSpecification": 1,
   "name": "agent-kyb-check",
-  "title": "Agent KYB Check \u2014 Website + UK Companies House + EU VAT",
-  "description": "One-shot KYB / due-diligence screening for AI agents and onboarding: website signals, UK Companies House profile + officers, and EU VIES VAT validation \u2192 composite trust flag (OK / REVIEW / FAIL). Screening over public registries only \u2014 not a regulated determination.",
+  "title": "Agent KYB Check — Website + UK Companies House + EU VAT",
+  "description": "One-shot KYB / due-diligence screening for AI agents and onboarding: website signals, UK Companies House profile + officers, and EU VIES VAT validation → composite trust flag (OK / REVIEW / FAIL). Screening over public registries only — not a regulated determination.",
   "version": "1.0",
   "buildTag": "latest",
   "meta": {
@@ -16,5 +16,9 @@
     "BUSINESS",
     "LEAD_GENERATION"
   ],
-  "inputSchema": "./input_schema.json"
+  "inputSchema": "./input_schema.json",
+  "output": "./output_schema.json",
+  "storages": {
+    "dataset": "./dataset_schema.json"
+  }
 }

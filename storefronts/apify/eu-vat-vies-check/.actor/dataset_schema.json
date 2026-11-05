@@ -15,16 +15,18 @@
         "component": "table",
         "properties": {
           "vat": {
-            "label": "vat"
+            "label": "Vat"
           },
           "valid": {
-            "label": "valid"
+            "label": "Valid"
           },
           "name": {
-            "label": "name"
+            "label": "Name"
           }
         }
-      }
+      },
+      "description": "Main results table"
     }
-  }
+  },
+  "title": "EU VAT VIES Validation — Valid, Name & Address results"
 }

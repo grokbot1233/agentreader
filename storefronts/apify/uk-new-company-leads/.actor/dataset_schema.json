@@ -17,22 +17,24 @@
         "component": "table",
         "properties": {
           "company_number": {
-            "label": "company_number"
+            "label": "Company number"
           },
           "company_name": {
-            "label": "company_name"
+            "label": "Company name"
           },
           "date_of_creation": {
-            "label": "date_of_creation"
+            "label": "Date of creation"
           },
           "sic_codes": {
-            "label": "sic_codes"
+            "label": "Sic codes"
           },
           "directors": {
-            "label": "directors"
+            "label": "Directors"
           }
         }
-      }
+      },
+      "description": "Main results table"
     }
-  }
+  },
+  "title": "UK New Company Leads — Fresh Incorporations by SIC & Location results"
 }

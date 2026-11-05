@@ -7,13 +7,15 @@
       "title": "Charity number",
       "type": "string",
       "editor": "textfield",
-      "description": "e.g. 202918 for Oxfam"
+      "description": "Charity number. e.g. 202918 for Oxfam",
+      "prefill": "202918"
     },
     "name": {
       "title": "Charity name search",
       "type": "string",
       "editor": "textfield",
-      "description": "Charity name search"
+      "description": "Charity name search. Charity name search"
     }
-  }
+  },
+  "description": "Look up a UK charity on the Charity Commission Register of Charities: status, income, activities, trustee count and regulatory flags. Uses the official Register API."
 }

@@ -1,4 +1,19 @@
 {
-  "actorSpecification": 1,
-  "properties": {}
+  "actorOutputSchemaVersion": 1,
+  "title": "EU VAT VIES Validation — Valid, Name & Address output",
+  "description": "Validate any EU VAT number via the official European Commission VIES REST API. Returns validity, registered name and address when available. Perfect for checkout fraud checks, KYB and invoice verification.",
+  "properties": {
+    "results": {
+      "type": "string",
+      "title": "Results",
+      "description": "Items in the default dataset (overview table).",
+      "template": "{{links.apiDefaultDatasetUrl}}/items?view=overview"
+    },
+    "record": {
+      "type": "string",
+      "title": "Full JSON result",
+      "description": "Same record as the dataset item, as a single JSON object.",
+      "template": "{{links.apiDefaultKeyValueStoreUrl}}/records/OUTPUT"
+    }
+  }
 }

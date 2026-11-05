@@ -1,4 +1,19 @@
 {
-  "actorSpecification": 1,
-  "properties": {}
+  "actorOutputSchemaVersion": 1,
+  "title": "UK Charity Commission Check — Status, Income & Trustees output",
+  "description": "Look up a UK charity on the Charity Commission Register of Charities: status, income, activities, trustee count and regulatory flags. Uses the official Register API.",
+  "properties": {
+    "results": {
+      "type": "string",
+      "title": "Results",
+      "description": "Items in the default dataset (overview table).",
+      "template": "{{links.apiDefaultDatasetUrl}}/items?view=overview"
+    },
+    "record": {
+      "type": "string",
+      "title": "Full JSON result",
+      "description": "Same record as the dataset item, as a single JSON object.",
+      "template": "{{links.apiDefaultKeyValueStoreUrl}}/records/OUTPUT"
+    }
+  }
 }

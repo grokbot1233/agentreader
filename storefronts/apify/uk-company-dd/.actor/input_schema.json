@@ -6,8 +6,9 @@
     "companyNumber": {
       "title": "Company number",
       "type": "string",
-      "description": "e.g. 00445790",
-      "editor": "textfield"
+      "description": "Company number. e.g. 00445790",
+      "editor": "textfield",
+      "prefill": "00445790"
     },
     "companyName": {
       "title": "Company name search",
@@ -19,7 +20,7 @@
       "title": "Include officers",
       "type": "boolean",
       "default": true,
-      "description": "Include officers"
+      "description": "Include officers. Include officers"
     },
     "maxOfficers": {
       "title": "Max officers",
@@ -27,7 +28,8 @@
       "default": 50,
       "minimum": 1,
       "maximum": 100,
-      "description": "Max officers"
+      "description": "Max officers. Max officers"
     }
-  }
+  },
+  "description": "Official Companies House due diligence for any UK company number or name: status, SIC, registered office, filing dates, active officers/directors, and automated red-flag heuristics. Uses the official REST API (not HTML scraping). Ideal for KYB, onboarding, sales enrichment and AI agents."
 }

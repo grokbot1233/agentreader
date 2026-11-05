@@ -6,8 +6,9 @@
     "sic": {
       "title": "SIC code or prefix",
       "type": "string",
-      "description": "e.g. 62 or 62012",
-      "editor": "textfield"
+      "description": "SIC code or prefix. e.g. 62 or 62012",
+      "editor": "textfield",
+      "prefill": "62012"
     },
     "location": {
       "title": "Location",
@@ -18,7 +19,7 @@
     "postcodeArea": {
       "title": "Postcode area",
       "type": "string",
-      "description": "e.g. M, SW, EH",
+      "description": "Postcode area. e.g. M, SW, EH",
       "editor": "textfield"
     },
     "days": {
@@ -27,13 +28,13 @@
       "default": 1,
       "minimum": 1,
       "maximum": 7,
-      "description": "Days lookback"
+      "description": "Days lookback. Days lookback"
     },
     "withDirectors": {
       "title": "Include active directors",
       "type": "boolean",
       "default": true,
-      "description": "Include active directors"
+      "description": "Include active directors. Include active directors"
     },
     "limit": {
       "title": "Max companies",
@@ -41,7 +42,8 @@
       "default": 25,
       "minimum": 1,
       "maximum": 100,
-      "description": "Max companies"
+      "description": "Max companies. Max companies"
     }
-  }
+  },
+  "description": "Daily UK new-incorporation leads from the official Companies House register. Filter by SIC code, location or postcode area and optionally enrich with active director names. Built for sales teams, lenders and AI agents hunting brand-new UK companies."
 }

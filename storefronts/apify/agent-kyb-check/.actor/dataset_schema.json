@@ -14,13 +14,15 @@
         "component": "table",
         "properties": {
           "trust": {
-            "label": "trust"
+            "label": "Trust"
           },
           "inputs": {
-            "label": "inputs"
+            "label": "Inputs"
           }
         }
-      }
+      },
+      "description": "Main results table"
     }
-  }
+  },
+  "title": "Agent KYB Check — Website + UK Companies House + EU VAT results"
 }

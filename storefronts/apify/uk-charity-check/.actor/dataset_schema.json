@@ -15,16 +15,18 @@
         "component": "table",
         "properties": {
           "charity_number": {
-            "label": "charity_number"
+            "label": "Charity number"
           },
           "name": {
-            "label": "name"
+            "label": "Name"
           },
           "status": {
-            "label": "status"
+            "label": "Status"
           }
         }
-      }
+      },
+      "description": "Main results table"
     }
-  }
+  },
+  "title": "UK Charity Commission Check — Status, Income & Trustees results"
 }

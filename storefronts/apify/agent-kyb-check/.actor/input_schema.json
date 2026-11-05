@@ -7,25 +7,29 @@
       "title": "Website domain",
       "type": "string",
       "editor": "textfield",
-      "description": "example.com"
+      "description": "Website domain. example.com",
+      "prefill": "oxfam.org.uk"
     },
     "companyNumber": {
       "title": "UK company number",
       "type": "string",
       "editor": "textfield",
-      "description": "UK company number"
+      "description": "UK company number. UK company number",
+      "prefill": "00612172"
     },
     "companyName": {
       "title": "UK company name",
       "type": "string",
       "editor": "textfield",
-      "description": "UK company name"
+      "description": "UK company name. UK company name"
     },
     "vat": {
       "title": "EU VAT number",
       "type": "string",
       "description": "e.g. IE6388047V or DE123...",
-      "editor": "textfield"
+      "editor": "textfield",
+      "prefill": "IE6388047V"
     }
-  }
+  },
+  "description": "One-shot KYB / due-diligence screening for AI agents and onboarding: website signals, UK Companies House profile + officers, and EU VIES VAT validation → composite trust flag (OK / REVIEW / FAIL). Screening over public registries only — not a regulated determination."
 }

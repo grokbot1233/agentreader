@@ -15,16 +15,18 @@
         "component": "table",
         "properties": {
           "url": {
-            "label": "url"
+            "label": "Url"
           },
           "title": {
-            "label": "title"
+            "label": "Title"
           },
           "markdown": {
-            "label": "markdown"
+            "label": "Markdown"
           }
         }
-      }
+      },
+      "description": "Main results table"
     }
-  }
+  },
+  "title": "Web Page to Clean Markdown — Agent-Ready Extractor results"
 }

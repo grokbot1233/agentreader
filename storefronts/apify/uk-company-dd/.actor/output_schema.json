@@ -1,4 +1,19 @@
 {
-  "actorSpecification": 1,
-  "properties": {}
+  "actorOutputSchemaVersion": 1,
+  "title": "UK Companies House Due Diligence Report output",
+  "description": "Official Companies House due diligence for any UK company number or name: status, SIC, registered office, filing dates, active officers/directors, and automated red-flag heuristics. Uses the official REST API (not HTML scraping). Ideal for KYB, onboarding, sales enrichment and AI agents.",
+  "properties": {
+    "results": {
+      "type": "string",
+      "title": "Results",
+      "description": "Items in the default dataset (overview table).",
+      "template": "{{links.apiDefaultDatasetUrl}}/items?view=overview"
+    },
+    "record": {
+      "type": "string",
+      "title": "Full JSON result",
+      "description": "Same record as the dataset item, as a single JSON object.",
+      "template": "{{links.apiDefaultKeyValueStoreUrl}}/records/OUTPUT"
+    }
+  }
 }

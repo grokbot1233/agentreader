@@ -16,5 +16,9 @@
     "AI",
     "BUSINESS"
   ],
-  "inputSchema": "./input_schema.json"
+  "inputSchema": "./input_schema.json",
+  "output": "./output_schema.json",
+  "storages": {
+    "dataset": "./dataset_schema.json"
+  }
 }

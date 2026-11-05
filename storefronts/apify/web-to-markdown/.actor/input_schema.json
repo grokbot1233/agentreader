@@ -7,7 +7,8 @@
       "title": "URL",
       "type": "string",
       "editor": "textfield",
-      "description": "https://example.com/page"
+      "description": "URL. https://example.com/page",
+      "prefill": "https://example.com"
     },
     "maxChars": {
       "title": "Max markdown chars",
@@ -15,10 +16,11 @@
       "default": 50000,
       "minimum": 1000,
       "maximum": 200000,
-      "description": "Max markdown chars"
+      "description": "Max markdown chars. Max markdown chars"
     }
   },
   "required": [
     "url"
-  ]
+  ],
+  "description": "Fetch any public URL and return clean Markdown + metadata (title, description, links). Built for LLM/RAG pipelines and AI agents that need readable page content without raw HTML noise."
 }

@@ -6,8 +6,9 @@
     "vat": {
       "title": "VAT number",
       "type": "string",
-      "description": "e.g. IE6388047V",
-      "editor": "textfield"
+      "description": "VAT number. e.g. IE6388047V",
+      "editor": "textfield",
+      "prefill": "IE6388047V"
     },
     "country": {
       "title": "Country code",
@@ -19,7 +20,8 @@
       "title": "VAT number without country",
       "type": "string",
       "editor": "textfield",
-      "description": "VAT number without country"
+      "description": "VAT number without country. VAT number without country"
     }
-  }
+  },
+  "description": "Validate any EU VAT number via the official European Commission VIES REST API. Returns validity, registered name and address when available. Perfect for checkout fraud checks, KYB and invoice verification."
 }
