@@ -245,8 +245,13 @@ export async function createLeadsFeed(env: EnvKV, body: {
   const postcode_area = (body.postcode_area || "").trim() ? normalizePostcodeArea(String(body.postcode_area)) : "";
   if (!sic && !location && !postcode_area) throw new UserError("provide sic and/or location and/or postcode_area");
 
-  const listed = await env.LOG.list({ prefix: "leadsfeed:" });
-  if (listed.keys.length >= MAX_FEEDS) throw new UserError(`leads-feed capacity reached (${MAX_FEEDS})`, 503);
+  try {
+    const listed = await env.LOG.list({ prefix: "leadsfeed:" });
+    if (listed.keys.length >= MAX_FEEDS) throw new UserError(`leads-feed capacity reached (${MAX_FEEDS})`, 503);
+  } catch (e: any) {
+    if (e instanceof UserError) throw e;
+    console.log("leadsfeed list cap skipped", e?.message || e);
+  }
 
   // validate filter produces something / CH reachable
   await ukLeads(env, { sic, location, postcode_area, days: 1, limit: 5, lite: true });
@@ -273,7 +278,9 @@ export async function getLeadsFeed(env: EnvKV, id: string): Promise<LeadsFeed | 
 }
 
 export async function runLeadsFeeds(env: EnvKV) {
-  const listed = await env.LOG.list({ prefix: "leadsfeed:" });
+  let listed: any;
+  try { listed = await env.LOG.list({ prefix: "leadsfeed:" }); }
+  catch (e: any) { console.log("runLeadsFeeds list failed", e?.message || e); return { ran: 0, delivered: 0, errors: 0, skipped: "kv_list_limit" }; }
   let ran = 0, delivered = 0, errors = 0;
   const now = Date.now();
   for (const k of listed.keys) {

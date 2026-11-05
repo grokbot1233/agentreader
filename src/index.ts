@@ -335,7 +335,7 @@ function getMw(env: Env) {
       let endpoint = "unknown"; try { endpoint = new URL(res).pathname; } catch {}
       const rec = { ts: new Date().toISOString(), endpoint, payer: ctx.result?.payer || null, amount: ctx.result?.amount || ctx.requirements?.amount || String(ATOMIC[endpoint] ?? 0),
         asset: ctx.requirements?.asset, network: ctx.result?.network, tx: ctx.result?.transaction, success: ctx.result?.success };
-      await currentEnv!.LOG.put(`pay:${rec.ts}:${crypto.randomUUID().slice(0, 8)}`, "1", { metadata: rec });
+      await logPay(currentEnv!, rec);
     } catch (e) { console.log("log error", e); }
   });
   mw = paymentMiddleware(routes(env.PAY_TO), server);
@@ -492,21 +492,82 @@ async function keyOk(given: string, s: string) {
   const enc = new TextEncoder(); const [x, y] = await Promise.all([crypto.subtle.digest("SHA-256", enc.encode(given)), crypto.subtle.digest("SHA-256", enc.encode(s))]);
   return s.length > 0 && new Uint8Array(x).every((v, i) => v === new Uint8Array(y)[i]);
 }
+const STATS_KEY = "meta:stats";
+const TEST_PAYERS = new Set(["0xdefe5f9f39d0f0a5f3c83594cd65a8e70015b370"]);
+function emptyStats() {
+  return { paid_calls: 0, revenue_usdc: 0, unique_payers: 0, by_endpoint: {} as any, by_day: {} as any, recent: [] as any[], test_calls: 0, test_revenue_usdc: 0, payers: [] as string[], generated: new Date().toISOString(), source: "cache" };
+}
+async function applyPayToStats(env: Env, rec: any) {
+  const cur: any = (await env.LOG.get(STATS_KEY, "json")) || emptyStats();
+  const isTest = TEST_PAYERS.has(String(rec.payer || "").toLowerCase());
+  const entry = { ...rec, test: isTest };
+  if (rec.success !== false) {
+    if (isTest) {
+      cur.test_calls = (cur.test_calls || 0) + 1;
+      cur.test_revenue_usdc = (cur.test_revenue_usdc || 0) + Number(rec.amount || 0) / 1e6;
+    } else {
+      const a = Number(rec.amount || 0);
+      cur.paid_calls = (cur.paid_calls || 0) + 1;
+      cur.revenue_usdc = (cur.revenue_usdc || 0) + a / 1e6;
+      const payers: string[] = Array.isArray(cur.payers) ? cur.payers : [];
+      if (rec.payer) {
+        const p = String(rec.payer).toLowerCase();
+        if (!payers.includes(p)) payers.push(p);
+      }
+      cur.payers = payers;
+      cur.unique_payers = payers.length;
+      const ep = rec.endpoint || "unknown";
+      cur.by_endpoint ??= {}; cur.by_day ??= {};
+      (cur.by_endpoint[ep] ??= { calls: 0, revenue_usdc: 0 }).calls++;
+      cur.by_endpoint[ep].revenue_usdc += a / 1e6;
+      const d = String(rec.ts || new Date().toISOString()).slice(0, 10);
+      (cur.by_day[d] ??= { calls: 0, revenue_usdc: 0 }).calls++;
+      cur.by_day[d].revenue_usdc += a / 1e6;
+    }
+  }
+  cur.recent = [entry, ...(cur.recent || [])].slice(0, 20);
+  cur.generated = new Date().toISOString();
+  cur.source = "cache";
+  await env.LOG.put(STATS_KEY, JSON.stringify(cur));
+}
 async function stats(env: Env) {
-  const recs: any[] = []; let cursor: string | undefined;
-  do { const l: any = await env.LOG.list({ prefix: "pay:", cursor }); recs.push(...l.keys.map((k: any) => k.metadata).filter(Boolean)); cursor = l.list_complete ? undefined : l.cursor; } while (cursor);
-  const TEST = new Set(["0xdefe5f9f39d0f0a5f3c83594cd65a8e70015b370"]);
-  const all = recs.filter((r) => r.success !== false).sort((a, b) => a.ts < b.ts ? -1 : 1).map((r) => ({ ...r, test: TEST.has(String(r.payer || "").toLowerCase()) }));
-  const tests = all.filter((r) => r.test); const ok = all.filter((r) => !r.test);
-  const byEndpoint: any = {}, byDay: any = {}; const payers = new Set<string>(); let atomic = 0;
-  for (const r of ok) { const a = Number(r.amount || 0); atomic += a; if (r.payer) payers.add(r.payer.toLowerCase());
-    (byEndpoint[r.endpoint] ??= { calls: 0, revenue_usdc: 0 }).calls++; byEndpoint[r.endpoint].revenue_usdc += a / 1e6;
-    const d = r.ts.slice(0, 10); (byDay[d] ??= { calls: 0, revenue_usdc: 0 }).calls++; byDay[d].revenue_usdc += a / 1e6; }
-  return { paid_calls: ok.length, revenue_usdc: atomic / 1e6, unique_payers: payers.size, by_endpoint: byEndpoint, by_day: byDay, recent: all.slice(-20).reverse(), test_calls: tests.length, test_revenue_usdc: tests.reduce((t, r) => t + Number(r.amount || 0), 0) / 1e6, generated: new Date().toISOString() };
+  // Prefer single-key cache — KV list() has a low daily free-tier quota and was
+  // blowing up /dashboard/data (15s poll) + /stats with "list() limit exceeded".
+  const cached: any = await env.LOG.get(STATS_KEY, "json");
+  if (cached) {
+    const { payers, ...rest } = cached;
+    return {
+      ...rest,
+      unique_payers: rest.unique_payers ?? (Array.isArray(payers) ? payers.length : 0),
+      by_endpoint: rest.by_endpoint || {},
+      by_day: rest.by_day || {},
+      recent: rest.recent || [],
+      generated: new Date().toISOString(),
+      source: "cache",
+    };
+  }
+  try {
+    const recs: any[] = []; let cursor: string | undefined;
+    do { const l: any = await env.LOG.list({ prefix: "pay:", cursor }); recs.push(...l.keys.map((k: any) => k.metadata).filter(Boolean)); cursor = l.list_complete ? undefined : l.cursor; } while (cursor);
+    const all = recs.filter((r) => r && r.success !== false).sort((a, b) => String(a.ts) < String(b.ts) ? -1 : 1).map((r) => ({ ...r, test: TEST_PAYERS.has(String(r.payer || "").toLowerCase()) }));
+    const tests = all.filter((r) => r.test); const ok = all.filter((r) => !r.test);
+    const byEndpoint: any = {}, byDay: any = {}; const payers = new Set<string>(); let atomic = 0;
+    for (const r of ok) { const a = Number(r.amount || 0); atomic += a; if (r.payer) payers.add(String(r.payer).toLowerCase());
+      (byEndpoint[r.endpoint] ??= { calls: 0, revenue_usdc: 0 }).calls++; byEndpoint[r.endpoint].revenue_usdc += a / 1e6;
+      const d = String(r.ts || "").slice(0, 10); if (d) { (byDay[d] ??= { calls: 0, revenue_usdc: 0 }).calls++; byDay[d].revenue_usdc += a / 1e6; } }
+    const result = { paid_calls: ok.length, revenue_usdc: atomic / 1e6, unique_payers: payers.size, by_endpoint: byEndpoint, by_day: byDay, recent: all.slice(-20).reverse(), test_calls: tests.length, test_revenue_usdc: tests.reduce((t, r) => t + Number(r.amount || 0), 0) / 1e6, generated: new Date().toISOString(), source: "list-rebuild", payers: [...payers] };
+    await env.LOG.put(STATS_KEY, JSON.stringify(result));
+    const { payers: _p, ...publicStats } = result;
+    return publicStats;
+  } catch (e: any) {
+    const empty = emptyStats();
+    return { ...empty, payers: undefined, stats_err: String(e?.message || e).slice(0, 200), source: "empty-fallback" };
+  }
 }
 export async function logPay(env: Env, r: any) {
-  const rec = { ts: new Date().toISOString(), ...r };
+  const rec = { ...r, ts: r.ts || new Date().toISOString() };
   await env.LOG.put(`pay:${rec.ts}:${crypto.randomUUID().slice(0, 8)}`, "1", { metadata: rec });
+  try { await applyPayToStats(env, rec); } catch (e) { console.log("stats cache error", e); }
 }
 app.get("/stats", async (c) => {
   const auth = c.req.header("authorization")?.replace(/^Bearer\s+/i, "") || c.req.query("key") || "";

@@ -92,8 +92,13 @@ export async function createUkWatch(env: EnvKV, body: { number: string; webhook:
   let wh: URL; try { wh = new URL(webhook); } catch { throw new UserError("invalid webhook url"); }
   if (wh.protocol !== "https:") throw new UserError("webhook must be https");
 
-  const listed = await env.LOG.list({ prefix: "ukwatch:" });
-  if (listed.keys.length >= MAX_WATCHES) throw new UserError(`uk-watch capacity reached (${MAX_WATCHES})`, 503);
+  try {
+    const listed = await env.LOG.list({ prefix: "ukwatch:" });
+    if (listed.keys.length >= MAX_WATCHES) throw new UserError(`uk-watch capacity reached (${MAX_WATCHES})`, 503);
+  } catch (e: any) {
+    if (e instanceof UserError) throw e;
+    console.log("ukwatch list cap skipped", e?.message || e);
+  }
 
   const snap = await snapshot(env, number);
   const id = newId();
@@ -118,7 +123,9 @@ export async function getUkWatch(env: EnvKV, id: string): Promise<UkWatch | null
 }
 
 export async function runUkWatches(env: EnvKV) {
-  const listed = await env.LOG.list({ prefix: "ukwatch:" });
+  let listed: any;
+  try { listed = await env.LOG.list({ prefix: "ukwatch:" }); }
+  catch (e: any) { console.log("runUkWatches list failed", e?.message || e); return { ran: 0, changes: 0, errors: 0, skipped: "kv_list_limit" }; }
   let ran = 0, changes = 0, errors = 0;
   const now = Date.now();
   for (const k of listed.keys) {

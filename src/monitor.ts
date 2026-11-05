@@ -72,10 +72,15 @@ export async function createMonitor(env: { LOG: KVNamespace }, body: {
   if (body.selector && body.selector.length > 200) throw new UserError("selector too long");
   if (body.keyword && body.keyword.length > 200) throw new UserError("keyword too long");
 
-  // cap active monitors
-  const listed = await env.LOG.list({ prefix: "mon:" });
-  const active = listed.keys.filter((k) => k.name.startsWith("mon:") && !k.name.includes(":log:")).length;
-  if (active >= MAX_ACTIVE) throw new UserError(`monitor capacity reached (${MAX_ACTIVE}). Try again when some expire.`, 503);
+  // cap active monitors (KV list is free-tier daily-capped — skip cap if list fails)
+  try {
+    const listed = await env.LOG.list({ prefix: "mon:" });
+    const active = listed.keys.filter((k) => k.name.startsWith("mon:") && !k.name.includes(":log:")).length;
+    if (active >= MAX_ACTIVE) throw new UserError(`monitor capacity reached (${MAX_ACTIVE}). Try again when some expire.`, 503);
+  } catch (e: any) {
+    if (e instanceof UserError) throw e;
+    console.log("mon list cap skipped", e?.message || e);
+  }
 
   // baseline snapshot (also validates url)
   const snap = await extractContent(url, body.selector, body.keyword);
@@ -114,8 +119,14 @@ async function postWebhook(webhook: string, payload: any) {
 }
 
 export async function runMonitors(env: { LOG: KVNamespace }) {
-  const listed = await env.LOG.list({ prefix: "mon:" });
-  const keys = listed.keys.map((k) => k.name).filter((n) => /^mon:[a-f0-9]{32}$/i.test(n));
+  let keys: string[] = [];
+  try {
+    const listed = await env.LOG.list({ prefix: "mon:" });
+    keys = listed.keys.map((k) => k.name).filter((n) => /^mon:[a-f0-9]{32}$/i.test(n));
+  } catch (e: any) {
+    console.log("runMonitors list failed", e?.message || e);
+    return { checked: 0, changed: 0, expired: 0, errors: 0, skipped: "kv_list_limit" };
+  }
   const now = Date.now();
   let checked = 0, changed = 0, expired = 0, errors = 0;
   // Process sequentially in small batches to stay within subrequest/CPU limits
