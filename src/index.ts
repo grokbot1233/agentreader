@@ -157,11 +157,9 @@ app.get("/stats", async (c) => {
   return c.json(await stats(c.env));
 });
 app.get("/dashboard", async (c) => {
-  if (!(await keyOk(c.req.query("key") || "", c.env.DASHBOARD_KEY || ""))) return c.text("unauthorized", 401);
   c.header("cache-control", "no-store"); return c.html(dashboardHtml());
 });
 app.get("/dashboard/data", async (c) => {
-  if (!(await keyOk(c.req.query("key") || "", c.env.DASHBOARD_KEY || ""))) return c.json({ error: "unauthorized" }, 401);
   const t = Date.now(); let health: any = { ok: true };
   try { await c.env.LOG.get("health-probe"); health.kv_ms = Date.now() - t; } catch (e: any) { health = { ok: false, error: String(e) }; }
   health.facilitator = (c.env as any).CDP_API_KEY_ID ? "Coinbase CDP" : "PayAI";

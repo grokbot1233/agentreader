@@ -30,7 +30,7 @@ days.forEach((d,i)=>{const h=max?vals[i]/max*H:0;s+='<rect x="'+(i*bw+4)+'" y="'
 s+='<text x="'+(i*bw+bw/2)+'" y="'+(H+16)+'" fill="#8a8f98" font-size="10" text-anchor="middle">'+d.slice(5)+'</text>'});
 s+='<line x1=0 x2='+W+' y1='+H+' y2='+H+' stroke="#333"/></svg><div class=sub>Last 14 days. Peak: '+fmt(max)+' USDC/day'+(max?'':' (no paid calls yet)')+'</div>';$('chart').innerHTML=s}
 const list=a=>a&&a.length?'<ul>'+a.map(x=>'<li>'+(typeof x==='string'?esc(x):(x.done?'✅ ':'⬜ ')+esc(x.item)+(x.detail?' — <span class=sub>'+esc(x.detail)+'</span>':''))+'</li>').join('')+'</ul>':'<span class=sub>none</span>';
-async function load(){try{const r=await fetch('/dashboard/data?key='+encodeURIComponent(key),{cache:'no-store'});const d=await r.json();if(!r.ok)throw new Error(d.error||r.status);
+async function load(){try{const r=await fetch('/dashboard/data',{cache:'no-store'});const d=await r.json();if(!r.ok)throw new Error(d.error||r.status);
 $('rev').textContent=fmt(d.revenue_usdc);$('calls').textContent=d.paid_calls;$('payers').textContent=d.unique_payers;
 $('health').innerHTML=d.health&&d.health.ok?'<span class=ok>OK</span>':'<span class=bad>DOWN</span>';$('hdet').textContent='KV '+(d.health.kv_ms??'?')+'ms · facilitator: '+(d.health.facilitator||'?');
 const eps=Object.entries(d.by_endpoint);$('ep').innerHTML=eps.length?eps.map(([e,v])=>'<tr><td>'+esc(e)+'</td><td>'+v.calls+'</td><td>'+fmt(v.revenue_usdc)+'</td></tr>').join(''):'<tr><td colspan=3 class=sub>No paid calls yet (0 calls, 0 USDC)</td></tr>';
