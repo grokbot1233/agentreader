@@ -5,3 +5,4 @@ node_modules
 .dashboard_key
 .test_wallet_key
 .env
+dashboard-meta.json

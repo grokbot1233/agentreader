@@ -5,6 +5,7 @@ import { HTTPFacilitatorClient } from "@x402/core/server";
 import { bazaarResourceServerExtension, declareDiscoveryExtension } from "@x402/extensions/bazaar";
 import { readUrl, linksFor, checkDomain, UserError } from "./core";
 import { handleMcp } from "./mcp";
+import { facilitatorClient, CANONICAL, CONTACT } from "./facilitator";
 import { dashboardHtml } from "./dashboard";
 
 type Env = { LOG: KVNamespace; STATS_SECRET: string; DASHBOARD_KEY: string; PAY_TO: string; FACILITATOR_URL: string };
@@ -53,7 +54,7 @@ function routes(payTo: string) {
 let mw: any = null;
 function getMw(env: Env) {
   if (mw) return mw;
-  const fac = new HTTPFacilitatorClient({ url: env.FACILITATOR_URL || "https://facilitator.payai.network" });
+  const fac = facilitatorClient(env);
   const server = new x402ResourceServer(fac).register(NETWORK, new ExactEvmScheme()).registerExtension(bazaarResourceServerExtension);
   server.onAfterSettle(async (ctx: any) => {
     try {
@@ -74,7 +75,7 @@ app.use("*", async (c, next) => { currentEnv = c.env; await next(); c.header("ac
   c.header("access-control-expose-headers", "PAYMENT-REQUIRED, PAYMENT-RESPONSE, X-PAYMENT-RESPONSE"); });
 app.options("*", (c) => c.body(null, 204, { "access-control-allow-origin": "*", "access-control-allow-headers": "*", "access-control-allow-methods": "GET, POST, OPTIONS" }));
 
-function base(c: any) { return new URL(c.req.url).origin; }
+function base(_c: any) { return CANONICAL; }
 function discovery(c: any) {
   const b = base(c);
   return { x402Version: 2, name: "AgentReader", description: "Pay-per-call web reading & domain health API for AI agents. USDC on Base via x402.",
@@ -82,7 +83,7 @@ function discovery(c: any) {
     items: Object.entries(PRICES).map(([p, price]) => ({ resource: `${b}${p}`, methods: ["GET", "POST"], description: (DESC as any)[p], mimeType: "application/json",
       accepts: [{ scheme: "exact", network: NETWORK, amount: String(ATOMIC[p]), price, asset: USDC, payTo: c.env.PAY_TO, maxTimeoutSeconds: 120, extra: { name: "USD Coin", version: "2" } }],
       input: { type: "http", method: "GET", queryParams: IN[p] }, output: OUT[p] })),
-    ownershipProofs: [] };
+    contact: CONTACT, ownershipProofs: [] };
 }
 
 app.get("/health", (c) => c.json({ ok: true, ts: new Date().toISOString() }));
@@ -96,7 +97,7 @@ app.get("/openapi.json", (c) => {
     paths[p] = { get: { summary: (DESC as any)[p], parameters: params, responses: resp, "x-price": price, "x-402": { network: NETWORK, asset: USDC, amount: String(ATOMIC[p]) } },
       post: { summary: (DESC as any)[p], requestBody: { content: { "application/json": { schema: IN[p] } } }, responses: resp, "x-price": price } };
   }
-  return c.json({ openapi: "3.1.0", info: { title: "AgentReader", version: "1.0.0", description: "x402 pay-per-call web reader for AI agents. Payments: USDC on Base mainnet (eip155:8453)." },
+  return c.json({ openapi: "3.1.0", info: { title: "AgentReader", version: "1.0.0", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call web reader for AI agents. Payments: USDC on Base mainnet (eip155:8453)." },
     servers: [{ url: b }], paths });
 });
 const llms = (b: string, payTo: string) => `# AgentReader
@@ -118,6 +119,9 @@ Call the endpoint; you get HTTP 402 with a PAYMENT-REQUIRED header (base64 JSON,
 - ${b}/.well-known/x402 - x402 discovery metadata
 - ${b}/llms.txt - this file
 - ${b}/health
+
+## Contact
+${CONTACT} · source: https://github.com/grokbot1233/agentreader · MCP: ${b}/mcp
 
 ## Limits
 Public http(s) URLs only (private/internal IPs blocked), 3 MB max document, 10 s timeout, 5 redirects. Results cached ~5 minutes.
@@ -160,7 +164,22 @@ app.get("/dashboard/data", async (c) => {
   if (!(await keyOk(c.req.query("key") || "", c.env.DASHBOARD_KEY || ""))) return c.json({ error: "unauthorized" }, 401);
   const t = Date.now(); let health: any = { ok: true };
   try { await c.env.LOG.get("health-probe"); health.kv_ms = Date.now() - t; } catch (e: any) { health = { ok: false, error: String(e) }; }
-  c.header("cache-control", "no-store"); return c.json({ ...(await stats(c.env)), health });
+  health.facilitator = (c.env as any).CDP_API_KEY_ID ? "Coinbase CDP" : "PayAI";
+  const meta = (await c.env.LOG.get("meta:dashboard", "json")) || {};
+  const services = [
+    ...Object.entries(PRICES).map(([p, price]) => ({ name: `HTTP ${p}`, url: `${CANONICAL}${p}`, price, paid: true })),
+    ...[["read_url", "$0.002"], ["extract_links", "$0.001"], ["check_domain", "$0.001"], ["pricing", "free"]].map(([n, price]) => ({ name: `MCP ${n}`, url: `${CANONICAL}/mcp`, price, paid: price !== "free" })),
+    ...["/health", "/llms.txt", "/openapi.json", "/.well-known/x402"].map((p) => ({ name: p, url: `${CANONICAL}${p}`, price: "free", paid: false })),
+  ];
+  c.header("cache-control", "no-store"); return c.json({ ...(await stats(c.env)), health, services, meta, network: NETWORK, payTo: c.env.PAY_TO });
+});
+app.post("/admin/dashboard-meta", async (c) => {
+  const auth = c.req.header("authorization")?.replace(/^Bearer\s+/i, "") || c.req.query("key") || "";
+  if (!(await keyOk(auth, c.env.DASHBOARD_KEY || ""))) return c.json({ error: "unauthorized" }, 401);
+  let body: any; try { body = await c.req.json(); } catch { return c.json({ error: "invalid json" }, 400); }
+  const cur: any = (await c.env.LOG.get("meta:dashboard", "json")) || {};
+  const next = { ...cur, ...body, updated: new Date().toISOString() };
+  await c.env.LOG.put("meta:dashboard", JSON.stringify(next)); return c.json({ ok: true, meta: next });
 });
 app.all("/mcp", (c) => handleMcp(c.req.raw, c.env, (r) => logPay(c.env, r)));
 

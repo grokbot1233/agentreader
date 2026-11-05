@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { createPaymentWrapper, x402ResourceServer } from "@x402/mcp";
-import { HTTPFacilitatorClient } from "@x402/core/server";
+import { facilitatorClient } from "./facilitator";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
 import { z } from "zod";
 import { readUrl, linksFor, checkDomain } from "./core";
@@ -11,7 +11,7 @@ let rs: any = null; let ready: Promise<any> | null = null;
 
 export async function handleMcp(req: Request, env: any, log: (rec: any) => Promise<void>) {
   if (!rs) {
-    rs = new x402ResourceServer(new HTTPFacilitatorClient({ url: env.FACILITATOR_URL || "https://facilitator.payai.network" }));
+    rs = new x402ResourceServer(facilitatorClient(env));
     rs.register(NETWORK, new ExactEvmScheme());
     ready = rs.initialize();
   }

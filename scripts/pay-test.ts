@@ -1,3 +1,4 @@
+// Targets the CDP-facilitated canonical endpoint so the first settlement indexes AgentReader in the Coinbase Bazaar.
 // ONE paid /read call using @x402/fetch. Max spend: $0.002 (2000 atomic USDC). Run: npx tsx scripts/pay-test.ts
 import { readFileSync } from "node:fs";
 import { privateKeyToAccount } from "viem/accounts";
@@ -14,7 +15,7 @@ const client = new x402Client((_v: number, reqs: any[]) => {
 }).register("eip155:8453", new ExactEvmScheme(account as any));
 const pay = wrapFetchWithPayment(fetch, client);
 console.log("payer", account.address);
-const res = await pay("https://agentreader.yasirawouda1.workers.dev/read?url=https://example.com");
+const res = await pay("https://api.axiomworks.co.uk/read?url=https://example.com");
 console.log("status", res.status);
 const pr = res.headers.get("PAYMENT-RESPONSE") || res.headers.get("X-PAYMENT-RESPONSE");
 if (pr) console.log("settlement", decodePaymentResponseHeader(pr));

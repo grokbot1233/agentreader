@@ -1,6 +1,6 @@
 # AgentReader — pay-per-call web reader & domain checker for AI agents (x402)
 
-**Live:** https://agentreader.yasirawouda1.workers.dev · **MCP:** https://agentreader.yasirawouda1.workers.dev/mcp (streamable HTTP)
+**Live:** https://api.axiomworks.co.uk · **MCP:** https://api.axiomworks.co.uk/mcp (streamable HTTP) · Contact: info@axiomworks.co.uk
 
 No API keys, no accounts, no subscriptions. Agents pay per request in **USDC on Base mainnet** using the [x402](https://x402.org) protocol (HTTP 402).
 
@@ -10,9 +10,9 @@ No API keys, no accounts, no subscriptions. Agents pay per request in **USDC on 
 | `GET/POST /links?url=` | `extract_links` | $0.001 | De-duplicated absolute links with anchor text + internal flag |
 | `GET/POST /check?domain=` | `check_domain` | $0.001 | DNS via DoH (A/AAAA/CNAME/MX/TXT/NS/CAA/SOA, DNSSEC), TLS/HTTPS, redirects, HSTS, MX/SPF/DMARC, issues + score |
 
-Payment: x402 v2, scheme `exact`, network `eip155:8453`, asset USDC `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`, payTo `0xB1A4e2C441fa896AF010222659AAbBb71E9Ef1D1`, facilitator PayAI. Payers sign an EIP-3009 authorization — **no ETH gas needed**.
+Payment: x402 v2, scheme `exact`, network `eip155:8453`, asset USDC `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`, payTo `0xB1A4e2C441fa896AF010222659AAbBb71E9Ef1D1`, facilitator: Coinbase CDP (payments index into the CDP Bazaar), PayAI as fallback. Mirror: https://agentreader.yasirawouda1.workers.dev Payers sign an EIP-3009 authorization — **no ETH gas needed**.
 
-Free discovery: [`/llms.txt`](https://agentreader.yasirawouda1.workers.dev/llms.txt) · [`/openapi.json`](https://agentreader.yasirawouda1.workers.dev/openapi.json) · [`/.well-known/x402`](https://agentreader.yasirawouda1.workers.dev/.well-known/x402) · `/health`
+Free discovery: [`/llms.txt`](https://api.axiomworks.co.uk/llms.txt) · [`/openapi.json`](https://api.axiomworks.co.uk/openapi.json) · [`/.well-known/x402`](https://api.axiomworks.co.uk/.well-known/x402) · `/health`
 
 ## HTTP: @x402/fetch
 
@@ -23,7 +23,7 @@ import { privateKeyToAccount } from "viem/accounts";
 
 const client = new x402Client().register("eip155:8453", new ExactEvmScheme(privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)));
 const fetchPaid = wrapFetchWithPayment(fetch, client);
-const r = await fetchPaid("https://agentreader.yasirawouda1.workers.dev/read?url=https://example.com");
+const r = await fetchPaid("https://api.axiomworks.co.uk/read?url=https://example.com");
 console.log((await r.json()).markdown);
 ```
 
@@ -34,7 +34,7 @@ import axios from "axios";
 import { withPaymentInterceptor } from "x402-axios";
 import { privateKeyToAccount } from "viem/accounts";
 
-const api = withPaymentInterceptor(axios.create({ baseURL: "https://agentreader.yasirawouda1.workers.dev" }), privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`));
+const api = withPaymentInterceptor(axios.create({ baseURL: "https://api.axiomworks.co.uk" }), privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`));
 const { data } = await api.get("/check", { params: { domain: "example.com" } });
 ```
 
@@ -42,7 +42,7 @@ Or with plain curl: call without payment, read the base64 `PAYMENT-REQUIRED` hea
 
 ## MCP (paid tools via @x402/mcp)
 
-Remote MCP server, streamable HTTP, stateless: `https://agentreader.yasirawouda1.workers.dev/mcp`
+Remote MCP server, streamable HTTP, stateless: `https://api.axiomworks.co.uk/mcp`
 
 Tools: `read_url`, `extract_links`, `check_domain` (paid) and `pricing` (free). Calling a paid tool without payment returns an x402 `PaymentRequired` result (code 402) containing the requirements; the client retries with the payment in `_meta["x402/payment"]`. This is the official [`@x402/mcp`](https://www.npmjs.com/package/@x402/mcp) pattern, so an x402-aware MCP client pays automatically:
 
@@ -58,7 +58,7 @@ const client = createx402MCPClient({
   autoPayment: true,
   onPaymentRequested: async ({ paymentRequired }) => BigInt(paymentRequired.accepts[0].amount) <= 2000n, // cap $0.002
 });
-await client.connect(new StreamableHTTPClientTransport(new URL("https://agentreader.yasirawouda1.workers.dev/mcp")));
+await client.connect(new StreamableHTTPClientTransport(new URL("https://api.axiomworks.co.uk/mcp")));
 const res = await client.callTool("read_url", { url: "https://example.com" });
 ```
 
