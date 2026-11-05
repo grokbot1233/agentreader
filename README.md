@@ -10,6 +10,9 @@ No API keys, no accounts. Agents pay per request in **USDC on Base mainnet** usi
 | Endpoint | MCP tool | Price | Returns |
 |---|---|---|---|
 | `GET/POST /read?url=` | `read_url` | $0.002 | Clean Markdown + metadata |
+| `GET/POST /read-batch?urls=` | `read_batch` | $0.015 | Up to 8 URLs Markdown (~$0.0019/url) |
+| `GET/POST /lei?lei=` / `?name=` | `lei_lookup` | $0.005 | GLEIF LEI + parents.direct/ultimate + BIC |
+| `GET/POST /lei-full?name=` | `lei_full` | $0.05 | GLEIF name search ≤10 matches w/ parents |
 | `GET/POST /links?url=` | `extract_links` | $0.001 | De-duplicated absolute links |
 | `GET/POST /check?domain=` | `check_domain` | $0.001 | DNS/TLS/HSTS/MX/SPF/DMARC + score |
 | `GET/POST /company?domain=` | `company_research` | $0.25 | Company research report (tech, contacts, DNS, RDAP, SSL, news) with sources |
@@ -64,7 +67,7 @@ console.log(await r.json());
 
 Remote MCP server, streamable HTTP, stateless: `https://api.axiomworks.co.uk/mcp`
 
-Tools: `read_url`, `extract_links`, `check_domain`, `company_research`, `uk_company`, `uk_company_lite`, `company_full`, `uk_charity`, `uk_charity_full`, `convert_document`, `create_monitor`, plus on-chain/FX/search/UK property tools (paid) and `pricing` (free).
+Tools: `read_url`, `read_batch`, `extract_links`, `check_domain`, `company_research`, `uk_company`, `uk_company_lite`, `company_full`, `uk_charity`, `uk_charity_full`, `lei_lookup`, `lei_full`, `convert_document`, `create_monitor`, plus on-chain/FX/search/UK property tools (paid) and `pricing` (free).
 
 ```ts
 import { createx402MCPClient } from "@x402/mcp";
@@ -187,4 +190,4 @@ MIT licensed.
 All support `?preview=1` (free, truncated, 8/IP/day). Edge-cached per input (10 s gas … 1 h token metadata) with multi-provider RPC fallback.
 
 ### Path aliases
-Explorer-style paths map to the same paid routes/prices: `/tx/:hash`, `/ens/:name|:address`, `/contract/:address`, `/wallet/:address` (`/address/`, `/balance/`), `/token/:address`, `/token-check/:address`, `/block/:number`, `/nft/:contract/:id`, `/gas/:chain`, `/check/:domain`, `/uk-company/:number`, `/uk-charity/:number`, `/us-sec/:ticker|:cik`, `/eu-vat/:vat`. Add `?chain=` / `?preview=1` as usual.
+Explorer-style paths map to the same paid routes/prices: `/tx/:hash`, `/ens/:name|:address`, `/contract/:address`, `/wallet/:address` (`/address/`, `/balance/`), `/token/:address`, `/token-check/:address`, `/block/:number`, `/nft/:contract/:id`, `/gas/:chain`, `/check/:domain`, `/uk-company/:number`, `/uk-charity/:number`, `/us-sec/:ticker|:cik`, `/eu-vat/:vat`, `/lei/:lei`. Add `?chain=` / `?preview=1` as usual.

@@ -2,6 +2,7 @@ import { UserError } from "./core";
 import { companyResearch } from "./company";
 import { ukCompany } from "./uk-company";
 import { euVat } from "./eu-vat";
+import { leiLookup } from "./lei";
 import { kybSanctionsScreen } from "./sanctions";
 import { ukOfficerSearch } from "./uk-officer";
 export function bindingRegistries(env: any): KybRegistries {
@@ -26,7 +27,7 @@ function domainish(v: string) {
 /** Composite agent KYB / due-diligence pack. Screening only — not a regulated determination. */
 export async function kybReport(env: Env, input: {
   domain?: string; number?: string; name?: string; vat?: string; country?: string; vat_number?: string;
-  acn?: string; abn?: string; ca_number?: string; bn?: string;
+  acn?: string; abn?: string; ca_number?: string; bn?: string; lei?: string;
 }, reg: KybRegistries = {}) {
   const acn = s(input.acn) || s(input.abn), caNum = s(input.ca_number), bn = s(input.bn);
   const rawDomain = s(input.domain) || (s(input.name).includes(".") ? s(input.name) : "");
@@ -34,22 +35,24 @@ export async function kybReport(env: Env, input: {
   const number = s(input.number);
   const name = !domain && s(input.name) && !s(input.name).includes(".") ? s(input.name) : "";
   const vat = s(input.vat) || (s(input.country) && s(input.vat_number) ? s(input.country) + s(input.vat_number) : "");
+  const lei = s(input.lei).toUpperCase().replace(/[\s-]/g, "");
 
-  if (!domain && !number && !name && !vat && !acn && !caNum && !bn) {
-    throw new UserError("provide domain and/or UK company number/name, AU acn/abn, CA ca_number/bn and/or EU VAT");
+  if (!domain && !number && !name && !vat && !acn && !caNum && !bn && !lei) {
+    throw new UserError("provide domain and/or UK company number/name, AU acn/abn, CA ca_number/bn, EU VAT and/or lei");
   }
 
   const out: any = {
     product: "kyb",
     price: "$2.50",
     disclaimer: "Screening over public registries and public sanctions lists only. Not a KYC/KYB/AML determination, credit score, or investment advice. Sanctions matches are scored candidates — never a certainty. Confirm identifiers at source before onboarding, contracting, or paying.",
-    inputs: { domain: domain || null, number: number || null, name: name || null, vat: vat || null, acn: acn || null, ca_number: caNum || null, bn: bn || null },
+    inputs: { domain: domain || null, number: number || null, name: name || null, vat: vat || null, acn: acn || null, ca_number: caNum || null, bn: bn || null, lei: lei || null },
     au: null as any,
     ca: null as any,
     directors_appointments: null as any,
     website: null as any,
     uk: null as any,
     eu_vat: null as any,
+    lei: null as any,
     trust: { flag: "INSUFFICIENT_DATA" as string, reasons: [] as string[], score: 0 },
     sources: {} as any,
   };
@@ -101,6 +104,17 @@ export async function kybReport(env: Env, input: {
         out.sources.eu_vies = true;
       } catch (e: any) {
         out.eu_vat = { error: String(e?.message || e) };
+      }
+    })());
+  }
+  if (lei) {
+    tasks.push((async () => {
+      try {
+        out.lei = await leiLookup(env, { lei });
+        out.sources.gleif = true;
+      } catch (e: any) {
+        // Soft-fail: GLEIF 404/errors must not fail whole KYB
+        out.lei = { error: String(e?.message || e) };
       }
     })());
   }
@@ -189,7 +203,8 @@ export async function kybReport(env: Env, input: {
 
   score = Math.max(0, Math.min(100, score));
   let flag = "INSUFFICIENT_DATA";
-  const have = [out.uk && !out.uk.error, out.au && !out.au.error, out.ca && !out.ca.error, out.eu_vat && !out.eu_vat.error, out.website && !out.website.error].filter(Boolean).length;
+  if (out.lei && !out.lei.error && out.lei.lei) { score += 20; reasons.push("GLEIF LEI resolved" + (out.lei.parents?.ultimate?.lei ? " (ultimate parent present)" : out.lei.parents?.direct?.lei ? " (direct parent present)" : "")); }
+  const have = [out.uk && !out.uk.error, out.au && !out.au.error, out.ca && !out.ca.error, out.eu_vat && !out.eu_vat.error, out.website && !out.website.error, out.lei && !out.lei.error].filter(Boolean).length;
   if (have === 0) flag = "INSUFFICIENT_DATA";
   else if (high > 0 || score < 30) flag = "REVIEW";
   else if (score < 55 || medium >= 2) flag = "CAUTION";

@@ -3,14 +3,14 @@ import { CANONICAL } from "./facilitator";
 const PREVIEW_LIMIT = 8; // per IP per UTC day across all preview kinds
 const PREVIEW_PREFIX = "prev:";
 
-export type PreviewKind = "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "uk-leads" | "uk-leads-lite" | "kyb" | "sanctions" | "sanctions-batch" | "uk-officer";
+export type PreviewKind = "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "kyb" | "sanctions" | "sanctions-batch" | "uk-officer";
 
 const PRICE: Record<PreviewKind, string> = {
   read: "$0.002", links: "$0.001", check: "$0.001",
   company: "$0.25", "uk-company": "$0.50", "uk-company-lite": "$0.05",
   convert: "$0.03", "company-full": "$0.65",
   "uk-charity": "$0.05", "uk-charity-full": "$0.25",
-  "us-sec": "$0.05", "us-sec-full": "$0.25", "eu-vat": "$0.01",
+  "us-sec": "$0.05", "us-sec-full": "$0.25", "eu-vat": "$0.01", "lei": "$0.005", "lei-full": "$0.05", "read-batch": "$0.015",
   "uk-leads": "$1.00", "uk-leads-lite": "$0.25", kyb: "$2.50",
   sanctions: "$0.05", "sanctions-batch": "$1.00",
   "uk-officer": "$0.15",
@@ -30,6 +30,9 @@ const PAID_CALL: Record<PreviewKind, string> = {
   "us-sec": `${CANONICAL}/us-sec?ticker=TICKER`,
   "us-sec-full": `${CANONICAL}/us-sec-full?ticker=TICKER`,
   "eu-vat": `${CANONICAL}/eu-vat?vat=VAT`,
+  "lei": `${CANONICAL}/lei?lei=HWUPKR0MPOU8FGXBT394`,
+  "lei-full": `${CANONICAL}/lei-full?name=Apple+Inc.`,
+  "read-batch": `${CANONICAL}/read-batch?urls=https://example.com,https://example.org`,
   "uk-leads": `${CANONICAL}/uk-leads?sic=62012`, "uk-leads-lite": `${CANONICAL}/uk-leads-lite?sic=62`, kyb: `${CANONICAL}/kyb?domain=tesco.com&number=00445790`,
   sanctions: `${CANONICAL}/sanctions?name=BANCO+NACIONAL+DE+CUBA`, "sanctions-batch": `${CANONICAL}/sanctions-batch`,
   "uk-officer": `${CANONICAL}/uk-officer?name=Ken+Olisa`,
@@ -212,6 +215,7 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         has_ca: !!data.ca && !data.ca.error,
         directors_checked: (data.directors_appointments || []).length,
         has_sanctions: !!data.sanctions && !data.sanctions.error && !data.sanctions.skipped,
+        has_lei: !!data.lei && !data.lei.error,
         omitted: ["full website/uk/eu_vat/sanctions payloads - pay for complete pack"],
       };
     case "sanctions":
@@ -249,6 +253,35 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         omitted: ["full officer list beyond 2", "full appointment lists"],
         attribution: data.attribution,
       };
+    case "lei":
+      return {
+        ...u,
+        lei: data.lei, legal_name: data.legal_name,
+        status: data.status, jurisdiction: data.jurisdiction,
+        parents: data.parents ? { direct: data.parents.direct?.lei || null, ultimate: data.parents.ultimate?.lei || null } : null,
+        omitted: ["addresses", "other_names", "identifiers", "full parent names"],
+      };
+    case "lei-full":
+      return {
+        ...u,
+        product: data.product, query: data.query, count: data.count, total_available: data.total_available,
+        results_preview: (data.results || []).slice(0, 2).map((r: any) => ({
+          lei: r.lei, legal_name: r.legal_name, status: r.status, jurisdiction: r.jurisdiction,
+          parents: r.parents ? { direct: r.parents.direct?.lei || null, ultimate: r.parents.ultimate?.lei || null } : null,
+        })),
+        omitted: ["remaining candidates", "full addresses/identifiers"],
+      };
+    case "read-batch":
+      return {
+        ...u,
+        product: data.product, count: data.count, ok_count: data.ok_count,
+        results_preview: (data.results || []).slice(0, 2).map((r: any) => ({
+          url: r.url, ok: r.ok, title: r.title, word_count: r.word_count,
+          markdown_preview: r.markdown ? String(r.markdown).slice(0, 200) + (String(r.markdown).length > 200 ? "…" : "") : null,
+          error: r.error || null,
+        })),
+        omitted: ["remaining URLs", "full markdown"],
+      };
     default:
       return { ...u, error: "unknown preview kind" };
   }
@@ -256,6 +289,18 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
 
 /** Frozen real samples (generated offline / first warm). Keep intentionally partial. */
 export const STATIC_SAMPLES: Record<string, any> = {
+  "lei": {
+    lei: "HWUPKR0MPOU8FGXBT394", legal_name: "Apple Inc.", status: { entity: "ACTIVE", registration: "ISSUED" },
+    jurisdiction: "US-CA", parents: { direct: null, ultimate: null },
+  },
+  "lei-full": {
+    product: "lei-full", query: { name: "Apple Inc." }, count: 2, total_available: 24,
+    results: [{ lei: "HWUPKR0MPOU8FGXBT394", legal_name: "Apple Inc.", status: { entity: "ACTIVE" }, jurisdiction: "US-CA", parents: { direct: null, ultimate: null } }],
+  },
+  "read-batch": {
+    product: "read-batch", count: 2, ok_count: 2,
+    results: [{ url: "https://example.com", ok: true, title: "Example Domain", word_count: 20, markdown: "Example Domain" }],
+  },
   "uk-leads-lite": {
     product: "uk-leads-lite", query: { sic: "62012", days: 1 }, returned: 2,
     companies_preview: [{ company_number: "17560814", company_name: "MADE OF WHITE LTD", sic_codes: ["62012"], postcode: "W1" }],

@@ -20,6 +20,9 @@ export const VALIDATE: Record<string, (b: any) => string | null> = {
   "/uk-charity": (b) => charity(b), "/uk-charity-full": (b) => charity(b),
   "/us-sec": (b) => sec(b), "/us-sec-full": (b) => sec(b),
   "/eu-vat": (b) => vat(b),
+  "/lei": (b) => lei(b),
+  "/lei-full": (b) => leiFull(b),
+  "/read-batch": (b) => readBatch(b),
   "/registry-batch": (b) => { const n = (s(b.uk) + "," + s(b.au) + "," + s(b.ca)).split(/[\s,;]+/).filter((x) => /\d/.test(x)).length; return n === 0 ? "uk, au or ca ids required" : n > 25 ? "max 25 ids total" : null; },
   "/ca-company": (b) => { const n = s(b.number).replace(/\D/g, ""), bn = s(b.bn).replace(/\D/g, ""); return (n && n.length <= 8) || bn.length >= 9 ? null : "number (up to 8 digits) or bn (9 digits) required"; },
   "/au-company": (b) => { const r = s(b.acn || b.abn).replace(/\s/g, ""); return /^(\d{9}|\d{11})$/.test(r) ? null : "acn must be 9 digits (or abn 11 digits)"; },
@@ -122,15 +125,48 @@ function officer(b: any) {
   if (s(b.limit) && !(Number(b.limit) >= 1 && Number(b.limit) <= 25)) return "limit must be 1-25";
   return null;
 }
+function lei(b: any) {
+  const l = s(b.lei).toUpperCase().replace(/[\s-]/g, "");
+  const name = s(b.name), reg = s(b.registered_as), country = s(b.country).toUpperCase();
+  if (!l && !name && !reg) return "missing lei (20-char) or name or registered_as";
+  if (l && !/^[A-Z0-9]{20}$/.test(l)) return "lei must be 20 alphanumeric chars";
+  if (country && !/^[A-Z]{2}$/.test(country)) return "country must be ISO2";
+  if (country && !name && !reg && !l) return "country requires name or registered_as";
+  return null;
+}
+function leiFull(b: any) {
+  const l = s(b.lei).toUpperCase().replace(/[\s-]/g, "");
+  const name = s(b.name), reg = s(b.registered_as), country = s(b.country).toUpperCase();
+  if (!l && !name && !reg) return "missing name or registered_as (or lei)";
+  if (l && !name && !reg && !/^[A-Z0-9]{20}$/.test(l)) return "lei must be 20 alphanumeric chars";
+  if (country && !/^[A-Z]{2}$/.test(country)) return "country must be ISO2";
+  return null;
+}
+function readBatch(b: any) {
+  let urls = b.urls;
+  if (typeof urls === "string") {
+    const raw = urls.trim();
+    if (raw.startsWith("[")) { try { urls = JSON.parse(raw); } catch { urls = raw.split(/[\s,]+/).filter(Boolean); } }
+    else urls = raw.split(/[\s,]+/).filter(Boolean);
+  }
+  if (!Array.isArray(urls) || !urls.length) return "missing urls (comma-separated or JSON array, max 8 http(s))";
+  if (urls.length > 8) return "max 8 urls per call";
+  for (const u of urls.slice(0, 3)) {
+    const e = url(u);
+    if (e) return e.replace(/^url/, "each url");
+  }
+  return null;
+}
 function kyb(b: any) {
   const domain = s(b.domain), number = s(b.number), name = s(b.name), vat = s(b.vat);
-  if (!domain && !number && !name && !vat && !s(b.acn) && !s(b.abn) && !s(b.ca_number) && !s(b.bn) && !(s(b.country) && s(b.vat_number))) return "provide domain and/or UK number/name, AU acn/abn, CA ca_number/bn and/or EU vat";
+  if (!domain && !number && !name && !vat && !s(b.acn) && !s(b.abn) && !s(b.ca_number) && !s(b.bn) && !(s(b.country) && s(b.vat_number)) && !s(b.lei)) return "provide domain and/or UK number/name, AU acn/abn, CA ca_number/bn, EU vat and/or lei";
   if (domain) { const d = domainish(domain); if (d) return d; }
   if (number && !CHNUM.test(number)) return "number must be a Companies House number";
   if (vat && (!/^(?:GR|[A-Z]{2})[A-Z0-9]{2,12}$/i.test(vat.replace(/[\s.-]/g, "")) || !/\d/.test(vat.replace(/[\s.-]/g, "").slice(2)))) return "vat must look like DE123456789 or IE6388047V";
+  if (s(b.lei) && !/^[A-Z0-9]{20}$/i.test(s(b.lei).replace(/[\s-]/g, ""))) return "lei must be 20 alphanumeric chars";
   return null;
 }
 
 export const TOOL_PATH: Record<string, string> = { read_url: "/read", extract_links: "/links", check_domain: "/check", company_research: "/company", uk_company: "/uk-company", uk_company_lite: "/uk-company-lite",
   company_full: "/company-full", convert_document: "/convert", create_monitor: "/monitor", wallet_balances: "/wallet", tx_status: "/tx", token_check: "/token-check", fx_rates: "/fx", au_company: "/au-company", ca_company: "/ca-company", registry_batch: "/registry-batch",
-  ens_lookup: "/ens", token_metadata: "/token", token_allowance: "/allowance", contract_info: "/contract", gas_fees: "/gas", block_lookup: "/block", nft_lookup: "/nft", web_search: "/search", uk_property_prices: "/uk-property", uk_area_profile: "/uk-area", uk_charity: "/uk-charity", uk_charity_full: "/uk-charity-full", us_sec: "/us-sec", us_sec_full: "/us-sec-full", eu_vat: "/eu-vat", uk_leads: "/uk-leads", uk_leads_lite: "/uk-leads-lite", uk_leads_feed: "/uk-leads-feed", uk_watch: "/uk-watch", kyb_report: "/kyb", sanctions_screen: "/sanctions", sanctions_batch: "/sanctions-batch", uk_officer: "/uk-officer" };
+  ens_lookup: "/ens", token_metadata: "/token", token_allowance: "/allowance", contract_info: "/contract", gas_fees: "/gas", block_lookup: "/block", nft_lookup: "/nft", web_search: "/search", uk_property_prices: "/uk-property", uk_area_profile: "/uk-area", uk_charity: "/uk-charity", uk_charity_full: "/uk-charity-full", us_sec: "/us-sec", us_sec_full: "/us-sec-full", eu_vat: "/eu-vat", lei_lookup: "/lei", lei_full: "/lei-full", read_batch: "/read-batch", uk_leads: "/uk-leads", uk_leads_lite: "/uk-leads-lite", uk_leads_feed: "/uk-leads-feed", uk_watch: "/uk-watch", kyb_report: "/kyb", sanctions_screen: "/sanctions", sanctions_batch: "/sanctions-batch", uk_officer: "/uk-officer" };

@@ -1,12 +1,12 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.grokbot1233/agentreader",
-  "description": "x402 USDC APIs: web/PDF/search, UK CH/officer/charity, KYB+sanctions, SEC, VAT, EVM, FX.",
+  "description": "x402 USDC APIs: web/PDF/search, UK CH/officer/charity, KYB+sanctions+LEI, SEC, VAT, batch-read, EVM, FX.",
   "repository": {
     "url": "https://github.com/grokbot1233/agentreader",
     "source": "github"
   },
-  "version": "1.12.5",
+  "version": "1.13.0",
   "remotes": [
     {
       "type": "streamable-http",

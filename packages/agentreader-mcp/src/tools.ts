@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const ORIGIN = process.env.AGENTREADER_ORIGIN || "https://api.axiomworks.co.uk";
-export const VERSION = "1.10.0";
+export const VERSION = "1.13.0";
 import CHAIN from "./chain-routes.json";
 
 const CH = z.enum(["base", "ethereum", "arbitrum", "optimism", "polygon"]).optional();
@@ -325,6 +325,40 @@ export const TOOLS: ToolDef[] = [
     previewable: true,
   },
   {
+    name: "lei_lookup",
+    description: "GLEIF LEI lookup with parents.direct/ultimate + BIC. $0.005 USDC.",
+    price: "$0.005",
+    schema: {
+      lei: z.string().optional(),
+      name: z.string().optional(),
+      registered_as: z.string().optional(),
+      country: z.string().optional(),
+    },
+    http: (a) => `${ORIGIN}/lei?${qs(a)}`,
+    previewable: true,
+  },
+  {
+    name: "lei_full",
+    description: "GLEIF name/registered_as search up to 10 matches each with parents. $0.05 USDC.",
+    price: "$0.05",
+    schema: {
+      name: z.string().optional(),
+      registered_as: z.string().optional(),
+      country: z.string().optional(),
+      lei: z.string().optional(),
+    },
+    http: (a) => `${ORIGIN}/lei-full?${qs(a)}`,
+    previewable: true,
+  },
+  {
+    name: "read_batch",
+    description: "Batch web read up to 8 URLs as Markdown. $0.015 USDC.",
+    price: "$0.015",
+    schema: { urls: z.any() },
+    http: (a) => `${ORIGIN}/read-batch?urls=${encodeURIComponent(Array.isArray(a.urls) ? a.urls.join(",") : String(a.urls || ""))}`,
+    previewable: true,
+  },
+  {
     name: "uk_charity_full",
     description:
       "Full UK charity DD: trustees, finances, assets, governance, regulatory + red flags. $0.25 USDC.",
@@ -393,7 +427,7 @@ export const TOOLS: ToolDef[] = [
   },
   {
     name: "kyb_report",
-    description: "Agent KYB pack: UK Companies House / Australia ASIC (acn) / Canada (ca_number, bn) registry + EU VAT + website + sanctions (entity+directors) + director appointment skim → trust flag. Screening only. $2.50 USDC.",
+    description: "Agent KYB pack: UK/AU/CA registry + EU VAT + optional GLEIF LEI (parents) + website + sanctions + director appointments → trust flag. Screening only. $2.50 USDC.",
     price: "$2.50",
     schema: {
       domain: z.string().optional(),
@@ -405,6 +439,7 @@ export const TOOLS: ToolDef[] = [
       acn: z.string().optional(),
       ca_number: z.string().optional(),
       bn: z.string().optional(),
+      lei: z.string().optional(),
     },
     http: (a) => `${ORIGIN}/kyb?${qs(a)}`,
     previewable: true,

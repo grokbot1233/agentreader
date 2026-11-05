@@ -5,7 +5,7 @@ import { createPaymentWrapper, x402ResourceServer } from "@x402/mcp";
 import { facilitatorClient } from "./facilitator";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
 import { z } from "zod";
-import { readUrl, linksFor, checkDomain } from "./core";
+import { readUrl, linksFor, checkDomain, readBatch } from "./core";
 import { companyResearch } from "./company";
 import { ukCompany } from "./uk-company";
 import { companyFull } from "./company-full";
@@ -20,6 +20,7 @@ import { ukProperty, ukArea } from "./ukdata";
 import { ukCharity } from "./uk-charity";
 import { usSec } from "./us-sec";
 import { euVat } from "./eu-vat";
+import { leiLookup, leiFull } from "./lei";
 import { ukLeads, createLeadsFeed } from "./uk-leads";
 import { createUkWatch } from "./uk-watch";
 import { kybReport, bindingRegistries } from "./kyb";
@@ -33,7 +34,7 @@ const EXAMPLES: Record<string, any> = { "/read": { url: "https://example.com" },
   "/wallet": { address: "0x88b1c747c33A5868A34057D8C57318E5602b3ff6" }, "/tx": { hash: "0x" + "ab".repeat(32) }, "/token-check": { address: "0x940181a94A35A4569E4529A3CDfB74e38FD98631" }, "/token": { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" },
   "/contract": { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" }, "/fx": { base: "GBP", symbols: "USD,EUR" }, "/ens": { name: "vitalik.eth" }, "/allowance": { token: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", owner: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045", spender: "0x000000000022D473030F116dDEE9F6B43aC78BA3" },
   "/gas": { chain: "base" }, "/block": { timestamp: "2026-01-01T00:00:00Z" }, "/nft": { contract: "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D", token_id: "1", chain: "ethereum" },
-  "/search": { q: "x402 agent payments" }, "/uk-property": { postcode: "CB1 2AB" }, "/uk-area": { postcode: "SW1A 2AA" }, "/uk-charity": { number: "1089464" }, "/uk-charity-full": { number: "1089464" }, "/us-sec": { ticker: "AAPL" }, "/us-sec-full": { ticker: "AAPL" }, "/eu-vat": { vat: "IE6388047V" }, "/uk-leads": { sic: "62012", days: 1 }, "/uk-leads-lite": { sic: "62", location: "London" }, "/uk-leads-feed": { sic: "62012", webhook: "https://your.app/hook" }, "/uk-watch": { number: "00445790", webhook: "https://your.app/hook" }, "/kyb": { domain: "tesco.com", number: "00445790" }, "/sanctions": { name: "BANCO NACIONAL DE CUBA" }, "/sanctions-batch": { names: ["BANCO NACIONAL DE CUBA", "Alice Wonderland"] }, "/uk-officer": { name: "Ken Olisa", limit: 10 } };
+  "/search": { q: "x402 agent payments" }, "/uk-property": { postcode: "CB1 2AB" }, "/uk-area": { postcode: "SW1A 2AA" }, "/uk-charity": { number: "1089464" }, "/uk-charity-full": { number: "1089464" }, "/us-sec": { ticker: "AAPL" }, "/us-sec-full": { ticker: "AAPL" }, "/eu-vat": { vat: "IE6388047V" }, "/lei": { lei: "HWUPKR0MPOU8FGXBT394" }, "/lei-full": { name: "Apple Inc.", country: "US" }, "/read-batch": { urls: "https://example.com,https://example.org" }, "/uk-leads": { sic: "62012", days: 1 }, "/uk-leads-lite": { sic: "62", location: "London" }, "/uk-leads-feed": { sic: "62012", webhook: "https://your.app/hook" }, "/uk-watch": { number: "00445790", webhook: "https://your.app/hook" }, "/kyb": { domain: "tesco.com", number: "00445790" }, "/sanctions": { name: "BANCO NACIONAL DE CUBA" }, "/sanctions-batch": { names: ["BANCO NACIONAL DE CUBA", "Alice Wonderland"] }, "/uk-officer": { name: "Ken Olisa", limit: 10 } };
 
 const NETWORK = "eip155:8453";
 function EXAMPLES_CHAIN_GET(p: string) { return EXAMPLES_CHAIN[p]; }
@@ -57,7 +58,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       await log({ endpoint: `mcp:${tool}`, payer: settlement?.payer || null, amount: settlement?.amount || String(atomic), network: settlement?.network, tx: settlement?.transaction, success: settlement?.success });
     } },
   } as any);
-  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.12.5" });
+  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.13.0" });
   { const orig = (server as any).tool.bind(server); (server as any).tool = (name: string, desc: any, ...rest: any[]) => orig(name, typeof desc === "string" ? upsell(TOOL_PATH[name] || "", desc) : desc, ...rest); }
   const json = (d: any) => ({ content: [{ type: "text" as const, text: JSON.stringify(d) }] });
   const err = (e: any) => ({ isError: true, content: [{ type: "text" as const, text: String(e?.message || e) }] });
@@ -117,6 +118,21 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
     "Use this to validate an EU VAT number via official VIES: valid, name, address, requestDate. Input vat like IE6388047V or DE123456789 (or country+number; EL for Greece). $0.01 USDC.",
     { vat: z.string().optional(), country: z.string().optional(), number: z.string().optional() },
     (await mk("$0.01", "eu_vat", 10000))(async (a: any) => { try { return json(await euVat(env, { vat: a.vat, country: a.country, number: a.number })); } catch (e) { return err(e); } }) as any);
+
+  server.tool("lei_lookup",
+    "GLEIF LEI lookup (CC0): lei/name/registered_as. ALWAYS includes parents.direct + parents.ultimate (null if unreported), BIC/mapped ids, addresses, status. Upsell lei_full for up to 10 name matches. Example: {lei:\"HWUPKR0MPOU8FGXBT394\"}. $0.005 USDC.",
+    { lei: z.string().optional(), name: z.string().optional(), registered_as: z.string().optional(), country: z.string().optional() },
+    (await mk("$0.005", "lei_lookup", 5000))(async (a: any) => { try { return json(await leiLookup(env, a)); } catch (e) { return err(e); } }) as any);
+
+  server.tool("lei_full",
+    "GLEIF multi-match name/registered_as screening: up to 10 candidates each with parents.direct/ultimate. Prefer lei_lookup $0.005 for a single LEI. Example: {name:\"Apple Inc.\",country:\"US\"}. $0.05 USDC.",
+    { name: z.string().optional(), registered_as: z.string().optional(), country: z.string().optional(), lei: z.string().optional() },
+    (await mk("$0.05", "lei_full", 50000))(async (a: any) => { try { return json(await leiFull(env, a)); } catch (e) { return err(e); } }) as any);
+
+  server.tool("read_batch",
+    "Batch web read up to 8 URLs (~$0.0019/url): Markdown + title/word_count per URL. Pass urls as comma-string or array. $0.015 USDC.",
+    { urls: z.any() },
+    (await mk("$0.015", "read_batch", 15000))(async (a: any) => { try { return json(await readBatch({ urls: a.urls })); } catch (e) { return err(e); } }) as any);
 
   server.tool("uk_charity_full",
     "Use this for full UK charity due diligence: trustees, 5-year finances, assets/liabilities, governance, areas of operation, regulatory/insolvency flags, linked charities, other names + red-flag summary. OGL v3. Example: {number:\"1089464\"}. $0.25 USDC.",
@@ -232,9 +248,12 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       us_sec: { price: "$0.05", when: "US SEC EDGAR company snapshot" },
       us_sec_full: { price: "$0.25", when: "SEC + us-gaap highlights + red flags" },
       eu_vat: { price: "$0.01", when: "EU VIES VAT validation" },
+      lei_lookup: { price: "$0.005", when: "GLEIF LEI + ownership parents" },
+      lei_full: { price: "$0.05", when: "GLEIF name search up to 10 with parents" },
+      read_batch: { price: "$0.015", when: "batch web read up to 8 URLs" },
       sanctions_screen: { price: "$0.05", when: "OFAC/UK/UN/EU name sanctions screen" },
       sanctions_batch: { price: "$1.00", when: "batch <=50 sanctions screens" },
-      kyb_report: { price: "$2.50", when: "UK/AU/CA registry+VAT+website+sanctions+director appointments KYB pack" },
+      kyb_report: { price: "$2.50", when: "UK/AU/CA registry+VAT+LEI+website+sanctions+director appointments KYB pack" },
       uk_officer: { price: "$0.15", when: "UK officer name → appointments reverse search" },
       ...Object.fromEntries(CHAIN_ROUTES.map((r) => ["chain_" + r.path.slice(7).replace(/-/g, "_"), { price: r.price, when: r.desc.split(".")[0].slice(0, 90) }])),
       pricing: { price: "free" },
@@ -262,8 +281,8 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
     (await mk("$5.00", "uk_watch", 5000000))(async (a: any) => { try { return json(await createUkWatch(env, a)); } catch (e) { return err(e); } }) as any);
 
   server.tool("kyb_report",
-    "Use this for one-shot agent KYB: UK Companies House DD and/or Australia ASIC (acn) and/or Canada (ca_number/bn) + EU VIES VAT + website research + sanctions screen (entity+directors) + director appointment skim → trust flag. Screening only, not a regulated determination. $2.50 USDC.",
-    { domain: z.string().optional(), number: z.string().optional(), name: z.string().optional(), vat: z.string().optional(), country: z.string().optional(), vat_number: z.string().optional(), acn: z.string().optional(), ca_number: z.string().optional(), bn: z.string().optional() },
+    "Use this for one-shot agent KYB: UK Companies House DD and/or Australia ASIC (acn) and/or Canada (ca_number/bn) + EU VIES VAT + optional GLEIF LEI (with ownership parents) + website research + sanctions screen (entity+directors) + director appointment skim → trust flag. Screening only, not a regulated determination. $2.50 USDC.",
+    { domain: z.string().optional(), number: z.string().optional(), name: z.string().optional(), vat: z.string().optional(), country: z.string().optional(), vat_number: z.string().optional(), acn: z.string().optional(), ca_number: z.string().optional(), bn: z.string().optional(), lei: z.string().optional() },
     (await mk("$2.50", "kyb_report", 2500000))(async (a: any) => { try { return json(await kybReport(env, a, bindingRegistries(env))); } catch (e) { return err(e); } }) as any);
 
 

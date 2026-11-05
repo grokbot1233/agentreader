@@ -194,3 +194,80 @@ export async function checkDomain(domainRaw: string) {
     http: { https, http }, email: { mx: dns.MX, spf, dmarc, dmarc_policy: dmarcPolicy },
     issues, score: Math.max(0, 100 - issues.length * 10) };
 }
+
+/** Batch web read: up to 8 URLs, concurrency 4, per-URL ~8s, markdown capped. */
+export async function readBatch(input: { urls: string[] | string; preview?: boolean }) {
+  let urls: string[] = [];
+  if (Array.isArray(input.urls)) urls = input.urls.map((u) => String(u).trim()).filter(Boolean);
+  else if (typeof input.urls === "string") {
+    const raw = input.urls.trim();
+    if (raw.startsWith("[")) {
+      try { urls = (JSON.parse(raw) as any[]).map((u) => String(u).trim()).filter(Boolean); }
+      catch { urls = raw.split(/[\s,]+/).map((u) => u.trim()).filter(Boolean); }
+    } else {
+      urls = raw.split(/[\s,]+/).map((u) => u.trim()).filter(Boolean);
+    }
+  }
+  const preview = !!input.preview;
+  const max = preview ? 2 : 8;
+  const mdCap = preview ? 1500 : 8000;
+  if (!urls.length) throw new UserError("missing urls (comma-separated or JSON array, max 8 http(s))");
+  if (urls.length > 8) throw new UserError("max 8 urls per call");
+  for (const u of urls) {
+    try {
+      const parsed = new URL(u);
+      if (!/^https?:$/.test(parsed.protocol)) throw new Error("bad proto");
+      if (!parsed.hostname.includes(".")) throw new Error("bad host");
+    } catch {
+      throw new UserError(`invalid url (must be http(s) with public hostname): ${u.slice(0, 80)}`);
+    }
+  }
+  const selected = urls.slice(0, max);
+  const results: any[] = new Array(selected.length);
+  let i = 0;
+  const workers = Array.from({ length: Math.min(4, selected.length) }, async () => {
+    while (i < selected.length) {
+      const idx = i++;
+      const url = selected[idx];
+      const t0 = Date.now();
+      try {
+        const data = await Promise.race([
+          readUrl(url),
+          new Promise<never>((_, rej) => setTimeout(() => rej(new Error("timeout")), 8000)),
+        ]);
+        let markdown = String(data.markdown || "");
+        const truncated = markdown.length > mdCap;
+        if (truncated) markdown = markdown.slice(0, mdCap) + "\n\n[truncated]";
+        results[idx] = {
+          url,
+          ok: true,
+          final_url: data.final_url,
+          title: data.title ?? null,
+          word_count: data.word_count ?? null,
+          language: data.language ?? null,
+          markdown,
+          markdown_truncated: truncated,
+          links_count: data.links_count ?? (data.links || []).length,
+          ms: Date.now() - t0,
+        };
+      } catch (e: any) {
+        results[idx] = {
+          url,
+          ok: false,
+          error: String(e?.message || e).slice(0, 200),
+          ms: Date.now() - t0,
+        };
+      }
+    }
+  });
+  await Promise.all(workers);
+  return {
+    product: "read-batch",
+    price: "$0.015",
+    count: results.length,
+    ok_count: results.filter((r) => r.ok).length,
+    preview: preview || undefined,
+    results,
+    note: preview ? "preview: first 2 URLs, markdown capped harder; pay for up to 8" : undefined,
+  };
+}

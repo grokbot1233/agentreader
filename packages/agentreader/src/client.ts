@@ -4,7 +4,7 @@ import { privateKeyToAccount } from "viem/accounts";
 import type { Chain, ClientOptions, RequestOpts } from "./types.js";
 
 const DEFAULT_ORIGIN = "https://api.axiomworks.co.uk";
-const VERSION = "1.10.0";
+const VERSION = "1.13.0";
 
 function normalizeKey(raw?: string): `0x${string}` | undefined {
   if (!raw) return undefined;
@@ -252,6 +252,19 @@ export class AgentReaderClient {
   euVat(input: { vat?: string; country?: string; number?: string }, opts?: RequestOpts) {
     return this.get("/eu-vat", input, opts);
   }
+  /** GLEIF LEI lookup with ownership parents ($0.005). */
+  lei(input: { lei?: string; name?: string; registered_as?: string; country?: string }, opts?: RequestOpts) {
+    return this.get("/lei", input as any, opts);
+  }
+  /** GLEIF multi-match name search up to 10 with parents ($0.05). */
+  leiFull(input: { name?: string; registered_as?: string; country?: string; lei?: string }, opts?: RequestOpts) {
+    return this.get("/lei-full", input as any, opts);
+  }
+  /** Batch web read up to 8 URLs ($0.015). */
+  readBatch(input: { urls: string | string[] }, opts?: RequestOpts) {
+    const urls = Array.isArray(input.urls) ? input.urls.join(",") : input.urls;
+    return this.get("/read-batch", { urls }, opts);
+  }
   ukLeadsLite(input: { sic?: string; location?: string; postcode_area?: string; days?: string | number; limit?: string | number }, opts?: RequestOpts) {
     return this.get("/uk-leads-lite", input as any, opts);
   }
@@ -282,7 +295,7 @@ export class AgentReaderClient {
       { ...opts, preview: false },
     );
   }
-  kybReport(input: { domain?: string; number?: string; name?: string; vat?: string; country?: string; vat_number?: string; acn?: string; ca_number?: string; bn?: string }, opts?: RequestOpts) {
+  kybReport(input: { domain?: string; number?: string; name?: string; vat?: string; country?: string; vat_number?: string; acn?: string; ca_number?: string; bn?: string; lei?: string }, opts?: RequestOpts) {
     return this.get("/kyb", input as any, opts);
   }
 }
