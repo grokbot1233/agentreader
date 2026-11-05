@@ -22,7 +22,7 @@ import { usSec } from "./us-sec";
 import { euVat } from "./eu-vat";
 import { ukLeads, createLeadsFeed } from "./uk-leads";
 import { createUkWatch } from "./uk-watch";
-import { kybReport } from "./kyb";
+import { kybReport, bindingRegistries } from "./kyb";
 import { screenSanctions, screenSanctionsBatch } from "./sanctions";
 import { ukOfficerSearch } from "./uk-officer";
 import { CHAIN_ROUTES } from "./chain";
@@ -234,7 +234,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       eu_vat: { price: "$0.01", when: "EU VIES VAT validation" },
       sanctions_screen: { price: "$0.05", when: "OFAC/UK/UN/EU name sanctions screen" },
       sanctions_batch: { price: "$1.00", when: "batch <=50 sanctions screens" },
-      kyb_report: { price: "$2.00", when: "website+UK+VAT+sanctions KYB pack" },
+      kyb_report: { price: "$2.50", when: "UK/AU/CA registry+VAT+website+sanctions+director appointments KYB pack" },
       uk_officer: { price: "$0.15", when: "UK officer name → appointments reverse search" },
       ...Object.fromEntries(CHAIN_ROUTES.map((r) => ["chain_" + r.path.slice(7).replace(/-/g, "_"), { price: r.price, when: r.desc.split(".")[0].slice(0, 90) }])),
       pricing: { price: "free" },
@@ -262,9 +262,9 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
     (await mk("$5.00", "uk_watch", 5000000))(async (a: any) => { try { return json(await createUkWatch(env, a)); } catch (e) { return err(e); } }) as any);
 
   server.tool("kyb_report",
-    "Use this for one-shot agent KYB: website research + UK CH DD + EU VIES VAT + public sanctions screen → trust flag. Screening only, not a regulated determination. $2.00 USDC.",
-    { domain: z.string().optional(), number: z.string().optional(), name: z.string().optional(), vat: z.string().optional(), country: z.string().optional(), vat_number: z.string().optional() },
-    (await mk("$2.00", "kyb_report", 2000000))(async (a: any) => { try { return json(await kybReport(env, a)); } catch (e) { return err(e); } }) as any);
+    "Use this for one-shot agent KYB: UK Companies House DD and/or Australia ASIC (acn) and/or Canada (ca_number/bn) + EU VIES VAT + website research + sanctions screen (entity+directors) + director appointment skim → trust flag. Screening only, not a regulated determination. $2.50 USDC.",
+    { domain: z.string().optional(), number: z.string().optional(), name: z.string().optional(), vat: z.string().optional(), country: z.string().optional(), vat_number: z.string().optional(), acn: z.string().optional(), ca_number: z.string().optional(), bn: z.string().optional() },
+    (await mk("$2.50", "kyb_report", 2500000))(async (a: any) => { try { return json(await kybReport(env, a, bindingRegistries(env))); } catch (e) { return err(e); } }) as any);
 
 
   server.tool("uk_officer",

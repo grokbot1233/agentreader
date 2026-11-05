@@ -1,12 +1,12 @@
 // Concise cross-sell hints appended to 402 descriptions and MCP tool descriptions.
 export const UPSELL: Record<string, string> = {
-  "/uk-company-lite": "Need officers/PSCs/filings? /uk-company $0.50; officer name search /uk-officer $0.15; full KYB /kyb $2; sanctions /sanctions $0.05.",
-  "/uk-company": "Officer reverse-search: /uk-officer $0.15; onboarding? /kyb $2 bundles this + EU VAT + domain + sanctions + risk; screen names: /sanctions $0.05; /uk-watch $5 alerts.",
-  "/uk-officer": "/uk-company $0.50 for full company DD; /kyb $2 pack; /uk-leads $1 new cos.",
-  "/company": "UK entity? /company-full $0.65 adds Companies House; /uk-officer $0.15 for officer appointments; /kyb $2 for a full KYB report; /sanctions $0.05.",
-  "/company-full": "Onboarding: /kyb $2 adds VAT + sanctions + risk; name screen only: /sanctions $0.05; officer search: /uk-officer $0.15.",
-  "/eu-vat": "Verify the whole business: /kyb $2 (VAT + registry + domain + sanctions + risk).",
-  "/check": "Full company profile from a domain: /company $0.25; KYB: /kyb $2; sanctions: /sanctions $0.05.",
+  "/uk-company-lite": "Need officers/PSCs/filings? /uk-company $0.50; officer name search /uk-officer $0.15; full KYB /kyb $2.50; sanctions /sanctions $0.05.",
+  "/uk-company": "Officer reverse-search: /uk-officer $0.15; onboarding? /kyb $2.50 bundles this + EU VAT + domain + sanctions + risk; screen names: /sanctions $0.05; /uk-watch $5 alerts.",
+  "/uk-officer": "/uk-company $0.50 for full company DD; /kyb $2.50 pack; /uk-leads $1 new cos.",
+  "/company": "UK entity? /company-full $0.65 adds Companies House; /uk-officer $0.15 for officer appointments; /kyb $2.50 for a full KYB report; /sanctions $0.05.",
+  "/company-full": "Onboarding: /kyb $2.50 adds VAT + sanctions + risk; name screen only: /sanctions $0.05; officer search: /uk-officer $0.15.",
+  "/eu-vat": "Verify the whole business: /kyb $2.50 (VAT + registry + domain + sanctions + risk).",
+  "/check": "Full company profile from a domain: /company $0.25; KYB: /kyb $2.50; sanctions: /sanctions $0.05.",
   "/read": "Whole documents (PDF/DOCX): /convert $0.03; page change alerts: /monitor $1.",
   "/links": "Page content as Markdown: /read $0.002.",
   "/convert": "Watch a doc/page for changes: /monitor $1.",
@@ -19,10 +19,10 @@ export const UPSELL: Record<string, string> = {
   "/token": "Risk check (honeypot/owner/liquidity): /token-check $0.01.",
   "/uk-area": "Property prices for the postcode: /uk-property $0.01.",
   "/kyb": "Screen extra names: /sanctions $0.05 (OFAC/UK/UN/EU); batch <=50: /sanctions-batch $1; officer appointments: /uk-officer $0.15.",
-  "/sanctions": "Full KYB pack (UK+VAT+domain+sanctions): /kyb $2; many names: /sanctions-batch $1 (<=50); UK officer appointments: /uk-officer $0.15.",
+  "/sanctions": "Full KYB pack (UK+VAT+domain+sanctions): /kyb $2.50; many names: /sanctions-batch $1 (<=50); UK officer appointments: /uk-officer $0.15.",
   "/au-company": "Many companies: /registry-batch $0.30 (<=25 UK+AU+CA ids); sanctions screen: /sanctions $0.05.",
   "/ca-company": "Many companies: /registry-batch $0.30 (<=25 UK+AU+CA ids); sanctions screen: /sanctions $0.05.",
   "/registry-batch": "Screen the directors/names: /sanctions-batch $1 (<=50).",
-  "/sanctions-batch": "Single name: /sanctions $0.05; onboarding pack: /kyb $2.",
+  "/sanctions-batch": "Single name: /sanctions $0.05; onboarding pack: /kyb $2.50.",
 };
 export const upsell = (p: string, d: string) => (UPSELL[p] ? `${d} Related: ${UPSELL[p]}` : d);

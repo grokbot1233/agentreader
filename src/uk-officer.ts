@@ -237,7 +237,7 @@ export async function ukOfficerSearch(env: EnvKV, input: UkOfficerInput) {
       upsell: {
         related: [
           { path: "/uk-company", price: "$0.50", why: "full company DD (officers/PSC/filings/charges/insolvency)" },
-          { path: "/kyb", price: "$2.00", why: "website + UK CH + EU VAT + sanctions KYB pack" },
+          { path: "/kyb", price: "$2.50", why: "website + UK CH + EU VAT + sanctions KYB pack" },
           { path: "/uk-leads", price: "$1.00", why: "new UK incorporations with director names" },
         ],
       },

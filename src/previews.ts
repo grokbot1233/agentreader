@@ -11,7 +11,7 @@ const PRICE: Record<PreviewKind, string> = {
   convert: "$0.03", "company-full": "$0.65",
   "uk-charity": "$0.05", "uk-charity-full": "$0.25",
   "us-sec": "$0.05", "us-sec-full": "$0.25", "eu-vat": "$0.01",
-  "uk-leads": "$1.00", "uk-leads-lite": "$0.25", kyb: "$2.00",
+  "uk-leads": "$1.00", "uk-leads-lite": "$0.25", kyb: "$2.50",
   sanctions: "$0.05", "sanctions-batch": "$1.00",
   "uk-officer": "$0.15",
 };
@@ -208,6 +208,9 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         has_website: !!data.website && !data.website.error,
         has_uk: !!data.uk && !data.uk.error,
         has_eu_vat: !!data.eu_vat && !data.eu_vat.error,
+        has_au: !!data.au && !data.au.error,
+        has_ca: !!data.ca && !data.ca.error,
+        directors_checked: (data.directors_appointments || []).length,
         has_sanctions: !!data.sanctions && !data.sanctions.error && !data.sanctions.skipped,
         omitted: ["full website/uk/eu_vat/sanctions payloads - pay for complete pack"],
       };

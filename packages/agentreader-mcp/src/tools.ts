@@ -393,8 +393,8 @@ export const TOOLS: ToolDef[] = [
   },
   {
     name: "kyb_report",
-    description: "Agent KYB pack: website + UK CH + EU VAT → trust flag. Screening only. $2.00 USDC.",
-    price: "$2.00",
+    description: "Agent KYB pack: UK Companies House / Australia ASIC (acn) / Canada (ca_number, bn) registry + EU VAT + website + sanctions (entity+directors) + director appointment skim → trust flag. Screening only. $2.50 USDC.",
+    price: "$2.50",
     schema: {
       domain: z.string().optional(),
       number: z.string().optional(),
@@ -402,6 +402,9 @@ export const TOOLS: ToolDef[] = [
       vat: z.string().optional(),
       country: z.string().optional(),
       vat_number: z.string().optional(),
+      acn: z.string().optional(),
+      ca_number: z.string().optional(),
+      bn: z.string().optional(),
     },
     http: (a) => `${ORIGIN}/kyb?${qs(a)}`,
     previewable: true,

@@ -6,7 +6,7 @@ import { usSec } from "./us-sec";
 import { euVat } from "./eu-vat";
 import { ukLeads, createLeadsFeed, getLeadsFeed, runLeadsFeeds } from "./uk-leads";
 import { createUkWatch, getUkWatch, runUkWatches } from "./uk-watch";
-import { kybReport } from "./kyb";
+import { kybReport, bindingRegistries } from "./kyb";
 import { ukOfficerSearch } from "./uk-officer";
 import { screenSanctions, screenSanctionsBatch, refreshSanctionsIndex } from "./sanctions";
 import { Hono } from "hono";
@@ -299,7 +299,7 @@ const ukWatchOut = { type: "object", properties: {
   created: { type: "string" }, expires: { type: "string" }, snapshot: { type: "object" }, status_url: { type: "string" } } };
 const kybIn = { type: "object", properties: {
   domain: { type: "string" }, number: { type: "string" }, name: { type: "string" }, vat: { type: "string" },
-  country: { type: "string" }, vat_number: { type: "string" },
+  country: { type: "string" }, vat_number: { type: "string" }, acn: { type: "string", description: "Australian ACN/ABN" }, ca_number: { type: "string", description: "Canadian corporation number" }, bn: { type: "string", description: "Canadian 9-digit BN" },
 }, description: "Provide domain and/or UK number/name and/or EU vat" };
 const kybOut = { type: "object", properties: {
   product: { type: "string" }, disclaimer: { type: "string" }, website: {}, uk: {}, eu_vat: {},
@@ -505,7 +505,7 @@ const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
 | UK new cos + directors | ${b}/uk-leads?sic=&location= | $1.00 | + active officer names, mass-formation flags |
 | UK leads daily feed | POST ${b}/uk-leads-feed | $25.00/30d | Daily webhook of new matches |
 | UK company watch | POST ${b}/uk-watch | $5.00/30d | Hourly CH status/officers/filings → webhook |
-| Agent KYB pack | ${b}/kyb?domain=&number=&vat= | $2.00 | Website + UK CH + EU VAT + sanctions + trust flag |
+| Agent KYB pack | ${b}/kyb?number=00445790 (or acn=009661901 / ca_number=8660115, +domain, +vat) | $2.50 | UK/AU/CA registry + EU VAT + website + sanctions (entity+directors) + director appointments + trust flag (free: &preview=1) |
 | Sanctions screen | ${b}/sanctions?name= | $0.05 | OFAC SDN/CONS + UK FCDO + UN SC + EU FSF fuzzy |
 | Sanctions batch | POST ${b}/sanctions-batch | $1.00 | Up to 50 names |
 | AU company | GET ${b}/au-company?acn=009661901 | $0.02 | ASIC register, ~4M cos (free: &preview=1) |
@@ -647,7 +647,7 @@ app.get("/dashboard/data", async (c) => {
   const mcpTools = [
     ["read_url", "$0.002"], ["extract_links", "$0.001"], ["check_domain", "$0.001"],
     ["company_research", "$0.25"], ["uk_company", "$0.50"], ["uk_company_lite", "$0.05"], ["company_full", "$0.65"], ["convert_document", "$0.03"], ["create_monitor", "$1.00"],
-    ["wallet_balances", "$0.003"], ["tx_status", "$0.003"], ["token_check", "$0.01"], ["fx_rates", "$0.002"], ["ens_lookup", "$0.002"], ["token_metadata", "$0.001"], ["token_allowance", "$0.002"], ["contract_info", "$0.003"], ["gas_fees", "$0.001"], ["block_lookup", "$0.001"], ["nft_lookup", "$0.002"], ["web_search", "$0.003"], ["uk_property_prices", "$0.01"], ["uk_area_profile", "$0.005"], ["uk_charity", "$0.05"], ["uk_charity_full", "$0.25"], ["us_sec", "$0.05"], ["us_sec_full", "$0.25"], ["eu_vat", "$0.01"], ["uk_leads_lite", "$0.25"], ["uk_leads", "$1.00"], ["uk_leads_feed", "$25.00"], ["uk_watch", "$5.00"], ["kyb_report", "$2.00"], ["sanctions_screen", "$0.05"], ["sanctions_batch", "$1.00"],
+    ["wallet_balances", "$0.003"], ["tx_status", "$0.003"], ["token_check", "$0.01"], ["fx_rates", "$0.002"], ["ens_lookup", "$0.002"], ["token_metadata", "$0.001"], ["token_allowance", "$0.002"], ["contract_info", "$0.003"], ["gas_fees", "$0.001"], ["block_lookup", "$0.001"], ["nft_lookup", "$0.002"], ["web_search", "$0.003"], ["uk_property_prices", "$0.01"], ["uk_area_profile", "$0.005"], ["uk_charity", "$0.05"], ["uk_charity_full", "$0.25"], ["us_sec", "$0.05"], ["us_sec_full", "$0.25"], ["eu_vat", "$0.01"], ["uk_leads_lite", "$0.25"], ["uk_leads", "$1.00"], ["uk_leads_feed", "$25.00"], ["uk_watch", "$5.00"], ["kyb_report", "$2.50"], ["sanctions_screen", "$0.05"], ["sanctions_batch", "$1.00"],
     ...CHAIN_ROUTES.map((r) => ["chain_" + r.path.slice(7).replace(/-/g, "_"), r.price]),
     ["pricing", "free"],
   ];
@@ -921,7 +921,7 @@ for (const m of ["get", "post"] as const) {
   app[m]("/kyb", async (c) => {
     const b = await bodyObj(c);
     const key = `domain=${b.domain||""}&number=${b.number||""}&name=${b.name||""}&vat=${b.vat||""}&acn=${b.acn||b.abn||""}&ca_number=${b.ca_number||""}&bn=${b.bn||""}`;
-    const KREG = { au: auCompany, ca: caCompany };
+    const KREG = bindingRegistries(c.env);
     if (c.req.query("preview") === "1" && m === "get")
       return livePreview(c, "kyb", () => kybReport(c.env, b, KREG), `${CANONICAL}/kyb?${key}`);
     return cached(c, `kyb?${encodeURIComponent(key)}`, () => kybReport(c.env, { domain: b.domain, number: b.number, name: b.name, vat: b.vat, country: b.country, vat_number: b.vat_number, acn: b.acn || b.abn, ca_number: b.ca_number, bn: b.bn }, KREG), 120);

@@ -282,7 +282,7 @@ export class AgentReaderClient {
       { ...opts, preview: false },
     );
   }
-  kybReport(input: { domain?: string; number?: string; name?: string; vat?: string; country?: string; vat_number?: string }, opts?: RequestOpts) {
+  kybReport(input: { domain?: string; number?: string; name?: string; vat?: string; country?: string; vat_number?: string; acn?: string; ca_number?: string; bn?: string }, opts?: RequestOpts) {
     return this.get("/kyb", input as any, opts);
   }
 }
