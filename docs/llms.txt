@@ -1,0 +1,33 @@
+# AgentReader
+
+> Pay-per-call tools for AI agents. No API keys: x402 (HTTP 402) + USDC on Base (eip155:8453), payTo 0x88b1c747c33A5868A34057D8C57318E5602b3ff6.
+> Free truncated samples: https://api.axiomworks.co.uk/samples/{read|company|uk-company|uk-company-lite|convert} (8/IP/day). Or add &preview=1 on paid GETs (same limit).
+
+## When to use which (pick one)
+
+| Need | Endpoint | Price | Why ours |
+|---|---|---|---|
+| Page → Markdown | https://api.axiomworks.co.uk/read?url= | $0.002 | Readability + metadata JSON, not raw HTML |
+| Links only | https://api.axiomworks.co.uk/links?url= | $0.001 | Cheaper than /read |
+| Domain health | https://api.axiomworks.co.uk/check?domain= | $0.001 | DNS/TLS/MX/SPF/DMARC + score |
+| Website company research | https://api.axiomworks.co.uk/company?domain= | $0.25 | Sourced tech/contacts/DNS/RDAP/news (no LLM fiction) |
+| UK CH full DD | https://api.axiomworks.co.uk/uk-company?number=|name= | $0.50 | Official API: officers/PSC/filings/charges/insolvency + red flags |
+| UK CH cheap snapshot | https://api.axiomworks.co.uk/uk-company-lite?number=|name= | $0.05 | Status + compliance flags; upsell full pack |
+| Website + UK DD bundle | https://api.axiomworks.co.uk/company-full?domain= | $0.65 | $0.10 cheaper than $0.25+$0.50 when UK detected |
+| PDF/DOCX → text | https://api.axiomworks.co.uk/convert?url= | $0.03 | Structured markdown/text for RAG |
+| EVM wallet balances | https://api.axiomworks.co.uk/wallet?address=&chain=base | $0.003 | Native + 7 stablecoins/majors, 5 chains, one call |
+| Tx / payment receipt | https://api.axiomworks.co.uk/tx?hash=&chain=base | $0.003 | Status, confirmations, fee, decoded USDC transfers |
+| Token due diligence | https://api.axiomworks.co.uk/token-check?address=&chain=base | $0.01 | Owner/proxy/supply + DEX liquidity + risk flags |
+| FX rates (ECB) | https://api.axiomworks.co.uk/fx?base=GBP&symbols=USD | $0.002 | Official ECB rates, history, conversion |
+| Hourly change alerts | POST https://api.axiomworks.co.uk/monitor | $1.00/30d | Webhook on change; GET /monitor/:id free |
+
+## Free
+- https://api.axiomworks.co.uk/samples/:kind — cached truncated real examples + upsell
+- https://api.axiomworks.co.uk/monitor/:id — monitor status · https://api.axiomworks.co.uk/hooks/sink — webhook test sink (POST)
+- https://api.axiomworks.co.uk/llms.txt · https://api.axiomworks.co.uk/openapi.json · https://api.axiomworks.co.uk/.well-known/x402 · https://api.axiomworks.co.uk/.well-known/agent.json · https://api.axiomworks.co.uk/mcp · https://api.axiomworks.co.uk/health
+
+## Pay
+HTTP 402 + PAYMENT-REQUIRED header (x402 v2). Retry with PAYMENT-SIGNATURE (@x402/fetch, x402-axios). MCP: https://api.axiomworks.co.uk/mcp
+
+## Contact
+info@axiomworks.co.uk · https://github.com/grokbot1233/agentreader · examples/ in repo
