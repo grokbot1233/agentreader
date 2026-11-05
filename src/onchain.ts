@@ -18,11 +18,12 @@ export const ADDR = /^0x[0-9a-fA-F]{40}$/; export const HASH = /^0x[0-9a-fA-F]{6
 export function chainOf(c?: string) { const k = (c || "base").toLowerCase(); const ch = CHAINS[k]; if (!ch) throw new UserError(`unsupported chain; use one of ${Object.keys(CHAINS).join(",")}`, 400); return [k, ch] as const; }
 
 const POOL: Record<string, string[]> = {
-  base: ["https://base-mainnet.public.blastapi.io", "https://gateway.tenderly.co/public/base", "https://base-pokt.nodies.app", "https://api.zan.top/base-mainnet", "https://base-rpc.publicnode.com", "https://mainnet.base.org"],
-  ethereum: ["https://eth-mainnet.public.blastapi.io", "https://gateway.tenderly.co/public/mainnet", "https://eth-pokt.nodies.app", "https://api.zan.top/eth-mainnet", "https://ethereum-rpc.publicnode.com"],
-  arbitrum: ["https://arbitrum-one.public.blastapi.io", "https://gateway.tenderly.co/public/arbitrum", "https://arb-pokt.nodies.app", "https://api.zan.top/arb-one", "https://arb1.arbitrum.io/rpc"],
-  optimism: ["https://optimism-mainnet.public.blastapi.io", "https://gateway.tenderly.co/public/optimism", "https://op-pokt.nodies.app", "https://api.zan.top/opt-mainnet", "https://mainnet.optimism.io"],
-  polygon: ["https://polygon-mainnet.public.blastapi.io", "https://gateway.tenderly.co/public/polygon", "https://polygon-pokt.nodies.app", "https://api.zan.top/polygon-mainnet", "https://polygon-rpc.com"],
+  // publicnode first: reliable eth_getLogs when `address` is set; blastapi free tier caps getLogs at ~10 blocks
+  base: ["https://base-rpc.publicnode.com", "https://mainnet.base.org", "https://base-mainnet.public.blastapi.io", "https://gateway.tenderly.co/public/base", "https://api.zan.top/base-mainnet"],
+  ethereum: ["https://ethereum-rpc.publicnode.com", "https://eth-mainnet.public.blastapi.io", "https://gateway.tenderly.co/public/mainnet", "https://api.zan.top/eth-mainnet"],
+  arbitrum: ["https://arbitrum-one-rpc.publicnode.com", "https://arbitrum-one.public.blastapi.io", "https://gateway.tenderly.co/public/arbitrum", "https://arb1.arbitrum.io/rpc"],
+  optimism: ["https://optimism-rpc.publicnode.com", "https://optimism-mainnet.public.blastapi.io", "https://gateway.tenderly.co/public/optimism", "https://mainnet.optimism.io"],
+  polygon: ["https://polygon-bor-rpc.publicnode.com", "https://polygon-mainnet.public.blastapi.io", "https://gateway.tenderly.co/public/polygon", "https://polygon-rpc.com"],
 };
 const FALLBACK: Record<string, string[]> = {};
 for (const [k, ch] of Object.entries(CHAINS)) { FALLBACK[ch.rpc] = POOL[k]; }
@@ -38,6 +39,48 @@ async function rpcOnce(url: string, calls: [string, any[]][]) {
   const out: any[] = new Array(calls.length).fill(undefined);
   for (const x of j) { if (x.error && x.error.code !== 3 && !/revert/i.test(x.error.message || "")) throw new Error(`rpc error ${String(x.error.message).slice(0, 40)}`); out[x.id] = x.error ? null : x.result; }
   return out;
+}
+/** Single JSON-RPC call across the chain's public pool (works on RPCs that reject batches). */
+export async function rpcCall(url: string, method: string, params: any[]): Promise<any> {
+  const errs: string[] = [];
+  for (const u of (FALLBACK[url] || [url])) {
+    try {
+      const r = await fetch(u, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }) });
+      if (!r.ok) throw new Error(`rpc ${r.status}`);
+      const j: any = await r.json();
+      if (j.error) throw new Error(String(j.error.message || j.error).slice(0, 120));
+      return j.result;
+    } catch (e: any) { errs.push(`${new URL(u).host}: ${String(e?.message || e).slice(0, 80)}`); }
+  }
+  throw new Error(`all RPCs failed: ${errs.join("; ")}`);
+}
+const rangeTooBig = (msg: string) => /block range|10 block|too large|query returned more|response size|limited to \d+ block|max block|block limit/i.test(msg);
+/** eth_getLogs with contract address required; auto-chunks when public RPCs reject the span. */
+export async function ethGetLogs(url: string, filter: { address: string; topics?: (string | null | string[])[]; fromBlock: string; toBlock: string }): Promise<any[]> {
+  if (!filter.address) throw new UserError("eth_getLogs requires a contract address on public RPCs", 400);
+  const from = Number(BigInt(filter.fromBlock)); const to = Number(BigInt(filter.toBlock));
+  const tryOnce = async (f: number, t: number) => rpcCall(url, "eth_getLogs", [{ address: filter.address, ...(filter.topics ? { topics: filter.topics } : {}), fromBlock: "0x" + f.toString(16), toBlock: "0x" + t.toString(16) }]);
+  try { return (await tryOnce(from, to)) || []; }
+  catch (e: any) {
+    const msg = String(e?.message || e);
+    if (!rangeTooBig(msg) || to <= from) throw e;
+    // Prefer 500 then 50 then 10 (blastapi free often caps at 10 without paid plan)
+    for (const chunk of [500, 50, 10]) {
+      if (to - from <= chunk) continue;
+      const out: any[] = [];
+      for (let s = from; s <= to; s += chunk + 1) {
+        const eblk = Math.min(to, s + chunk);
+        try { out.push(...((await tryOnce(s, eblk)) || [])); }
+        catch (e2: any) {
+          const m2 = String(e2?.message || e2);
+          if (!rangeTooBig(m2) || chunk === 10) throw e2;
+          for (let s2 = s; s2 <= eblk; s2 += 11) out.push(...((await tryOnce(s2, Math.min(eblk, s2 + 10))) || []));
+        }
+      }
+      return out;
+    }
+    throw e;
+  }
 }
 export const pad = (a: string) => a.toLowerCase().replace(/^0x/, "").padStart(64, "0");
 export const big = (h: any) => (h && h !== "0x" ? BigInt(h) : 0n);

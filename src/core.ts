@@ -3,7 +3,7 @@ import { Readability } from "@mozilla/readability";
 import TurndownService from "turndown";
 
 export const LIMITS = { maxBytes: 3_000_000, timeoutMs: 10_000, maxRedirects: 5, maxLinks: 500 };
-const UA = "AgentReader/1.0 (+https://agentreader.yasirawouda1.workers.dev)";
+const UA = "AgentReader/1.12 (+https://api.axiomworks.co.uk)";
 
 export class UserError extends Error { constructor(msg: string, public status = 400) { super(msg); } }
 

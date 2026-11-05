@@ -1,6 +1,6 @@
 // Single-fact EVM endpoints (/chain/*): one cheap answer per call, 5 chains, public RPC (zero marginal cost).
 import { UserError } from "./core";
-import { CHAINS, ADDR, HASH, chainOf, rpcBatch, pad, big, fmt, decStr } from "./onchain";
+import { CHAINS, ADDR, HASH, chainOf, rpcBatch, ethGetLogs, pad, big, fmt, decStr } from "./onchain";
 
 const S = (v: any) => (v == null ? "" : String(v).trim());
 const call = (to: string, data: string, tag = "latest") => ["eth_call", [{ to, data }, tag]] as [string, any[]];
@@ -64,28 +64,52 @@ add({ path: "/chain/total-supply", price: "$0.001", atomic: 1000, ttl: 60, keys:
 
 async function logs(b: any, topics: (string | null | string[])[], address?: string) {
   const [name, ch] = chainOf(b.chain); const [tipH] = await rpcBatch(ch.rpc, [["eth_blockNumber", []]]); const tip = Number(big(tipH));
-  const span = Math.min(Number(S(b.blocks) || 1000), 5000); const to = S(b.to_block) ? Number(S(b.to_block)) : tip; const from = S(b.from_block) ? Number(S(b.from_block)) : Math.max(0, to - span);
+  // Default 100 blocks: public free RPCs reject huge eth_getLogs windows (blastapi ~10 without address; publicnode needs contract address).
+  const span = Math.min(Number(S(b.blocks) || 100), 5000); const to = S(b.to_block) ? Number(S(b.to_block)) : tip; const from = S(b.from_block) ? Number(S(b.from_block)) : Math.max(0, to - span);
   if (to - from > 5000) throw new UserError("block range max 5000", 400);
-  const [ls] = await rpcBatch(ch.rpc, [["eth_getLogs", [{ ...(address ? { address } : {}), topics, fromBlock: "0x" + from.toString(16), toBlock: "0x" + to.toString(16) }]]]);
+  if (!address) throw new UserError("contract address required for log queries on public RPCs — pass token= (ERC20) or address= (contract)", 400);
+  let ls: any[];
+  try { ls = await ethGetLogs(ch.rpc, { address, topics, fromBlock: "0x" + from.toString(16), toBlock: "0x" + to.toString(16) }); }
+  catch (e: any) {
+    const msg = String(e?.message || e);
+    if (/429|rate|compute units|request limit/i.test(msg)) throw new UserError("public RPC rate-limited for eth_getLogs — retry shortly or narrow blocks=", 503);
+    if (/specify an address|address in your request/i.test(msg)) throw new UserError("public RPC requires a contract address filter for eth_getLogs — pass token=", 400);
+    throw new UserError(`eth_getLogs failed: ${msg.slice(0, 160)} — try smaller blocks=`, 502);
+  }
   if (ls == null) throw new UserError("eth_getLogs rejected the query (too many results?) — narrow blocks", 422);
   const limit = Math.min(Number(S(b.limit) || 50), 200);
   return { name, ch, from, to, all: ls as any[], items: (ls as any[]).slice(-limit).reverse(), limit };
 }
 add({ path: "/chain/erc20-transfers", price: "$0.003", atomic: 3000, ttl: 15, keys: ["token", "address", "direction", "blocks", "from_block", "to_block", "limit", "chain"],
-  desc: "ERC20 Transfer events for a token and/or wallet via eth_getLogs, decoded (from, to, amount with decimals, tx hash, block). Default last 1000 blocks, max 5000. Example: {token:\"0x8335…2913\", address:\"0x88b1…3ff6\", chain:\"base\"} → newest first. Use it to confirm incoming payments. $0.003.",
-  in: { type: "object", properties: { token: addrP("ERC20 contract (optional if address given)"), address: addrP("Wallet to filter (optional if token given)"), direction: { type: "string", enum: ["in", "out", "any"] }, blocks: { type: "string", description: "Lookback blocks (default 1000, max 5000)" }, from_block: { type: "string" }, to_block: { type: "string" }, limit: { type: "string", description: "Max items (default 50, max 200)" }, chain: chainP } },
+  desc: "ERC20 Transfer events for a token and/or wallet via eth_getLogs, decoded (from, to, amount with decimals, tx hash, block). Default last 100 blocks, max 5000. Public RPCs need a contract filter: pass token=; if only wallet address is given, known chain tokens (USDC/WETH/…) are scanned. Example: {token:\"0x8335…2913\", address:\"0x88b1…3ff6\", chain:\"base\"}. $0.003.",
+  in: { type: "object", properties: { token: addrP("ERC20 contract (recommended; required unless scanning known tokens for a wallet)"), address: addrP("Wallet to filter (optional if token given)"), direction: { type: "string", enum: ["in", "out", "any"] }, blocks: { type: "string", description: "Lookback blocks (default 100, max 5000)" }, from_block: { type: "string" }, to_block: { type: "string" }, limit: { type: "string", description: "Max items (default 50, max 200)" }, chain: chainP } },
   out: { type: "object", properties: { count: { type: "number" }, transfers: { type: "array" }, from_block: { type: "number" }, to_block: { type: "number" } } },
-  ex: { token: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", address: "0x88b1c747c33A5868A34057D8C57318E5602b3ff6", chain: "base" },
+  ex: { token: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", address: "0x88b1c747c33A5868A34057D8C57318E5602b3ff6", chain: "base", blocks: "100" },
   validate: (b) => first(!S(b.token) && !S(b.address) ? "missing token or address" : null, S(b.token) ? addrErr(b.token, "token") : null, S(b.address) ? addrErr(b.address, "address") : null, chainErr(b)),
   fn: async (b) => { const dir = S(b.direction) || "any"; const a = S(b.address) ? topicAddr(b.address) : null;
-    let r; if (a && dir === "any") { const [x, y] = await Promise.all([logs(b, [TRANSFER, a], S(b.token) || undefined), logs(b, [TRANSFER, null, a], S(b.token) || undefined)]); r = { ...x, all: [...x.all, ...y.all].sort((p, q) => Number(big(p.blockNumber) - big(q.blockNumber))) }; r.items = r.all.slice(-r.limit).reverse(); }
-    else r = await logs(b, [TRANSFER, dir === "out" ? a : null, dir === "in" ? a : null], S(b.token) || undefined);
+    const [name0, ch0] = chainOf(b.chain);
+    const tokenList: string[] = S(b.token) ? [S(b.token)] : Object.values(ch0.tokens).map(([addr]) => addr).slice(0, 4);
+    const scanned_known_tokens = !S(b.token) && !!S(b.address);
+    if (!S(b.token) && !S(b.address)) throw new UserError("missing token or address", 400);
+    if (!S(b.token) && !scanned_known_tokens) throw new UserError("token= required when not filtering a wallet", 400);
+    const pull = async (token: string) => {
+      if (a && dir === "any") {
+        const [x, y] = await Promise.all([logs(b, [TRANSFER, a], token), logs(b, [TRANSFER, null, a], token)]);
+        return { ...x, all: [...x.all, ...y.all] };
+      }
+      return logs(b, [TRANSFER, dir === "out" ? a : null, dir === "in" ? a : null], token);
+    };
+    const parts = [];
+    for (const tok of tokenList) { try { parts.push(await pull(tok)); } catch (e: any) { if (tokenList.length === 1) throw e; } }
+    if (!parts.length) throw new UserError("eth_getLogs failed for all known tokens — pass token= or retry", 502);
+    const r = { ...parts[0], all: parts.flatMap((p) => p.all).sort((p, q) => Number(big(p.blockNumber) - big(q.blockNumber))) };
+    r.items = r.all.slice(-r.limit).reverse();
     const toks = [...new Set(r.items.map((l: any) => l.address.toLowerCase()))].slice(0, 5); const dm: any = {}; await Promise.all(toks.map(async (t: any) => { dm[t] = await decimalsOf(r.ch.rpc, t).catch(() => ({ decimals: null, symbol: null })); }));
     const transfers = r.items.filter((l: any) => l.topics.length === 3).map((l: any) => { const m = dm[l.address.toLowerCase()] || {}; const v = big(l.data); return { token: l.address, symbol: m.symbol ?? null, from: "0x" + l.topics[1].slice(26), to: "0x" + l.topics[2].slice(26), amount: m.decimals != null ? fmt(v, m.decimals) : v.toString(), amount_raw: v.toString(), tx: l.transactionHash, block: Number(big(l.blockNumber)), log_index: Number(big(l.logIndex)) }; });
-    return { ...meta(r.name, r.ch), token: S(b.token) || null, address: S(b.address) || null, direction: dir, from_block: r.from, to_block: r.to, total_matched: r.all.length, count: transfers.length, transfers, source: "eth_getLogs Transfer(address,address,uint256)" }; } });
+    return { ...meta(r.name, r.ch), token: S(b.token) || null, address: S(b.address) || null, direction: dir, from_block: r.from, to_block: r.to, total_matched: r.all.length, count: transfers.length, transfers, scanned_known_tokens: scanned_known_tokens || undefined, known_tokens_scanned: scanned_known_tokens ? tokenList.length : undefined, source: "eth_getLogs Transfer(address,address,uint256)" }; } });
 
 add({ path: "/chain/events", price: "$0.003", atomic: 3000, ttl: 15, keys: ["address", "topic0", "topic1", "topic2", "topic3", "blocks", "from_block", "to_block", "limit", "chain"],
-  desc: "Contract event logs via eth_getLogs filtered by contract and topics (topic0 = event signature hash). Raw logs, newest first; default last 1000 blocks, max 5000. Example: {address:\"0x8335…2913\", topic0:\"0xddf2…b3ef\", chain:\"base\", blocks:\"50\"}. $0.003.",
+  desc: "Contract event logs via eth_getLogs filtered by contract and topics (topic0 = event signature hash). Raw logs, newest first; default last 100 blocks, max 5000 (auto-chunked for public RPC limits). Example: {address:\"0x8335…2913\", topic0:\"0xddf2…b3ef\", chain:\"base\", blocks:\"50\"}. $0.003.",
   in: { type: "object", properties: { address: addrP("Contract emitting the logs"), topic0: { type: "string", description: "Event signature hash (0x + 64 hex)" }, topic1: { type: "string" }, topic2: { type: "string" }, topic3: { type: "string" }, blocks: { type: "string" }, from_block: { type: "string" }, to_block: { type: "string" }, limit: { type: "string" }, chain: chainP }, required: ["address"] },
   out: { type: "object", properties: { count: { type: "number" }, logs: { type: "array" } } },
   ex: { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", topic0: TRANSFER, blocks: "20", limit: "5", chain: "base" },

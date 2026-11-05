@@ -56,7 +56,7 @@ function sniff(ct: string, url: string, bytes: Uint8Array): "pdf" | "docx" | "ht
 
 export async function convertDocument(urlRaw: string, format: "markdown" | "text" = "markdown") {
   const u = await assertPublicUrl(urlRaw);
-  const { res, finalUrl } = await safeFetch(u.toString());
+  const { res, finalUrl } = await safeFetch(u.toString(), { headers: { accept: "application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/html,text/plain,*/*;q=0.8" } });
   if (res.status >= 400) throw new UserError(`upstream returned HTTP ${res.status}`, 502);
   const ct = res.headers.get("content-type") || "";
   const bytes = await readBytes(res);
