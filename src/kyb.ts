@@ -149,12 +149,16 @@ export async function kybReport(env: Env, input: {
   const ukStatus = String(out.uk?.status || out.uk?.profile?.status || out.uk?.company?.status || out.uk?.profile?.company_status || out.uk?.overview?.status || "").toLowerCase();
   const flags: any[] = out.uk?.red_flags || [];
   const high = flags.filter((f: any) => f.severity === "high").length;
-  const medium = flags.filter((f: any) => f.severity === "medium").length;
+  // Outstanding charges (secured lending) are normal for established companies: count as a minor -3, not a medium red flag.
+  const isCharge = (f: any) => /charge/i.test(String(f.code || f.id || f.name || f.flag || ""));
+  const charges = flags.filter((f: any) => f.severity === "medium" && isCharge(f)).length;
+  const medium = flags.filter((f: any) => f.severity === "medium" && !isCharge(f)).length;
 
   if (out.uk && !out.uk.error) {
     if (ukStatus === "active") { score += 40; reasons.push("UK company status active"); }
     else if (ukStatus) { score -= 30; reasons.push(`UK company status: ${ukStatus}`); }
     if (high) { score -= 25 * high; reasons.push(`${high} high-severity UK red flag(s)`); }
+    if (charges) { score -= 3; reasons.push("outstanding registered charges (secured lending; common for established companies)"); }
     if (medium) { score -= 10 * medium; reasons.push(`${medium} medium-severity UK red flag(s)`); }
     if (out.uk.mass_formation_office?.matched || out.uk.overview?.mass_formation_office?.matched) {
       score -= 15; reasons.push("registered office matches common formation-agent / virtual-office pattern");
