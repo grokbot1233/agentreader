@@ -1,4 +1,4 @@
-# AgentReader — pay-per-call APIs for AI agents (x402)
+# Axiom Works AgentReader — pay-per-call APIs for AI agents (x402)
 
 **Live:** https://api.axiomworks.co.uk · **MCP:** https://api.axiomworks.co.uk/mcp (streamable HTTP) · Contact: info@axiomworks.co.uk
 
@@ -92,3 +92,17 @@ Public http(s) URLs only (private/internal IPs blocked), 3 MB max, timeouts 10�
 Cloudflare Worker (Hono + `@x402/hono` + `@x402/mcp`). `npm i && npx wrangler deploy`; set `PAY_TO` in `wrangler.toml`, secrets `STATS_SECRET`, `DASHBOARD_KEY`, optional `CDP_API_KEY_ID`/`CDP_API_KEY_SECRET`. Hourly cron runs monitors.
 
 MIT licensed.
+
+## On-chain micro-lookups (v1.4.0, Base/Ethereum/Arbitrum/Optimism/Polygon)
+| Route | MCP tool | Price |
+|---|---|---|
+| `/ens?name=` or `?address=` | ens_lookup | $0.002 |
+| `/token?address=&chain=` | token_metadata | $0.001 |
+| `/allowance?token=&owner=&spender=` | token_allowance | $0.002 |
+| `/contract?address=` | contract_info | $0.003 |
+| `/gas?chain=` | gas_fees | $0.001 |
+| `/block?number=` or `?timestamp=` | block_lookup | $0.001 |
+| `/nft?contract=&token_id=` | nft_lookup | $0.002 |
+| `/wallet`, `/tx`, `/token-check`, `/fx` | wallet_balances, tx_status, token_check, fx_rates | $0.003, $0.003, $0.01, $0.002 |
+
+All support `?preview=1` (free, truncated, 8/IP/day). Edge-cached per input (10 s gas … 1 h token metadata) with multi-provider RPC fallback.

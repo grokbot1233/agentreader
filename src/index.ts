@@ -13,6 +13,7 @@ import { handleMcp } from "./mcp";
 import { facilitatorClient, CANONICAL, CONTACT } from "./facilitator";
 import { dashboardHtml } from "./dashboard";
 import { wallet, tx, tokenCheck, fx, CHAINS } from "./onchain";
+import { ens, tokenMeta, allowance, contractInfo, gas, block, nft } from "./micro";
 
 type Env = { LOG: KVNamespace; STATS_SECRET: string; DASHBOARD_KEY: string; PAY_TO: string; FACILITATOR_URL: string; CDP_API_KEY_ID?: string; CDP_API_KEY_SECRET?: string; FACILITATOR?: string; CH_API_KEY?: string };
 const NETWORK = "eip155:8453";
@@ -32,12 +33,14 @@ const PRICES = {
   "/tx": "$0.003",
   "/token-check": "$0.01",
   "/fx": "$0.002",
+  "/ens": "$0.002", "/token": "$0.001", "/allowance": "$0.002", "/contract": "$0.003", "/gas": "$0.001", "/block": "$0.001", "/nft": "$0.002",
 } as const;
 const ATOMIC: Record<string, number> = {
   "/read": 2000, "/links": 1000, "/check": 1000,
   "/company": 250000, "/uk-company": 500000, "/uk-company-lite": 50000, "/company-full": 650000,
   "/convert": 30000, "/monitor": 1000000,
   "/wallet": 3000, "/tx": 3000, "/token-check": 10000, "/fx": 2000,
+  "/ens": 2000, "/token": 1000, "/allowance": 2000, "/contract": 3000, "/gas": 1000, "/block": 1000, "/nft": 2000,
 };
 
 const urlIn = { type: "object", properties: { url: { type: "string", format: "uri", description: "Public http(s) URL to fetch" } }, required: ["url"] };
@@ -106,7 +109,29 @@ const tokenIn = { type: "object", properties: { address: { type: "string", descr
 const tokenOut = { type: "object", properties: { name: { type: ["string", "null"] }, symbol: { type: ["string", "null"] }, decimals: { type: ["integer", "null"] }, total_supply: { type: "string" }, owner: { type: ["string", "null"] }, proxy: { type: "object" }, market: { type: ["object", "null"] }, risk_flags: { type: "array", items: { type: "object" } }, risk_score: { type: "integer" }, verdict: { type: "string" } } };
 const fxIn = { type: "object", properties: { base: { type: "string", description: "ISO currency, default USD" }, symbols: { type: "string", description: "Comma list e.g. GBP,EUR (default all ~30)" }, date: { type: "string", description: "YYYY-MM-DD historical (default latest)" }, amount: { type: "string", description: "Optional amount to convert" } } };
 const fxOut = { type: "object", properties: { base: { type: "string" }, date: { type: "string" }, rates: { type: "object" }, converted: { type: "object" } } };
+const A = (d: string) => ({ type: "string", description: d });
+const ensIn = { type: "object", properties: { name: A("ENS name to resolve, e.g. vitalik.eth"), address: A("0x address for reverse lookup (primary name)") }, anyOf: [{ required: ["name"] }, { required: ["address"] }] };
+const ensOut = { type: "object", properties: { direction: { type: "string" }, name: { type: ["string", "null"] }, address: { type: ["string", "null"] }, records: { type: "object" }, forward_verified: { type: "boolean" } } };
+const tokenMetaIn = { type: "object", properties: { address: A("0x ERC20 token contract"), chain: chainP }, required: ["address"] };
+const tokenMetaOut = { type: "object", properties: { name: { type: ["string", "null"] }, symbol: { type: ["string", "null"] }, decimals: { type: ["integer", "null"] }, total_supply: { type: ["string", "null"] }, is_erc20_like: { type: "boolean" } } };
+const allowIn = { type: "object", properties: { token: A("0x ERC20 token"), owner: A("0x token holder"), spender: A("0x approved spender (router, Permit2, x402 facilitator…)"), chain: chainP }, required: ["token", "owner", "spender"] };
+const allowOut = { type: "object", properties: { allowance: { type: "string" }, allowance_raw: { type: "string" }, unlimited: { type: "boolean" }, owner_balance: { type: ["string", "null"] }, spendable_now: { type: ["string", "null"] } } };
+const contractIn = { type: "object", properties: { address: A("0x address to inspect"), chain: chainP }, required: ["address"] };
+const contractOut = { type: "object", properties: { is_contract: { type: "boolean" }, eip7702_delegate: { type: ["string", "null"] }, bytecode_bytes: { type: "integer" }, proxy: { type: "object" }, owner: { type: ["string", "null"] }, standards: { type: "array" }, verified: { type: ["object", "null"] } } };
+const gasIn = { type: "object", properties: { chain: chainP } };
+const gasOut = { type: "object", properties: { base_fee_gwei: { type: "number" }, priority_fee_gwei: { type: "object" }, suggested_eip1559: { type: "object" }, native_usd: { type: ["number", "null"] }, est_cost: { type: "object" } } };
+const blockIn = { type: "object", properties: { number: A("Block number (decimal/hex) or latest|safe|finalized"), timestamp: A("Unix seconds or ISO date: returns last block at/before it"), chain: chainP } };
+const blockOut = { type: "object", properties: { number: { type: "integer" }, hash: { type: "string" }, timestamp: { type: "integer" }, time_iso: { type: "string" }, tx_count: { type: ["integer", "null"] }, base_fee_gwei: { type: ["number", "null"] } } };
+const nftIn = { type: "object", properties: { contract: A("0x ERC721/ERC1155 contract"), token_id: A("Decimal token id"), chain: chainP }, required: ["contract", "token_id"] };
+const nftOut = { type: "object", properties: { standard: { type: ["string", "null"] }, owner: { type: ["string", "null"] }, token_uri: { type: ["string", "null"] }, metadata: { type: ["object", "null"] }, collection: { type: "object" } } };
 const DESC: Record<string, string> = {
+  "/ens": "Use this to resolve an ENS name to its address plus avatar/url/twitter/github/description records, or reverse-resolve an address to its primary name (forward-verified). Example: {name:\"vitalik.eth\"} or {address:\"0x…\"}. $0.002.",
+  "/token": "Use this for just an ERC20's name, symbol, decimals and total supply (formatted + raw) on Base/Ethereum/Arbitrum/Optimism/Polygon — e.g. before formatting amounts. Cheaper than /token-check. Example: {address:\"0x…\", chain:\"base\"}. $0.001.",
+  "/allowance": "Use this before transferFrom/x402/Permit flows or for approval hygiene: ERC20 allowance owner→spender, unlimited flag, owner balance and spendable-now amount. Multi-chain. Example: {token, owner, spender, chain:\"base\"}. $0.002.",
+  "/contract": "Use this to inspect any address: contract vs wallet vs EIP-7702 delegated EOA, bytecode size, EIP-1967 implementation/admin/beacon, EIP-1167 clone target, owner(), ERC20/721/1155 detection and Sourcify verified contract name. Example: {address, chain}. $0.003.",
+  "/gas": "Use this before sending a transaction: live base fee, priority-fee percentiles, suggested EIP-1559 maxFee/maxPriority, block utilisation and USD cost of a transfer/ERC20 transfer/swap (Chainlink price). Base/Ethereum/Arbitrum/Optimism/Polygon. Example: {chain:\"base\"}. $0.001.",
+  "/block": "Use this to get a block by number/latest/finalized, or find the block at a date/time (timestamp → block, for historical balance or event queries). Returns number, hash, time, tx count, base fee. Example: {timestamp:\"2026-01-01T00:00:00Z\", chain:\"base\"}. $0.001.",
+  "/nft": "Use this to look up one NFT: owner (ERC721), tokenURI and fetched JSON metadata (IPFS/Arweave/data URIs handled), collection name/symbol. Multi-chain. Example: {contract:\"0xBC4C…\", token_id:\"1\", chain:\"ethereum\"}. $0.002.",
   "/wallet": "Use this when you need an EVM wallet's balances in one call: native ETH/POL + USDC/USDT/DAI/WETH/cbBTC/EURC (plus up to 10 custom ERC20s), nonce, is_contract, block. Base, Ethereum, Arbitrum, Optimism, Polygon. Example: {address:\"0x…\", chain:\"base\"}. $0.003.",
   "/tx": "Use this to confirm a transaction/payment landed: status (success/reverted/pending), block, timestamp, confirmations, from/to, value, fee, decoded ERC20 transfers (USDC amounts). Base/Ethereum/Arbitrum/Optimism/Polygon. Example: {hash:\"0x…\"}. $0.003.",
   "/token-check": "Use this before buying, accepting or listing an ERC20 token: name/symbol/decimals/supply, owner (renounced?), EIP-1967 proxy, DEX price/liquidity/volume/pair age (DexScreener) + rule-based risk flags, score and verdict. Half the price of AI token verdicts. Example: {address:\"0x…\", chain:\"base\"}. $0.01.",
@@ -121,8 +146,12 @@ const DESC: Record<string, string> = {
   "/convert": "Use this when an agent needs PDF/DOCX/HTML/text as clean markdown or plain text (RAG, summarisation). PDF via unpdf; DOCX via mammoth. Example: {url, format:\"markdown\"} → {detected_format, markdown, pages, word_count}. $0.03.",
   "/monitor": "Use this when you need 30 days of hourly page-change alerts to your webhook (pricing pages, status, jobs). Returns id; GET /monitor/:id free. Example POST {url, webhook, selector?}. $1.00/30d.",
 };
-const OUT: any = { "/wallet": walletOut, "/tx": txOut, "/token-check": tokenOut, "/fx": fxOut, "/read": readOut, "/links": linksOut, "/check": checkOut, "/company": companyOut, "/uk-company": ukOut, "/uk-company-lite": ukLiteOut, "/company-full": companyFullOut, "/convert": convertOut, "/monitor": monitorOut };
+const OUT: any = { "/ens": ensOut, "/token": tokenMetaOut, "/allowance": allowOut, "/contract": contractOut, "/gas": gasOut, "/block": blockOut, "/nft": nftOut, "/wallet": walletOut, "/tx": txOut, "/token-check": tokenOut, "/fx": fxOut, "/read": readOut, "/links": linksOut, "/check": checkOut, "/company": companyOut, "/uk-company": ukOut, "/uk-company-lite": ukLiteOut, "/company-full": companyFullOut, "/convert": convertOut, "/monitor": monitorOut };
 const EX: any = {
+  "/ens": { name: "vitalik.eth" }, "/token": { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", chain: "base" },
+  "/allowance": { token: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", owner: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045", spender: "0x000000000022D473030F116dDEE9F6B43aC78BA3", chain: "base" },
+  "/contract": { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", chain: "base" }, "/gas": { chain: "base" }, "/block": { timestamp: "2026-01-01T00:00:00Z", chain: "base" },
+  "/nft": { contract: "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D", token_id: "1", chain: "ethereum" },
   "/wallet": { address: "0x88b1c747c33A5868A34057D8C57318E5602b3ff6", chain: "base" }, "/tx": { hash: "0x0000000000000000000000000000000000000000000000000000000000000000", chain: "base" },
   "/token-check": { address: "0x940181a94A35A4569E4529A3CDfB74e38FD98631", chain: "base" }, "/fx": { base: "GBP", symbols: "USD,EUR", amount: "100" },
   "/read": { url: "https://example.com" }, "/links": { url: "https://example.com" }, "/check": { domain: "example.com" },
@@ -130,12 +159,13 @@ const EX: any = {
   "/convert": { url: "https://raw.githubusercontent.com/mozilla/pdf.js/master/web/compressed.tracemonkey-pldi-09.pdf", format: "markdown" },
   "/monitor": { url: "https://example.com", webhook: "https://api.axiomworks.co.uk/hooks/sink" },
 };
-const IN: any = { "/wallet": walletIn, "/tx": txIn, "/token-check": tokenIn, "/fx": fxIn, "/read": urlIn, "/links": urlIn, "/check": checkIn, "/company": companyIn, "/uk-company": ukIn, "/uk-company-lite": ukLiteIn, "/company-full": companyFullIn, "/convert": convertIn, "/monitor": monitorIn };
+const IN: any = { "/ens": ensIn, "/token": tokenMetaIn, "/allowance": allowIn, "/contract": contractIn, "/gas": gasIn, "/block": blockIn, "/nft": nftIn, "/wallet": walletIn, "/tx": txIn, "/token-check": tokenIn, "/fx": fxIn, "/read": urlIn, "/links": urlIn, "/check": checkIn, "/company": companyIn, "/uk-company": ukIn, "/uk-company-lite": ukLiteIn, "/company-full": companyFullIn, "/convert": convertIn, "/monitor": monitorIn };
 const METHODS: Record<string, ("GET" | "POST")[]> = {
   "/read": ["GET", "POST"], "/links": ["GET", "POST"], "/check": ["GET", "POST"],
   "/company": ["GET", "POST"], "/uk-company": ["GET", "POST"], "/uk-company-lite": ["GET", "POST"], "/company-full": ["GET", "POST"], "/convert": ["GET", "POST"],
   "/monitor": ["POST"],
   "/wallet": ["GET", "POST"], "/tx": ["GET", "POST"], "/token-check": ["GET", "POST"], "/fx": ["GET", "POST"],
+  "/ens": ["GET", "POST"], "/token": ["GET", "POST"], "/allowance": ["GET", "POST"], "/contract": ["GET", "POST"], "/gas": ["GET", "POST"], "/block": ["GET", "POST"], "/nft": ["GET", "POST"],
 };
 
 function routes(payTo: string) {
@@ -181,7 +211,7 @@ app.options("*", (c) => c.body(null, 204, { "access-control-allow-origin": "*", 
 function base(_c: any) { return CANONICAL; }
 function discovery(c: any) {
   const b = base(c);
-  return { x402Version: 2, name: "AgentReader", description: "Pay-per-call web reading, company research, UK due diligence, document conversion, change monitoring, EVM wallet/tx/token checks and FX rates for AI agents. USDC on Base via x402.",
+  return { x402Version: 2, name: "Axiom Works AgentReader", description: "Pay-per-call web reading, company research, UK due diligence, document conversion, change monitoring, EVM wallet/tx/token checks and FX rates for AI agents. USDC on Base via x402.",
     resources: Object.keys(PRICES).map((p) => `${b}${p}`),
     items: Object.entries(PRICES).map(([p, price]) => ({ resource: `${b}${p}`, methods: METHODS[p], description: DESC[p], mimeType: "application/json",
       accepts: [{ scheme: "exact", network: NETWORK, amount: String(ATOMIC[p]), price, asset: USDC, payTo: c.env.PAY_TO, maxTimeoutSeconds: 120, extra: { name: "USD Coin", version: "2" } }],
@@ -195,9 +225,9 @@ app.get("/.well-known/x402.json", (c) => c.json(discovery(c)));
 app.get("/.well-known/agent.json", (c) => {
   const b = base(c);
   return c.json({
-    name: "AgentReader", description: "x402 pay-per-call web reader, company research, UK Companies House due diligence, document conversion, change monitoring, EVM wallet/tx/token risk checks and ECB FX rates for AI agents.",
+    name: "Axiom Works AgentReader", description: "x402 pay-per-call web reader, company research, UK Companies House due diligence, document conversion, change monitoring, EVM wallet/tx/token risk checks and ECB FX rates for AI agents.",
     url: b, provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk", email: CONTACT },
-    version: "1.3.0", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
+    version: "1.4.0", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     skills: Object.entries(PRICES).map(([p, price]) => ({ id: p.slice(1), name: p, description: DESC[p], price, endpoint: `${b}${p}` })),
     mcp: `${b}/mcp`, payments: { protocol: "x402", network: NETWORK, asset: USDC, payTo: c.env.PAY_TO },
   });
@@ -217,10 +247,10 @@ app.get("/openapi.json", (c) => {
   paths["/monitor/{id}"] = { get: { summary: "Free monitor status (id is the secret)", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { "200": { description: "Monitor status" }, "404": { description: "Not found" } }, "x-price": "free" } };
   paths["/samples/{kind}"] = { get: { summary: "Free truncated sample (rate-limited 8/IP/day) with x402 upsell", parameters: [{ name: "kind", in: "path", required: true, schema: { type: "string", enum: ["read","company","uk-company","uk-company-lite","convert"] } }], responses: { "200": { description: "Truncated sample" }, "429": { description: "Preview quota exceeded" } }, "x-price": "free" } };
   paths["/hooks/sink"] = { post: { summary: "Free webhook test sink for /monitor", responses: { "200": { description: "Stored" } }, "x-price": "free" } };
-  return c.json({ openapi: "3.1.0", info: { title: "AgentReader", version: "1.3.0", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, company research, UK due diligence, document conversion, change monitoring. Payments: USDC on Base mainnet (eip155:8453)." },
+  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.4.0", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, company research, UK due diligence, document conversion, change monitoring. Payments: USDC on Base mainnet (eip155:8453)." },
     servers: [{ url: b }], paths });
 });
-const llms = (b: string, payTo: string) => `# AgentReader
+const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
 
 > Pay-per-call tools for AI agents. No API keys: x402 (HTTP 402) + USDC on Base (eip155:8453), payTo ${payTo}.
 > Free truncated samples: ${b}/samples/{read|company|uk-company|uk-company-lite|convert} (8/IP/day). Or add &preview=1 on paid GETs (same limit).
@@ -240,6 +270,13 @@ const llms = (b: string, payTo: string) => `# AgentReader
 | EVM wallet balances | ${b}/wallet?address=&chain=base | $0.003 | Native + 7 stablecoins/majors, 5 chains, one call |
 | Tx / payment receipt | ${b}/tx?hash=&chain=base | $0.003 | Status, confirmations, fee, decoded USDC transfers |
 | Token due diligence | ${b}/token-check?address=&chain=base | $0.01 | Owner/proxy/supply + DEX liquidity + risk flags |
+| ENS name ⇄ address | ${b}/ens?name=vitalik.eth | $0.002 | Forward + text records, or verified reverse |
+| Token metadata | ${b}/token?address=&chain=base | $0.001 | name/symbol/decimals/supply only |
+| ERC20 allowance | ${b}/allowance?token=&owner=&spender= | $0.002 | Unlimited flag + spendable now |
+| Contract / address info | ${b}/contract?address=&chain=base | $0.003 | Proxy impl, clone, 7702, standards, Sourcify name |
+| Gas / fees now | ${b}/gas?chain=base | $0.001 | EIP-1559 suggestion + USD cost estimates |
+| Block by number or time | ${b}/block?timestamp=2026-01-01 | $0.001 | Timestamp → block search |
+| NFT owner + metadata | ${b}/nft?contract=&token_id= | $0.002 | IPFS/Arweave resolved JSON |
 | FX rates (ECB) | ${b}/fx?base=GBP&symbols=USD | $0.002 | Official ECB rates, history, conversion |
 | Hourly change alerts | POST ${b}/monitor | $1.00/30d | Webhook on change; GET /monitor/:id free |
 
@@ -258,7 +295,7 @@ ${CONTACT} · https://github.com/grokbot1233/agentreader · examples/ in repo
 app.get("/llms.txt", (c) => c.text(llms(base(c), c.env.PAY_TO)));
 app.get("/", (c) => {
   if ((c.req.header("accept") || "").includes("text/html"))
-    return c.html(`<!doctype html><meta charset=utf-8><title>AgentReader</title><meta name=viewport content="width=device-width"><style>body{font:16px/1.5 system-ui;max-width:760px;margin:40px auto;padding:0 16px}pre{background:#f4f4f4;padding:12px;white-space:pre-wrap}</style><h1>AgentReader</h1><pre>${llms(base(c), c.env.PAY_TO).replace(/</g, "&lt;")}</pre>`);
+    return c.html(`<!doctype html><meta charset=utf-8><title>Axiom Works AgentReader</title><meta name=viewport content="width=device-width"><style>body{font:16px/1.5 system-ui;max-width:760px;margin:40px auto;padding:0 16px}pre{background:#f4f4f4;padding:12px;white-space:pre-wrap}</style><h1>AgentReader</h1><pre>${llms(base(c), c.env.PAY_TO).replace(/</g, "&lt;")}</pre>`);
   return c.text(llms(base(c), c.env.PAY_TO));
 });
 
@@ -298,7 +335,7 @@ app.get("/dashboard/data", async (c) => {
   const mcpTools = [
     ["read_url", "$0.002"], ["extract_links", "$0.001"], ["check_domain", "$0.001"],
     ["company_research", "$0.25"], ["uk_company", "$0.50"], ["uk_company_lite", "$0.05"], ["company_full", "$0.65"], ["convert_document", "$0.03"], ["create_monitor", "$1.00"],
-    ["wallet_balances", "$0.003"], ["tx_status", "$0.003"], ["token_check", "$0.01"], ["fx_rates", "$0.002"],
+    ["wallet_balances", "$0.003"], ["tx_status", "$0.003"], ["token_check", "$0.01"], ["fx_rates", "$0.002"], ["ens_lookup", "$0.002"], ["token_metadata", "$0.001"], ["token_allowance", "$0.002"], ["contract_info", "$0.003"], ["gas_fees", "$0.001"], ["block_lookup", "$0.001"], ["nft_lookup", "$0.002"],
     ["pricing", "free"],
   ];
   const services = [
@@ -484,14 +521,17 @@ for (const m of ["get", "post"] as const) {
   });
 }
 
-const ONCHAIN: Record<string, [(b: any) => Promise<any>, string[], number]> = {
+const ONCHAIN: Record<string, [(b: any) => Promise<any>, string[], number, string[]?]> = {
+  "/ens": [(b) => ens(b), ["name", "address"], 900, ["name|address"]], "/token": [(b) => tokenMeta(b), ["address", "chain"], 3600],
+  "/allowance": [(b) => allowance(b), ["token", "owner", "spender", "chain"], 20, ["token", "owner", "spender"]], "/contract": [(b) => contractInfo(b), ["address", "chain"], 1800],
+  "/gas": [(b) => gas(b), ["chain"], 10, []], "/block": [(b) => block(b), ["number", "timestamp", "chain"], 60, []], "/nft": [(b) => nft(b), ["contract", "token_id", "chain"], 300, ["contract", "token_id"]],
   "/wallet": [(b) => wallet(b), ["address", "chain", "tokens"], 15], "/tx": [(b) => tx(b), ["hash", "chain"], 10],
-  "/token-check": [(b) => tokenCheck(b), ["address", "chain"], 120], "/fx": [(b) => fx(b), ["base", "symbols", "date", "amount"], 600],
+  "/token-check": [(b) => tokenCheck(b), ["address", "chain"], 120], "/fx": [(b) => fx(b), ["base", "symbols", "date", "amount"], 600, []],
 };
 function slim(d: any): any { if (Array.isArray(d)) return d.slice(0, 2); if (d && typeof d === "object") { const o: any = {}; for (const [k, v] of Object.entries(d)) o[k] = Array.isArray(v) ? (v as any[]).slice(0, 2) : (k === "rates" || k === "converted") && v ? Object.fromEntries(Object.entries(v as any).slice(0, 3)) : v; return o; } return d; }
-for (const [p, [fn, keys, ttl]] of Object.entries(ONCHAIN)) for (const m of ["get", "post"] as const) app[m](p, async (c) => {
+for (const [p, [fn, keys, ttl, need]] of Object.entries(ONCHAIN)) for (const m of ["get", "post"] as const) app[m](p, async (c) => {
   const b = await bodyObj(c); const args: any = {}; for (const k of keys) if (b[k] != null && b[k] !== "") args[k] = String(b[k]).trim();
-  if (keys[0] !== "base" && !args[keys[0]]) return c.json({ error: `missing ${keys[0]}`, example: EX[p] }, 400);
+  for (const r of need ?? [keys[0]]) if (!r.split("|").some((k) => args[k])) return c.json({ error: `missing ${r.replace("|", " or ")}`, example: EX[p] }, 400);
   if (c.req.query("preview") === "1" && m === "get") {
     const q = await checkPreviewQuota(c.env, clientIp(c)); if (!q.ok) return c.json(q, 429);
     try { return c.json({ preview: true, truncated: "arrays cut to 2 items; pay for full result", data: slim(await fn(args)), paid_call: `${CANONICAL}${p}?${new URLSearchParams(args)}`, price: PRICES[p as keyof typeof PRICES], preview_remaining: q.remaining }); }

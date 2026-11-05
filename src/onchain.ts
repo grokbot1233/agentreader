@@ -14,8 +14,8 @@ export const CHAINS: Record<string, { id: number; rpc: string; native: string; t
   polygon: { id: 137, rpc: "https://polygon-bor-rpc.publicnode.com", native: "POL", tokens: {
     USDC: ["0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", 6], USDT: ["0xc2132D05D31c914a87C6611C10748AEb04B58e8F", 6], WETH: ["0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619", 18] } },
 };
-const ADDR = /^0x[0-9a-fA-F]{40}$/; const HASH = /^0x[0-9a-fA-F]{64}$/;
-function chainOf(c?: string) { const k = (c || "base").toLowerCase(); const ch = CHAINS[k]; if (!ch) throw new UserError(`unsupported chain; use one of ${Object.keys(CHAINS).join(",")}`, 400); return [k, ch] as const; }
+export const ADDR = /^0x[0-9a-fA-F]{40}$/; export const HASH = /^0x[0-9a-fA-F]{64}$/;
+export function chainOf(c?: string) { const k = (c || "base").toLowerCase(); const ch = CHAINS[k]; if (!ch) throw new UserError(`unsupported chain; use one of ${Object.keys(CHAINS).join(",")}`, 400); return [k, ch] as const; }
 
 const POOL: Record<string, string[]> = {
   base: ["https://base-mainnet.public.blastapi.io", "https://gateway.tenderly.co/public/base", "https://base-pokt.nodies.app", "https://api.zan.top/base-mainnet", "https://base-rpc.publicnode.com", "https://mainnet.base.org"],
@@ -26,7 +26,7 @@ const POOL: Record<string, string[]> = {
 };
 const FALLBACK: Record<string, string[]> = {};
 for (const [k, ch] of Object.entries(CHAINS)) { FALLBACK[ch.rpc] = POOL[k]; }
-async function rpcBatch(url: string, calls: [string, any[]][]) {
+export async function rpcBatch(url: string, calls: [string, any[]][]) {
   let last: any; const errs: string[] = [];
   for (const u of (FALLBACK[url] || [url])) { try { const out = await rpcOnce(u, calls); if (out.filter((x) => x !== undefined).length === calls.length) return out; last = new Error("partial batch"); } catch (e: any) { last = e; errs.push(`${new URL(u).host}: ${String(e?.message || e).slice(0, 60)}`); } }
   throw new Error(`all RPCs failed: ${errs.join("; ")}`);
@@ -39,10 +39,10 @@ async function rpcOnce(url: string, calls: [string, any[]][]) {
   for (const x of j) { if (x.error && x.error.code !== 3 && !/revert/i.test(x.error.message || "")) throw new Error(`rpc error ${String(x.error.message).slice(0, 40)}`); out[x.id] = x.error ? null : x.result; }
   return out;
 }
-const pad = (a: string) => a.toLowerCase().replace(/^0x/, "").padStart(64, "0");
-const big = (h: any) => (h && h !== "0x" ? BigInt(h) : 0n);
-const fmt = (v: bigint, d: number) => { const s = v.toString().padStart(d + 1, "0"); const i = s.slice(0, s.length - d), f = s.slice(s.length - d).replace(/0+$/, ""); return f ? `${i}.${f}` : i; };
-function decStr(hex: string | null) {
+export const pad = (a: string) => a.toLowerCase().replace(/^0x/, "").padStart(64, "0");
+export const big = (h: any) => (h && h !== "0x" ? BigInt(h) : 0n);
+export const fmt = (v: bigint, d: number) => { const s = v.toString().padStart(d + 1, "0"); const i = s.slice(0, s.length - d), f = s.slice(s.length - d).replace(/0+$/, ""); return f ? `${i}.${f}` : i; };
+export function decStr(hex: string | null) {
   if (!hex || hex === "0x") return null;
   try { const b = hex.slice(2); if (b.length >= 128) { const len = Number(BigInt("0x" + b.slice(64, 128))); const data = b.slice(128, 128 + len * 2);
       return new TextDecoder().decode(Uint8Array.from(data.match(/../g) || [], (x) => parseInt(x, 16))).replace(/\0/g, "") || null; }
@@ -93,11 +93,12 @@ export async function tokenCheck(p: { address: string; chain?: string }) {
   if (!ADDR.test(p.address || "")) throw new UserError("address must be a 0x… token contract address", 400);
   const [name, ch] = chainOf(p.chain);
   const sel = (s: string) => ["eth_call", [{ to: p.address, data: s }, "latest"]] as [string, any[]];
-  const [code, nm, sym, dec, sup, owner, impl, admin, dead] = await rpcBatch(ch.rpc, [["eth_getCode", [p.address, "latest"]], sel("0x06fdde03"), sel("0x95d89b41"), sel("0x313ce567"), sel("0x18160ddd"), sel("0x8da5cb5b"),
-    ["eth_getStorageAt", [p.address, IMPL, "latest"]], ["eth_getStorageAt", [p.address, ADMIN, "latest"]], ["eth_call", [{ to: p.address, data: "0x70a08231" + pad("0x000000000000000000000000000000000000dEaD") }, "latest"]]]);
+  const [code, nm, sym, dec, sup, owner, impl0, admin, zos, dead] = await rpcBatch(ch.rpc, [["eth_getCode", [p.address, "latest"]], sel("0x06fdde03"), sel("0x95d89b41"), sel("0x313ce567"), sel("0x18160ddd"), sel("0x8da5cb5b"),
+    ["eth_getStorageAt", [p.address, IMPL, "latest"]], ["eth_getStorageAt", [p.address, ADMIN, "latest"]], ["eth_getStorageAt", [p.address, "0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3", "latest"]], ["eth_call", [{ to: p.address, data: "0x70a08231" + pad("0x000000000000000000000000000000000000dEaD") }, "latest"]]]);
   if (!code || code === "0x") throw new UserError(`no contract at ${p.address} on ${name}`, 404);
   const decimals = dec ? Number(big(dec)) : null; const supply = big(sup);
   const ownerAddr = owner && owner.length >= 66 ? "0x" + owner.slice(26, 66) : null;
+  const impl = impl0 && big(impl0) !== 0n ? impl0 : zos;
   const implAddr = impl && big(impl) !== 0n ? "0x" + impl.slice(26) : null;
   let market: any = null; let marketErr: string | null = null;
   try {
@@ -133,7 +134,7 @@ export async function tokenCheck(p: { address: string; chain?: string }) {
       onchain_pools = found.map((f, i) => ({ dex: "uniswap-v3", pool: f.pool, quote: f.c[0], fee_bps: f.c[3] / 100, quote_reserve: fmt(big(bal[i]), f.c[2]) })).sort((a, b) => Number(b.quote_reserve) - Number(a.quote_reserve)); }
   } catch {}
   const flags: { level: string; flag: string }[] = [];
-  if (implAddr) flags.push({ level: "medium", flag: "upgradeable proxy (EIP-1967): logic can be changed by admin" });
+  if (implAddr) flags.push({ level: "medium", flag: "upgradeable proxy (EIP-1967/ZeppelinOS slot): logic can be changed by admin" });
   if (ownerAddr && big(ownerAddr) !== 0n) flags.push({ level: "medium", flag: `has active owner ${ownerAddr} (not renounced)` });
   if (ownerAddr && big(ownerAddr) === 0n) flags.push({ level: "info", flag: "ownership renounced (owner = 0x0)" });
   if (!nm && !sym) flags.push({ level: "high", flag: "no ERC20 name/symbol — may not be a token" });

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * AgentReader stdio MCP for Glama / local introspection.
+ * Axiom Works AgentReader stdio MCP for Glama / local introspection.
  * - tools/list works with no secrets / no network (static catalog)
  * - tool calls proxy to https://api.axiomworks.co.uk (HTTP or /mcp) and surface x402 Payment Required when unpaid
  */
@@ -9,8 +9,10 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 
 const ORIGIN = process.env.AGENTREADER_ORIGIN || "https://api.axiomworks.co.uk";
-const VERSION = "1.2.0";
+const VERSION = "1.4.0";
 
+const qs = (a) => new URLSearchParams(Object.entries(a).filter(([, v]) => v != null && v !== "")).toString();
+const CH = z.enum(["base", "ethereum", "arbitrum", "optimism", "polygon"]).optional();
 const TOOLS = [
   {
     name: "read_url",
@@ -79,11 +81,22 @@ const TOOLS = [
   },
   {
     name: "pricing",
-    description: "Free: list AgentReader tools, prices and payment details.",
+    description: "Free: list Axiom Works AgentReader tools, prices and payment details.",
     schema: {},
     http: () => `${ORIGIN}/.well-known/x402`,
     free: true,
   },
+  { name: "wallet_balances", description: "EVM wallet balances (native + majors), 5 chains. $0.003 USDC.", schema: { address: z.string(), chain: CH, tokens: z.string().optional() }, http: (a) => `${ORIGIN}/wallet?${qs(a)}` },
+  { name: "tx_status", description: "Did a tx/payment land: status, confirmations, fee, decoded ERC20 transfers. $0.003 USDC.", schema: { hash: z.string(), chain: CH }, http: (a) => `${ORIGIN}/tx?${qs(a)}` },
+  { name: "token_check", description: "ERC20 token risk: owner, proxy, liquidity, flags, score. $0.01 USDC.", schema: { address: z.string(), chain: CH }, http: (a) => `${ORIGIN}/token-check?${qs(a)}` },
+  { name: "fx_rates", description: "ECB FX rates, latest/historical, with conversion. $0.002 USDC.", schema: { base: z.string().optional(), symbols: z.string().optional(), date: z.string().optional(), amount: z.string().optional() }, http: (a) => `${ORIGIN}/fx?${qs(a)}` },
+  { name: "ens_lookup", description: "ENS name -> address + records, or reverse. $0.002 USDC.", schema: { name: z.string().optional(), address: z.string().optional() }, http: (a) => `${ORIGIN}/ens?${qs(a)}` },
+  { name: "token_metadata", description: "ERC20 name/symbol/decimals/supply. $0.001 USDC.", schema: { address: z.string(), chain: CH }, http: (a) => `${ORIGIN}/token?${qs(a)}` },
+  { name: "token_allowance", description: "ERC20 allowance owner->spender, unlimited flag. $0.002 USDC.", schema: { token: z.string(), owner: z.string(), spender: z.string(), chain: CH }, http: (a) => `${ORIGIN}/allowance?${qs(a)}` },
+  { name: "contract_info", description: "Contract/proxy/clone/7702/standards/Sourcify name. $0.003 USDC.", schema: { address: z.string(), chain: CH }, http: (a) => `${ORIGIN}/contract?${qs(a)}` },
+  { name: "gas_fees", description: "Current gas fees + USD cost estimates. $0.001 USDC.", schema: { chain: CH }, http: (a) => `${ORIGIN}/gas?${qs(a)}` },
+  { name: "block_lookup", description: "Block by number or timestamp. $0.001 USDC.", schema: { number: z.string().optional(), timestamp: z.string().optional(), chain: CH }, http: (a) => `${ORIGIN}/block?${qs(a)}` },
+  { name: "nft_lookup", description: "NFT owner + metadata. $0.002 USDC.", schema: { contract: z.string(), token_id: z.string(), chain: CH }, http: (a) => `${ORIGIN}/nft?${qs(a)}` },
 ];
 
 function b64json(header) {
@@ -138,7 +151,7 @@ async function callHttp(tool, args) {
 }
 
 async function main() {
-  const server = new McpServer({ name: "agentreader", version: VERSION });
+  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: VERSION });
   for (const t of TOOLS) {
     const shape = t.schema;
     server.tool(t.name, t.description, shape, async (args) => {

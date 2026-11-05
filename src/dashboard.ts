@@ -4,7 +4,7 @@ h1{font-size:20px;margin:4px 0 2px}.sub{color:#8a8f98;font-size:13px}.grid{displ
 .card{background:#181b22;border:1px solid #262a33;border-radius:10px;padding:12px}.k{color:#8a8f98;font-size:12px;text-transform:uppercase}.v{font-size:24px;font-weight:600;margin-top:4px}
 table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:6px 4px;border-bottom:1px solid #262a33;text-align:left;vertical-align:top}th{color:#8a8f98;font-weight:500}
 a{color:#7cb7ff;word-break:break-all}.ok{color:#4ade80}.bad{color:#f87171}.warn{color:#facc15}h2{font-size:15px;margin:20px 0 8px}.wrap{overflow-x:auto}ul{margin:4px 0;padding-left:20px}code{background:#222;padding:1px 4px;border-radius:4px}</style></head><body><main>
-<h1>AgentReader — Agent Economy Venture</h1><div class=sub>Live · auto-refreshes every 15s · <span id=upd>loading…</span></div>
+<h1>Axiom Works AgentReader — Agent Economy Venture</h1><div class=sub>Live · auto-refreshes every 15s · <span id=upd>loading…</span></div>
 <div class=grid><div class=card><div class=k>Revenue (USDC)</div><div class=v id=rev>–</div></div><div class=card><div class=k>Paid calls</div><div class=v id=calls>–</div></div>
 <div class=card><div class=k>Unique paying agents</div><div class=v id=payers>–</div></div><div class=card><div class=k>Service health</div><div class=v id=health>–</div><div class=sub id=hdet></div></div></div>
 <h2>Needed from Liam</h2><div class=card id=check></div>

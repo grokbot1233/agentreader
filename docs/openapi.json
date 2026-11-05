@@ -1,1 +1,3944 @@
-{"openapi":"3.1.0","info":{"title":"AgentReader","version":"1.3.0","contact":{"email":"info@axiomworks.co.uk","url":"https://github.com/grokbot1233/agentreader"},"description":"x402 pay-per-call APIs for AI agents: web reading, company research, UK due diligence, document conversion, change monitoring. Payments: USDC on Base mainnet (eip155:8453)."},"servers":[{"url":"https://api.axiomworks.co.uk"}],"paths":{"/read":{"get":{"summary":"Use this when you need the clean text of a public web page as Markdown + metadata (title, author, date, language, word count, links). Better than raw fetch/HTML: Readability extraction, structured JSON, ~1s. Example in: {url:\"https://example.com\"} → {title, markdown, word_count, links}. $0.002 USDC.","parameters":[{"name":"url","in":"query","required":true,"schema":{"type":"string"},"description":"Public http(s) URL to fetch"}],"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"object","properties":{"url":{"type":"string"},"final_url":{"type":"string"},"title":{"type":["string","null"]},"description":{"type":["string","null"]},"canonical_url":{"type":"string"},"author":{"type":["string","null"]},"published":{"type":["string","null"]},"language":{"type":["string","null"]},"word_count":{"type":"integer"},"markdown":{"type":"string"},"links_count":{"type":"integer"},"links":{"type":"array","items":{"type":"object","properties":{"url":{"type":"string"},"text":{"type":"string"},"internal":{"type":"boolean"}}}}}}}}},"400":{"description":"Bad input"},"402":{"description":"Payment required: $0.002 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"}},"x-price":"$0.002","x-payment-info":{"mode":"fixed","currency":"USD","amount":"0.002","network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x88b1c747c33A5868A34057D8C57318E5602b3ff6","amountAtomic":"2000"},"x-402":{"network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","amount":"2000"}},"post":{"summary":"Use this when you need the clean text of a public web page as Markdown + metadata (title, author, date, language, word count, links). Better than raw fetch/HTML: Readability extraction, structured JSON, ~1s. Example in: {url:\"https://example.com\"} → {title, markdown, word_count, links}. $0.002 USDC.","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"url":{"type":"string","format":"uri","description":"Public http(s) URL to fetch"}},"required":["url"]}}}},"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"object","properties":{"url":{"type":"string"},"final_url":{"type":"string"},"title":{"type":["string","null"]},"description":{"type":["string","null"]},"canonical_url":{"type":"string"},"author":{"type":["string","null"]},"published":{"type":["string","null"]},"language":{"type":["string","null"]},"word_count":{"type":"integer"},"markdown":{"type":"string"},"links_count":{"type":"integer"},"links":{"type":"array","items":{"type":"object","properties":{"url":{"type":"string"},"text":{"type":"string"},"internal":{"type":"boolean"}}}}}}}}},"400":{"description":"Bad input"},"402":{"description":"Payment required: $0.002 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"}},"x-price":"$0.002","x-payment-info":{"mode":"fixed","currency":"USD","amount":"0.002","network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x88b1c747c33A5868A34057D8C57318E5602b3ff6","amountAtomic":"2000"},"x-402":{"network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","amount":"2000"}}},"/links":{"get":{"summary":"Use this when you only need every absolute link on a page (crawl maps, sitemaps-lite). Faster/cheaper than /read. Example: {url} → {count, links:[{url,text,internal}]}. $0.001.","parameters":[{"name":"url","in":"query","required":true,"schema":{"type":"string"},"description":"Public http(s) URL to fetch"}],"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"object","properties":{"url":{"type":"string"},"final_url":{"type":"string"},"count":{"type":"integer"},"links":{"type":"array","items":{"type":"object","properties":{"url":{"type":"string"},"text":{"type":"string"},"internal":{"type":"boolean"}}}}}}}}},"400":{"description":"Bad input"},"402":{"description":"Payment required: $0.001 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"}},"x-price":"$0.001","x-payment-info":{"mode":"fixed","currency":"USD","amount":"0.001","network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x88b1c747c33A5868A34057D8C57318E5602b3ff6","amountAtomic":"1000"},"x-402":{"network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","amount":"1000"}},"post":{"summary":"Use this when you only need every absolute link on a page (crawl maps, sitemaps-lite). Faster/cheaper than /read. Example: {url} → {count, links:[{url,text,internal}]}. $0.001.","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"url":{"type":"string","format":"uri","description":"Public http(s) URL to fetch"}},"required":["url"]}}}},"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"object","properties":{"url":{"type":"string"},"final_url":{"type":"string"},"count":{"type":"integer"},"links":{"type":"array","items":{"type":"object","properties":{"url":{"type":"string"},"text":{"type":"string"},"internal":{"type":"boolean"}}}}}}}}},"400":{"description":"Bad input"},"402":{"description":"Payment required: $0.001 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"}},"x-price":"$0.001","x-payment-info":{"mode":"fixed","currency":"USD","amount":"0.001","network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x88b1c747c33A5868A34057D8C57318E5602b3ff6","amountAtomic":"1000"},"x-402":{"network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","amount":"1000"}}},"/check":{"get":{"summary":"Use this when vetting a domain's health before outreach or onboarding: DNS (DoH), DNSSEC, TLS/HTTPS, redirects, HSTS, MX/SPF/DMARC + score/issues. Structured JSON beats dig+openssl. Example: {domain:\"stripe.com\"} → {score, issues, email}. $0.001.","parameters":[{"name":"domain","in":"query","required":true,"schema":{"type":"string"},"description":"Domain name, e.g. example.com"}],"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"object","properties":{"domain":{"type":"string"},"dns":{"type":"object"},"dnssec_validated":{"type":["boolean","null"]},"tls":{"type":"object"},"http":{"type":"object"},"email":{"type":"object","properties":{"mx":{"type":"array"},"spf":{"type":"array"},"dmarc":{"type":"array"},"dmarc_policy":{"type":["string","null"]}}},"issues":{"type":"array","items":{"type":"string"}},"score":{"type":"integer"}}}}}},"400":{"description":"Bad input"},"402":{"description":"Payment required: $0.001 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"}},"x-price":"$0.001","x-payment-info":{"mode":"fixed","currency":"USD","amount":"0.001","network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x88b1c747c33A5868A34057D8C57318E5602b3ff6","amountAtomic":"1000"},"x-402":{"network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","amount":"1000"}},"post":{"summary":"Use this when vetting a domain's health before outreach or onboarding: DNS (DoH), DNSSEC, TLS/HTTPS, redirects, HSTS, MX/SPF/DMARC + score/issues. Structured JSON beats dig+openssl. Example: {domain:\"stripe.com\"} → {score, issues, email}. $0.001.","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"domain":{"type":"string","description":"Domain name, e.g. example.com"}},"required":["domain"]}}}},"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"object","properties":{"domain":{"type":"string"},"dns":{"type":"object"},"dnssec_validated":{"type":["boolean","null"]},"tls":{"type":"object"},"http":{"type":"object"},"email":{"type":"object","properties":{"mx":{"type":"array"},"spf":{"type":"array"},"dmarc":{"type":"array"},"dmarc_policy":{"type":["string","null"]}}},"issues":{"type":"array","items":{"type":"string"}},"score":{"type":"integer"}}}}}},"400":{"description":"Bad input"},"402":{"description":"Payment required: $0.001 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"}},"x-price":"$0.001","x-payment-info":{"mode":"fixed","currency":"USD","amount":"0.001","network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x88b1c747c33A5868A34057D8C57318E5602b3ff6","amountAtomic":"1000"},"x-402":{"network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","amount":"1000"}}},"/company":{"get":{"summary":"Use this when researching any company from its website domain — not Companies House. Returns sourced tech stack, socials, emails/phones, DNS/MX/SPF/DMARC, RDAP age/registrar, SSL, sitemap, news. No LLM inventing facts. Example: {domain:\"stripe.com\"} → {homepage, tech_stack, contacts, dns, news, sources}. Prefer /uk-company* for UK filings. $0.25.","parameters":[{"name":"domain","in":"query","required":false,"schema":{"type":"string"},"description":"Company website domain, e.g. stripe.com"},{"name":"name","in":"query","required":false,"schema":{"type":"string"},"description":"Alias for domain if it looks like a hostname"}],"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"object","properties":{"domain":{"type":"string"},"homepage":{"type":"object"},"key_pages":{"type":"object"},"tech_stack":{"type":"object"},"social_links":{"type":"object"},"contacts":{"type":"object"},"dns":{"type":"object"},"domain_registration":{"type":"object"},"ssl":{"type":"object"},"sitemap":{"type":"object"},"news":{"type":"object"},"sources":{"type":"object"}}}}}},"400":{"description":"Bad input"},"402":{"description":"Payment required: $0.25 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"}},"x-price":"$0.25","x-payment-info":{"mode":"fixed","currency":"USD","amount":"0.25","network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x88b1c747c33A5868A34057D8C57318E5602b3ff6","amountAtomic":"250000"},"x-402":{"network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","amount":"250000"}},"post":{"summary":"Use this when researching any company from its website domain — not Companies House. Returns sourced tech stack, socials, emails/phones, DNS/MX/SPF/DMARC, RDAP age/registrar, SSL, sitemap, news. No LLM inventing facts. Example: {domain:\"stripe.com\"} → {homepage, tech_stack, contacts, dns, news, sources}. Prefer /uk-company* for UK filings. $0.25.","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"domain":{"type":"string","description":"Company website domain, e.g. stripe.com"},"name":{"type":"string","description":"Alias for domain if it looks like a hostname"}},"anyOf":[{"required":["domain"]},{"required":["name"]}]}}}},"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"object","properties":{"domain":{"type":"string"},"homepage":{"type":"object"},"key_pages":{"type":"object"},"tech_stack":{"type":"object"},"social_links":{"type":"object"},"contacts":{"type":"object"},"dns":{"type":"object"},"domain_registration":{"type":"object"},"ssl":{"type":"object"},"sitemap":{"type":"object"},"news":{"type":"object"},"sources":{"type":"object"}}}}}},"400":{"description":"Bad input"},"402":{"description":"Payment required: $0.25 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"}},"x-price":"$0.25","x-payment-info":{"mode":"fixed","currency":"USD","amount":"0.25","network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x88b1c747c33A5868A34057D8C57318E5602b3ff6","amountAtomic":"250000"},"x-402":{"network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","amount":"250000"}}},"/uk-company":{"get":{"summary":"Use this for UK due diligence on a Companies House number or name: official API profile, officers, PSCs, filings, charges, insolvency + rule-based red flags (overdue, dissolved, churn, mass-formation office). Sourced JSON. Example: {number:\"00445790\"} or {name:\"TESCO\"}. Prefer /uk-company-lite ($0.05) for status/flags only. $0.50.","parameters":[{"name":"number","in":"query","required":false,"schema":{"type":"string"},"description":"UK Companies House number, e.g. 00445790"},{"name":"name","in":"query","required":false,"schema":{"type":"string"},"description":"Registered company name to search"}],"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"object","properties":{"company_number":{"type":"string"},"profile":{"type":"object"},"overview":{"type":"object"},"officers":{"type":"object"},"persons_with_significant_control":{"type":"object"},"filing_history_highlights":{"type":"object"},"charges":{"type":"object"},"compliance":{"type":"object"},"red_flags":{"type":"array","items":{"type":"object"}},"sources":{"type":"object"}}}}}},"400":{"description":"Bad input"},"402":{"description":"Payment required: $0.50 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"}},"x-price":"$0.50","x-payment-info":{"mode":"fixed","currency":"USD","amount":"0.50","network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x88b1c747c33A5868A34057D8C57318E5602b3ff6","amountAtomic":"500000"},"x-402":{"network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","amount":"500000"}},"post":{"summary":"Use this for UK due diligence on a Companies House number or name: official API profile, officers, PSCs, filings, charges, insolvency + rule-based red flags (overdue, dissolved, churn, mass-formation office). Sourced JSON. Example: {number:\"00445790\"} or {name:\"TESCO\"}. Prefer /uk-company-lite ($0.05) for status/flags only. $0.50.","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"number":{"type":"string","description":"UK Companies House number, e.g. 00445790"},"name":{"type":"string","description":"Registered company name to search"}},"anyOf":[{"required":["number"]},{"required":["name"]}]}}}},"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"object","properties":{"company_number":{"type":"string"},"profile":{"type":"object"},"overview":{"type":"object"},"officers":{"type":"object"},"persons_with_significant_control":{"type":"object"},"filing_history_highlights":{"type":"object"},"charges":{"type":"object"},"compliance":{"type":"object"},"red_flags":{"type":"array","items":{"type":"object"}},"sources":{"type":"object"}}}}}},"400":{"description":"Bad input"},"402":{"description":"Payment required: $0.50 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"}},"x-price":"$0.50","x-payment-info":{"mode":"fixed","currency":"USD","amount":"0.50","network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x88b1c747c33A5868A34057D8C57318E5602b3ff6","amountAtomic":"500000"},"x-402":{"network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","amount":"500000"}}},"/uk-company-lite":{"get":{"summary":"Use this for a cheap UK company snapshot before paying for the full pack: status, SIC, office, compliance overdue, mass-formation check, red-flag names. Example: {number:\"00445790\"} → {name,status,red_flags,compliance}. Upsell: /uk-company for officers/PSC/filings/charges/insolvency. $0.05.","parameters":[{"name":"number","in":"query","required":false,"schema":{"type":"string"},"description":"UK Companies House number, e.g. 00445790"},{"name":"name","in":"query","required":false,"schema":{"type":"string"},"description":"Registered company name to search"}],"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"object","properties":{"company_number":{"type":"string"},"name":{"type":["string","null"]},"status":{"type":["string","null"]},"incorporation_date":{"type":["string","null"]},"sic_codes":{"type":"array"},"registered_office_text":{"type":["string","null"]},"compliance":{"type":"object"},"red_flags":{"type":"array","items":{"type":"object"}},"mass_formation_office":{"type":"object"}}}}}},"400":{"description":"Bad input"},"402":{"description":"Payment required: $0.05 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"}},"x-price":"$0.05","x-payment-info":{"mode":"fixed","currency":"USD","amount":"0.05","network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x88b1c747c33A5868A34057D8C57318E5602b3ff6","amountAtomic":"50000"},"x-402":{"network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","amount":"50000"}},"post":{"summary":"Use this for a cheap UK company snapshot before paying for the full pack: status, SIC, office, compliance overdue, mass-formation check, red-flag names. Example: {number:\"00445790\"} → {name,status,red_flags,compliance}. Upsell: /uk-company for officers/PSC/filings/charges/insolvency. $0.05.","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"number":{"type":"string","description":"UK Companies House number, e.g. 00445790"},"name":{"type":"string","description":"Registered company name to search"}},"anyOf":[{"required":["number"]},{"required":["name"]}]}}}},"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"object","properties":{"company_number":{"type":"string"},"name":{"type":["string","null"]},"status":{"type":["string","null"]},"incorporation_date":{"type":["string","null"]},"sic_codes":{"type":"array"},"registered_office_text":{"type":["string","null"]},"compliance":{"type":"object"},"red_flags":{"type":"array","items":{"type":"object"}},"mass_formation_office":{"type":"object"}}}}}},"400":{"description":"Bad input"},"402":{"description":"Payment required: $0.05 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"}},"x-price":"$0.05","x-payment-info":{"mode":"fixed","currency":"USD","amount":"0.05","network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x88b1c747c33A5868A34057D8C57318E5602b3ff6","amountAtomic":"50000"},"x-402":{"network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","amount":"50000"}}},"/company-full":{"get":{"summary":"Use this when you have a company website and also want UK Companies House DD in one call ($0.65 vs $0.75 separate). Runs /company then attaches /uk-company when a UK number/name is detected (.uk TLD or CH number on site). Example: {domain:\"tesco.com\"} → {company, uk, uk_included}. $0.65.","parameters":[{"name":"domain","in":"query","required":false,"schema":{"type":"string"},"description":"Company website domain, e.g. stripe.com"},{"name":"name","in":"query","required":false,"schema":{"type":"string"},"description":"Alias for domain if it looks like a hostname"}],"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"object","properties":{"domain":{"type":"string"},"bundle":{"type":"string"},"price":{"type":"string"},"company":{"type":"object","properties":{"domain":{"type":"string"},"homepage":{"type":"object"},"key_pages":{"type":"object"},"tech_stack":{"type":"object"},"social_links":{"type":"object"},"contacts":{"type":"object"},"dns":{"type":"object"},"domain_registration":{"type":"object"},"ssl":{"type":"object"},"sitemap":{"type":"object"},"news":{"type":"object"},"sources":{"type":"object"}}},"uk":{"type":"object","properties":{"company_number":{"type":"string"},"profile":{"type":"object"},"overview":{"type":"object"},"officers":{"type":"object"},"persons_with_significant_control":{"type":"object"},"filing_history_highlights":{"type":"object"},"charges":{"type":"object"},"compliance":{"type":"object"},"red_flags":{"type":"array","items":{"type":"object"}},"sources":{"type":"object"}}},"uk_included":{"type":"boolean"},"uk_skip_reason":{"type":["string","null"]},"note":{"type":"string"}}}}}},"400":{"description":"Bad input"},"402":{"description":"Payment required: $0.65 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"}},"x-price":"$0.65","x-payment-info":{"mode":"fixed","currency":"USD","amount":"0.65","network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x88b1c747c33A5868A34057D8C57318E5602b3ff6","amountAtomic":"650000"},"x-402":{"network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","amount":"650000"}},"post":{"summary":"Use this when you have a company website and also want UK Companies House DD in one call ($0.65 vs $0.75 separate). Runs /company then attaches /uk-company when a UK number/name is detected (.uk TLD or CH number on site). Example: {domain:\"tesco.com\"} → {company, uk, uk_included}. $0.65.","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"domain":{"type":"string","description":"Company website domain, e.g. stripe.com"},"name":{"type":"string","description":"Alias for domain if it looks like a hostname"}},"anyOf":[{"required":["domain"]},{"required":["name"]}]}}}},"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"object","properties":{"domain":{"type":"string"},"bundle":{"type":"string"},"price":{"type":"string"},"company":{"type":"object","properties":{"domain":{"type":"string"},"homepage":{"type":"object"},"key_pages":{"type":"object"},"tech_stack":{"type":"object"},"social_links":{"type":"object"},"contacts":{"type":"object"},"dns":{"type":"object"},"domain_registration":{"type":"object"},"ssl":{"type":"object"},"sitemap":{"type":"object"},"news":{"type":"object"},"sources":{"type":"object"}}},"uk":{"type":"object","properties":{"company_number":{"type":"string"},"profile":{"type":"object"},"overview":{"type":"object"},"officers":{"type":"object"},"persons_with_significant_control":{"type":"object"},"filing_history_highlights":{"type":"object"},"charges":{"type":"object"},"compliance":{"type":"object"},"red_flags":{"type":"array","items":{"type":"object"}},"sources":{"type":"object"}}},"uk_included":{"type":"boolean"},"uk_skip_reason":{"type":["string","null"]},"note":{"type":"string"}}}}}},"400":{"description":"Bad input"},"402":{"description":"Payment required: $0.65 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"}},"x-price":"$0.65","x-payment-info":{"mode":"fixed","currency":"USD","amount":"0.65","network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x88b1c747c33A5868A34057D8C57318E5602b3ff6","amountAtomic":"650000"},"x-402":{"network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","amount":"650000"}}},"/convert":{"get":{"summary":"Use this when an agent needs PDF/DOCX/HTML/text as clean markdown or plain text (RAG, summarisation). PDF via unpdf; DOCX via mammoth. Example: {url, format:\"markdown\"} → {detected_format, markdown, pages, word_count}. $0.03.","parameters":[{"name":"url","in":"query","required":true,"schema":{"type":"string"},"description":"Public URL of a PDF, DOCX, HTML or text document"},{"name":"format","in":"query","required":false,"schema":{"type":"string"},"description":"Output format (default markdown)"}],"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"object","properties":{"url":{"type":"string"},"final_url":{"type":"string"},"detected_format":{"type":"string"},"title":{"type":["string","null"]},"markdown":{"type":"string"},"text":{"type":"string"},"pages":{"type":"integer"},"word_count":{"type":"integer"},"truncated":{"type":"boolean"}}}}}},"400":{"description":"Bad input"},"402":{"description":"Payment required: $0.03 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"}},"x-price":"$0.03","x-payment-info":{"mode":"fixed","currency":"USD","amount":"0.03","network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x88b1c747c33A5868A34057D8C57318E5602b3ff6","amountAtomic":"30000"},"x-402":{"network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","amount":"30000"}},"post":{"summary":"Use this when an agent needs PDF/DOCX/HTML/text as clean markdown or plain text (RAG, summarisation). PDF via unpdf; DOCX via mammoth. Example: {url, format:\"markdown\"} → {detected_format, markdown, pages, word_count}. $0.03.","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"url":{"type":"string","format":"uri","description":"Public URL of a PDF, DOCX, HTML or text document"},"format":{"type":"string","enum":["markdown","text"],"description":"Output format (default markdown)"}},"required":["url"]}}}},"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"object","properties":{"url":{"type":"string"},"final_url":{"type":"string"},"detected_format":{"type":"string"},"title":{"type":["string","null"]},"markdown":{"type":"string"},"text":{"type":"string"},"pages":{"type":"integer"},"word_count":{"type":"integer"},"truncated":{"type":"boolean"}}}}}},"400":{"description":"Bad input"},"402":{"description":"Payment required: $0.03 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"}},"x-price":"$0.03","x-payment-info":{"mode":"fixed","currency":"USD","amount":"0.03","network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x88b1c747c33A5868A34057D8C57318E5602b3ff6","amountAtomic":"30000"},"x-402":{"network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","amount":"30000"}}},"/monitor":{"post":{"summary":"Use this when you need 30 days of hourly page-change alerts to your webhook (pricing pages, status, jobs). Returns id; GET /monitor/:id free. Example POST {url, webhook, selector?}. $1.00/30d.","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"url":{"type":"string","format":"uri","description":"Page URL to monitor hourly"},"webhook":{"type":"string","format":"uri","description":"HTTPS endpoint to POST JSON on change"},"selector":{"type":"string","description":"Optional CSS selector (id/class/tag) to hash a page fragment"},"keyword":{"type":"string","description":"Optional keyword; hash includes whether it is present"}},"required":["url","webhook"]}}}},"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"object","properties":{"id":{"type":"string"},"url":{"type":"string"},"webhook":{"type":"string"},"created":{"type":"string"},"expires":{"type":"string"},"last_hash":{"type":"string"},"status_url":{"type":"string"},"active":{"type":"boolean"}}}}}},"400":{"description":"Bad input"},"402":{"description":"Payment required: $1.00 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"}},"x-price":"$1.00","x-payment-info":{"mode":"fixed","currency":"USD","amount":"1.00","network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x88b1c747c33A5868A34057D8C57318E5602b3ff6","amountAtomic":"1000000"},"x-402":{"network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","amount":"1000000"}}},"/wallet":{"get":{"summary":"Use this when you need an EVM wallet's balances in one call: native ETH/POL + USDC/USDT/DAI/WETH/cbBTC/EURC (plus up to 10 custom ERC20s), nonce, is_contract, block. Base, Ethereum, Arbitrum, Optimism, Polygon. Example: {address:\"0x…\", chain:\"base\"}. $0.003.","parameters":[{"name":"address","in":"query","required":true,"schema":{"type":"string"},"description":"0x EVM wallet address"},{"name":"chain","in":"query","required":false,"schema":{"type":"string"},"description":"EVM chain (default base)"},{"name":"tokens","in":"query","required":false,"schema":{"type":"string"},"description":"Optional comma-separated extra ERC20 contract addresses (max 10)"}],"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"object","properties":{"chain":{"type":"string"},"address":{"type":"string"},"block":{"type":"integer"},"native":{"type":"object"},"nonce":{"type":"integer"},"is_contract":{"type":"boolean"},"tokens":{"type":"array","items":{"type":"object"}}}}}}},"400":{"description":"Bad input"},"402":{"description":"Payment required: $0.003 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"}},"x-price":"$0.003","x-payment-info":{"mode":"fixed","currency":"USD","amount":"0.003","network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x88b1c747c33A5868A34057D8C57318E5602b3ff6","amountAtomic":"3000"},"x-402":{"network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","amount":"3000"}},"post":{"summary":"Use this when you need an EVM wallet's balances in one call: native ETH/POL + USDC/USDT/DAI/WETH/cbBTC/EURC (plus up to 10 custom ERC20s), nonce, is_contract, block. Base, Ethereum, Arbitrum, Optimism, Polygon. Example: {address:\"0x…\", chain:\"base\"}. $0.003.","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"address":{"type":"string","description":"0x EVM wallet address"},"chain":{"type":"string","enum":["base","ethereum","arbitrum","optimism","polygon"],"description":"EVM chain (default base)"},"tokens":{"type":"string","description":"Optional comma-separated extra ERC20 contract addresses (max 10)"}},"required":["address"]}}}},"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"object","properties":{"chain":{"type":"string"},"address":{"type":"string"},"block":{"type":"integer"},"native":{"type":"object"},"nonce":{"type":"integer"},"is_contract":{"type":"boolean"},"tokens":{"type":"array","items":{"type":"object"}}}}}}},"400":{"description":"Bad input"},"402":{"description":"Payment required: $0.003 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"}},"x-price":"$0.003","x-payment-info":{"mode":"fixed","currency":"USD","amount":"0.003","network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x88b1c747c33A5868A34057D8C57318E5602b3ff6","amountAtomic":"3000"},"x-402":{"network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","amount":"3000"}}},"/tx":{"get":{"summary":"Use this to confirm a transaction/payment landed: status (success/reverted/pending), block, timestamp, confirmations, from/to, value, fee, decoded ERC20 transfers (USDC amounts). Base/Ethereum/Arbitrum/Optimism/Polygon. Example: {hash:\"0x…\"}. $0.003.","parameters":[{"name":"hash","in":"query","required":true,"schema":{"type":"string"},"description":"0x transaction hash"},{"name":"chain","in":"query","required":false,"schema":{"type":"string"},"description":"EVM chain (default base)"}],"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string"},"block":{"type":["integer","null"]},"timestamp":{"type":["string","null"]},"from":{"type":"string"},"to":{"type":["string","null"]},"value_native":{"type":"string"},"fee_native":{"type":"string"},"erc20_transfers":{"type":"array","items":{"type":"object"}}}}}}},"400":{"description":"Bad input"},"402":{"description":"Payment required: $0.003 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"}},"x-price":"$0.003","x-payment-info":{"mode":"fixed","currency":"USD","amount":"0.003","network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x88b1c747c33A5868A34057D8C57318E5602b3ff6","amountAtomic":"3000"},"x-402":{"network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","amount":"3000"}},"post":{"summary":"Use this to confirm a transaction/payment landed: status (success/reverted/pending), block, timestamp, confirmations, from/to, value, fee, decoded ERC20 transfers (USDC amounts). Base/Ethereum/Arbitrum/Optimism/Polygon. Example: {hash:\"0x…\"}. $0.003.","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"hash":{"type":"string","description":"0x transaction hash"},"chain":{"type":"string","enum":["base","ethereum","arbitrum","optimism","polygon"],"description":"EVM chain (default base)"}},"required":["hash"]}}}},"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string"},"block":{"type":["integer","null"]},"timestamp":{"type":["string","null"]},"from":{"type":"string"},"to":{"type":["string","null"]},"value_native":{"type":"string"},"fee_native":{"type":"string"},"erc20_transfers":{"type":"array","items":{"type":"object"}}}}}}},"400":{"description":"Bad input"},"402":{"description":"Payment required: $0.003 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"}},"x-price":"$0.003","x-payment-info":{"mode":"fixed","currency":"USD","amount":"0.003","network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x88b1c747c33A5868A34057D8C57318E5602b3ff6","amountAtomic":"3000"},"x-402":{"network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","amount":"3000"}}},"/token-check":{"get":{"summary":"Use this before buying, accepting or listing an ERC20 token: name/symbol/decimals/supply, owner (renounced?), EIP-1967 proxy, DEX price/liquidity/volume/pair age (DexScreener) + rule-based risk flags, score and verdict. Half the price of AI token verdicts. Example: {address:\"0x…\", chain:\"base\"}. $0.01.","parameters":[{"name":"address","in":"query","required":true,"schema":{"type":"string"},"description":"0x ERC20 token contract address"},{"name":"chain","in":"query","required":false,"schema":{"type":"string"},"description":"EVM chain (default base)"}],"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"object","properties":{"name":{"type":["string","null"]},"symbol":{"type":["string","null"]},"decimals":{"type":["integer","null"]},"total_supply":{"type":"string"},"owner":{"type":["string","null"]},"proxy":{"type":"object"},"market":{"type":["object","null"]},"risk_flags":{"type":"array","items":{"type":"object"}},"risk_score":{"type":"integer"},"verdict":{"type":"string"}}}}}},"400":{"description":"Bad input"},"402":{"description":"Payment required: $0.01 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"}},"x-price":"$0.01","x-payment-info":{"mode":"fixed","currency":"USD","amount":"0.01","network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x88b1c747c33A5868A34057D8C57318E5602b3ff6","amountAtomic":"10000"},"x-402":{"network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","amount":"10000"}},"post":{"summary":"Use this before buying, accepting or listing an ERC20 token: name/symbol/decimals/supply, owner (renounced?), EIP-1967 proxy, DEX price/liquidity/volume/pair age (DexScreener) + rule-based risk flags, score and verdict. Half the price of AI token verdicts. Example: {address:\"0x…\", chain:\"base\"}. $0.01.","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"address":{"type":"string","description":"0x ERC20 token contract address"},"chain":{"type":"string","enum":["base","ethereum","arbitrum","optimism","polygon"],"description":"EVM chain (default base)"}},"required":["address"]}}}},"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"object","properties":{"name":{"type":["string","null"]},"symbol":{"type":["string","null"]},"decimals":{"type":["integer","null"]},"total_supply":{"type":"string"},"owner":{"type":["string","null"]},"proxy":{"type":"object"},"market":{"type":["object","null"]},"risk_flags":{"type":"array","items":{"type":"object"}},"risk_score":{"type":"integer"},"verdict":{"type":"string"}}}}}},"400":{"description":"Bad input"},"402":{"description":"Payment required: $0.01 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"}},"x-price":"$0.01","x-payment-info":{"mode":"fixed","currency":"USD","amount":"0.01","network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x88b1c747c33A5868A34057D8C57318E5602b3ff6","amountAtomic":"10000"},"x-402":{"network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","amount":"10000"}}},"/fx":{"get":{"summary":"Use this for official ECB foreign-exchange reference rates (≈30 fiat currencies incl GBP/EUR/USD/JPY), latest or historical date, with optional amount conversion. Example: {base:\"GBP\", symbols:\"USD,EUR\", amount:\"100\"}. $0.002.","parameters":[{"name":"base","in":"query","required":false,"schema":{"type":"string"},"description":"ISO currency, default USD"},{"name":"symbols","in":"query","required":false,"schema":{"type":"string"},"description":"Comma list e.g. GBP,EUR (default all ~30)"},{"name":"date","in":"query","required":false,"schema":{"type":"string"},"description":"YYYY-MM-DD historical (default latest)"},{"name":"amount","in":"query","required":false,"schema":{"type":"string"},"description":"Optional amount to convert"}],"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"object","properties":{"base":{"type":"string"},"date":{"type":"string"},"rates":{"type":"object"},"converted":{"type":"object"}}}}}},"400":{"description":"Bad input"},"402":{"description":"Payment required: $0.002 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"}},"x-price":"$0.002","x-payment-info":{"mode":"fixed","currency":"USD","amount":"0.002","network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x88b1c747c33A5868A34057D8C57318E5602b3ff6","amountAtomic":"2000"},"x-402":{"network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","amount":"2000"}},"post":{"summary":"Use this for official ECB foreign-exchange reference rates (≈30 fiat currencies incl GBP/EUR/USD/JPY), latest or historical date, with optional amount conversion. Example: {base:\"GBP\", symbols:\"USD,EUR\", amount:\"100\"}. $0.002.","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"base":{"type":"string","description":"ISO currency, default USD"},"symbols":{"type":"string","description":"Comma list e.g. GBP,EUR (default all ~30)"},"date":{"type":"string","description":"YYYY-MM-DD historical (default latest)"},"amount":{"type":"string","description":"Optional amount to convert"}}}}}},"responses":{"200":{"description":"Success","content":{"application/json":{"schema":{"type":"object","properties":{"base":{"type":"string"},"date":{"type":"string"},"rates":{"type":"object"},"converted":{"type":"object"}}}}}},"400":{"description":"Bad input"},"402":{"description":"Payment required: $0.002 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"}},"x-price":"$0.002","x-payment-info":{"mode":"fixed","currency":"USD","amount":"0.002","network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","payTo":"0x88b1c747c33A5868A34057D8C57318E5602b3ff6","amountAtomic":"2000"},"x-402":{"network":"eip155:8453","asset":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","amount":"2000"}}},"/monitor/{id}":{"get":{"summary":"Free monitor status (id is the secret)","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"Monitor status"},"404":{"description":"Not found"}},"x-price":"free"}},"/samples/{kind}":{"get":{"summary":"Free truncated sample (rate-limited 8/IP/day) with x402 upsell","parameters":[{"name":"kind","in":"path","required":true,"schema":{"type":"string","enum":["read","company","uk-company","uk-company-lite","convert"]}}],"responses":{"200":{"description":"Truncated sample"},"429":{"description":"Preview quota exceeded"}},"x-price":"free"}},"/hooks/sink":{"post":{"summary":"Free webhook test sink for /monitor","responses":{"200":{"description":"Stored"}},"x-price":"free"}}}}
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "Axiom Works AgentReader",
+  "version": "1.4.0",
+  "contact": {
+   "email": "info@axiomworks.co.uk",
+   "url": "https://github.com/grokbot1233/agentreader"
+  },
+  "description": "x402 pay-per-call APIs for AI agents: web reading, company research, UK due diligence, document conversion, change monitoring. Payments: USDC on Base mainnet (eip155:8453)."
+ },
+ "servers": [
+  {
+   "url": "https://api.axiomworks.co.uk"
+  }
+ ],
+ "paths": {
+  "/read": {
+   "get": {
+    "summary": "Use this when you need the clean text of a public web page as Markdown + metadata (title, author, date, language, word count, links). Better than raw fetch/HTML: Readability extraction, structured JSON, ~1s. Example in: {url:\"https://example.com\"} \u2192 {title, markdown, word_count, links}. $0.002 USDC.",
+    "parameters": [
+     {
+      "name": "url",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Public http(s) URL to fetch"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "url": {
+           "type": "string"
+          },
+          "final_url": {
+           "type": "string"
+          },
+          "title": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "description": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "canonical_url": {
+           "type": "string"
+          },
+          "author": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "published": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "language": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "word_count": {
+           "type": "integer"
+          },
+          "markdown": {
+           "type": "string"
+          },
+          "links_count": {
+           "type": "integer"
+          },
+          "links": {
+           "type": "array",
+           "items": {
+            "type": "object",
+            "properties": {
+             "url": {
+              "type": "string"
+             },
+             "text": {
+              "type": "string"
+             },
+             "internal": {
+              "type": "boolean"
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.002 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.002",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.002",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "2000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "2000"
+    }
+   },
+   "post": {
+    "summary": "Use this when you need the clean text of a public web page as Markdown + metadata (title, author, date, language, word count, links). Better than raw fetch/HTML: Readability extraction, structured JSON, ~1s. Example in: {url:\"https://example.com\"} \u2192 {title, markdown, word_count, links}. $0.002 USDC.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Public http(s) URL to fetch"
+         }
+        },
+        "required": [
+         "url"
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "url": {
+           "type": "string"
+          },
+          "final_url": {
+           "type": "string"
+          },
+          "title": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "description": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "canonical_url": {
+           "type": "string"
+          },
+          "author": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "published": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "language": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "word_count": {
+           "type": "integer"
+          },
+          "markdown": {
+           "type": "string"
+          },
+          "links_count": {
+           "type": "integer"
+          },
+          "links": {
+           "type": "array",
+           "items": {
+            "type": "object",
+            "properties": {
+             "url": {
+              "type": "string"
+             },
+             "text": {
+              "type": "string"
+             },
+             "internal": {
+              "type": "boolean"
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.002 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.002",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.002",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "2000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "2000"
+    }
+   }
+  },
+  "/links": {
+   "get": {
+    "summary": "Use this when you only need every absolute link on a page (crawl maps, sitemaps-lite). Faster/cheaper than /read. Example: {url} \u2192 {count, links:[{url,text,internal}]}. $0.001.",
+    "parameters": [
+     {
+      "name": "url",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Public http(s) URL to fetch"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "url": {
+           "type": "string"
+          },
+          "final_url": {
+           "type": "string"
+          },
+          "count": {
+           "type": "integer"
+          },
+          "links": {
+           "type": "array",
+           "items": {
+            "type": "object",
+            "properties": {
+             "url": {
+              "type": "string"
+             },
+             "text": {
+              "type": "string"
+             },
+             "internal": {
+              "type": "boolean"
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.001",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "1000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "1000"
+    }
+   },
+   "post": {
+    "summary": "Use this when you only need every absolute link on a page (crawl maps, sitemaps-lite). Faster/cheaper than /read. Example: {url} \u2192 {count, links:[{url,text,internal}]}. $0.001.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Public http(s) URL to fetch"
+         }
+        },
+        "required": [
+         "url"
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "url": {
+           "type": "string"
+          },
+          "final_url": {
+           "type": "string"
+          },
+          "count": {
+           "type": "integer"
+          },
+          "links": {
+           "type": "array",
+           "items": {
+            "type": "object",
+            "properties": {
+             "url": {
+              "type": "string"
+             },
+             "text": {
+              "type": "string"
+             },
+             "internal": {
+              "type": "boolean"
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.001",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "1000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "1000"
+    }
+   }
+  },
+  "/check": {
+   "get": {
+    "summary": "Use this when vetting a domain's health before outreach or onboarding: DNS (DoH), DNSSEC, TLS/HTTPS, redirects, HSTS, MX/SPF/DMARC + score/issues. Structured JSON beats dig+openssl. Example: {domain:\"stripe.com\"} \u2192 {score, issues, email}. $0.001.",
+    "parameters": [
+     {
+      "name": "domain",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Domain name, e.g. example.com"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "domain": {
+           "type": "string"
+          },
+          "dns": {
+           "type": "object"
+          },
+          "dnssec_validated": {
+           "type": [
+            "boolean",
+            "null"
+           ]
+          },
+          "tls": {
+           "type": "object"
+          },
+          "http": {
+           "type": "object"
+          },
+          "email": {
+           "type": "object",
+           "properties": {
+            "mx": {
+             "type": "array"
+            },
+            "spf": {
+             "type": "array"
+            },
+            "dmarc": {
+             "type": "array"
+            },
+            "dmarc_policy": {
+             "type": [
+              "string",
+              "null"
+             ]
+            }
+           }
+          },
+          "issues": {
+           "type": "array",
+           "items": {
+            "type": "string"
+           }
+          },
+          "score": {
+           "type": "integer"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.001",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "1000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "1000"
+    }
+   },
+   "post": {
+    "summary": "Use this when vetting a domain's health before outreach or onboarding: DNS (DoH), DNSSEC, TLS/HTTPS, redirects, HSTS, MX/SPF/DMARC + score/issues. Structured JSON beats dig+openssl. Example: {domain:\"stripe.com\"} \u2192 {score, issues, email}. $0.001.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "domain": {
+          "type": "string",
+          "description": "Domain name, e.g. example.com"
+         }
+        },
+        "required": [
+         "domain"
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "domain": {
+           "type": "string"
+          },
+          "dns": {
+           "type": "object"
+          },
+          "dnssec_validated": {
+           "type": [
+            "boolean",
+            "null"
+           ]
+          },
+          "tls": {
+           "type": "object"
+          },
+          "http": {
+           "type": "object"
+          },
+          "email": {
+           "type": "object",
+           "properties": {
+            "mx": {
+             "type": "array"
+            },
+            "spf": {
+             "type": "array"
+            },
+            "dmarc": {
+             "type": "array"
+            },
+            "dmarc_policy": {
+             "type": [
+              "string",
+              "null"
+             ]
+            }
+           }
+          },
+          "issues": {
+           "type": "array",
+           "items": {
+            "type": "string"
+           }
+          },
+          "score": {
+           "type": "integer"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.001",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "1000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "1000"
+    }
+   }
+  },
+  "/company": {
+   "get": {
+    "summary": "Use this when researching any company from its website domain \u2014 not Companies House. Returns sourced tech stack, socials, emails/phones, DNS/MX/SPF/DMARC, RDAP age/registrar, SSL, sitemap, news. No LLM inventing facts. Example: {domain:\"stripe.com\"} \u2192 {homepage, tech_stack, contacts, dns, news, sources}. Prefer /uk-company* for UK filings. $0.25.",
+    "parameters": [
+     {
+      "name": "domain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Company website domain, e.g. stripe.com"
+     },
+     {
+      "name": "name",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Alias for domain if it looks like a hostname"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "domain": {
+           "type": "string"
+          },
+          "homepage": {
+           "type": "object"
+          },
+          "key_pages": {
+           "type": "object"
+          },
+          "tech_stack": {
+           "type": "object"
+          },
+          "social_links": {
+           "type": "object"
+          },
+          "contacts": {
+           "type": "object"
+          },
+          "dns": {
+           "type": "object"
+          },
+          "domain_registration": {
+           "type": "object"
+          },
+          "ssl": {
+           "type": "object"
+          },
+          "sitemap": {
+           "type": "object"
+          },
+          "news": {
+           "type": "object"
+          },
+          "sources": {
+           "type": "object"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.25 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.25",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.25",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "250000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "250000"
+    }
+   },
+   "post": {
+    "summary": "Use this when researching any company from its website domain \u2014 not Companies House. Returns sourced tech stack, socials, emails/phones, DNS/MX/SPF/DMARC, RDAP age/registrar, SSL, sitemap, news. No LLM inventing facts. Example: {domain:\"stripe.com\"} \u2192 {homepage, tech_stack, contacts, dns, news, sources}. Prefer /uk-company* for UK filings. $0.25.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "domain": {
+          "type": "string",
+          "description": "Company website domain, e.g. stripe.com"
+         },
+         "name": {
+          "type": "string",
+          "description": "Alias for domain if it looks like a hostname"
+         }
+        },
+        "anyOf": [
+         {
+          "required": [
+           "domain"
+          ]
+         },
+         {
+          "required": [
+           "name"
+          ]
+         }
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "domain": {
+           "type": "string"
+          },
+          "homepage": {
+           "type": "object"
+          },
+          "key_pages": {
+           "type": "object"
+          },
+          "tech_stack": {
+           "type": "object"
+          },
+          "social_links": {
+           "type": "object"
+          },
+          "contacts": {
+           "type": "object"
+          },
+          "dns": {
+           "type": "object"
+          },
+          "domain_registration": {
+           "type": "object"
+          },
+          "ssl": {
+           "type": "object"
+          },
+          "sitemap": {
+           "type": "object"
+          },
+          "news": {
+           "type": "object"
+          },
+          "sources": {
+           "type": "object"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.25 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.25",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.25",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "250000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "250000"
+    }
+   }
+  },
+  "/uk-company": {
+   "get": {
+    "summary": "Use this for UK due diligence on a Companies House number or name: official API profile, officers, PSCs, filings, charges, insolvency + rule-based red flags (overdue, dissolved, churn, mass-formation office). Sourced JSON. Example: {number:\"00445790\"} or {name:\"TESCO\"}. Prefer /uk-company-lite ($0.05) for status/flags only. $0.50.",
+    "parameters": [
+     {
+      "name": "number",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "UK Companies House number, e.g. 00445790"
+     },
+     {
+      "name": "name",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Registered company name to search"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "company_number": {
+           "type": "string"
+          },
+          "profile": {
+           "type": "object"
+          },
+          "overview": {
+           "type": "object"
+          },
+          "officers": {
+           "type": "object"
+          },
+          "persons_with_significant_control": {
+           "type": "object"
+          },
+          "filing_history_highlights": {
+           "type": "object"
+          },
+          "charges": {
+           "type": "object"
+          },
+          "compliance": {
+           "type": "object"
+          },
+          "red_flags": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          },
+          "sources": {
+           "type": "object"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.50 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.50",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.50",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "500000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "500000"
+    }
+   },
+   "post": {
+    "summary": "Use this for UK due diligence on a Companies House number or name: official API profile, officers, PSCs, filings, charges, insolvency + rule-based red flags (overdue, dissolved, churn, mass-formation office). Sourced JSON. Example: {number:\"00445790\"} or {name:\"TESCO\"}. Prefer /uk-company-lite ($0.05) for status/flags only. $0.50.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "number": {
+          "type": "string",
+          "description": "UK Companies House number, e.g. 00445790"
+         },
+         "name": {
+          "type": "string",
+          "description": "Registered company name to search"
+         }
+        },
+        "anyOf": [
+         {
+          "required": [
+           "number"
+          ]
+         },
+         {
+          "required": [
+           "name"
+          ]
+         }
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "company_number": {
+           "type": "string"
+          },
+          "profile": {
+           "type": "object"
+          },
+          "overview": {
+           "type": "object"
+          },
+          "officers": {
+           "type": "object"
+          },
+          "persons_with_significant_control": {
+           "type": "object"
+          },
+          "filing_history_highlights": {
+           "type": "object"
+          },
+          "charges": {
+           "type": "object"
+          },
+          "compliance": {
+           "type": "object"
+          },
+          "red_flags": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          },
+          "sources": {
+           "type": "object"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.50 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.50",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.50",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "500000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "500000"
+    }
+   }
+  },
+  "/uk-company-lite": {
+   "get": {
+    "summary": "Use this for a cheap UK company snapshot before paying for the full pack: status, SIC, office, compliance overdue, mass-formation check, red-flag names. Example: {number:\"00445790\"} \u2192 {name,status,red_flags,compliance}. Upsell: /uk-company for officers/PSC/filings/charges/insolvency. $0.05.",
+    "parameters": [
+     {
+      "name": "number",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "UK Companies House number, e.g. 00445790"
+     },
+     {
+      "name": "name",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Registered company name to search"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "company_number": {
+           "type": "string"
+          },
+          "name": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "status": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "incorporation_date": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "sic_codes": {
+           "type": "array"
+          },
+          "registered_office_text": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "compliance": {
+           "type": "object"
+          },
+          "red_flags": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          },
+          "mass_formation_office": {
+           "type": "object"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.05 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.05",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.05",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "50000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "50000"
+    }
+   },
+   "post": {
+    "summary": "Use this for a cheap UK company snapshot before paying for the full pack: status, SIC, office, compliance overdue, mass-formation check, red-flag names. Example: {number:\"00445790\"} \u2192 {name,status,red_flags,compliance}. Upsell: /uk-company for officers/PSC/filings/charges/insolvency. $0.05.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "number": {
+          "type": "string",
+          "description": "UK Companies House number, e.g. 00445790"
+         },
+         "name": {
+          "type": "string",
+          "description": "Registered company name to search"
+         }
+        },
+        "anyOf": [
+         {
+          "required": [
+           "number"
+          ]
+         },
+         {
+          "required": [
+           "name"
+          ]
+         }
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "company_number": {
+           "type": "string"
+          },
+          "name": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "status": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "incorporation_date": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "sic_codes": {
+           "type": "array"
+          },
+          "registered_office_text": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "compliance": {
+           "type": "object"
+          },
+          "red_flags": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          },
+          "mass_formation_office": {
+           "type": "object"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.05 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.05",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.05",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "50000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "50000"
+    }
+   }
+  },
+  "/company-full": {
+   "get": {
+    "summary": "Use this when you have a company website and also want UK Companies House DD in one call ($0.65 vs $0.75 separate). Runs /company then attaches /uk-company when a UK number/name is detected (.uk TLD or CH number on site). Example: {domain:\"tesco.com\"} \u2192 {company, uk, uk_included}. $0.65.",
+    "parameters": [
+     {
+      "name": "domain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Company website domain, e.g. stripe.com"
+     },
+     {
+      "name": "name",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Alias for domain if it looks like a hostname"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "domain": {
+           "type": "string"
+          },
+          "bundle": {
+           "type": "string"
+          },
+          "price": {
+           "type": "string"
+          },
+          "company": {
+           "type": "object",
+           "properties": {
+            "domain": {
+             "type": "string"
+            },
+            "homepage": {
+             "type": "object"
+            },
+            "key_pages": {
+             "type": "object"
+            },
+            "tech_stack": {
+             "type": "object"
+            },
+            "social_links": {
+             "type": "object"
+            },
+            "contacts": {
+             "type": "object"
+            },
+            "dns": {
+             "type": "object"
+            },
+            "domain_registration": {
+             "type": "object"
+            },
+            "ssl": {
+             "type": "object"
+            },
+            "sitemap": {
+             "type": "object"
+            },
+            "news": {
+             "type": "object"
+            },
+            "sources": {
+             "type": "object"
+            }
+           }
+          },
+          "uk": {
+           "type": "object",
+           "properties": {
+            "company_number": {
+             "type": "string"
+            },
+            "profile": {
+             "type": "object"
+            },
+            "overview": {
+             "type": "object"
+            },
+            "officers": {
+             "type": "object"
+            },
+            "persons_with_significant_control": {
+             "type": "object"
+            },
+            "filing_history_highlights": {
+             "type": "object"
+            },
+            "charges": {
+             "type": "object"
+            },
+            "compliance": {
+             "type": "object"
+            },
+            "red_flags": {
+             "type": "array",
+             "items": {
+              "type": "object"
+             }
+            },
+            "sources": {
+             "type": "object"
+            }
+           }
+          },
+          "uk_included": {
+           "type": "boolean"
+          },
+          "uk_skip_reason": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "note": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.65 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.65",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.65",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "650000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "650000"
+    }
+   },
+   "post": {
+    "summary": "Use this when you have a company website and also want UK Companies House DD in one call ($0.65 vs $0.75 separate). Runs /company then attaches /uk-company when a UK number/name is detected (.uk TLD or CH number on site). Example: {domain:\"tesco.com\"} \u2192 {company, uk, uk_included}. $0.65.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "domain": {
+          "type": "string",
+          "description": "Company website domain, e.g. stripe.com"
+         },
+         "name": {
+          "type": "string",
+          "description": "Alias for domain if it looks like a hostname"
+         }
+        },
+        "anyOf": [
+         {
+          "required": [
+           "domain"
+          ]
+         },
+         {
+          "required": [
+           "name"
+          ]
+         }
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "domain": {
+           "type": "string"
+          },
+          "bundle": {
+           "type": "string"
+          },
+          "price": {
+           "type": "string"
+          },
+          "company": {
+           "type": "object",
+           "properties": {
+            "domain": {
+             "type": "string"
+            },
+            "homepage": {
+             "type": "object"
+            },
+            "key_pages": {
+             "type": "object"
+            },
+            "tech_stack": {
+             "type": "object"
+            },
+            "social_links": {
+             "type": "object"
+            },
+            "contacts": {
+             "type": "object"
+            },
+            "dns": {
+             "type": "object"
+            },
+            "domain_registration": {
+             "type": "object"
+            },
+            "ssl": {
+             "type": "object"
+            },
+            "sitemap": {
+             "type": "object"
+            },
+            "news": {
+             "type": "object"
+            },
+            "sources": {
+             "type": "object"
+            }
+           }
+          },
+          "uk": {
+           "type": "object",
+           "properties": {
+            "company_number": {
+             "type": "string"
+            },
+            "profile": {
+             "type": "object"
+            },
+            "overview": {
+             "type": "object"
+            },
+            "officers": {
+             "type": "object"
+            },
+            "persons_with_significant_control": {
+             "type": "object"
+            },
+            "filing_history_highlights": {
+             "type": "object"
+            },
+            "charges": {
+             "type": "object"
+            },
+            "compliance": {
+             "type": "object"
+            },
+            "red_flags": {
+             "type": "array",
+             "items": {
+              "type": "object"
+             }
+            },
+            "sources": {
+             "type": "object"
+            }
+           }
+          },
+          "uk_included": {
+           "type": "boolean"
+          },
+          "uk_skip_reason": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "note": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.65 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.65",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.65",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "650000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "650000"
+    }
+   }
+  },
+  "/convert": {
+   "get": {
+    "summary": "Use this when an agent needs PDF/DOCX/HTML/text as clean markdown or plain text (RAG, summarisation). PDF via unpdf; DOCX via mammoth. Example: {url, format:\"markdown\"} \u2192 {detected_format, markdown, pages, word_count}. $0.03.",
+    "parameters": [
+     {
+      "name": "url",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Public URL of a PDF, DOCX, HTML or text document"
+     },
+     {
+      "name": "format",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Output format (default markdown)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "url": {
+           "type": "string"
+          },
+          "final_url": {
+           "type": "string"
+          },
+          "detected_format": {
+           "type": "string"
+          },
+          "title": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "markdown": {
+           "type": "string"
+          },
+          "text": {
+           "type": "string"
+          },
+          "pages": {
+           "type": "integer"
+          },
+          "word_count": {
+           "type": "integer"
+          },
+          "truncated": {
+           "type": "boolean"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.03 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.03",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.03",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "30000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "30000"
+    }
+   },
+   "post": {
+    "summary": "Use this when an agent needs PDF/DOCX/HTML/text as clean markdown or plain text (RAG, summarisation). PDF via unpdf; DOCX via mammoth. Example: {url, format:\"markdown\"} \u2192 {detected_format, markdown, pages, word_count}. $0.03.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Public URL of a PDF, DOCX, HTML or text document"
+         },
+         "format": {
+          "type": "string",
+          "enum": [
+           "markdown",
+           "text"
+          ],
+          "description": "Output format (default markdown)"
+         }
+        },
+        "required": [
+         "url"
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "url": {
+           "type": "string"
+          },
+          "final_url": {
+           "type": "string"
+          },
+          "detected_format": {
+           "type": "string"
+          },
+          "title": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "markdown": {
+           "type": "string"
+          },
+          "text": {
+           "type": "string"
+          },
+          "pages": {
+           "type": "integer"
+          },
+          "word_count": {
+           "type": "integer"
+          },
+          "truncated": {
+           "type": "boolean"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.03 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.03",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.03",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "30000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "30000"
+    }
+   }
+  },
+  "/monitor": {
+   "post": {
+    "summary": "Use this when you need 30 days of hourly page-change alerts to your webhook (pricing pages, status, jobs). Returns id; GET /monitor/:id free. Example POST {url, webhook, selector?}. $1.00/30d.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Page URL to monitor hourly"
+         },
+         "webhook": {
+          "type": "string",
+          "format": "uri",
+          "description": "HTTPS endpoint to POST JSON on change"
+         },
+         "selector": {
+          "type": "string",
+          "description": "Optional CSS selector (id/class/tag) to hash a page fragment"
+         },
+         "keyword": {
+          "type": "string",
+          "description": "Optional keyword; hash includes whether it is present"
+         }
+        },
+        "required": [
+         "url",
+         "webhook"
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "id": {
+           "type": "string"
+          },
+          "url": {
+           "type": "string"
+          },
+          "webhook": {
+           "type": "string"
+          },
+          "created": {
+           "type": "string"
+          },
+          "expires": {
+           "type": "string"
+          },
+          "last_hash": {
+           "type": "string"
+          },
+          "status_url": {
+           "type": "string"
+          },
+          "active": {
+           "type": "boolean"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $1.00 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$1.00",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "1.00",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "1000000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "1000000"
+    }
+   }
+  },
+  "/wallet": {
+   "get": {
+    "summary": "Use this when you need an EVM wallet's balances in one call: native ETH/POL + USDC/USDT/DAI/WETH/cbBTC/EURC (plus up to 10 custom ERC20s), nonce, is_contract, block. Base, Ethereum, Arbitrum, Optimism, Polygon. Example: {address:\"0x\u2026\", chain:\"base\"}. $0.003.",
+    "parameters": [
+     {
+      "name": "address",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "0x EVM wallet address"
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "EVM chain (default base)"
+     },
+     {
+      "name": "tokens",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Optional comma-separated extra ERC20 contract addresses (max 10)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "chain": {
+           "type": "string"
+          },
+          "address": {
+           "type": "string"
+          },
+          "block": {
+           "type": "integer"
+          },
+          "native": {
+           "type": "object"
+          },
+          "nonce": {
+           "type": "integer"
+          },
+          "is_contract": {
+           "type": "boolean"
+          },
+          "tokens": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.003 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.003",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.003",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "3000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "3000"
+    }
+   },
+   "post": {
+    "summary": "Use this when you need an EVM wallet's balances in one call: native ETH/POL + USDC/USDT/DAI/WETH/cbBTC/EURC (plus up to 10 custom ERC20s), nonce, is_contract, block. Base, Ethereum, Arbitrum, Optimism, Polygon. Example: {address:\"0x\u2026\", chain:\"base\"}. $0.003.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "address": {
+          "type": "string",
+          "description": "0x EVM wallet address"
+         },
+         "chain": {
+          "type": "string",
+          "enum": [
+           "base",
+           "ethereum",
+           "arbitrum",
+           "optimism",
+           "polygon"
+          ],
+          "description": "EVM chain (default base)"
+         },
+         "tokens": {
+          "type": "string",
+          "description": "Optional comma-separated extra ERC20 contract addresses (max 10)"
+         }
+        },
+        "required": [
+         "address"
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "chain": {
+           "type": "string"
+          },
+          "address": {
+           "type": "string"
+          },
+          "block": {
+           "type": "integer"
+          },
+          "native": {
+           "type": "object"
+          },
+          "nonce": {
+           "type": "integer"
+          },
+          "is_contract": {
+           "type": "boolean"
+          },
+          "tokens": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.003 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.003",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.003",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "3000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "3000"
+    }
+   }
+  },
+  "/tx": {
+   "get": {
+    "summary": "Use this to confirm a transaction/payment landed: status (success/reverted/pending), block, timestamp, confirmations, from/to, value, fee, decoded ERC20 transfers (USDC amounts). Base/Ethereum/Arbitrum/Optimism/Polygon. Example: {hash:\"0x\u2026\"}. $0.003.",
+    "parameters": [
+     {
+      "name": "hash",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "0x transaction hash"
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "EVM chain (default base)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "status": {
+           "type": "string"
+          },
+          "block": {
+           "type": [
+            "integer",
+            "null"
+           ]
+          },
+          "timestamp": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "from": {
+           "type": "string"
+          },
+          "to": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "value_native": {
+           "type": "string"
+          },
+          "fee_native": {
+           "type": "string"
+          },
+          "erc20_transfers": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.003 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.003",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.003",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "3000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "3000"
+    }
+   },
+   "post": {
+    "summary": "Use this to confirm a transaction/payment landed: status (success/reverted/pending), block, timestamp, confirmations, from/to, value, fee, decoded ERC20 transfers (USDC amounts). Base/Ethereum/Arbitrum/Optimism/Polygon. Example: {hash:\"0x\u2026\"}. $0.003.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "hash": {
+          "type": "string",
+          "description": "0x transaction hash"
+         },
+         "chain": {
+          "type": "string",
+          "enum": [
+           "base",
+           "ethereum",
+           "arbitrum",
+           "optimism",
+           "polygon"
+          ],
+          "description": "EVM chain (default base)"
+         }
+        },
+        "required": [
+         "hash"
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "status": {
+           "type": "string"
+          },
+          "block": {
+           "type": [
+            "integer",
+            "null"
+           ]
+          },
+          "timestamp": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "from": {
+           "type": "string"
+          },
+          "to": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "value_native": {
+           "type": "string"
+          },
+          "fee_native": {
+           "type": "string"
+          },
+          "erc20_transfers": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.003 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.003",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.003",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "3000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "3000"
+    }
+   }
+  },
+  "/token-check": {
+   "get": {
+    "summary": "Use this before buying, accepting or listing an ERC20 token: name/symbol/decimals/supply, owner (renounced?), EIP-1967 proxy, DEX price/liquidity/volume/pair age (DexScreener) + rule-based risk flags, score and verdict. Half the price of AI token verdicts. Example: {address:\"0x\u2026\", chain:\"base\"}. $0.01.",
+    "parameters": [
+     {
+      "name": "address",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "0x ERC20 token contract address"
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "EVM chain (default base)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "name": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "symbol": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "decimals": {
+           "type": [
+            "integer",
+            "null"
+           ]
+          },
+          "total_supply": {
+           "type": "string"
+          },
+          "owner": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "proxy": {
+           "type": "object"
+          },
+          "market": {
+           "type": [
+            "object",
+            "null"
+           ]
+          },
+          "risk_flags": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          },
+          "risk_score": {
+           "type": "integer"
+          },
+          "verdict": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.01 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.01",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.01",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "10000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "10000"
+    }
+   },
+   "post": {
+    "summary": "Use this before buying, accepting or listing an ERC20 token: name/symbol/decimals/supply, owner (renounced?), EIP-1967 proxy, DEX price/liquidity/volume/pair age (DexScreener) + rule-based risk flags, score and verdict. Half the price of AI token verdicts. Example: {address:\"0x\u2026\", chain:\"base\"}. $0.01.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "address": {
+          "type": "string",
+          "description": "0x ERC20 token contract address"
+         },
+         "chain": {
+          "type": "string",
+          "enum": [
+           "base",
+           "ethereum",
+           "arbitrum",
+           "optimism",
+           "polygon"
+          ],
+          "description": "EVM chain (default base)"
+         }
+        },
+        "required": [
+         "address"
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "name": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "symbol": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "decimals": {
+           "type": [
+            "integer",
+            "null"
+           ]
+          },
+          "total_supply": {
+           "type": "string"
+          },
+          "owner": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "proxy": {
+           "type": "object"
+          },
+          "market": {
+           "type": [
+            "object",
+            "null"
+           ]
+          },
+          "risk_flags": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          },
+          "risk_score": {
+           "type": "integer"
+          },
+          "verdict": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.01 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.01",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.01",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "10000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "10000"
+    }
+   }
+  },
+  "/fx": {
+   "get": {
+    "summary": "Use this for official ECB foreign-exchange reference rates (\u224830 fiat currencies incl GBP/EUR/USD/JPY), latest or historical date, with optional amount conversion. Example: {base:\"GBP\", symbols:\"USD,EUR\", amount:\"100\"}. $0.002.",
+    "parameters": [
+     {
+      "name": "base",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "ISO currency, default USD"
+     },
+     {
+      "name": "symbols",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Comma list e.g. GBP,EUR (default all ~30)"
+     },
+     {
+      "name": "date",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "YYYY-MM-DD historical (default latest)"
+     },
+     {
+      "name": "amount",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Optional amount to convert"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "base": {
+           "type": "string"
+          },
+          "date": {
+           "type": "string"
+          },
+          "rates": {
+           "type": "object"
+          },
+          "converted": {
+           "type": "object"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.002 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.002",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.002",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "2000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "2000"
+    }
+   },
+   "post": {
+    "summary": "Use this for official ECB foreign-exchange reference rates (\u224830 fiat currencies incl GBP/EUR/USD/JPY), latest or historical date, with optional amount conversion. Example: {base:\"GBP\", symbols:\"USD,EUR\", amount:\"100\"}. $0.002.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "base": {
+          "type": "string",
+          "description": "ISO currency, default USD"
+         },
+         "symbols": {
+          "type": "string",
+          "description": "Comma list e.g. GBP,EUR (default all ~30)"
+         },
+         "date": {
+          "type": "string",
+          "description": "YYYY-MM-DD historical (default latest)"
+         },
+         "amount": {
+          "type": "string",
+          "description": "Optional amount to convert"
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "base": {
+           "type": "string"
+          },
+          "date": {
+           "type": "string"
+          },
+          "rates": {
+           "type": "object"
+          },
+          "converted": {
+           "type": "object"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.002 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.002",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.002",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "2000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "2000"
+    }
+   }
+  },
+  "/ens": {
+   "get": {
+    "summary": "Use this to resolve an ENS name to its address plus avatar/url/twitter/github/description records, or reverse-resolve an address to its primary name (forward-verified). Example: {name:\"vitalik.eth\"} or {address:\"0x\u2026\"}. $0.002.",
+    "parameters": [
+     {
+      "name": "name",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "ENS name to resolve, e.g. vitalik.eth"
+     },
+     {
+      "name": "address",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "0x address for reverse lookup (primary name)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "direction": {
+           "type": "string"
+          },
+          "name": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "address": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "records": {
+           "type": "object"
+          },
+          "forward_verified": {
+           "type": "boolean"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.002 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.002",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.002",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "2000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "2000"
+    }
+   },
+   "post": {
+    "summary": "Use this to resolve an ENS name to its address plus avatar/url/twitter/github/description records, or reverse-resolve an address to its primary name (forward-verified). Example: {name:\"vitalik.eth\"} or {address:\"0x\u2026\"}. $0.002.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "name": {
+          "type": "string",
+          "description": "ENS name to resolve, e.g. vitalik.eth"
+         },
+         "address": {
+          "type": "string",
+          "description": "0x address for reverse lookup (primary name)"
+         }
+        },
+        "anyOf": [
+         {
+          "required": [
+           "name"
+          ]
+         },
+         {
+          "required": [
+           "address"
+          ]
+         }
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "direction": {
+           "type": "string"
+          },
+          "name": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "address": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "records": {
+           "type": "object"
+          },
+          "forward_verified": {
+           "type": "boolean"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.002 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.002",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.002",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "2000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "2000"
+    }
+   }
+  },
+  "/token": {
+   "get": {
+    "summary": "Use this for just an ERC20's name, symbol, decimals and total supply (formatted + raw) on Base/Ethereum/Arbitrum/Optimism/Polygon \u2014 e.g. before formatting amounts. Cheaper than /token-check. Example: {address:\"0x\u2026\", chain:\"base\"}. $0.001.",
+    "parameters": [
+     {
+      "name": "address",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "0x ERC20 token contract"
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "EVM chain (default base)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "name": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "symbol": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "decimals": {
+           "type": [
+            "integer",
+            "null"
+           ]
+          },
+          "total_supply": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "is_erc20_like": {
+           "type": "boolean"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.001",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "1000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "1000"
+    }
+   },
+   "post": {
+    "summary": "Use this for just an ERC20's name, symbol, decimals and total supply (formatted + raw) on Base/Ethereum/Arbitrum/Optimism/Polygon \u2014 e.g. before formatting amounts. Cheaper than /token-check. Example: {address:\"0x\u2026\", chain:\"base\"}. $0.001.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "address": {
+          "type": "string",
+          "description": "0x ERC20 token contract"
+         },
+         "chain": {
+          "type": "string",
+          "enum": [
+           "base",
+           "ethereum",
+           "arbitrum",
+           "optimism",
+           "polygon"
+          ],
+          "description": "EVM chain (default base)"
+         }
+        },
+        "required": [
+         "address"
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "name": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "symbol": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "decimals": {
+           "type": [
+            "integer",
+            "null"
+           ]
+          },
+          "total_supply": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "is_erc20_like": {
+           "type": "boolean"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.001",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "1000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "1000"
+    }
+   }
+  },
+  "/allowance": {
+   "get": {
+    "summary": "Use this before transferFrom/x402/Permit flows or for approval hygiene: ERC20 allowance owner\u2192spender, unlimited flag, owner balance and spendable-now amount. Multi-chain. Example: {token, owner, spender, chain:\"base\"}. $0.002.",
+    "parameters": [
+     {
+      "name": "token",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "0x ERC20 token"
+     },
+     {
+      "name": "owner",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "0x token holder"
+     },
+     {
+      "name": "spender",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "0x approved spender (router, Permit2, x402 facilitator\u2026)"
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "EVM chain (default base)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "allowance": {
+           "type": "string"
+          },
+          "allowance_raw": {
+           "type": "string"
+          },
+          "unlimited": {
+           "type": "boolean"
+          },
+          "owner_balance": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "spendable_now": {
+           "type": [
+            "string",
+            "null"
+           ]
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.002 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.002",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.002",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "2000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "2000"
+    }
+   },
+   "post": {
+    "summary": "Use this before transferFrom/x402/Permit flows or for approval hygiene: ERC20 allowance owner\u2192spender, unlimited flag, owner balance and spendable-now amount. Multi-chain. Example: {token, owner, spender, chain:\"base\"}. $0.002.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "token": {
+          "type": "string",
+          "description": "0x ERC20 token"
+         },
+         "owner": {
+          "type": "string",
+          "description": "0x token holder"
+         },
+         "spender": {
+          "type": "string",
+          "description": "0x approved spender (router, Permit2, x402 facilitator\u2026)"
+         },
+         "chain": {
+          "type": "string",
+          "enum": [
+           "base",
+           "ethereum",
+           "arbitrum",
+           "optimism",
+           "polygon"
+          ],
+          "description": "EVM chain (default base)"
+         }
+        },
+        "required": [
+         "token",
+         "owner",
+         "spender"
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "allowance": {
+           "type": "string"
+          },
+          "allowance_raw": {
+           "type": "string"
+          },
+          "unlimited": {
+           "type": "boolean"
+          },
+          "owner_balance": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "spendable_now": {
+           "type": [
+            "string",
+            "null"
+           ]
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.002 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.002",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.002",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "2000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "2000"
+    }
+   }
+  },
+  "/contract": {
+   "get": {
+    "summary": "Use this to inspect any address: contract vs wallet vs EIP-7702 delegated EOA, bytecode size, EIP-1967 implementation/admin/beacon, EIP-1167 clone target, owner(), ERC20/721/1155 detection and Sourcify verified contract name. Example: {address, chain}. $0.003.",
+    "parameters": [
+     {
+      "name": "address",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "0x address to inspect"
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "EVM chain (default base)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "is_contract": {
+           "type": "boolean"
+          },
+          "eip7702_delegate": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "bytecode_bytes": {
+           "type": "integer"
+          },
+          "proxy": {
+           "type": "object"
+          },
+          "owner": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "standards": {
+           "type": "array"
+          },
+          "verified": {
+           "type": [
+            "object",
+            "null"
+           ]
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.003 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.003",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.003",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "3000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "3000"
+    }
+   },
+   "post": {
+    "summary": "Use this to inspect any address: contract vs wallet vs EIP-7702 delegated EOA, bytecode size, EIP-1967 implementation/admin/beacon, EIP-1167 clone target, owner(), ERC20/721/1155 detection and Sourcify verified contract name. Example: {address, chain}. $0.003.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "address": {
+          "type": "string",
+          "description": "0x address to inspect"
+         },
+         "chain": {
+          "type": "string",
+          "enum": [
+           "base",
+           "ethereum",
+           "arbitrum",
+           "optimism",
+           "polygon"
+          ],
+          "description": "EVM chain (default base)"
+         }
+        },
+        "required": [
+         "address"
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "is_contract": {
+           "type": "boolean"
+          },
+          "eip7702_delegate": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "bytecode_bytes": {
+           "type": "integer"
+          },
+          "proxy": {
+           "type": "object"
+          },
+          "owner": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "standards": {
+           "type": "array"
+          },
+          "verified": {
+           "type": [
+            "object",
+            "null"
+           ]
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.003 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.003",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.003",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "3000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "3000"
+    }
+   }
+  },
+  "/gas": {
+   "get": {
+    "summary": "Use this before sending a transaction: live base fee, priority-fee percentiles, suggested EIP-1559 maxFee/maxPriority, block utilisation and USD cost of a transfer/ERC20 transfer/swap (Chainlink price). Base/Ethereum/Arbitrum/Optimism/Polygon. Example: {chain:\"base\"}. $0.001.",
+    "parameters": [
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "EVM chain (default base)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "base_fee_gwei": {
+           "type": "number"
+          },
+          "priority_fee_gwei": {
+           "type": "object"
+          },
+          "suggested_eip1559": {
+           "type": "object"
+          },
+          "native_usd": {
+           "type": [
+            "number",
+            "null"
+           ]
+          },
+          "est_cost": {
+           "type": "object"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.001",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "1000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "1000"
+    }
+   },
+   "post": {
+    "summary": "Use this before sending a transaction: live base fee, priority-fee percentiles, suggested EIP-1559 maxFee/maxPriority, block utilisation and USD cost of a transfer/ERC20 transfer/swap (Chainlink price). Base/Ethereum/Arbitrum/Optimism/Polygon. Example: {chain:\"base\"}. $0.001.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "chain": {
+          "type": "string",
+          "enum": [
+           "base",
+           "ethereum",
+           "arbitrum",
+           "optimism",
+           "polygon"
+          ],
+          "description": "EVM chain (default base)"
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "base_fee_gwei": {
+           "type": "number"
+          },
+          "priority_fee_gwei": {
+           "type": "object"
+          },
+          "suggested_eip1559": {
+           "type": "object"
+          },
+          "native_usd": {
+           "type": [
+            "number",
+            "null"
+           ]
+          },
+          "est_cost": {
+           "type": "object"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.001",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "1000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "1000"
+    }
+   }
+  },
+  "/block": {
+   "get": {
+    "summary": "Use this to get a block by number/latest/finalized, or find the block at a date/time (timestamp \u2192 block, for historical balance or event queries). Returns number, hash, time, tx count, base fee. Example: {timestamp:\"2026-01-01T00:00:00Z\", chain:\"base\"}. $0.001.",
+    "parameters": [
+     {
+      "name": "number",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Block number (decimal/hex) or latest|safe|finalized"
+     },
+     {
+      "name": "timestamp",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Unix seconds or ISO date: returns last block at/before it"
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "EVM chain (default base)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "number": {
+           "type": "integer"
+          },
+          "hash": {
+           "type": "string"
+          },
+          "timestamp": {
+           "type": "integer"
+          },
+          "time_iso": {
+           "type": "string"
+          },
+          "tx_count": {
+           "type": [
+            "integer",
+            "null"
+           ]
+          },
+          "base_fee_gwei": {
+           "type": [
+            "number",
+            "null"
+           ]
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.001",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "1000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "1000"
+    }
+   },
+   "post": {
+    "summary": "Use this to get a block by number/latest/finalized, or find the block at a date/time (timestamp \u2192 block, for historical balance or event queries). Returns number, hash, time, tx count, base fee. Example: {timestamp:\"2026-01-01T00:00:00Z\", chain:\"base\"}. $0.001.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "number": {
+          "type": "string",
+          "description": "Block number (decimal/hex) or latest|safe|finalized"
+         },
+         "timestamp": {
+          "type": "string",
+          "description": "Unix seconds or ISO date: returns last block at/before it"
+         },
+         "chain": {
+          "type": "string",
+          "enum": [
+           "base",
+           "ethereum",
+           "arbitrum",
+           "optimism",
+           "polygon"
+          ],
+          "description": "EVM chain (default base)"
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "number": {
+           "type": "integer"
+          },
+          "hash": {
+           "type": "string"
+          },
+          "timestamp": {
+           "type": "integer"
+          },
+          "time_iso": {
+           "type": "string"
+          },
+          "tx_count": {
+           "type": [
+            "integer",
+            "null"
+           ]
+          },
+          "base_fee_gwei": {
+           "type": [
+            "number",
+            "null"
+           ]
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.001",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "1000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "1000"
+    }
+   }
+  },
+  "/nft": {
+   "get": {
+    "summary": "Use this to look up one NFT: owner (ERC721), tokenURI and fetched JSON metadata (IPFS/Arweave/data URIs handled), collection name/symbol. Multi-chain. Example: {contract:\"0xBC4C\u2026\", token_id:\"1\", chain:\"ethereum\"}. $0.002.",
+    "parameters": [
+     {
+      "name": "contract",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "0x ERC721/ERC1155 contract"
+     },
+     {
+      "name": "token_id",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Decimal token id"
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "EVM chain (default base)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "standard": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "owner": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "token_uri": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "metadata": {
+           "type": [
+            "object",
+            "null"
+           ]
+          },
+          "collection": {
+           "type": "object"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.002 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.002",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.002",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "2000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "2000"
+    }
+   },
+   "post": {
+    "summary": "Use this to look up one NFT: owner (ERC721), tokenURI and fetched JSON metadata (IPFS/Arweave/data URIs handled), collection name/symbol. Multi-chain. Example: {contract:\"0xBC4C\u2026\", token_id:\"1\", chain:\"ethereum\"}. $0.002.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "contract": {
+          "type": "string",
+          "description": "0x ERC721/ERC1155 contract"
+         },
+         "token_id": {
+          "type": "string",
+          "description": "Decimal token id"
+         },
+         "chain": {
+          "type": "string",
+          "enum": [
+           "base",
+           "ethereum",
+           "arbitrum",
+           "optimism",
+           "polygon"
+          ],
+          "description": "EVM chain (default base)"
+         }
+        },
+        "required": [
+         "contract",
+         "token_id"
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "standard": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "owner": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "token_uri": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "metadata": {
+           "type": [
+            "object",
+            "null"
+           ]
+          },
+          "collection": {
+           "type": "object"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.002 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.002",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.002",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "2000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "2000"
+    }
+   }
+  },
+  "/monitor/{id}": {
+   "get": {
+    "summary": "Free monitor status (id is the secret)",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Monitor status"
+     },
+     "404": {
+      "description": "Not found"
+     }
+    },
+    "x-price": "free"
+   }
+  },
+  "/samples/{kind}": {
+   "get": {
+    "summary": "Free truncated sample (rate-limited 8/IP/day) with x402 upsell",
+    "parameters": [
+     {
+      "name": "kind",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "read",
+        "company",
+        "uk-company",
+        "uk-company-lite",
+        "convert"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Truncated sample"
+     },
+     "429": {
+      "description": "Preview quota exceeded"
+     }
+    },
+    "x-price": "free"
+   }
+  },
+  "/hooks/sink": {
+   "post": {
+    "summary": "Free webhook test sink for /monitor",
+    "responses": {
+     "200": {
+      "description": "Stored"
+     }
+    },
+    "x-price": "free"
+   }
+  }
+ }
+}
