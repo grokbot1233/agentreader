@@ -10,6 +10,7 @@ import { ukCompany } from "./uk-company";
 import { companyFull } from "./company-full";
 import { convertDocument } from "./convert";
 import { createMonitor } from "./monitor";
+import { wallet, tx, tokenCheck, fx } from "./onchain";
 
 const NETWORK = "eip155:8453";
 let rs: any = null; let ready: Promise<any> | null = null;
@@ -22,13 +23,13 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
   }
   await ready;
   const mk = async (price: string, tool: string, atomic: number) => createPaymentWrapper(rs, {
-    resource: { url: `mcp://tool/${tool}`, description: `AgentReader ${tool}`, mimeType: "application/json", serviceName: "AgentReader", tags: ["web", "scraping", "markdown", "dns", "company", "uk", "pdf", "monitor", "x402"] },
+    resource: { url: `mcp://tool/${tool}`, description: `AgentReader ${tool}`, mimeType: "application/json", serviceName: "AgentReader", tags: ["web", "scraping", "markdown", "dns", "company", "uk", "pdf", "monitor", "x402", "onchain", "wallet", "token", "fx"] },
     accepts: await rs.buildPaymentRequirements({ scheme: "exact", network: NETWORK, payTo: env.PAY_TO, price, maxTimeoutSeconds: 120 }),
     hooks: { onAfterSettlement: async ({ settlement }: any) => {
       await log({ endpoint: `mcp:${tool}`, payer: settlement?.payer || null, amount: settlement?.amount || String(atomic), network: settlement?.network, tx: settlement?.transaction, success: settlement?.success });
     } },
   } as any);
-  const server = new McpServer({ name: "agentreader", version: "1.2.0" });
+  const server = new McpServer({ name: "agentreader", version: "1.3.0" });
   const json = (d: any) => ({ content: [{ type: "text" as const, text: JSON.stringify(d) }] });
   const err = (e: any) => ({ isError: true, content: [{ type: "text" as const, text: String(e?.message || e) }] });
 
@@ -82,6 +83,24 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       } catch (e) { return err(e); }
     }) as any);
 
+  const chainZ = z.enum(["base", "ethereum", "arbitrum", "optimism", "polygon"]).optional();
+  server.tool("wallet_balances",
+    "Use this when you need an EVM wallet's balances in one call: native ETH/POL + USDC/USDT/DAI/WETH/cbBTC/EURC (+ up to 10 custom ERC20 addresses comma-separated), nonce, is_contract. Chains: base (default), ethereum, arbitrum, optimism, polygon. $0.003 USDC.",
+    { address: z.string(), chain: chainZ, tokens: z.string().optional() },
+    (await mk("$0.003", "wallet_balances", 3000))(async (a: any) => { try { return json(await wallet(a)); } catch (e) { return err(e); } }) as any);
+  server.tool("tx_status",
+    "Use this to verify a transaction or payment landed: status success/reverted/pending, block, timestamp, confirmations, from/to, value, fee, decoded ERC20 transfers (USDC amounts). Chains: base (default), ethereum, arbitrum, optimism, polygon. $0.003 USDC.",
+    { hash: z.string(), chain: chainZ },
+    (await mk("$0.003", "tx_status", 3000))(async (a: any) => { try { return json(await tx(a)); } catch (e) { return err(e); } }) as any);
+  server.tool("token_check",
+    "Use this before buying, accepting or listing an ERC20 token: name/symbol/supply, owner renounced?, upgradeable proxy, DEX price/liquidity/volume/pair age + rule-based risk flags, 0-100 score and verdict. Not financial advice. $0.01 USDC.",
+    { address: z.string(), chain: chainZ },
+    (await mk("$0.01", "token_check", 10000))(async (a: any) => { try { return json(await tokenCheck(a)); } catch (e) { return err(e); } }) as any);
+  server.tool("fx_rates",
+    "Use this for official ECB currency exchange rates (~30 fiat incl GBP/EUR/USD/JPY), latest or a historical date (YYYY-MM-DD), with optional amount conversion. $0.002 USDC.",
+    { base: z.string().optional(), symbols: z.string().optional(), date: z.string().optional(), amount: z.string().optional() },
+    (await mk("$0.002", "fx_rates", 2000))(async (a: any) => { try { return json(await fx(a)); } catch (e) { return err(e); } }) as any);
+
   server.tool("pricing", "Free: list AgentReader tools, prices, when-to-use hints and payment details.", {}, async () => json({
     network: NETWORK, asset: "USDC", payTo: env.PAY_TO,
     samples: "https://api.axiomworks.co.uk/samples/{read|company|uk-company|uk-company-lite|convert}",
@@ -95,6 +114,10 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       company_full: { price: "$0.65", when: "website + UK DD bundle" },
       convert_document: { price: "$0.03", when: "PDF/DOCX → markdown" },
       create_monitor: { price: "$1.00 / 30 days", when: "hourly change webhooks" },
+      wallet_balances: { price: "$0.003", when: "EVM wallet balances, 5 chains" },
+      tx_status: { price: "$0.003", when: "did my tx/payment land" },
+      token_check: { price: "$0.01", when: "ERC20 token risk/liquidity" },
+      fx_rates: { price: "$0.002", when: "ECB fiat FX rates" },
       pricing: { price: "free" },
     },
     how: "Paid tools return x402 PaymentRequired; retry with _meta['x402/payment'] via @x402/mcp createx402MCPClient.",

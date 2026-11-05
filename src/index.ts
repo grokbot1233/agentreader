@@ -12,6 +12,7 @@ import { checkPreviewQuota, clientIp, truncateSample, STATIC_SAMPLES, type Previ
 import { handleMcp } from "./mcp";
 import { facilitatorClient, CANONICAL, CONTACT } from "./facilitator";
 import { dashboardHtml } from "./dashboard";
+import { wallet, tx, tokenCheck, fx, CHAINS } from "./onchain";
 
 type Env = { LOG: KVNamespace; STATS_SECRET: string; DASHBOARD_KEY: string; PAY_TO: string; FACILITATOR_URL: string; CDP_API_KEY_ID?: string; CDP_API_KEY_SECRET?: string; FACILITATOR?: string; CH_API_KEY?: string };
 const NETWORK = "eip155:8453";
@@ -27,11 +28,16 @@ const PRICES = {
   "/company-full": "$0.65",
   "/convert": "$0.03",
   "/monitor": "$1.00",
+  "/wallet": "$0.003",
+  "/tx": "$0.003",
+  "/token-check": "$0.01",
+  "/fx": "$0.002",
 } as const;
 const ATOMIC: Record<string, number> = {
   "/read": 2000, "/links": 1000, "/check": 1000,
   "/company": 250000, "/uk-company": 500000, "/uk-company-lite": 50000, "/company-full": 650000,
   "/convert": 30000, "/monitor": 1000000,
+  "/wallet": 3000, "/tx": 3000, "/token-check": 10000, "/fx": 2000,
 };
 
 const urlIn = { type: "object", properties: { url: { type: "string", format: "uri", description: "Public http(s) URL to fetch" } }, required: ["url"] };
@@ -91,7 +97,20 @@ const monitorOut = { type: "object", properties: {
   id: { type: "string" }, url: { type: "string" }, webhook: { type: "string" }, created: { type: "string" }, expires: { type: "string" },
   last_hash: { type: "string" }, status_url: { type: "string" }, active: { type: "boolean" } } };
 
+const chainP = { type: "string", enum: ["base", "ethereum", "arbitrum", "optimism", "polygon"], description: "EVM chain (default base)" };
+const walletIn = { type: "object", properties: { address: { type: "string", description: "0x EVM wallet address" }, chain: chainP, tokens: { type: "string", description: "Optional comma-separated extra ERC20 contract addresses (max 10)" } }, required: ["address"] };
+const walletOut = { type: "object", properties: { chain: { type: "string" }, address: { type: "string" }, block: { type: "integer" }, native: { type: "object" }, nonce: { type: "integer" }, is_contract: { type: "boolean" }, tokens: { type: "array", items: { type: "object" } } } };
+const txIn = { type: "object", properties: { hash: { type: "string", description: "0x transaction hash" }, chain: chainP }, required: ["hash"] };
+const txOut = { type: "object", properties: { status: { type: "string" }, block: { type: ["integer", "null"] }, timestamp: { type: ["string", "null"] }, from: { type: "string" }, to: { type: ["string", "null"] }, value_native: { type: "string" }, fee_native: { type: "string" }, erc20_transfers: { type: "array", items: { type: "object" } } } };
+const tokenIn = { type: "object", properties: { address: { type: "string", description: "0x ERC20 token contract address" }, chain: chainP }, required: ["address"] };
+const tokenOut = { type: "object", properties: { name: { type: ["string", "null"] }, symbol: { type: ["string", "null"] }, decimals: { type: ["integer", "null"] }, total_supply: { type: "string" }, owner: { type: ["string", "null"] }, proxy: { type: "object" }, market: { type: ["object", "null"] }, risk_flags: { type: "array", items: { type: "object" } }, risk_score: { type: "integer" }, verdict: { type: "string" } } };
+const fxIn = { type: "object", properties: { base: { type: "string", description: "ISO currency, default USD" }, symbols: { type: "string", description: "Comma list e.g. GBP,EUR (default all ~30)" }, date: { type: "string", description: "YYYY-MM-DD historical (default latest)" }, amount: { type: "string", description: "Optional amount to convert" } } };
+const fxOut = { type: "object", properties: { base: { type: "string" }, date: { type: "string" }, rates: { type: "object" }, converted: { type: "object" } } };
 const DESC: Record<string, string> = {
+  "/wallet": "Use this when you need an EVM wallet's balances in one call: native ETH/POL + USDC/USDT/DAI/WETH/cbBTC/EURC (plus up to 10 custom ERC20s), nonce, is_contract, block. Base, Ethereum, Arbitrum, Optimism, Polygon. Example: {address:\"0x…\", chain:\"base\"}. $0.003.",
+  "/tx": "Use this to confirm a transaction/payment landed: status (success/reverted/pending), block, timestamp, confirmations, from/to, value, fee, decoded ERC20 transfers (USDC amounts). Base/Ethereum/Arbitrum/Optimism/Polygon. Example: {hash:\"0x…\"}. $0.003.",
+  "/token-check": "Use this before buying, accepting or listing an ERC20 token: name/symbol/decimals/supply, owner (renounced?), EIP-1967 proxy, DEX price/liquidity/volume/pair age (DexScreener) + rule-based risk flags, score and verdict. Half the price of AI token verdicts. Example: {address:\"0x…\", chain:\"base\"}. $0.01.",
+  "/fx": "Use this for official ECB foreign-exchange reference rates (≈30 fiat currencies incl GBP/EUR/USD/JPY), latest or historical date, with optional amount conversion. Example: {base:\"GBP\", symbols:\"USD,EUR\", amount:\"100\"}. $0.002.",
   "/read": "Use this when you need the clean text of a public web page as Markdown + metadata (title, author, date, language, word count, links). Better than raw fetch/HTML: Readability extraction, structured JSON, ~1s. Example in: {url:\"https://example.com\"} → {title, markdown, word_count, links}. $0.002 USDC.",
   "/links": "Use this when you only need every absolute link on a page (crawl maps, sitemaps-lite). Faster/cheaper than /read. Example: {url} → {count, links:[{url,text,internal}]}. $0.001.",
   "/check": "Use this when vetting a domain's health before outreach or onboarding: DNS (DoH), DNSSEC, TLS/HTTPS, redirects, HSTS, MX/SPF/DMARC + score/issues. Structured JSON beats dig+openssl. Example: {domain:\"stripe.com\"} → {score, issues, email}. $0.001.",
@@ -102,18 +121,21 @@ const DESC: Record<string, string> = {
   "/convert": "Use this when an agent needs PDF/DOCX/HTML/text as clean markdown or plain text (RAG, summarisation). PDF via unpdf; DOCX via mammoth. Example: {url, format:\"markdown\"} → {detected_format, markdown, pages, word_count}. $0.03.",
   "/monitor": "Use this when you need 30 days of hourly page-change alerts to your webhook (pricing pages, status, jobs). Returns id; GET /monitor/:id free. Example POST {url, webhook, selector?}. $1.00/30d.",
 };
-const OUT: any = { "/read": readOut, "/links": linksOut, "/check": checkOut, "/company": companyOut, "/uk-company": ukOut, "/uk-company-lite": ukLiteOut, "/company-full": companyFullOut, "/convert": convertOut, "/monitor": monitorOut };
+const OUT: any = { "/wallet": walletOut, "/tx": txOut, "/token-check": tokenOut, "/fx": fxOut, "/read": readOut, "/links": linksOut, "/check": checkOut, "/company": companyOut, "/uk-company": ukOut, "/uk-company-lite": ukLiteOut, "/company-full": companyFullOut, "/convert": convertOut, "/monitor": monitorOut };
 const EX: any = {
+  "/wallet": { address: "0x88b1c747c33A5868A34057D8C57318E5602b3ff6", chain: "base" }, "/tx": { hash: "0x0000000000000000000000000000000000000000000000000000000000000000", chain: "base" },
+  "/token-check": { address: "0x940181a94A35A4569E4529A3CDfB74e38FD98631", chain: "base" }, "/fx": { base: "GBP", symbols: "USD,EUR", amount: "100" },
   "/read": { url: "https://example.com" }, "/links": { url: "https://example.com" }, "/check": { domain: "example.com" },
   "/company": { domain: "stripe.com" }, "/uk-company": { number: "00445790" }, "/uk-company-lite": { number: "00445790" }, "/company-full": { domain: "tesco.com" },
   "/convert": { url: "https://raw.githubusercontent.com/mozilla/pdf.js/master/web/compressed.tracemonkey-pldi-09.pdf", format: "markdown" },
   "/monitor": { url: "https://example.com", webhook: "https://api.axiomworks.co.uk/hooks/sink" },
 };
-const IN: any = { "/read": urlIn, "/links": urlIn, "/check": checkIn, "/company": companyIn, "/uk-company": ukIn, "/uk-company-lite": ukLiteIn, "/company-full": companyFullIn, "/convert": convertIn, "/monitor": monitorIn };
+const IN: any = { "/wallet": walletIn, "/tx": txIn, "/token-check": tokenIn, "/fx": fxIn, "/read": urlIn, "/links": urlIn, "/check": checkIn, "/company": companyIn, "/uk-company": ukIn, "/uk-company-lite": ukLiteIn, "/company-full": companyFullIn, "/convert": convertIn, "/monitor": monitorIn };
 const METHODS: Record<string, ("GET" | "POST")[]> = {
   "/read": ["GET", "POST"], "/links": ["GET", "POST"], "/check": ["GET", "POST"],
   "/company": ["GET", "POST"], "/uk-company": ["GET", "POST"], "/uk-company-lite": ["GET", "POST"], "/company-full": ["GET", "POST"], "/convert": ["GET", "POST"],
   "/monitor": ["POST"],
+  "/wallet": ["GET", "POST"], "/tx": ["GET", "POST"], "/token-check": ["GET", "POST"], "/fx": ["GET", "POST"],
 };
 
 function routes(payTo: string) {
@@ -159,7 +181,7 @@ app.options("*", (c) => c.body(null, 204, { "access-control-allow-origin": "*", 
 function base(_c: any) { return CANONICAL; }
 function discovery(c: any) {
   const b = base(c);
-  return { x402Version: 2, name: "AgentReader", description: "Pay-per-call web reading, company research, UK due diligence, document conversion & change monitoring for AI agents. USDC on Base via x402.",
+  return { x402Version: 2, name: "AgentReader", description: "Pay-per-call web reading, company research, UK due diligence, document conversion, change monitoring, EVM wallet/tx/token checks and FX rates for AI agents. USDC on Base via x402.",
     resources: Object.keys(PRICES).map((p) => `${b}${p}`),
     items: Object.entries(PRICES).map(([p, price]) => ({ resource: `${b}${p}`, methods: METHODS[p], description: DESC[p], mimeType: "application/json",
       accepts: [{ scheme: "exact", network: NETWORK, amount: String(ATOMIC[p]), price, asset: USDC, payTo: c.env.PAY_TO, maxTimeoutSeconds: 120, extra: { name: "USD Coin", version: "2" } }],
@@ -173,9 +195,9 @@ app.get("/.well-known/x402.json", (c) => c.json(discovery(c)));
 app.get("/.well-known/agent.json", (c) => {
   const b = base(c);
   return c.json({
-    name: "AgentReader", description: "x402 pay-per-call web reader, company research, UK Companies House due diligence, document conversion and change monitoring for AI agents.",
+    name: "AgentReader", description: "x402 pay-per-call web reader, company research, UK Companies House due diligence, document conversion, change monitoring, EVM wallet/tx/token risk checks and ECB FX rates for AI agents.",
     url: b, provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk", email: CONTACT },
-    version: "1.2.0", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
+    version: "1.3.0", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     skills: Object.entries(PRICES).map(([p, price]) => ({ id: p.slice(1), name: p, description: DESC[p], price, endpoint: `${b}${p}` })),
     mcp: `${b}/mcp`, payments: { protocol: "x402", network: NETWORK, asset: USDC, payTo: c.env.PAY_TO },
   });
@@ -195,7 +217,7 @@ app.get("/openapi.json", (c) => {
   paths["/monitor/{id}"] = { get: { summary: "Free monitor status (id is the secret)", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { "200": { description: "Monitor status" }, "404": { description: "Not found" } }, "x-price": "free" } };
   paths["/samples/{kind}"] = { get: { summary: "Free truncated sample (rate-limited 8/IP/day) with x402 upsell", parameters: [{ name: "kind", in: "path", required: true, schema: { type: "string", enum: ["read","company","uk-company","uk-company-lite","convert"] } }], responses: { "200": { description: "Truncated sample" }, "429": { description: "Preview quota exceeded" } }, "x-price": "free" } };
   paths["/hooks/sink"] = { post: { summary: "Free webhook test sink for /monitor", responses: { "200": { description: "Stored" } }, "x-price": "free" } };
-  return c.json({ openapi: "3.1.0", info: { title: "AgentReader", version: "1.2.0", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, company research, UK due diligence, document conversion, change monitoring. Payments: USDC on Base mainnet (eip155:8453)." },
+  return c.json({ openapi: "3.1.0", info: { title: "AgentReader", version: "1.3.0", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, company research, UK due diligence, document conversion, change monitoring. Payments: USDC on Base mainnet (eip155:8453)." },
     servers: [{ url: b }], paths });
 });
 const llms = (b: string, payTo: string) => `# AgentReader
@@ -215,6 +237,10 @@ const llms = (b: string, payTo: string) => `# AgentReader
 | UK CH cheap snapshot | ${b}/uk-company-lite?number=\|name= | $0.05 | Status + compliance flags; upsell full pack |
 | Website + UK DD bundle | ${b}/company-full?domain= | $0.65 | $0.10 cheaper than $0.25+$0.50 when UK detected |
 | PDF/DOCX → text | ${b}/convert?url= | $0.03 | Structured markdown/text for RAG |
+| EVM wallet balances | ${b}/wallet?address=&chain=base | $0.003 | Native + 7 stablecoins/majors, 5 chains, one call |
+| Tx / payment receipt | ${b}/tx?hash=&chain=base | $0.003 | Status, confirmations, fee, decoded USDC transfers |
+| Token due diligence | ${b}/token-check?address=&chain=base | $0.01 | Owner/proxy/supply + DEX liquidity + risk flags |
+| FX rates (ECB) | ${b}/fx?base=GBP&symbols=USD | $0.002 | Official ECB rates, history, conversion |
 | Hourly change alerts | POST ${b}/monitor | $1.00/30d | Webhook on change; GET /monitor/:id free |
 
 ## Free
@@ -272,6 +298,7 @@ app.get("/dashboard/data", async (c) => {
   const mcpTools = [
     ["read_url", "$0.002"], ["extract_links", "$0.001"], ["check_domain", "$0.001"],
     ["company_research", "$0.25"], ["uk_company", "$0.50"], ["uk_company_lite", "$0.05"], ["company_full", "$0.65"], ["convert_document", "$0.03"], ["create_monitor", "$1.00"],
+    ["wallet_balances", "$0.003"], ["tx_status", "$0.003"], ["token_check", "$0.01"], ["fx_rates", "$0.002"],
     ["pricing", "free"],
   ];
   const services = [
@@ -456,6 +483,22 @@ for (const m of ["get", "post"] as const) {
     return cached(c, `convert?url=${encodeURIComponent(url)}&format=${format}`, () => convertDocument(url, format), 600);
   });
 }
+
+const ONCHAIN: Record<string, [(b: any) => Promise<any>, string[], number]> = {
+  "/wallet": [(b) => wallet(b), ["address", "chain", "tokens"], 15], "/tx": [(b) => tx(b), ["hash", "chain"], 10],
+  "/token-check": [(b) => tokenCheck(b), ["address", "chain"], 120], "/fx": [(b) => fx(b), ["base", "symbols", "date", "amount"], 600],
+};
+function slim(d: any): any { if (Array.isArray(d)) return d.slice(0, 2); if (d && typeof d === "object") { const o: any = {}; for (const [k, v] of Object.entries(d)) o[k] = Array.isArray(v) ? (v as any[]).slice(0, 2) : (k === "rates" || k === "converted") && v ? Object.fromEntries(Object.entries(v as any).slice(0, 3)) : v; return o; } return d; }
+for (const [p, [fn, keys, ttl]] of Object.entries(ONCHAIN)) for (const m of ["get", "post"] as const) app[m](p, async (c) => {
+  const b = await bodyObj(c); const args: any = {}; for (const k of keys) if (b[k] != null && b[k] !== "") args[k] = String(b[k]).trim();
+  if (keys[0] !== "base" && !args[keys[0]]) return c.json({ error: `missing ${keys[0]}`, example: EX[p] }, 400);
+  if (c.req.query("preview") === "1" && m === "get") {
+    const q = await checkPreviewQuota(c.env, clientIp(c)); if (!q.ok) return c.json(q, 429);
+    try { return c.json({ preview: true, truncated: "arrays cut to 2 items; pay for full result", data: slim(await fn(args)), paid_call: `${CANONICAL}${p}?${new URLSearchParams(args)}`, price: PRICES[p as keyof typeof PRICES], preview_remaining: q.remaining }); }
+    catch (e: any) { return c.json({ error: e?.message || String(e), preview: true }, (e instanceof UserError ? e.status : 502) as any); }
+  }
+  return cached(c, `${p.slice(1)}?${new URLSearchParams(Object.entries(args).sort() as any)}`, () => fn(args), ttl);
+});
 
 app.post("/monitor", async (c) => {
   try {
