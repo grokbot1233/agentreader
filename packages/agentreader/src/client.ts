@@ -152,6 +152,10 @@ export class AgentReaderClient {
   ukOfficer(input: { name: string; limit?: number | string }, opts?: RequestOpts) {
     return this.get("/uk-officer", input as any, opts);
   }
+  /** Canadian federal corporation lookup (Corporations Canada) by number or BN ($0.02). */
+  caCompany(input: { number?: string; bn?: string }, opts?: RequestOpts) {
+    return this.get("/ca-company", input as any, opts);
+  }
   /** Australian company lookup (ASIC register) by ACN or ABN ($0.02). */
   auCompany(input: { acn?: string; abn?: string }, opts?: RequestOpts) {
     return this.get("/au-company", input as any, opts);

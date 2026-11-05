@@ -80,6 +80,13 @@ export const TOOLS: ToolDef[] = [
     http: (a) => `${ORIGIN}/uk-officer?name=${encodeURIComponent(a.name)}${a.limit ? `&limit=${encodeURIComponent(a.limit)}` : ""}`,
   },
   {
+    name: "ca_company",
+    description: "Canadian federal corporation lookup (Corporations Canada, ~697k active) by corporation number or 9-digit Business Number: legal name, governing act, status, filings, registered office, directors. $0.02 USDC.",
+    price: "$0.02",
+    schema: { number: z.string().optional(), bn: z.string().optional() },
+    http: (a) => a.number ? `${ORIGIN}/ca-company?number=${encodeURIComponent(a.number)}` : `${ORIGIN}/ca-company?bn=${encodeURIComponent(a.bn || "")}`,
+  },
+  {
     name: "au_company",
     description: "Australian company lookup (ASIC register, ~4M companies) by ACN or ABN: name, type, status, registration date. $0.02 USDC.",
     price: "$0.02",
