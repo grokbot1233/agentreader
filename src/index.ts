@@ -337,6 +337,21 @@ function discovery(c: any) {
 app.get("/health", (c) => c.json({ ok: true, ts: new Date().toISOString() }));
 app.get("/.well-known/x402", (c) => c.json(discovery(c)));
 app.get("/.well-known/x402.json", (c) => c.json(discovery(c)));
+app.get("/.well-known/402index-verify.txt", (c) => c.text("9a944a1ce3c68588c5fb1d104be63981bb5e6b6e302fa0a1bd65b6a3cd5f5372"));
+app.get("/.well-known/agent-card.json", (c) => {
+  const b = base(c);
+  const tags = (p: string) => p.startsWith("/uk") ? ["uk", "companies-house", "due-diligence", "x402"] : p.startsWith("/us-sec") ? ["sec", "edgar", "filings", "x402"] : (p === "/kyb" || p === "/eu-vat") ? ["kyb", "vat", "compliance", "x402"] : ["/read", "/links", "/check", "/convert", "/monitor", "/search", "/company", "/company-full"].includes(p) ? ["web", "research", "x402"] : ["onchain", "base", "evm", "x402"];
+  return c.json({
+    protocolVersion: "0.3.0", name: "Axiom Works AgentReader",
+    description: "Pay-per-call (x402, USDC on Base) UK Companies House, KYB, SEC EDGAR, EU VAT, web-to-markdown and EVM on-chain lookups for AI agents. HTTP + MCP; no API keys.",
+    url: b, preferredTransport: "HTTP+JSON", version: "1.10.0", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
+    provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk" },
+    capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
+    defaultInputModes: ["application/json"], defaultOutputModes: ["application/json"],
+    skills: Object.entries(PRICES).map(([p, price]) => ({ id: p.slice(1), name: p, description: `${DESC[p]} Price ${price} USDC via x402 at ${b}${p}.`, tags: tags(p), inputModes: ["application/json"], outputModes: ["application/json"], examples: [JSON.stringify(EX[p] || {})] })),
+    metadata: { mcp: `${b}/mcp`, openapi: `${b}/openapi.json`, x402: `${b}/.well-known/x402`, payments: { protocol: "x402", network: NETWORK, asset: USDC, payTo: c.env.PAY_TO }, github: "https://github.com/grokbot1233/agentreader" },
+  });
+});
 app.get("/.well-known/agent.json", (c) => {
   const b = base(c);
   return c.json({

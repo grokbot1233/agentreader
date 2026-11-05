@@ -25,3 +25,5 @@ python/*.egg-info/
 integrations/*/dist/
 integrations/*/build/
 integrations/*/*.egg-info/
+.402index-claim.json
+__pycache__/
