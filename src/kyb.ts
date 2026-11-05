@@ -112,6 +112,7 @@ export async function kybReport(env: Env, input: {
   try {
     const entityName =
       out.uk?.name ||
+      out.uk?.profile?.name ||
       out.uk?.profile?.company_name ||
       out.uk?.overview?.company_name ||
       out.eu_vat?.name ||
@@ -145,7 +146,7 @@ export async function kybReport(env: Env, input: {
   // Composite trust heuristic (transparent, non-regulatory)
   let score = 0;
   const reasons: string[] = [];
-  const ukStatus = (out.uk?.status || out.uk?.profile?.company_status || out.uk?.overview?.status || "").toLowerCase();
+  const ukStatus = String(out.uk?.status || out.uk?.profile?.status || out.uk?.company?.status || out.uk?.profile?.company_status || out.uk?.overview?.status || "").toLowerCase();
   const flags: any[] = out.uk?.red_flags || [];
   const high = flags.filter((f: any) => f.severity === "high").length;
   const medium = flags.filter((f: any) => f.severity === "medium").length;
