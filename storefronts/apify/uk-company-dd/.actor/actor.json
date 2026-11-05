@@ -1,0 +1,20 @@
+{
+  "$schema": "https://apify.com/schemas/v1/actor.ide.json",
+  "actorSpecification": 1,
+  "name": "uk-company-dd",
+  "title": "UK Companies House Due Diligence Report",
+  "description": "Official Companies House due diligence for any UK company number or name: status, SIC, registered office, filing dates, active officers/directors, and automated red-flag heuristics. Uses the official REST API (not HTML scraping). Ideal for KYB, onboarding, sales enrichment and AI agents.",
+  "version": "1.0",
+  "buildTag": "latest",
+  "meta": {
+    "templateId": "js-empty",
+    "generatedBy": "axiom-works"
+  },
+  "dockerfile": "../Dockerfile",
+  "categories": [
+    "LEAD_GENERATION",
+    "AI",
+    "BUSINESS"
+  ],
+  "inputSchema": "./input_schema.json"
+}

@@ -1,0 +1,25 @@
+{
+  "title": "EU VAT VIES Check",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "vat": {
+      "title": "VAT number",
+      "type": "string",
+      "description": "e.g. IE6388047V",
+      "editor": "textfield"
+    },
+    "country": {
+      "title": "Country code",
+      "type": "string",
+      "description": "Optional if VAT includes country prefix",
+      "editor": "textfield"
+    },
+    "number": {
+      "title": "VAT number without country",
+      "type": "string",
+      "editor": "textfield",
+      "description": "VAT number without country"
+    }
+  }
+}

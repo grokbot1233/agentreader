@@ -1,0 +1,31 @@
+{
+  "title": "Agent KYB Check",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "domain": {
+      "title": "Website domain",
+      "type": "string",
+      "editor": "textfield",
+      "description": "example.com"
+    },
+    "companyNumber": {
+      "title": "UK company number",
+      "type": "string",
+      "editor": "textfield",
+      "description": "UK company number"
+    },
+    "companyName": {
+      "title": "UK company name",
+      "type": "string",
+      "editor": "textfield",
+      "description": "UK company name"
+    },
+    "vat": {
+      "title": "EU VAT number",
+      "type": "string",
+      "description": "e.g. IE6388047V or DE123...",
+      "editor": "textfield"
+    }
+  }
+}

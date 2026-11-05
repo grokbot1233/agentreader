@@ -1,0 +1,30 @@
+{
+  "actorSpecification": 1,
+  "fields": {},
+  "views": {
+    "overview": {
+      "title": "Overview",
+      "transformation": {
+        "fields": [
+          "vat",
+          "valid",
+          "name"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "vat": {
+            "label": "vat"
+          },
+          "valid": {
+            "label": "valid"
+          },
+          "name": {
+            "label": "name"
+          }
+        }
+      }
+    }
+  }
+}

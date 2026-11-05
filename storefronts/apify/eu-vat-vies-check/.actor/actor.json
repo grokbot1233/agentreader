@@ -1,0 +1,20 @@
+{
+  "$schema": "https://apify.com/schemas/v1/actor.ide.json",
+  "actorSpecification": 1,
+  "name": "eu-vat-vies-check",
+  "title": "EU VAT VIES Validation \u2014 Valid, Name & Address",
+  "description": "Validate any EU VAT number via the official European Commission VIES REST API. Returns validity, registered name and address when available. Perfect for checkout fraud checks, KYB and invoice verification.",
+  "version": "1.0",
+  "buildTag": "latest",
+  "meta": {
+    "templateId": "js-empty",
+    "generatedBy": "axiom-works"
+  },
+  "dockerfile": "../Dockerfile",
+  "categories": [
+    "BUSINESS",
+    "AI",
+    "ECOMMERCE"
+  ],
+  "inputSchema": "./input_schema.json"
+}

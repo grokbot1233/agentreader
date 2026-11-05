@@ -1,0 +1,24 @@
+{
+  "title": "Web to Markdown",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "url": {
+      "title": "URL",
+      "type": "string",
+      "editor": "textfield",
+      "description": "https://example.com/page"
+    },
+    "maxChars": {
+      "title": "Max markdown chars",
+      "type": "integer",
+      "default": 50000,
+      "minimum": 1000,
+      "maximum": 200000,
+      "description": "Max markdown chars"
+    }
+  },
+  "required": [
+    "url"
+  ]
+}

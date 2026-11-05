@@ -1,0 +1,20 @@
+{
+  "$schema": "https://apify.com/schemas/v1/actor.ide.json",
+  "actorSpecification": 1,
+  "name": "web-to-markdown",
+  "title": "Web Page to Clean Markdown \u2014 Agent-Ready Extractor",
+  "description": "Fetch any public URL and return clean Markdown + metadata (title, description, links). Built for LLM/RAG pipelines and AI agents that need readable page content without raw HTML noise.",
+  "version": "1.0",
+  "buildTag": "latest",
+  "meta": {
+    "templateId": "js-empty",
+    "generatedBy": "axiom-works"
+  },
+  "dockerfile": "../Dockerfile",
+  "categories": [
+    "AI",
+    "DEVELOPER_TOOLS",
+    "AUTOMATION"
+  ],
+  "inputSchema": "./input_schema.json"
+}

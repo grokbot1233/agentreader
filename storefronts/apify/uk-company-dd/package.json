@@ -1,0 +1,17 @@
+{
+  "name": "uk-company-dd",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Official Companies House due diligence for any UK company number or name: status, SIC, registered office, filing dates, active officers/directors, and automated red-flag heuristics. Uses the official ",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "apify": "^3.7.0"
+  },
+  "scripts": {
+    "start": "node ./src/main.js"
+  },
+  "author": "Axiom Works <info@axiomworks.co.uk>",
+  "license": "Apache-2.0"
+}

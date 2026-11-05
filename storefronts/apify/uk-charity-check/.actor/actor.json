@@ -1,0 +1,20 @@
+{
+  "$schema": "https://apify.com/schemas/v1/actor.ide.json",
+  "actorSpecification": 1,
+  "name": "uk-charity-check",
+  "title": "UK Charity Commission Check \u2014 Status, Income & Trustees",
+  "description": "Look up a UK charity on the Charity Commission Register of Charities: status, income, activities, trustee count and regulatory flags. Uses the official Register API.",
+  "version": "1.0",
+  "buildTag": "latest",
+  "meta": {
+    "templateId": "js-empty",
+    "generatedBy": "axiom-works"
+  },
+  "dockerfile": "../Dockerfile",
+  "categories": [
+    "BUSINESS",
+    "AI",
+    "LEAD_GENERATION"
+  ],
+  "inputSchema": "./input_schema.json"
+}

@@ -1,0 +1,30 @@
+{
+  "actorSpecification": 1,
+  "fields": {},
+  "views": {
+    "overview": {
+      "title": "Overview",
+      "transformation": {
+        "fields": [
+          "charity_number",
+          "name",
+          "status"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "charity_number": {
+            "label": "charity_number"
+          },
+          "name": {
+            "label": "name"
+          },
+          "status": {
+            "label": "status"
+          }
+        }
+      }
+    }
+  }
+}

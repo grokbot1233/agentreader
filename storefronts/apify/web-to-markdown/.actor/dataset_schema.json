@@ -1,0 +1,30 @@
+{
+  "actorSpecification": 1,
+  "fields": {},
+  "views": {
+    "overview": {
+      "title": "Overview",
+      "transformation": {
+        "fields": [
+          "url",
+          "title",
+          "markdown"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "url": {
+            "label": "url"
+          },
+          "title": {
+            "label": "title"
+          },
+          "markdown": {
+            "label": "markdown"
+          }
+        }
+      }
+    }
+  }
+}

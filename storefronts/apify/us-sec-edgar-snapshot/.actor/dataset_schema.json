@@ -1,0 +1,34 @@
+{
+  "actorSpecification": 1,
+  "fields": {},
+  "views": {
+    "overview": {
+      "title": "Overview",
+      "transformation": {
+        "fields": [
+          "ticker",
+          "cik",
+          "name",
+          "recent_filings"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "ticker": {
+            "label": "ticker"
+          },
+          "cik": {
+            "label": "cik"
+          },
+          "name": {
+            "label": "name"
+          },
+          "recent_filings": {
+            "label": "recent_filings"
+          }
+        }
+      }
+    }
+  }
+}

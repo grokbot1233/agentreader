@@ -1,0 +1,38 @@
+{
+  "actorSpecification": 1,
+  "fields": {},
+  "views": {
+    "overview": {
+      "title": "Overview",
+      "transformation": {
+        "fields": [
+          "company_number",
+          "company_name",
+          "company_status",
+          "red_flags",
+          "officers_count"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "company_number": {
+            "label": "company_number"
+          },
+          "company_name": {
+            "label": "company_name"
+          },
+          "company_status": {
+            "label": "company_status"
+          },
+          "red_flags": {
+            "label": "red_flags"
+          },
+          "officers_count": {
+            "label": "officers_count"
+          }
+        }
+      }
+    }
+  }
+}

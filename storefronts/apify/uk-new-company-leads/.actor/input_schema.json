@@ -1,0 +1,47 @@
+{
+  "title": "UK New Company Leads",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "sic": {
+      "title": "SIC code or prefix",
+      "type": "string",
+      "description": "e.g. 62 or 62012",
+      "editor": "textfield"
+    },
+    "location": {
+      "title": "Location",
+      "type": "string",
+      "description": "Town/city as indexed by Companies House",
+      "editor": "textfield"
+    },
+    "postcodeArea": {
+      "title": "Postcode area",
+      "type": "string",
+      "description": "e.g. M, SW, EH",
+      "editor": "textfield"
+    },
+    "days": {
+      "title": "Days lookback",
+      "type": "integer",
+      "default": 1,
+      "minimum": 1,
+      "maximum": 7,
+      "description": "Days lookback"
+    },
+    "withDirectors": {
+      "title": "Include active directors",
+      "type": "boolean",
+      "default": true,
+      "description": "Include active directors"
+    },
+    "limit": {
+      "title": "Max companies",
+      "type": "integer",
+      "default": 25,
+      "minimum": 1,
+      "maximum": 100,
+      "description": "Max companies"
+    }
+  }
+}

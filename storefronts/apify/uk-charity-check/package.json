@@ -1,0 +1,17 @@
+{
+  "name": "uk-charity-check",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Look up a UK charity on the Charity Commission Register of Charities: status, income, activities, trustee count and regulatory flags. Uses the official Register API.",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "apify": "^3.7.0"
+  },
+  "scripts": {
+    "start": "node ./src/main.js"
+  },
+  "author": "Axiom Works <info@axiomworks.co.uk>",
+  "license": "Apache-2.0"
+}

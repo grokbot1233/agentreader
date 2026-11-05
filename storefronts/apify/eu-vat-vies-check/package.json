@@ -1,0 +1,17 @@
+{
+  "name": "eu-vat-vies-check",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Validate any EU VAT number via the official European Commission VIES REST API. Returns validity, registered name and address when available. Perfect for checkout fraud checks, KYB and invoice verifica",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "apify": "^3.7.0"
+  },
+  "scripts": {
+    "start": "node ./src/main.js"
+  },
+  "author": "Axiom Works <info@axiomworks.co.uk>",
+  "license": "Apache-2.0"
+}

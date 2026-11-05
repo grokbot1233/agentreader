@@ -15,3 +15,7 @@ dashboard-link.txt
 
 packages/*/dist
 **/.npmrc
+.apify_token
+.pypi_2fa.json
+.pypi_token
+storefronts/apify/_tmp_tpl/

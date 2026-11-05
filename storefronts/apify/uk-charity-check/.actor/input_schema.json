@@ -1,0 +1,19 @@
+{
+  "title": "UK Charity Check",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "charityNumber": {
+      "title": "Charity number",
+      "type": "string",
+      "editor": "textfield",
+      "description": "e.g. 202918 for Oxfam"
+    },
+    "name": {
+      "title": "Charity name search",
+      "type": "string",
+      "editor": "textfield",
+      "description": "Charity name search"
+    }
+  }
+}

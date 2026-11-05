@@ -1,0 +1,26 @@
+{
+  "actorSpecification": 1,
+  "fields": {},
+  "views": {
+    "overview": {
+      "title": "Overview",
+      "transformation": {
+        "fields": [
+          "trust",
+          "inputs"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "trust": {
+            "label": "trust"
+          },
+          "inputs": {
+            "label": "inputs"
+          }
+        }
+      }
+    }
+  }
+}

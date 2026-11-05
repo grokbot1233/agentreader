@@ -1,0 +1,20 @@
+{
+  "$schema": "https://apify.com/schemas/v1/actor.ide.json",
+  "actorSpecification": 1,
+  "name": "us-sec-edgar-snapshot",
+  "title": "US SEC EDGAR Company Snapshot (Ticker or CIK)",
+  "description": "Fast US SEC EDGAR company snapshot by ticker or CIK: identity, SIC, addresses, recent filings. Built for KYB, research agents and diligence workflows. Uses the free SEC data API with a polite User-Agent.",
+  "version": "1.0",
+  "buildTag": "latest",
+  "meta": {
+    "templateId": "js-empty",
+    "generatedBy": "axiom-works"
+  },
+  "dockerfile": "../Dockerfile",
+  "categories": [
+    "AI",
+    "BUSINESS",
+    "FINANCE"
+  ],
+  "inputSchema": "./input_schema.json"
+}

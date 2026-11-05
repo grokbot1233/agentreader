@@ -1,0 +1,17 @@
+{
+  "name": "us-sec-edgar-snapshot",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Fast US SEC EDGAR company snapshot by ticker or CIK: identity, SIC, addresses, recent filings. Built for KYB, research agents and diligence workflows. Uses the free SEC data API with a polite User-Age",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "apify": "^3.7.0"
+  },
+  "scripts": {
+    "start": "node ./src/main.js"
+  },
+  "author": "Axiom Works <info@axiomworks.co.uk>",
+  "license": "Apache-2.0"
+}

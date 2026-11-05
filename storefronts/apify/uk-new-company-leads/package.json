@@ -1,0 +1,17 @@
+{
+  "name": "uk-new-company-leads",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Daily UK new-incorporation leads from the official Companies House register. Filter by SIC code, location or postcode area and optionally enrich with active director names. Built for sales teams, lend",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "apify": "^3.7.0"
+  },
+  "scripts": {
+    "start": "node ./src/main.js"
+  },
+  "author": "Axiom Works <info@axiomworks.co.uk>",
+  "license": "Apache-2.0"
+}

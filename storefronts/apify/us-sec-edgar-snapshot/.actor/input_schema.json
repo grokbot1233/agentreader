@@ -1,0 +1,27 @@
+{
+  "title": "US SEC EDGAR Snapshot",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "ticker": {
+      "title": "Ticker",
+      "type": "string",
+      "editor": "textfield",
+      "description": "e.g. AAPL"
+    },
+    "cik": {
+      "title": "CIK",
+      "type": "string",
+      "editor": "textfield",
+      "description": "optional if ticker given"
+    },
+    "maxFilings": {
+      "title": "Max recent filings",
+      "type": "integer",
+      "default": 10,
+      "minimum": 1,
+      "maximum": 50,
+      "description": "Max recent filings"
+    }
+  }
+}

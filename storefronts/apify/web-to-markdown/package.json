@@ -1,0 +1,19 @@
+{
+  "name": "web-to-markdown",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Fetch any public URL and return clean Markdown + metadata (title, description, links). Built for LLM/RAG pipelines and AI agents that need readable page content without raw HTML noise.",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "apify": "^3.7.0",
+    "linkedom": "^0.18.9",
+    "turndown": "^7.2.0"
+  },
+  "scripts": {
+    "start": "node ./src/main.js"
+  },
+  "author": "Axiom Works <info@axiomworks.co.uk>",
+  "license": "Apache-2.0"
+}

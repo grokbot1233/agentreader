@@ -1,0 +1,17 @@
+{
+  "name": "agent-kyb-check",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "One-shot KYB / due-diligence screening for AI agents and onboarding: website signals, UK Companies House profile + officers, and EU VIES VAT validation \u2192 composite trust flag (OK / REVIEW / FAIL). Scr",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "apify": "^3.7.0"
+  },
+  "scripts": {
+    "start": "node ./src/main.js"
+  },
+  "author": "Axiom Works <info@axiomworks.co.uk>",
+  "license": "Apache-2.0"
+}
