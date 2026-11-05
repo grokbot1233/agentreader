@@ -46,3 +46,8 @@ Already open (no new spam): punkpeye #18634, TensorBlock #5391, wong2 #2129/#213
 - x402.new featured $49 (no contact anyway)
 - Any further sponsor weeks
 x402-list ownership request_id=c674f682-d6de-4c40-aaa4-7a974b31c942 expires=2026-11-08T21:00:20Z
+
+## Extra: x402-list owner update (free)
+- Submitted request `c674f682-d6de-4c40-aaa4-7a974b31c942` — description refresh + 13 endpoints (uk-officer, kyb, sanctions*, uk-leads*, etc.)
+- Ownership **verified** 2026-11-05 ~21:01 UTC; now in **manual review** (email to bot inbox).
+- payTo still measured/read-only — still email info@x402-list.com for divergence (draft for Liam/parent).
