@@ -3,7 +3,7 @@ import { CANONICAL } from "./facilitator";
 const PREVIEW_LIMIT = 8; // per IP per UTC day across all preview kinds
 const PREVIEW_PREFIX = "prev:";
 
-export type PreviewKind = "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "uk-leads" | "uk-leads-lite" | "kyb" | "sanctions" | "sanctions-batch";
+export type PreviewKind = "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "uk-leads" | "uk-leads-lite" | "kyb" | "sanctions" | "sanctions-batch" | "uk-officer";
 
 const PRICE: Record<PreviewKind, string> = {
   read: "$0.002", links: "$0.001", check: "$0.001",
@@ -13,6 +13,7 @@ const PRICE: Record<PreviewKind, string> = {
   "us-sec": "$0.05", "us-sec-full": "$0.25", "eu-vat": "$0.01",
   "uk-leads": "$1.00", "uk-leads-lite": "$0.25", kyb: "$2.00",
   sanctions: "$0.05", "sanctions-batch": "$1.00",
+  "uk-officer": "$0.15",
 };
 
 const PAID_CALL: Record<PreviewKind, string> = {
@@ -31,6 +32,7 @@ const PAID_CALL: Record<PreviewKind, string> = {
   "eu-vat": `${CANONICAL}/eu-vat?vat=VAT`,
   "uk-leads": `${CANONICAL}/uk-leads?sic=62012`, "uk-leads-lite": `${CANONICAL}/uk-leads-lite?sic=62`, kyb: `${CANONICAL}/kyb?domain=tesco.com&number=00445790`,
   sanctions: `${CANONICAL}/sanctions?name=BANCO+NACIONAL+DE+CUBA`, "sanctions-batch": `${CANONICAL}/sanctions-batch`,
+  "uk-officer": `${CANONICAL}/uk-officer?name=Ken+Olisa`,
 };
 
 function dayKey() { return new Date().toISOString().slice(0, 10); }
@@ -207,7 +209,7 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         has_uk: !!data.uk && !data.uk.error,
         has_eu_vat: !!data.eu_vat && !data.eu_vat.error,
         has_sanctions: !!data.sanctions && !data.sanctions.error && !data.sanctions.skipped,
-        omitted: ["full website/uk/eu_vat/sanctions payloads — pay for complete pack"],
+        omitted: ["full website/uk/eu_vat/sanctions payloads - pay for complete pack"],
       };
     case "sanctions":
       return {
@@ -226,6 +228,23 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         possible_match_count: data.possible_match_count,
         results_preview: (data.results || []).slice(0, 2),
         omitted: ["full per-name match payloads"],
+      };
+    case "uk-officer":
+      return {
+        ...u,
+        product: data.product, disclaimer: data.disclaimer, query: data.query,
+        hits_total: data.hits_total, returned: data.returned,
+        officers_preview: (data.officers || []).slice(0, 2).map((o: any) => ({
+          name: o.name, appointment_count: o.appointment_count,
+          address_snippet: o.address_snippet,
+          date_of_birth: o.date_of_birth,
+          flags: (o.flags || []).slice(0, 2),
+          appointments_preview: (o.appointments || []).slice(0, 2).map((a: any) => ({
+            company_number: a.company_number, company_name: a.company_name, role: a.role, status: a.status,
+          })),
+        })),
+        omitted: ["full officer list beyond 2", "full appointment lists"],
+        attribution: data.attribution,
       };
     default:
       return { ...u, error: "unknown preview kind" };
@@ -246,6 +265,17 @@ export const STATIC_SAMPLES: Record<string, any> = {
   kyb: {
     product: "kyb", trust: { flag: "CLEAR", score: 85, reasons: ["UK company status active", "website research completed"] },
     disclaimer: "Screening over public registries and public sanctions lists only. Not a regulated KYC/KYB/AML determination.",
+  },
+  "uk-officer": {
+    product: "uk-officer", query: { name: "Ken Olisa", limit: 10 }, hits_total: 3, returned: 2,
+    disclaimer: "Public Companies House register data (OGL). Screening/research aid only - not a credit check.",
+    officers: [
+      { name: "Sir Kenneth Aphunezi OLISA", appointment_count: 49, address_snippet: "London", date_of_birth: { month: 10, year: 1951 },
+        flags: [{ flag: "elevated_appointment_count", severity: "low" }],
+        appointments: [{ company_number: "123", company_name: "Example Ltd", role: "director", status: "active" }] },
+      { name: "Ken OLISA", appointment_count: 1, appointments: [] },
+    ],
+    attribution: "Contains public sector information licensed under the Open Government Licence v3.0.",
   },
   sanctions: {
     product: "sanctions", possible_match: true, match_count: 1, highest_score: 1,

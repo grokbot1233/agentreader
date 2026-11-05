@@ -148,6 +148,10 @@ export class AgentReaderClient {
   ukCompanyLite(input: { number?: string; name?: string }, opts?: RequestOpts) {
     return this.get("/uk-company-lite", input, opts);
   }
+  /** Reverse-search a UK Companies House officer name → appointments ($0.15). */
+  ukOfficer(input: { name: string; limit?: number | string }, opts?: RequestOpts) {
+    return this.get("/uk-officer", input as any, opts);
+  }
   companyFull(input: { domain: string }, opts?: RequestOpts) {
     return this.get("/company-full", input, opts);
   }

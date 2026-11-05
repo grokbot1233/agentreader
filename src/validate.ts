@@ -49,6 +49,7 @@ export const VALIDATE: Record<string, (b: any) => string | null> = {
   "/kyb": (b) => kyb(b),
   "/sanctions": (b) => sanctions(b),
   "/sanctions-batch": (b) => sanctionsBatch(b),
+  "/uk-officer": (b) => officer(b),
 };
 
 function sec(b: any) {
@@ -110,6 +111,14 @@ function sanctionsBatch(b: any) {
   }
   return null;
 }
+
+function officer(b: any) {
+  const n = s(b.name);
+  if (n.length < 2) return "missing name (2-100 chars)";
+  if (n.length > 100) return "name max 100 chars";
+  if (s(b.limit) && !(Number(b.limit) >= 1 && Number(b.limit) <= 25)) return "limit must be 1-25";
+  return null;
+}
 function kyb(b: any) {
   const domain = s(b.domain), number = s(b.number), name = s(b.name), vat = s(b.vat);
   if (!domain && !number && !name && !vat && !(s(b.country) && s(b.vat_number))) return "provide domain and/or UK number/name and/or EU vat";
@@ -121,4 +130,4 @@ function kyb(b: any) {
 
 export const TOOL_PATH: Record<string, string> = { read_url: "/read", extract_links: "/links", check_domain: "/check", company_research: "/company", uk_company: "/uk-company", uk_company_lite: "/uk-company-lite",
   company_full: "/company-full", convert_document: "/convert", create_monitor: "/monitor", wallet_balances: "/wallet", tx_status: "/tx", token_check: "/token-check", fx_rates: "/fx",
-  ens_lookup: "/ens", token_metadata: "/token", token_allowance: "/allowance", contract_info: "/contract", gas_fees: "/gas", block_lookup: "/block", nft_lookup: "/nft", web_search: "/search", uk_property_prices: "/uk-property", uk_area_profile: "/uk-area", uk_charity: "/uk-charity", uk_charity_full: "/uk-charity-full", us_sec: "/us-sec", us_sec_full: "/us-sec-full", eu_vat: "/eu-vat", uk_leads: "/uk-leads", uk_leads_lite: "/uk-leads-lite", uk_leads_feed: "/uk-leads-feed", uk_watch: "/uk-watch", kyb_report: "/kyb", sanctions_screen: "/sanctions", sanctions_batch: "/sanctions-batch" };
+  ens_lookup: "/ens", token_metadata: "/token", token_allowance: "/allowance", contract_info: "/contract", gas_fees: "/gas", block_lookup: "/block", nft_lookup: "/nft", web_search: "/search", uk_property_prices: "/uk-property", uk_area_profile: "/uk-area", uk_charity: "/uk-charity", uk_charity_full: "/uk-charity-full", us_sec: "/us-sec", us_sec_full: "/us-sec-full", eu_vat: "/eu-vat", uk_leads: "/uk-leads", uk_leads_lite: "/uk-leads-lite", uk_leads_feed: "/uk-leads-feed", uk_watch: "/uk-watch", kyb_report: "/kyb", sanctions_screen: "/sanctions", sanctions_batch: "/sanctions-batch", uk_officer: "/uk-officer" };
