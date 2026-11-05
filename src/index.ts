@@ -962,8 +962,37 @@ app.post("/monitor", async (c) => {
 });
 app.notFound((c) => c.json({ error: "not found", see: "/llms.txt" }, 404));
 
+// Explorer-style path aliases -> canonical paid routes (same x402 price/challenge). e.g. /tx/0xabc -> /tx?hash=0xabc
+const ALIASES: [RegExp, string, (m: RegExpMatchArray) => Record<string, string>][] = [
+  [/^\/(?:tx|transaction)\/(0x[0-9a-fA-F]{64})$/, "/tx", (m) => ({ hash: m[1] })],
+  [/^\/ens\/(0x[0-9a-fA-F]{40})$/, "/ens", (m) => ({ address: m[1] })],
+  [/^\/(?:ens|name)\/([^\/\s]+\.[^\/\s]+)$/, "/ens", (m) => ({ name: decodeURIComponent(m[1]) })],
+  [/^\/(?:contract|code)\/(0x[0-9a-fA-F]{40})$/, "/contract", (m) => ({ address: m[1] })],
+  [/^\/(?:wallet|address|balance)\/(0x[0-9a-fA-F]{40})$/, "/wallet", (m) => ({ address: m[1] })],
+  [/^\/token\/(0x[0-9a-fA-F]{40})$/, "/token", (m) => ({ address: m[1] })],
+  [/^\/token-check\/(0x[0-9a-fA-F]{40})$/, "/token-check", (m) => ({ address: m[1] })],
+  [/^\/block\/(\d+|0x[0-9a-fA-F]+|latest|safe|finalized)$/, "/block", (m) => ({ number: m[1] })],
+  [/^\/nft\/(0x[0-9a-fA-F]{40})\/(\d{1,78})$/, "/nft", (m) => ({ contract: m[1], token_id: m[2] })],
+  [/^\/gas\/([a-z]+)$/, "/gas", (m) => ({ chain: m[1] })],
+  [/^\/(?:check|domain)\/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/, "/check", (m) => ({ domain: m[1] })],
+  [/^\/uk-company\/([A-Za-z0-9]{8})$/, "/uk-company", (m) => ({ number: m[1].toUpperCase() })],
+  [/^\/uk-charity\/(\d{6,8}(?:\/\d{1,2})?)$/, "/uk-charity", (m) => ({ number: m[1] })],
+  [/^\/us-sec\/(\d{1,10})$/, "/us-sec", (m) => ({ cik: m[1] })],
+  [/^\/us-sec\/([A-Za-z][A-Za-z0-9.\-]{0,9})$/, "/us-sec", (m) => ({ ticker: m[1].toUpperCase() })],
+  [/^\/eu-vat\/([A-Za-z]{2}[A-Za-z0-9]{2,14})$/, "/eu-vat", (m) => ({ vat: m[1].toUpperCase() })],
+];
+export function rewriteAlias(req: Request): Request {
+  const u = new URL(req.url);
+  for (const [re, to, f] of ALIASES) {
+    const m = u.pathname.match(re); if (!m) continue;
+    const q = f(m); for (const [k, v] of Object.entries(q)) if (!u.searchParams.has(k)) u.searchParams.set(k, v);
+    u.pathname = to; return new Request(u.toString(), req);
+  }
+  return req;
+}
+
 export default {
-  fetch: app.fetch,
+  fetch: (req: Request, env: Env, ctx: ExecutionContext) => app.fetch(rewriteAlias(req), env, ctx),
   async scheduled(_event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
     ctx.waitUntil(runMonitors(env).then((r) => console.log("monitors", r)).catch((e) => console.log("monitors error", e)));
     ctx.waitUntil(runUkWatches(env).then((r) => console.log("uk-watch", r)).catch((e) => console.log("uk-watch error", e)));

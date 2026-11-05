@@ -185,3 +185,6 @@ MIT licensed.
 | `/wallet`, `/tx`, `/token-check`, `/fx` | wallet_balances, tx_status, token_check, fx_rates | $0.003, $0.003, $0.01, $0.002 |
 
 All support `?preview=1` (free, truncated, 8/IP/day). Edge-cached per input (10 s gas … 1 h token metadata) with multi-provider RPC fallback.
+
+### Path aliases
+Explorer-style paths map to the same paid routes/prices: `/tx/:hash`, `/ens/:name|:address`, `/contract/:address`, `/wallet/:address` (`/address/`, `/balance/`), `/token/:address`, `/token-check/:address`, `/block/:number`, `/nft/:contract/:id`, `/gas/:chain`, `/check/:domain`, `/uk-company/:number`, `/uk-charity/:number`, `/us-sec/:ticker|:cik`, `/eu-vat/:vat`. Add `?chain=` / `?preview=1` as usual.
