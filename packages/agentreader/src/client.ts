@@ -152,6 +152,10 @@ export class AgentReaderClient {
   ukOfficer(input: { name: string; limit?: number | string }, opts?: RequestOpts) {
     return this.get("/uk-officer", input as any, opts);
   }
+  /** Batch verify up to 25 UK (max 10) / AU / CA company ids, comma-separated ($0.30). */
+  registryBatch(input: { uk?: string; au?: string; ca?: string }, opts?: RequestOpts) {
+    return this.get("/registry-batch", input as any, opts);
+  }
   /** Canadian federal corporation lookup (Corporations Canada) by number or BN ($0.02). */
   caCompany(input: { number?: string; bn?: string }, opts?: RequestOpts) {
     return this.get("/ca-company", input as any, opts);

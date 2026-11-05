@@ -20,8 +20,8 @@ export const UPSELL: Record<string, string> = {
   "/uk-area": "Property prices for the postcode: /uk-property $0.01.",
   "/kyb": "Screen extra names: /sanctions $0.05 (OFAC/UK/UN/EU); batch <=50: /sanctions-batch $1; officer appointments: /uk-officer $0.15.",
   "/sanctions": "Full KYB pack (UK+VAT+domain+sanctions): /kyb $2; many names: /sanctions-batch $1 (<=50); UK officer appointments: /uk-officer $0.15.",
-  "/au-company": "Many companies: /registry-batch $0.25 (<=25 AU+CA ids); sanctions screen: /sanctions $0.05.",
-  "/ca-company": "Many companies: /registry-batch $0.25 (<=25 AU+CA ids); sanctions screen: /sanctions $0.05.",
+  "/au-company": "Many companies: /registry-batch $0.30 (<=25 UK+AU+CA ids); sanctions screen: /sanctions $0.05.",
+  "/ca-company": "Many companies: /registry-batch $0.30 (<=25 UK+AU+CA ids); sanctions screen: /sanctions $0.05.",
   "/registry-batch": "Screen the directors/names: /sanctions-batch $1 (<=50).",
   "/sanctions-batch": "Single name: /sanctions $0.05; onboarding pack: /kyb $2.",
 };

@@ -80,6 +80,13 @@ export const TOOLS: ToolDef[] = [
     http: (a) => `${ORIGIN}/uk-officer?name=${encodeURIComponent(a.name)}${a.limit ? `&limit=${encodeURIComponent(a.limit)}` : ""}`,
   },
   {
+    name: "registry_batch",
+    description: "Batch verify up to 25 UK (Companies House, max 10), Australian (ACN/ABN) and Canadian (number/BN) companies in one call; comma-separated ids. $0.30 USDC.",
+    price: "$0.30",
+    schema: { uk: z.string().optional(), au: z.string().optional(), ca: z.string().optional() },
+    http: (a) => `${ORIGIN}/registry-batch?${new URLSearchParams(Object.entries(a).filter(([, v]) => v) as any)}`,
+  },
+  {
     name: "ca_company",
     description: "Canadian federal corporation lookup (Corporations Canada, ~697k active) by corporation number or 9-digit Business Number: legal name, governing act, status, filings, registered office, directors. $0.02 USDC.",
     price: "$0.02",

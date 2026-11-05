@@ -168,14 +168,15 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       const r = await env.AU.fetch(`https://au.internal/internal/ca?${q}`, { headers: { "x-internal-key": env.AU_INTERNAL_KEY || "" } });
       return json(await r.json()); } catch (e) { return err(e); } }) as any);
   server.tool("registry_batch",
-    "Use this to verify up to 25 Australian (ACN/ABN) and Canadian (corp number/BN) companies in one call (~$0.01 each): name, status, type, dates. Comma-separated ids. $0.25 USDC.",
-    { au: z.string().optional(), ca: z.string().optional() },
-    (await mk("$0.25", "registry_batch", 250000))(async (a: any) => { try {
+    "Use this to verify up to 25 UK (Companies House, max 10), Australian (ACN/ABN) and Canadian (corp number/BN) companies in one call: name, status, type, dates, UK red flags. Comma-separated ids. $0.30 USDC.",
+    { uk: z.string().optional(), au: z.string().optional(), ca: z.string().optional() },
+    (await mk("$0.30", "registry_batch", 300000))(async (a: any) => { try {
       const sp = (v: any) => String(v || "").split(/[\s,;]+/).map((x) => x.replace(/\D/g, "")).filter(Boolean);
-      const au = sp(a.au), ca = sp(a.ca); if (!au.length && !ca.length) throw new Error("au or ca ids required"); if (au.length + ca.length > 25) throw new Error("max 25 ids");
+      const au = sp(a.au), ca = sp(a.ca), uk = String(a.uk || "").split(/[\s,;]+/).map((x) => x.toUpperCase().replace(/[^A-Z0-9]/g, "")).filter(Boolean); if (!au.length && !ca.length && !uk.length) throw new Error("uk, au or ca ids required"); if (uk.length > 10 || au.length + ca.length + uk.length > 25) throw new Error("max 25 ids (uk max 10)");
       const h = { headers: { "x-internal-key": env.AU_INTERNAL_KEY || "" } };
       const one = async (c: string, id: string) => { const q = c === "AU" ? `au?acn=${id.length === 11 ? id.slice(2) : id}` : `ca?${id.length === 9 ? "bn" : "number"}=${id}`; const r = await env.AU.fetch(`https://au.internal/internal/${q}`, h); return { country: c, id, found: r.ok, data: r.ok ? await r.json() : null }; };
-      const results = await Promise.all([...au.map((i) => one("AU", i)), ...ca.map((i) => one("CA", i))]);
+      const ukOne = async (id: string) => { try { return { country: "UK", id, found: true, data: await ukCompany(env, { number: id.padStart(8, "0"), lite: true }) }; } catch (e: any) { return { country: "UK", id, found: false, error: e?.message }; } };
+      const results = await Promise.all([...uk.map(ukOne), ...au.map((i) => one("AU", i)), ...ca.map((i) => one("CA", i))]);
       return json({ count: results.length, found: results.filter((r) => r.found).length, results }); } catch (e) { return err(e); } }) as any);
   server.tool("fx_rates",
     "Use this for official ECB currency exchange rates (~30 fiat incl GBP/EUR/USD/JPY), latest or a historical date (YYYY-MM-DD), with optional amount conversion. $0.002 USDC.",
@@ -220,7 +221,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       token_check: { price: "$0.01", when: "ERC20 token risk/liquidity" },
       fx_rates: { price: "$0.002", when: "ECB fiat FX rates" },
       au_company: { price: "$0.02", when: "Australian ASIC company lookup by ACN/ABN" },
-      registry_batch: { price: "$0.25", when: "Batch up to 25 AU+CA company ids" },
+      registry_batch: { price: "$0.30", when: "Batch up to 25 UK+AU+CA company ids" },
       ca_company: { price: "$0.02", when: "Canadian federal corporation lookup by number/BN" },
       ens_lookup: { price: "$0.002", when: "ENS name <-> address" }, token_metadata: { price: "$0.001", when: "ERC20 name/symbol/decimals/supply" },
       token_allowance: { price: "$0.002", when: "ERC20 approval check" }, contract_info: { price: "$0.003", when: "proxy/clone/standards/verified name" },
