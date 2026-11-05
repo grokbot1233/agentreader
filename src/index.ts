@@ -17,6 +17,8 @@ import { createMonitor, getMonitor, runMonitors } from "./monitor";
 import { checkPreviewQuota, clientIp, truncateSample, STATIC_SAMPLES, type PreviewKind } from "./previews";
 import { handleMcp } from "./mcp";
 import { facilitatorClient, CANONICAL, CONTACT } from "./facilitator";
+import EXAMPLES from "./examples.json";
+import { v1Reqs, v1Body, decodeV1, handleV1 } from "./v1";
 import { dashboardHtml } from "./dashboard";
 import { wallet, tx, tokenCheck, fx, CHAINS } from "./onchain";
 import { ens, tokenMeta, allowance, contractInfo, gas, block, nft } from "./micro";
@@ -238,8 +240,8 @@ function routes(payTo: string) {
   for (const p of Object.keys(PRICES) as (keyof typeof PRICES)[]) {
     for (const method of METHODS[p]) {
       const ext = method === "GET"
-        ? declareDiscoveryExtension({ input: EX[p], inputSchema: IN[p], output: { schema: OUT[p] } } as any)
-        : declareDiscoveryExtension({ input: EX[p], inputSchema: IN[p], bodyType: "json", output: { schema: OUT[p] } } as any);
+        ? declareDiscoveryExtension({ input: EX[p], inputSchema: IN[p], output: { schema: OUT[p], example: (EXAMPLES as any)[p] } } as any)
+        : declareDiscoveryExtension({ input: EX[p], inputSchema: IN[p], bodyType: "json", output: { schema: OUT[p], example: (EXAMPLES as any)[p] } } as any);
       r[`${method} ${p}`] = {
         accepts: [{ scheme: "exact", price: PRICES[p], network: NETWORK, payTo, maxTimeoutSeconds: 120 }],
         description: DESC[p], mimeType: "application/json", extensions: { ...ext },
@@ -292,7 +294,7 @@ app.get("/.well-known/agent.json", (c) => {
   return c.json({
     name: "Axiom Works AgentReader", description: "x402 pay-per-call web reader, company research, UK Companies House + Charity Commission + US SEC EDGAR + EU VIES VAT due diligence, document conversion, change monitoring, EVM wallet/tx/token risk checks and ECB FX rates for AI agents.",
     url: b, provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk", email: CONTACT },
-    version: "1.7.0", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
+    version: "1.7.1", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     skills: Object.entries(PRICES).map(([p, price]) => ({ id: p.slice(1), name: p, description: DESC[p], price, endpoint: `${b}${p}` })),
     mcp: `${b}/mcp`, payments: { protocol: "x402", network: NETWORK, asset: USDC, payTo: c.env.PAY_TO },
   });
@@ -312,7 +314,7 @@ app.get("/openapi.json", (c) => {
   paths["/monitor/{id}"] = { get: { summary: "Free monitor status (id is the secret)", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { "200": { description: "Monitor status" }, "404": { description: "Not found" } }, "x-price": "free" } };
   paths["/samples/{kind}"] = { get: { summary: "Free truncated sample (rate-limited 8/IP/day) with x402 upsell", parameters: [{ name: "kind", in: "path", required: true, schema: { type: "string", enum: ["read","company","uk-company","uk-company-lite","convert","uk-charity","uk-charity-full","us-sec","us-sec-full","eu-vat"] } }], responses: { "200": { description: "Truncated sample" }, "429": { description: "Preview quota exceeded" } }, "x-price": "free" } };
   paths["/hooks/sink"] = { post: { summary: "Free webhook test sink for /monitor", responses: { "200": { description: "Stored" } }, "x-price": "free" } };
-  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.7.0", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, company research, UK due diligence, document conversion, change monitoring. Payments: USDC on Base mainnet (eip155:8453)." },
+  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.7.1", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, company research, UK due diligence, document conversion, change monitoring. Payments: USDC on Base mainnet (eip155:8453)." },
     servers: [{ url: b }], paths });
 });
 const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
@@ -366,6 +368,9 @@ HTTP 402 + PAYMENT-REQUIRED header (x402 v2). Retry with PAYMENT-SIGNATURE (@x40
 - MCP stdio: npx -y @axiomworks/agentreader-mcp — Claude Desktop / Cursor / Claude Code (set AGENTREADER_PRIVATE_KEY)
 - npm: https://www.npmjs.com/package/@axiomworks/agentreader · https://www.npmjs.com/package/@axiomworks/agentreader-mcp
 - Dashboard: ${b}/dashboard · Landing: https://grokbot1233.github.io/agentreader/
+
+## Clients
+x402 v2 (PAYMENT-REQUIRED header; @x402/fetch, @x402/axios, Python x402>=2, @x402/mcp) and legacy v1 (402 JSON body + X-PAYMENT; x402-fetch, x402-axios, older AgentKit) both settle. Free ?preview=1 on GET routes.
 
 ## Contact
 ${CONTACT} · https://github.com/grokbot1233/agentreader · examples/ in repo
@@ -505,17 +510,28 @@ for (const p of Object.keys(PRICES)) app.use(p, async (c, next) => {
   if (e) return c.json({ error: e, free: true, note: "Input rejected before payment; you were not charged.", example: EX[p], example_call: `${CANONICAL}${p}?${new URLSearchParams(EX[p])}` }, 400);
   return next();
 });
-// Paid routes: payment middleware first, except ?preview=1 (free truncated).
+// Paid routes: payment middleware first, except ?preview=1 (free truncated). v1 X-PAYMENT handled by ./v1; 402 body carries v1 accepts.
+async function paid(c: any, next: any, p: string) {
+  const req = v1Reqs({ url: `${CANONICAL}${p}`, method: c.req.method === "POST" ? "POST" : "GET", atomic: ATOMIC[p], desc: DESC[p], payTo: c.env.PAY_TO, input: IN[p]?.properties || IN[p], output: { example: (EXAMPLES as any)[p], schema: OUT[p] } });
+  const v1 = decodeV1(c.req.header("x-payment"));
+  if (v1) return handleV1(c, next, v1, req, (r) => logPay(c.env, r));
+  const out = await getMw(c.env)(c, next); const res: Response = out instanceof Response ? out : c.res;
+  if (res.status === 402 && res.headers.get("payment-required")) {
+    const h = new Headers(res.headers); h.set("content-type", "application/json");
+    return new Response(JSON.stringify({ ...v1Body(req), x402_v2: "see PAYMENT-REQUIRED header (base64 JSON)", example_call: `${CANONICAL}${p}?${new URLSearchParams(EX[p])}`, free_preview: c.req.method === "GET" ? `${CANONICAL}${p}?${new URLSearchParams(EX[p])}&preview=1` : undefined }), { status: 402, headers: h });
+  }
+  return out;
+}
 for (const p of Object.keys(PRICES)) {
   if (p === "/monitor") {
     app.use("/monitor", async (c, next) => {
       if (c.req.method !== "POST" || c.req.path !== "/monitor") return next();
-      return getMw(c.env)(c, next);
+      return paid(c, next, p);
     });
   } else {
     app.use(p, async (c, next) => {
       if (c.req.query("preview") === "1" && c.req.method === "GET") return next(); // handler serves truncated preview
-      return getMw(c.env)(c, next);
+      return paid(c, next, p);
     });
   }
 }
