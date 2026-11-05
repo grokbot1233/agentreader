@@ -403,6 +403,13 @@ app.get("/.well-known/agent.json", (c) => {
     mcp: `${b}/mcp`, payments: { protocol: "x402", network: NETWORK, asset: USDC, payTo: c.env.PAY_TO },
   });
 });
+const ALIAS_DOCS: [string, string, string[]][] = [
+  ["/tx/{hash}", "/tx", ["hash"]], ["/ens/{name}", "/ens", ["name"]], ["/contract/{address}", "/contract", ["address"]],
+  ["/wallet/{address}", "/wallet", ["address"]], ["/address/{address}", "/wallet", ["address"]], ["/token/{address}", "/token", ["address"]],
+  ["/token-check/{address}", "/token-check", ["address"]], ["/block/{number}", "/block", ["number"]], ["/nft/{contract}/{token_id}", "/nft", ["contract", "token_id"]],
+  ["/gas/{chain}", "/gas", ["chain"]], ["/check/{domain}", "/check", ["domain"]], ["/uk-company/{number}", "/uk-company", ["number"]],
+  ["/uk-charity/{number}", "/uk-charity", ["number"]], ["/us-sec/{ticker}", "/us-sec", ["ticker"]], ["/eu-vat/{vat}", "/eu-vat", ["vat"]],
+];
 app.get("/openapi.json", (c) => {
   const b = base(c); const paths: any = {};
   for (const [p, price] of Object.entries(PRICES)) {
@@ -419,6 +426,9 @@ app.get("/openapi.json", (c) => {
   paths["/uk-watch/{id}"] = { get: { summary: "Free UK company-watch status (id is the secret)", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { "200": { description: "Watch status" }, "404": { description: "Not found" } }, "x-price": "free" } };
   paths["/monitor/{id}"] = { get: { summary: "Free monitor status (id is the secret)", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { "200": { description: "Monitor status" }, "404": { description: "Not found" } }, "x-price": "free" } };
   paths["/samples/{kind}"] = { get: { summary: "Free truncated sample (rate-limited 8/IP/day) with x402 upsell", parameters: [{ name: "kind", in: "path", required: true, schema: { type: "string", enum: ["read","company","uk-company","uk-company-lite","convert","uk-charity","uk-charity-full","us-sec","us-sec-full","eu-vat","uk-leads","uk-leads-lite","kyb","uk-officer"] } }], responses: { "200": { description: "Truncated sample" }, "429": { description: "Preview quota exceeded" } }, "x-price": "free" } };
+  for (const [ap, to, ks] of ALIAS_DOCS) { const price = PRICES[to];
+    paths[ap] = { get: { summary: `Path alias of ${to} (same price/x402 challenge). ${DESC[to] || ""}`, parameters: [...ks.map((k) => ({ name: k, in: "path", required: true, schema: { type: "string" } })), { name: "chain", in: "query", required: false, schema: { type: "string" } }, { name: "preview", in: "query", required: false, schema: { type: "string", enum: ["1"] } }],
+      responses: { "200": { description: "Success", content: { "application/json": { schema: OUT[to] } } }, "402": { description: `Payment required: ${price} USDC on Base (x402)` } }, "x-price": price, "x-alias-of": to } }; }
   paths["/hooks/sink"] = { post: { summary: "Free webhook test sink for /monitor", responses: { "200": { description: "Stored" } }, "x-price": "free" } };
   return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.12.0", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, company research, UK due diligence, document conversion, change monitoring. Payments: USDC on Base mainnet (eip155:8453)." },
     servers: [{ url: b }], paths });
@@ -493,6 +503,8 @@ HTTP 402 + PAYMENT-REQUIRED header (x402 v2). Retry with PAYMENT-SIGNATURE (@x40
 
 ## Clients
 x402 v2 (PAYMENT-REQUIRED header; @x402/fetch, @x402/axios, Python x402>=2, @x402/mcp) and legacy v1 (402 JSON body + X-PAYMENT; x402-fetch, x402-axios, older AgentKit) both settle. Free ?preview=1 on GET routes.
+
+Explorer-style path aliases (same price + x402 challenge as the canonical route): ${ALIAS_DOCS.map(([a, t]) => `${b}${a} (= ${t})`).join(", ")}. Add ?chain=base|ethereum|... as needed.
 
 ## Contact
 ${CONTACT} · https://github.com/grokbot1233/agentreader · examples/ in repo
