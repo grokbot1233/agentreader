@@ -73,6 +73,20 @@ export const TOOLS: ToolDef[] = [
     previewable: true,
   },
   {
+    name: "uk_officer",
+    description: "Reverse-search a UK Companies House officer/director name -> their appointments. $0.15 USDC.",
+    price: "$0.15",
+    schema: { name: z.string(), limit: z.string().optional() },
+    http: (a) => `${ORIGIN}/uk-officer?name=${encodeURIComponent(a.name)}${a.limit ? `&limit=${encodeURIComponent(a.limit)}` : ""}`,
+  },
+  {
+    name: "au_company",
+    description: "Australian company lookup (ASIC register, ~4M companies) by ACN or ABN: name, type, status, registration date. $0.02 USDC.",
+    price: "$0.02",
+    schema: { acn: z.string().optional(), abn: z.string().optional() },
+    http: (a) => a.acn ? `${ORIGIN}/au-company?acn=${encodeURIComponent(a.acn)}` : `${ORIGIN}/au-company?abn=${encodeURIComponent(a.abn || "")}`,
+  },
+  {
     name: "uk_company_lite",
     description: "Cheap UK company snapshot: status, compliance, red flags. $0.05 USDC.",
     price: "$0.05",

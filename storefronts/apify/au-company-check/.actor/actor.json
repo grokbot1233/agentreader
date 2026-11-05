@@ -1,0 +1,24 @@
+{
+  "$schema": "https://apify.com/schemas/v1/actor.ide.json",
+  "actorSpecification": 1,
+  "name": "au-company-check",
+  "title": "Australian Company Lookup (ASIC) \u2014 ACN, ABN or Name",
+  "description": "Look up any of ~4M Australian companies from the official ASIC Company Dataset by ACN, ABN or name: registered name, type, class, status, registration/deregistration dates. Batch input, KYB-ready JSON.",
+  "version": "1.0",
+  "buildTag": "latest",
+  "meta": {
+    "templateId": "js-empty",
+    "generatedBy": "axiom-works"
+  },
+  "dockerfile": "../Dockerfile",
+  "categories": [
+    "BUSINESS",
+    "AI",
+    "ECOMMERCE"
+  ],
+  "inputSchema": "./input_schema.json",
+  "output": "./output_schema.json",
+  "storages": {
+    "dataset": "./dataset_schema.json"
+  }
+}

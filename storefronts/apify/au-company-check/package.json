@@ -1,0 +1,17 @@
+{
+  "name": "au-company-check",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Look up any of ~4M Australian companies from the official ASIC Company Dataset by ACN, ABN or name: registered name, type, class, status, registration/deregistration dates. Batch input, KYB-ready JSON.",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "apify": "^3.7.0"
+  },
+  "scripts": {
+    "start": "node ./src/main.js"
+  },
+  "author": "Axiom Works <info@axiomworks.co.uk>",
+  "license": "Apache-2.0"
+}
