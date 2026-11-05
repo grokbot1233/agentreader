@@ -13,6 +13,15 @@ import { createMonitor } from "./monitor";
 import { wallet, tx, tokenCheck, fx } from "./onchain";
 import { ens, tokenMeta, allowance, contractInfo, gas, block, nft } from "./micro";
 import { MICRO_DESC } from "./micro-desc";
+import { VALIDATE, TOOL_PATH } from "./validate";
+import { search } from "./search";
+import { ukProperty, ukArea } from "./ukdata";
+const EXAMPLES: Record<string, any> = { "/read": { url: "https://example.com" }, "/links": { url: "https://example.com" }, "/check": { domain: "example.com" }, "/company": { domain: "stripe.com" }, "/company-full": { domain: "tesco.com" },
+  "/uk-company": { number: "00445790" }, "/uk-company-lite": { number: "00445790" }, "/convert": { url: "https://example.com/doc.pdf" }, "/monitor": { url: "https://example.com", webhook: "https://your.app/hook" },
+  "/wallet": { address: "0x88b1c747c33A5868A34057D8C57318E5602b3ff6" }, "/tx": { hash: "0x" + "ab".repeat(32) }, "/token-check": { address: "0x940181a94A35A4569E4529A3CDfB74e38FD98631" }, "/token": { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" },
+  "/contract": { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" }, "/fx": { base: "GBP", symbols: "USD,EUR" }, "/ens": { name: "vitalik.eth" }, "/allowance": { token: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", owner: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045", spender: "0x000000000022D473030F116dDEE9F6B43aC78BA3" },
+  "/gas": { chain: "base" }, "/block": { timestamp: "2026-01-01T00:00:00Z" }, "/nft": { contract: "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D", token_id: "1", chain: "ethereum" },
+  "/search": { q: "x402 agent payments" }, "/uk-property": { postcode: "CB1 2AB" }, "/uk-area": { postcode: "SW1A 2AA" } };
 
 const NETWORK = "eip155:8453";
 let rs: any = null; let ready: Promise<any> | null = null;
@@ -24,14 +33,18 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
     ready = rs.initialize();
   }
   await ready;
-  const mk = async (price: string, tool: string, atomic: number) => createPaymentWrapper(rs, {
+  const mk = async (price: string, tool: string, atomic: number) => { const w: any = await mk0(price, tool, atomic); return (h: any) => { const paid = w(h); return async (a: any, extra: any) => {
+    const p = TOOL_PATH[tool]; const e = p && VALIDATE[p] ? VALIDATE[p](a || {}) : null;
+    if (e) return { isError: true, content: [{ type: "text" as const, text: JSON.stringify({ error: e, free: true, note: "Input rejected before payment; you were not charged.", example: EXAMPLES[p] || null }) }] };
+    return paid(a, extra); }; }; };
+  const mk0 = async (price: string, tool: string, atomic: number) => createPaymentWrapper(rs, {
     resource: { url: `mcp://tool/${tool}`, description: `Axiom Works AgentReader ${tool}`, mimeType: "application/json", serviceName: "Axiom Works AgentReader", tags: ["web", "scraping", "markdown", "dns", "company", "uk", "pdf", "monitor", "x402", "onchain", "wallet", "token", "fx"] },
     accepts: await rs.buildPaymentRequirements({ scheme: "exact", network: NETWORK, payTo: env.PAY_TO, price, maxTimeoutSeconds: 120 }),
     hooks: { onAfterSettlement: async ({ settlement }: any) => {
       await log({ endpoint: `mcp:${tool}`, payer: settlement?.payer || null, amount: settlement?.amount || String(atomic), network: settlement?.network, tx: settlement?.transaction, success: settlement?.success });
     } },
   } as any);
-  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.4.0" });
+  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.5.0" });
   const json = (d: any) => ({ content: [{ type: "text" as const, text: JSON.stringify(d) }] });
   const err = (e: any) => ({ isError: true, content: [{ type: "text" as const, text: String(e?.message || e) }] });
 
@@ -111,6 +124,9 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
     ["gas_fees", "$0.001", 1000, { chain: chainZ }, gas],
     ["block_lookup", "$0.001", 1000, { number: z.string().optional(), timestamp: z.string().optional(), chain: chainZ }, block],
     ["nft_lookup", "$0.002", 2000, { contract: z.string(), token_id: z.string(), chain: chainZ }, nft],
+    ["web_search", "$0.003", 3000, { q: z.string(), sources: z.string().optional(), limit: z.string().optional(), lang: z.string().optional() }, search],
+    ["uk_property_prices", "$0.01", 10000, { postcode: z.string(), radius: z.string().optional(), limit: z.string().optional() }, ukProperty],
+    ["uk_area_profile", "$0.005", 5000, { postcode: z.string() }, ukArea],
   ];
   for (const [n, price, atomic, shape, fn] of MT)
     server.tool(n, MICRO_DESC[n], shape, (await mk(price, n, atomic))(async (a: any) => { try { return json(await fn(a)); } catch (e) { return err(e); } }) as any);
@@ -135,6 +151,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       ens_lookup: { price: "$0.002", when: "ENS name <-> address" }, token_metadata: { price: "$0.001", when: "ERC20 name/symbol/decimals/supply" },
       token_allowance: { price: "$0.002", when: "ERC20 approval check" }, contract_info: { price: "$0.003", when: "proxy/clone/standards/verified name" },
       gas_fees: { price: "$0.001", when: "current fees + USD cost" }, block_lookup: { price: "$0.001", when: "block by number or timestamp" }, nft_lookup: { price: "$0.002", when: "NFT owner + metadata" },
+      web_search: { price: "$0.003", when: "open research search (Wikipedia/OpenAlex/arXiv/Crossref)" }, uk_property_prices: { price: "$0.01", when: "E&W Land Registry sold prices near postcode" }, uk_area_profile: { price: "$0.005", when: "UK postcode geography/crime/food hygiene" },
       pricing: { price: "free" },
     },
     how: "Paid tools return x402 PaymentRequired; retry with _meta['x402/payment'] via @x402/mcp createx402MCPClient.",

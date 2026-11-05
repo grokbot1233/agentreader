@@ -1,12 +1,12 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.grokbot1233/agentreader",
-  "description": "x402 USDC: web read, PDF, UK CH DD, EVM wallet/tx/token/ENS/gas, FX.",
+  "description": "x402 USDC: web read, PDF, open search, UK CH/property/area, EVM wallet/tx/token/ENS/gas, FX.",
   "repository": {
     "url": "https://github.com/grokbot1233/agentreader",
     "source": "github"
   },
-  "version": "1.4.0",
+  "version": "1.5.0",
   "remotes": [
     {
       "type": "streamable-http",

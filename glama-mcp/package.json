@@ -1,6 +1,6 @@
 {
   "name": "agentreader-glama-mcp",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "private": true,
   "type": "module",
   "description": "Stdio MCP shim for Glama introspection; proxies to api.axiomworks.co.uk",

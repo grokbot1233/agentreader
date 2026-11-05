@@ -9,7 +9,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 
 const ORIGIN = process.env.AGENTREADER_ORIGIN || "https://api.axiomworks.co.uk";
-const VERSION = "1.4.0";
+const VERSION = "1.5.0";
 
 const qs = (a) => new URLSearchParams(Object.entries(a).filter(([, v]) => v != null && v !== "")).toString();
 const CH = z.enum(["base", "ethereum", "arbitrum", "optimism", "polygon"]).optional();
@@ -97,6 +97,9 @@ const TOOLS = [
   { name: "gas_fees", description: "Current gas fees + USD cost estimates. $0.001 USDC.", schema: { chain: CH }, http: (a) => `${ORIGIN}/gas?${qs(a)}` },
   { name: "block_lookup", description: "Block by number or timestamp. $0.001 USDC.", schema: { number: z.string().optional(), timestamp: z.string().optional(), chain: CH }, http: (a) => `${ORIGIN}/block?${qs(a)}` },
   { name: "nft_lookup", description: "NFT owner + metadata. $0.002 USDC.", schema: { contract: z.string(), token_id: z.string(), chain: CH }, http: (a) => `${ORIGIN}/nft?${qs(a)}` },
+  { name: "web_search", description: "Open research search: Wikipedia + OpenAlex + arXiv + Crossref merged, deduped, ranked with snippets. $0.003 USDC.", schema: { q: z.string(), sources: z.string().optional(), limit: z.string().optional() }, http: (a) => `${ORIGIN}/search?${qs(a)}` },
+  { name: "uk_property_prices", description: "England & Wales Land Registry sold prices near a postcode + medians. $0.01 USDC.", schema: { postcode: z.string(), radius: z.string().optional() }, http: (a) => `${ORIGIN}/uk-property?${qs(a)}` },
+  { name: "uk_area_profile", description: "UK postcode profile: ONS geography, police crime, FSA hygiene. $0.005 USDC.", schema: { postcode: z.string() }, http: (a) => `${ORIGIN}/uk-area?${qs(a)}` },
 ];
 
 function b64json(header) {

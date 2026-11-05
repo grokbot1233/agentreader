@@ -25,6 +25,9 @@
 | Gas / fees now | https://api.axiomworks.co.uk/gas?chain=base | $0.001 | EIP-1559 suggestion + USD cost estimates |
 | Block by number or time | https://api.axiomworks.co.uk/block?timestamp=2026-01-01 | $0.001 | Timestamp → block search |
 | NFT owner + metadata | https://api.axiomworks.co.uk/nft?contract=&token_id= | $0.002 | IPFS/Arweave resolved JSON |
+| Open research search | https://api.axiomworks.co.uk/search?q= | $0.003 | Wikipedia+OpenAlex+arXiv+Crossref merged/ranked |
+| UK house prices | https://api.axiomworks.co.uk/uk-property?postcode= | $0.01 | HM Land Registry Price Paid near postcode |
+| UK postcode profile | https://api.axiomworks.co.uk/uk-area?postcode= | $0.005 | ONS geography + police crime + FSA hygiene |
 | FX rates (ECB) | https://api.axiomworks.co.uk/fx?base=GBP&symbols=USD | $0.002 | Official ECB rates, history, conversion |
 | Hourly change alerts | POST https://api.axiomworks.co.uk/monitor | $1.00/30d | Webhook on change; GET /monitor/:id free |
 

@@ -7,4 +7,7 @@ export const MICRO_DESC: Record<string, string> = {
   gas_fees: "Use this before sending a transaction: base fee, priority-fee percentiles, suggested EIP-1559 maxFee/maxPriority, block utilisation and USD cost of a transfer, ERC20 transfer and swap." + C + " $0.001 USDC.",
   block_lookup: "Use this to fetch a block by number/latest/finalized, or find the last block at or before a timestamp (unix or ISO) for historical queries. Returns number, hash, time, tx count, base fee." + C + " $0.001 USDC.",
   nft_lookup: "Use this to look up one NFT: ERC721 owner, tokenURI and fetched JSON metadata (IPFS/Arweave/data URIs resolved), collection name/symbol." + C + " $0.002 USDC.",
+  web_search: "Use this for cheap research search over open sources: Wikipedia + OpenAlex + arXiv + Crossref, merged, deduplicated and ranked with snippets, authors, dates, DOIs, citations. Not a general web index. Pass q (and optional sources, limit). $0.003 USDC.",
+  uk_property_prices: "Use this for England & Wales house prices near a UK postcode: HM Land Registry Price Paid sales (address, price, date, type, tenure) within radius metres, plus medians. OGL. $0.01 USDC.",
+  uk_area_profile: "Use this for a UK postcode profile: ONS geography and codes, lat/lon, police street crime last month by category, FSA food hygiene mix nearby. OGL. $0.005 USDC.",
 };

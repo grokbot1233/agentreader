@@ -4,7 +4,7 @@ import { privateKeyToAccount } from "viem/accounts";
 import { wrapFetchWithPayment, x402Client, decodePaymentResponseHeader } from "@x402/fetch";
 import { ExactEvmScheme } from "@x402/evm/exact/client";
 const account = privateKeyToAccount(readFileSync(new URL("../.test_wallet_key", import.meta.url), "utf8").trim() as `0x${string}`);
-const client = new x402Client((_v: number, reqs: any[]) => { const r = reqs.find((x) => x.network === "eip155:8453" && BigInt(x.amount) <= 3000n); if (!r) throw new Error("cap"); return r; })
+const client = new x402Client((_v: number, reqs: any[]) => { const r = reqs.find((x) => x.network === "eip155:8453" && BigInt(x.amount) <= 10000n); if (!r) throw new Error("cap"); return r; })
   .register("eip155:8453", new ExactEvmScheme(account as any));
 const pay = wrapFetchWithPayment(fetch, client);
 const B = "https://api.axiomworks.co.uk";

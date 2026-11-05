@@ -103,6 +103,16 @@ MIT licensed.
 | `/gas?chain=` | gas_fees | $0.001 |
 | `/block?number=` or `?timestamp=` | block_lookup | $0.001 |
 | `/nft?contract=&token_id=` | nft_lookup | $0.002 |
+
+### Open search and UK official data (new in 1.5)
+
+| Route | MCP tool | Price | Sources |
+|---|---|---|---|
+| `/search?q=` | web_search | $0.003 | Wikipedia (CC BY-SA), OpenAlex (CC0), arXiv API, Crossref. Merged, deduplicated, ranked. Not a general web index. |
+| `/uk-property?postcode=` | uk_property_prices | $0.01 | HM Land Registry Price Paid (OGL v3) + postcodes.io |
+| `/uk-area?postcode=` | uk_area_profile | $0.005 | postcodes.io (ONS/OS), data.police.uk, FSA ratings (all OGL v3) |
+
+**Free validation:** every paid route and MCP tool validates input before payment. Bad input gets a free `400` with an error and an example. You are only asked to pay (`402`) for well-formed requests.
 | `/wallet`, `/tx`, `/token-check`, `/fx` | wallet_balances, tx_status, token_check, fx_rates | $0.003, $0.003, $0.01, $0.002 |
 
 All support `?preview=1` (free, truncated, 8/IP/day). Edge-cached per input (10 s gas … 1 h token metadata) with multi-provider RPC fallback.
