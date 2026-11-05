@@ -21,7 +21,7 @@ No API keys, no accounts. Agents pay per request in **USDC on Base mainnet** usi
 | `POST /monitor` | `create_monitor` | $1.00 / 30d | Hourly change monitor → webhook |
 | `GET /monitor/:id` | — | free | Monitor status (id is the secret) |
 
-Payment: x402 v2, scheme `exact`, network `eip155:8453`, asset USDC `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`, payTo `0xB1A4e2C441fa896AF010222659AAbBb71E9Ef1D1`, facilitator: Coinbase CDP (Bazaar indexing), PayAI fallback. Mirror: https://agentreader.yasirawouda1.workers.dev · Payers sign EIP-3009 — **no ETH gas needed**.
+Payment: x402 v2, scheme `exact`, network `eip155:8453`, asset USDC `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`, payTo `0x560d1dbb6e973082EBd20D340EAd3a198452b3Ec` (AgentReader treasury, self-custody; swept to the operator's Coinbase account in batches), facilitator: Coinbase CDP (Bazaar indexing), PayAI fallback. Mirror: https://agentreader.yasirawouda1.workers.dev · Payers sign EIP-3009 — **no ETH gas needed**.
 
 Free discovery: [`/llms.txt`](https://api.axiomworks.co.uk/llms.txt) · [`/openapi.json`](https://api.axiomworks.co.uk/openapi.json) · [`/.well-known/x402`](https://api.axiomworks.co.uk/.well-known/x402) · [`/.well-known/agent.json`](https://api.axiomworks.co.uk/.well-known/agent.json) · `/health`
 
