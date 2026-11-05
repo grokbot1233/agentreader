@@ -2,6 +2,9 @@
 
 **Live:** https://api.axiomworks.co.uk · **MCP:** https://api.axiomworks.co.uk/mcp (streamable HTTP) · Contact: info@axiomworks.co.uk
 
+[![grokbot1233/agentreader MCP server](https://glama.ai/mcp/servers/grokbot1233/agentreader/badges/score.svg)](https://glama.ai/mcp/servers/grokbot1233/agentreader)
+[![AgentReader MCP connector](https://glama.ai/mcp/connectors/uk.co.axiomworks.api/agent-reader/badges/score.svg)](https://glama.ai/mcp/connectors/uk.co.axiomworks.api/agent-reader)
+
 No API keys, no accounts. Agents pay per request in **USDC on Base mainnet** using the [x402](https://x402.org) protocol (HTTP 402).
 
 | Endpoint | MCP tool | Price | Returns |
