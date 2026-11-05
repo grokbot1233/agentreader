@@ -12,7 +12,9 @@ No API keys, no accounts. Agents pay per request in **USDC on Base mainnet** usi
 | `GET/POST /company?domain=` | `company_research` | $0.25 | Company research report (tech, contacts, DNS, RDAP, SSL, news) with sources |
 | `GET/POST /uk-company?number=` / `?name=` | `uk_company` | $0.50 | Full UK Companies House due-diligence (API) + insolvency + red flags |
 | `GET/POST /uk-company-lite?number=` / `?name=` | `uk_company_lite` | $0.05 | UK company snapshot: profile, status, compliance + red flags |
+| `GET/POST /company-full?domain=` | `company_full` | $0.65 | Bundle: website research + UK DD when detected ($0.10 off) |
 | `GET/POST /convert?url=` | `convert_document` | $0.03 | PDF/DOCX/HTML → markdown or text |
+| `GET /samples/:kind` | — | free* | Truncated real sample + upsell (*8/IP/day) |
 | `POST /monitor` | `create_monitor` | $1.00 / 30d | Hourly change monitor → webhook |
 | `GET /monitor/:id` | — | free | Monitor status (id is the secret) |
 
@@ -37,7 +39,7 @@ console.log(await r.json());
 
 Remote MCP server, streamable HTTP, stateless: `https://api.axiomworks.co.uk/mcp`
 
-Tools: `read_url`, `extract_links`, `check_domain`, `company_research`, `uk_company`, `uk_company_lite`, `convert_document`, `create_monitor` (paid) and `pricing` (free).
+Tools: `read_url`, `extract_links`, `check_domain`, `company_research`, `uk_company`, `uk_company_lite`, `company_full`, `convert_document`, `create_monitor` (paid) and `pricing` (free).
 
 ```ts
 import { createx402MCPClient } from "@x402/mcp";
@@ -54,6 +56,14 @@ const client = createx402MCPClient({
 await client.connect(new StreamableHTTPClientTransport(new URL("https://api.axiomworks.co.uk/mcp")));
 const res = await client.callTool("company_research", { domain: "stripe.com" });
 ```
+
+## Integrations
+
+Copy-paste clients in [`examples/`](./examples/): MCP (Claude Desktop / Cursor), `@x402/fetch`, `x402-axios`, Python x402, LangChain, Vercel AI SDK, OpenAI Agents SDK, CrewAI.
+
+Free quality proof: [`/samples/company`](https://api.axiomworks.co.uk/samples/company) (and `uk-company`, `uk-company-lite`, `convert`, `read`) — truncated, rate-limited, with the exact paid call to make. Or add `&preview=1` on a paid GET.
+
+npm package: not published yet (needs an npm account).
 
 ## Limits
 

@@ -5,7 +5,7 @@ import { createSIWxPayload, encodeSIWxHeader } from "@x402/extensions/sign-in-wi
 const key = readFileSync(new URL("../.test_wallet_key", import.meta.url), "utf8").trim() as `0x${string}`;
 const account = privateKeyToAccount(key);
 const ORIGIN = "https://api.axiomworks.co.uk";
-const paths = ["/company", "/uk-company", "/uk-company-lite", "/convert", "/monitor"];
+const paths = ["/read", "/links", "/check", "/company", "/uk-company", "/uk-company-lite", "/company-full", "/convert", "/monitor"];
 const regUrl = "https://www.x402scan.com/api/x402/registry/register";
 
 async function register(path: string) {

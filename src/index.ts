@@ -5,8 +5,10 @@ import { bazaarResourceServerExtension, declareDiscoveryExtension } from "@x402/
 import { readUrl, linksFor, checkDomain, UserError } from "./core";
 import { companyResearch } from "./company";
 import { ukCompany } from "./uk-company";
+import { companyFull } from "./company-full";
 import { convertDocument } from "./convert";
 import { createMonitor, getMonitor, runMonitors } from "./monitor";
+import { checkPreviewQuota, clientIp, truncateSample, STATIC_SAMPLES, type PreviewKind } from "./previews";
 import { handleMcp } from "./mcp";
 import { facilitatorClient, CANONICAL, CONTACT } from "./facilitator";
 import { dashboardHtml } from "./dashboard";
@@ -22,12 +24,14 @@ const PRICES = {
   "/company": "$0.25",
   "/uk-company": "$0.50",
   "/uk-company-lite": "$0.05",
+  "/company-full": "$0.65",
   "/convert": "$0.03",
   "/monitor": "$1.00",
 } as const;
 const ATOMIC: Record<string, number> = {
   "/read": 2000, "/links": 1000, "/check": 1000,
-  "/company": 250000, "/uk-company": 500000, "/uk-company-lite": 50000, "/convert": 30000, "/monitor": 1000000,
+  "/company": 250000, "/uk-company": 500000, "/uk-company-lite": 50000, "/company-full": 650000,
+  "/convert": 30000, "/monitor": 1000000,
 };
 
 const urlIn = { type: "object", properties: { url: { type: "string", format: "uri", description: "Public http(s) URL to fetch" } }, required: ["url"] };
@@ -65,6 +69,10 @@ const ukLiteOut = { type: "object", properties: {
   company_number: { type: "string" }, name: { type: ["string", "null"] }, status: { type: ["string", "null"] },
   incorporation_date: { type: ["string", "null"] }, sic_codes: { type: "array" }, registered_office_text: { type: ["string", "null"] },
   compliance: { type: "object" }, red_flags: { type: "array", items: { type: "object" } }, mass_formation_office: { type: "object" } } };
+const companyFullIn = companyIn;
+const companyFullOut = { type: "object", properties: {
+  domain: { type: "string" }, bundle: { type: "string" }, price: { type: "string" },
+  company: companyOut, uk: ukOut, uk_included: { type: "boolean" }, uk_skip_reason: { type: ["string", "null"] }, note: { type: "string" } } };
 const convertIn = { type: "object", properties: {
   url: { type: "string", format: "uri", description: "Public URL of a PDF, DOCX, HTML or text document" },
   format: { type: "string", enum: ["markdown", "text"], description: "Output format (default markdown)" },
@@ -84,26 +92,27 @@ const monitorOut = { type: "object", properties: {
   last_hash: { type: "string" }, status_url: { type: "string" }, active: { type: "boolean" } } };
 
 const DESC: Record<string, string> = {
-  "/read": "Fetch any public web page and return clean Markdown plus metadata (title, description, canonical URL, author, publish date, language, word count, outbound links) as JSON.",
-  "/links": "Fetch a public web page and return all extracted, de-duplicated absolute links with anchor text and internal/external flag.",
-  "/check": "Domain health check: DNS records via DNS-over-HTTPS (A, AAAA, CNAME, MX, TXT, NS, CAA, SOA, DNSSEC), HTTPS/TLS reachability, HTTP status and redirect chain, HSTS, email auth (MX, SPF, DMARC) and a list of issues.",
-  "/company": "Structured company research report from real fetched data (no LLM): homepage + about/contact/pricing/careers, meta, tech stack, social links, public emails/phones, DNS/MX/email provider, SPF/DMARC, RDAP domain age/registrar, SSL, sitemap size, recent news headlines. Every field cites sources.",
-  "/uk-company": "UK company due-diligence pack via Companies House REST API (fallback to public data): profile, status, SIC, registered office, officers, PSCs, filing highlights, charges, insolvency, overdue flags, mass-formation office detection, rule-based red-flags with sources.",
-  "/uk-company-lite": "Cheap UK company snapshot: profile, status, SIC, registered office, compliance overdue flags, mass-formation office check and red-flags summary. Use /uk-company for full officers/PSC/filings/charges/insolvency.",
-  "/convert": "Convert a public document URL (PDF, DOCX, HTML, text) into clean markdown or plain text. PDF via unpdf/PDF.js; DOCX via mammoth; HTML via Readability+Turndown.",
-  "/monitor": "Create a 30-day web change monitor (hourly checks). Stores a content hash in KV and POSTs a JSON diff summary to your webhook on change. Returns an id; GET /monitor/:id is free for status.",
+  "/read": "Use this when you need the clean text of a public web page as Markdown + metadata (title, author, date, language, word count, links). Better than raw fetch/HTML: Readability extraction, structured JSON, ~1s. Example in: {url:\"https://example.com\"} → {title, markdown, word_count, links}. $0.002 USDC.",
+  "/links": "Use this when you only need every absolute link on a page (crawl maps, sitemaps-lite). Faster/cheaper than /read. Example: {url} → {count, links:[{url,text,internal}]}. $0.001.",
+  "/check": "Use this when vetting a domain's health before outreach or onboarding: DNS (DoH), DNSSEC, TLS/HTTPS, redirects, HSTS, MX/SPF/DMARC + score/issues. Structured JSON beats dig+openssl. Example: {domain:\"stripe.com\"} → {score, issues, email}. $0.001.",
+  "/company": "Use this when researching any company from its website domain — not Companies House. Returns sourced tech stack, socials, emails/phones, DNS/MX/SPF/DMARC, RDAP age/registrar, SSL, sitemap, news. No LLM inventing facts. Example: {domain:\"stripe.com\"} → {homepage, tech_stack, contacts, dns, news, sources}. Prefer /uk-company* for UK filings. $0.25.",
+  "/uk-company": "Use this for UK due diligence on a Companies House number or name: official API profile, officers, PSCs, filings, charges, insolvency + rule-based red flags (overdue, dissolved, churn, mass-formation office). Sourced JSON. Example: {number:\"00445790\"} or {name:\"TESCO\"}. Prefer /uk-company-lite ($0.05) for status/flags only. $0.50.",
+  "/uk-company-lite": "Use this for a cheap UK company snapshot before paying for the full pack: status, SIC, office, compliance overdue, mass-formation check, red-flag names. Example: {number:\"00445790\"} → {name,status,red_flags,compliance}. Upsell: /uk-company for officers/PSC/filings/charges/insolvency. $0.05.",
+  "/company-full": "Use this when you have a company website and also want UK Companies House DD in one call ($0.65 vs $0.75 separate). Runs /company then attaches /uk-company when a UK number/name is detected (.uk TLD or CH number on site). Example: {domain:\"tesco.com\"} → {company, uk, uk_included}. $0.65.",
+  "/convert": "Use this when an agent needs PDF/DOCX/HTML/text as clean markdown or plain text (RAG, summarisation). PDF via unpdf; DOCX via mammoth. Example: {url, format:\"markdown\"} → {detected_format, markdown, pages, word_count}. $0.03.",
+  "/monitor": "Use this when you need 30 days of hourly page-change alerts to your webhook (pricing pages, status, jobs). Returns id; GET /monitor/:id free. Example POST {url, webhook, selector?}. $1.00/30d.",
 };
-const OUT: any = { "/read": readOut, "/links": linksOut, "/check": checkOut, "/company": companyOut, "/uk-company": ukOut, "/uk-company-lite": ukLiteOut, "/convert": convertOut, "/monitor": monitorOut };
+const OUT: any = { "/read": readOut, "/links": linksOut, "/check": checkOut, "/company": companyOut, "/uk-company": ukOut, "/uk-company-lite": ukLiteOut, "/company-full": companyFullOut, "/convert": convertOut, "/monitor": monitorOut };
 const EX: any = {
   "/read": { url: "https://example.com" }, "/links": { url: "https://example.com" }, "/check": { domain: "example.com" },
-  "/company": { domain: "stripe.com" }, "/uk-company": { number: "00445790" }, "/uk-company-lite": { number: "00445790" },
+  "/company": { domain: "stripe.com" }, "/uk-company": { number: "00445790" }, "/uk-company-lite": { number: "00445790" }, "/company-full": { domain: "tesco.com" },
   "/convert": { url: "https://raw.githubusercontent.com/mozilla/pdf.js/master/web/compressed.tracemonkey-pldi-09.pdf", format: "markdown" },
-  "/monitor": { url: "https://example.com", webhook: "https://webhook.site/your-id" },
+  "/monitor": { url: "https://example.com", webhook: "https://api.axiomworks.co.uk/hooks/sink" },
 };
-const IN: any = { "/read": urlIn, "/links": urlIn, "/check": checkIn, "/company": companyIn, "/uk-company": ukIn, "/uk-company-lite": ukLiteIn, "/convert": convertIn, "/monitor": monitorIn };
+const IN: any = { "/read": urlIn, "/links": urlIn, "/check": checkIn, "/company": companyIn, "/uk-company": ukIn, "/uk-company-lite": ukLiteIn, "/company-full": companyFullIn, "/convert": convertIn, "/monitor": monitorIn };
 const METHODS: Record<string, ("GET" | "POST")[]> = {
   "/read": ["GET", "POST"], "/links": ["GET", "POST"], "/check": ["GET", "POST"],
-  "/company": ["GET", "POST"], "/uk-company": ["GET", "POST"], "/uk-company-lite": ["GET", "POST"], "/convert": ["GET", "POST"],
+  "/company": ["GET", "POST"], "/uk-company": ["GET", "POST"], "/uk-company-lite": ["GET", "POST"], "/company-full": ["GET", "POST"], "/convert": ["GET", "POST"],
   "/monitor": ["POST"],
 };
 
@@ -166,7 +175,7 @@ app.get("/.well-known/agent.json", (c) => {
   return c.json({
     name: "AgentReader", description: "x402 pay-per-call web reader, company research, UK Companies House due diligence, document conversion and change monitoring for AI agents.",
     url: b, provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk", email: CONTACT },
-    version: "1.1.0", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
+    version: "1.2.0", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     skills: Object.entries(PRICES).map(([p, price]) => ({ id: p.slice(1), name: p, description: DESC[p], price, endpoint: `${b}${p}` })),
     mcp: `${b}/mcp`, payments: { protocol: "x402", network: NETWORK, asset: USDC, payTo: c.env.PAY_TO },
   });
@@ -184,42 +193,42 @@ app.get("/openapi.json", (c) => {
     if (METHODS[p].includes("POST")) paths[p].post = { summary: DESC[p], requestBody: { content: { "application/json": { schema: IN[p] } } }, responses: resp, "x-price": price, "x-payment-info": payInfo, "x-402": { network: NETWORK, asset: USDC, amount: String(ATOMIC[p]) } };
   }
   paths["/monitor/{id}"] = { get: { summary: "Free monitor status (id is the secret)", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { "200": { description: "Monitor status" }, "404": { description: "Not found" } }, "x-price": "free" } };
-  return c.json({ openapi: "3.1.0", info: { title: "AgentReader", version: "1.1.0", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, company research, UK due diligence, document conversion, change monitoring. Payments: USDC on Base mainnet (eip155:8453)." },
+  paths["/samples/{kind}"] = { get: { summary: "Free truncated sample (rate-limited 8/IP/day) with x402 upsell", parameters: [{ name: "kind", in: "path", required: true, schema: { type: "string", enum: ["read","company","uk-company","uk-company-lite","convert"] } }], responses: { "200": { description: "Truncated sample" }, "429": { description: "Preview quota exceeded" } }, "x-price": "free" } };
+  paths["/hooks/sink"] = { post: { summary: "Free webhook test sink for /monitor", responses: { "200": { description: "Stored" } }, "x-price": "free" } };
+  return c.json({ openapi: "3.1.0", info: { title: "AgentReader", version: "1.2.0", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, company research, UK due diligence, document conversion, change monitoring. Payments: USDC on Base mainnet (eip155:8453)." },
     servers: [{ url: b }], paths });
 });
 const llms = (b: string, payTo: string) => `# AgentReader
 
-> Pay-per-call web reading, company research, UK due diligence, document conversion and change monitoring for AI agents. No API keys or accounts: pay per request with the x402 protocol (HTTP 402), USDC on Base mainnet (eip155:8453), payTo ${payTo}.
+> Pay-per-call tools for AI agents. No API keys: x402 (HTTP 402) + USDC on Base (eip155:8453), payTo ${payTo}.
+> Free truncated samples: ${b}/samples/{read|company|uk-company|uk-company-lite|convert} (8/IP/day). Or add &preview=1 on paid GETs (same limit).
 
-## Paid endpoints (x402 v2, scheme "exact")
-- GET|POST ${b}/read?url=URL  - $0.002 - clean Markdown + metadata
-- GET|POST ${b}/links?url=URL - $0.001 - extracted absolute links with anchor text
-- GET|POST ${b}/check?domain=DOMAIN - $0.001 - DNS (DoH), TLS/HTTPS, redirects, HSTS, MX/SPF/DMARC, issues
-- GET|POST ${b}/company?domain=DOMAIN - $0.25 - structured company research report (tech, contacts, DNS, RDAP, SSL, news) with source URLs
-- GET|POST ${b}/uk-company?number=NUM|name=NAME - $0.50 - UK Companies House full due-diligence pack (API) + red flags
-- GET|POST ${b}/uk-company-lite?number=NUM|name=NAME - $0.05 - UK company snapshot: profile/status/flags (conversion tier)
-- GET|POST ${b}/convert?url=URL&format=markdown|text - $0.03 - PDF/DOCX/HTML → markdown or text
-- POST ${b}/monitor - $1.00 - 30 days of hourly web change checks → webhook (body: url, webhook, optional selector/keyword)
+## When to use which (pick one)
 
-## Free endpoints
-- GET ${b}/monitor/:id - monitor status (id is the secret)
-- ${b}/ - description
-- ${b}/openapi.json - OpenAPI 3.1
-- ${b}/.well-known/x402 - x402 discovery metadata
-- ${b}/.well-known/agent.json - agent card
-- ${b}/llms.txt - this file
-- ${b}/health
-- ${b}/mcp - MCP (streamable HTTP) with paid tools
+| Need | Endpoint | Price | Why ours |
+|---|---|---|---|
+| Page → Markdown | ${b}/read?url= | $0.002 | Readability + metadata JSON, not raw HTML |
+| Links only | ${b}/links?url= | $0.001 | Cheaper than /read |
+| Domain health | ${b}/check?domain= | $0.001 | DNS/TLS/MX/SPF/DMARC + score |
+| Website company research | ${b}/company?domain= | $0.25 | Sourced tech/contacts/DNS/RDAP/news (no LLM fiction) |
+| UK CH full DD | ${b}/uk-company?number=\|name= | $0.50 | Official API: officers/PSC/filings/charges/insolvency + red flags |
+| UK CH cheap snapshot | ${b}/uk-company-lite?number=\|name= | $0.05 | Status + compliance flags; upsell full pack |
+| Website + UK DD bundle | ${b}/company-full?domain= | $0.65 | $0.10 cheaper than $0.25+$0.50 when UK detected |
+| PDF/DOCX → text | ${b}/convert?url= | $0.03 | Structured markdown/text for RAG |
+| Hourly change alerts | POST ${b}/monitor | $1.00/30d | Webhook on change; GET /monitor/:id free |
 
-## How to pay
-Call the endpoint; you get HTTP 402 with a PAYMENT-REQUIRED header (base64 JSON, x402 v2). Sign an EIP-3009 USDC authorization and retry with PAYMENT-SIGNATURE. Any x402 client works (e.g. @x402/fetch, x402-axios).
+## Free
+- ${b}/samples/:kind — cached truncated real examples + upsell
+- ${b}/monitor/:id — monitor status · ${b}/hooks/sink — webhook test sink (POST)
+- ${b}/llms.txt · ${b}/openapi.json · ${b}/.well-known/x402 · ${b}/.well-known/agent.json · ${b}/mcp · ${b}/health
+
+## Pay
+HTTP 402 + PAYMENT-REQUIRED header (x402 v2). Retry with PAYMENT-SIGNATURE (@x402/fetch, x402-axios). MCP: ${b}/mcp
 
 ## Contact
-${CONTACT} · source: https://github.com/grokbot1233/agentreader · MCP: ${b}/mcp
-
-## Limits
-Public http(s) URLs only (private/internal IPs blocked), 3 MB max document, 10–120 s timeout depending on route, 5 redirects. Read/links/check cached ~5 minutes. Max 40 active monitors.
+${CONTACT} · https://github.com/grokbot1233/agentreader · examples/ in repo
 `;
+
 app.get("/llms.txt", (c) => c.text(llms(base(c), c.env.PAY_TO)));
 app.get("/", (c) => {
   if ((c.req.header("accept") || "").includes("text/html"))
@@ -262,14 +271,14 @@ app.get("/dashboard/data", async (c) => {
   const meta = (await c.env.LOG.get("meta:dashboard", "json")) || {};
   const mcpTools = [
     ["read_url", "$0.002"], ["extract_links", "$0.001"], ["check_domain", "$0.001"],
-    ["company_research", "$0.25"], ["uk_company", "$0.50"], ["uk_company_lite", "$0.05"], ["convert_document", "$0.03"], ["create_monitor", "$1.00"],
+    ["company_research", "$0.25"], ["uk_company", "$0.50"], ["uk_company_lite", "$0.05"], ["company_full", "$0.65"], ["convert_document", "$0.03"], ["create_monitor", "$1.00"],
     ["pricing", "free"],
   ];
   const services = [
     ...Object.entries(PRICES).map(([p, price]) => ({ name: `HTTP ${p}`, url: `${CANONICAL}${p}`, price, paid: true, status: "live" })),
     { name: "HTTP GET /monitor/:id", url: `${CANONICAL}/monitor/:id`, price: "free", paid: false, status: "live" },
     ...mcpTools.map(([n, price]) => ({ name: `MCP ${n}`, url: `${CANONICAL}/mcp`, price, paid: price !== "free", status: "live" })),
-    ...["/health", "/llms.txt", "/openapi.json", "/.well-known/x402", "/.well-known/agent.json"].map((p) => ({ name: p, url: `${CANONICAL}${p}`, price: "free", paid: false, status: "live" })),
+    ...["/health", "/llms.txt", "/openapi.json", "/.well-known/x402", "/.well-known/agent.json", "/samples/company", "/hooks/sink"].map((p) => ({ name: p, url: `${CANONICAL}${p}`, price: "free", paid: false, status: "live" })),
   ];
   c.header("cache-control", "no-store"); return c.json({ ...(await stats(c.env)), health, services, meta, network: NETWORK, payTo: c.env.PAY_TO, prices: PRICES });
 });
@@ -283,6 +292,43 @@ app.post("/admin/dashboard-meta", async (c) => {
 });
 app.all("/mcp", (c) => handleMcp(c.req.raw, c.env, (r) => logPay(c.env, r)));
 
+// Free webhook sink for monitor tests (stores last payload briefly)
+app.post("/hooks/sink", async (c) => {
+  let body: any = null; try { body = await c.req.json(); } catch { try { body = await c.req.text(); } catch { body = null; } }
+  const id = crypto.randomUUID().slice(0, 12);
+  await c.env.LOG.put(`hook:${id}`, JSON.stringify({ ts: new Date().toISOString(), body }), { expirationTtl: 86400 });
+  await c.env.LOG.put("hook:last", id, { expirationTtl: 86400 });
+  return c.json({ ok: true, id, fetch: `${CANONICAL}/hooks/sink/${id}` });
+});
+app.get("/hooks/sink/:id", async (c) => {
+  const raw = await c.env.LOG.get(`hook:${c.req.param("id")}`, "json");
+  if (!raw) return c.json({ error: "not found or expired" }, 404);
+  return c.json(raw);
+});
+app.get("/hooks/sink", async (c) => {
+  const id = await c.env.LOG.get("hook:last");
+  if (!id) return c.json({ last: null });
+  const raw = await c.env.LOG.get(`hook:${id}`, "json");
+  return c.json({ last: id, payload: raw });
+});
+
+// Free truncated samples (rate-limited) — never full paid payloads
+app.get("/samples", (c) => c.json({
+  samples: Object.keys(STATIC_SAMPLES),
+  live_preview: "Add ?preview=1 to paid GET routes (same IP daily quota)",
+  limit: "8 previews/IP/UTC day",
+  kinds: ["read","links","check","company","uk-company","uk-company-lite","convert","company-full"],
+}));
+app.get("/samples/:kind", async (c) => {
+  const kind = c.req.param("kind") as PreviewKind;
+  const ip = clientIp(c);
+  const q = await checkPreviewQuota(c.env, ip);
+  if (!q.ok) return c.json(q, 429);
+  const base = STATIC_SAMPLES[kind];
+  if (!base) return c.json({ error: "unknown kind", see: "/samples" }, 404);
+  return c.json({ ...truncateSample(kind, base), preview_remaining: q.remaining, sample: "static" });
+});
+
 // Free monitor status (id is secret) — registered BEFORE paid /monitor middleware
 app.get("/monitor/:id", async (c) => {
   const mon = await getMonitor(c.env, c.req.param("id"));
@@ -290,16 +336,32 @@ app.get("/monitor/:id", async (c) => {
   return c.json({ ...mon, status_url: `${CANONICAL}/monitor/${mon.id}`, seconds_remaining: Math.max(0, Math.floor((new Date(mon.expires).getTime() - Date.now()) / 1000)) });
 });
 
-// Paid routes: payment middleware ALWAYS runs first. No bypass.
+// Live preview helper (truncated + rate-limited). Must not return full paid payload.
+async function livePreview(c: any, kind: PreviewKind, runner: () => Promise<any>, exampleCall: string) {
+  const ip = clientIp(c);
+  const q = await checkPreviewQuota(c.env, ip);
+  if (!q.ok) return c.json(q, 429);
+  try {
+    const data = await runner();
+    return c.json({ ...truncateSample(kind, data, exampleCall), preview_remaining: q.remaining, sample: "live" });
+  } catch (e: any) {
+    const status = e instanceof UserError ? e.status : 502;
+    return c.json({ error: e?.message || String(e), preview: true }, status as any);
+  }
+}
+
+// Paid routes: payment middleware first, except ?preview=1 (free truncated).
 for (const p of Object.keys(PRICES)) {
   if (p === "/monitor") {
     app.use("/monitor", async (c, next) => {
-      // Only POST /monitor is paid; GET /monitor/:id already handled
       if (c.req.method !== "POST" || c.req.path !== "/monitor") return next();
       return getMw(c.env)(c, next);
     });
   } else {
-    app.use(p, (c, n) => getMw(c.env)(c, n));
+    app.use(p, async (c, next) => {
+      if (c.req.query("preview") === "1" && c.req.method === "GET") return next(); // handler serves truncated preview
+      return getMw(c.env)(c, next);
+    });
   }
 }
 
@@ -332,36 +394,67 @@ const handle = (p: string, k: string, fn: (v: string) => Promise<any>) => async 
   return cached(c, `${p}?${k}=${encodeURIComponent(v)}`, () => fn(v));
 };
 for (const m of ["get", "post"] as const) {
-  app[m]("/read", handle("read", "url", readUrl));
-  app[m]("/links", handle("links", "url", linksFor));
-  app[m]("/check", handle("check", "domain", checkDomain));
+  app[m]("/read", async (c) => {
+    const url = (await param(c, "url")).trim(); if (!url) return c.json({ error: "missing url" }, 400);
+    if (c.req.query("preview") === "1" && m === "get")
+      return livePreview(c, "read", () => readUrl(url), `${CANONICAL}/read?url=${encodeURIComponent(url)}`);
+    return cached(c, `read?url=${encodeURIComponent(url)}`, () => readUrl(url));
+  });
+  app[m]("/links", async (c) => {
+    const url = (await param(c, "url")).trim(); if (!url) return c.json({ error: "missing url" }, 400);
+    if (c.req.query("preview") === "1" && m === "get")
+      return livePreview(c, "links", () => linksFor(url), `${CANONICAL}/links?url=${encodeURIComponent(url)}`);
+    return cached(c, `links?url=${encodeURIComponent(url)}`, () => linksFor(url));
+  });
+  app[m]("/check", async (c) => {
+    const domain = (await param(c, "domain")).trim(); if (!domain) return c.json({ error: "missing domain" }, 400);
+    if (c.req.query("preview") === "1" && m === "get")
+      return livePreview(c, "check", () => checkDomain(domain), `${CANONICAL}/check?domain=${encodeURIComponent(domain)}`);
+    return cached(c, `check?domain=${encodeURIComponent(domain)}`, () => checkDomain(domain));
+  });
   app[m]("/company", async (c) => {
     const b = await bodyObj(c);
     const domain = (b.domain || b.name || "").trim();
     if (!domain) return c.json({ error: "missing domain (or name as domain)" }, 400);
+    if (c.req.query("preview") === "1" && m === "get")
+      return livePreview(c, "company", () => companyResearch({ domain }), `${CANONICAL}/company?domain=${encodeURIComponent(domain)}`);
     return cached(c, `company?domain=${encodeURIComponent(domain)}`, () => companyResearch({ domain }), 600);
   });
   app[m]("/uk-company", async (c) => {
     const b = await bodyObj(c);
     if (!(b.number || b.name)) return c.json({ error: "missing number or name" }, 400);
     const key = b.number ? `number=${b.number}` : `name=${b.name}`;
-    // Short edge cache; authoritative 24h cache is in KV inside ukCompany
+    if (c.req.query("preview") === "1" && m === "get")
+      return livePreview(c, "uk-company", () => ukCompany(c.env, { number: b.number, name: b.name }), `${CANONICAL}/uk-company?${key}`);
     return cached(c, `uk-company?${encodeURIComponent(key)}`, () => ukCompany(c.env, { number: b.number, name: b.name }), 60);
   });
   app[m]("/uk-company-lite", async (c) => {
     const b = await bodyObj(c);
     if (!(b.number || b.name)) return c.json({ error: "missing number or name" }, 400);
     const key = b.number ? `number=${b.number}` : `name=${b.name}`;
+    if (c.req.query("preview") === "1" && m === "get")
+      return livePreview(c, "uk-company-lite", () => ukCompany(c.env, { number: b.number, name: b.name, lite: true }), `${CANONICAL}/uk-company-lite?${key}`);
     return cached(c, `uk-company-lite?${encodeURIComponent(key)}`, () => ukCompany(c.env, { number: b.number, name: b.name, lite: true }), 60);
+  });
+  app[m]("/company-full", async (c) => {
+    const b = await bodyObj(c);
+    const domain = (b.domain || b.name || "").trim();
+    if (!domain) return c.json({ error: "missing domain" }, 400);
+    if (c.req.query("preview") === "1" && m === "get")
+      return livePreview(c, "company-full", () => companyFull(c.env, { domain }), `${CANONICAL}/company-full?domain=${encodeURIComponent(domain)}`);
+    return cached(c, `company-full?domain=${encodeURIComponent(domain)}`, () => companyFull(c.env, { domain }), 60);
   });
   app[m]("/convert", async (c) => {
     const b = await bodyObj(c);
     const url = (b.url || "").trim();
     if (!url) return c.json({ error: "missing url" }, 400);
     const format = b.format === "text" ? "text" : "markdown";
+    if (c.req.query("preview") === "1" && m === "get")
+      return livePreview(c, "convert", () => convertDocument(url, format), `${CANONICAL}/convert?url=${encodeURIComponent(url)}`);
     return cached(c, `convert?url=${encodeURIComponent(url)}&format=${format}`, () => convertDocument(url, format), 600);
   });
 }
+
 app.post("/monitor", async (c) => {
   try {
     const b = await bodyObj(c);

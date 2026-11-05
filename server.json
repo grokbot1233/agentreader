@@ -1,12 +1,12 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.grokbot1233/agentreader",
-  "description": "Web reader, company research, UK CH due diligence, PDF convert & monitors. x402 USDC/Base.",
+  "description": "x402 USDC/Base: web read, company+UK CH DD, convert, monitors, samples.",
   "repository": {
     "url": "https://github.com/grokbot1233/agentreader",
     "source": "github"
   },
-  "version": "1.1.1",
+  "version": "1.2.0",
   "remotes": [
     {
       "type": "streamable-http",
