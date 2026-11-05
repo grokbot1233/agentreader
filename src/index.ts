@@ -521,11 +521,11 @@ async function applyPayToStats(env: Env, rec: any) {
   if (rec.success !== false) {
     if (isTest) {
       cur.test_calls = (cur.test_calls || 0) + 1;
-      cur.test_revenue_usdc = (cur.test_revenue_usdc || 0) + Number(rec.amount || 0) / 1e6;
+      cur.test_revenue_usdc = Math.round(((cur.test_revenue_usdc || 0) + Number(rec.amount || 0) / 1e6) * 1e6) / 1e6;
     } else {
       const a = Number(rec.amount || 0);
       cur.paid_calls = (cur.paid_calls || 0) + 1;
-      cur.revenue_usdc = (cur.revenue_usdc || 0) + a / 1e6;
+      cur.revenue_usdc = Math.round(((cur.revenue_usdc || 0) + a / 1e6) * 1e6) / 1e6;
       const payers: string[] = Array.isArray(cur.payers) ? cur.payers : [];
       if (rec.payer) {
         const p = String(rec.payer).toLowerCase();
@@ -572,7 +572,7 @@ async function stats(env: Env) {
     for (const r of ok) { const a = Number(r.amount || 0); atomic += a; if (r.payer) payers.add(String(r.payer).toLowerCase());
       (byEndpoint[r.endpoint] ??= { calls: 0, revenue_usdc: 0 }).calls++; byEndpoint[r.endpoint].revenue_usdc += a / 1e6;
       const d = String(r.ts || "").slice(0, 10); if (d) { (byDay[d] ??= { calls: 0, revenue_usdc: 0 }).calls++; byDay[d].revenue_usdc += a / 1e6; } }
-    const result = { paid_calls: ok.length, revenue_usdc: atomic / 1e6, unique_payers: payers.size, by_endpoint: byEndpoint, by_day: byDay, recent: all.slice(-20).reverse(), test_calls: tests.length, test_revenue_usdc: tests.reduce((t, r) => t + Number(r.amount || 0), 0) / 1e6, generated: new Date().toISOString(), source: "list-rebuild", payers: [...payers] };
+    const result = { paid_calls: ok.length, revenue_usdc: atomic / 1e6, unique_payers: payers.size, by_endpoint: byEndpoint, by_day: byDay, recent: all.slice(-20).reverse(), test_calls: tests.length, test_revenue_usdc: Math.round(tests.reduce((t, r) => t + Number(r.amount || 0), 0)) / 1e6, generated: new Date().toISOString(), source: "list-rebuild", payers: [...payers] };
     await env.LOG.put(STATS_KEY, JSON.stringify(result));
     const { payers: _p, ...publicStats } = result;
     return publicStats;
@@ -614,7 +614,8 @@ app.get("/dashboard/data", async (c) => {
   ];
   let treasury_usdc: number | null = null, treasury_err: string | undefined;
   try { const r: any = await (await fetch("https://base-rpc.publicnode.com", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_call", params: [{ to: USDC, data: "0x70a08231" + c.env.PAY_TO.slice(2).toLowerCase().padStart(64, "0") }, "latest"] }) })).json(); treasury_usdc = Number(BigInt(r.result)) / 1e6; } catch (e: any) { treasury_err = String(e).slice(0, 200); }
-  c.header("cache-control", "no-store"); return c.json({ ...(await stats(c.env)), health, services, meta, network: NETWORK, payTo: c.env.PAY_TO, treasury_usdc, treasury_err, legacy_payTo: ["0xB1A4e2C441fa896AF010222659AAbBb71E9Ef1D1", "0x560d1dbb6e973082EBd20D340EAd3a198452b3Ec"], prices: PRICES });
+  c.header("cache-control", "no-store"); const st: any = await stats(c.env); for (const k of ["revenue_usdc", "test_revenue_usdc"]) if (typeof st[k] === "number") st[k] = Math.round(st[k] * 1e6) / 1e6;
+  return c.json({ ...st, health, services, meta, network: NETWORK, payTo: c.env.PAY_TO, treasury_usdc, treasury_err, legacy_payTo: ["0xB1A4e2C441fa896AF010222659AAbBb71E9Ef1D1", "0x560d1dbb6e973082EBd20D340EAd3a198452b3Ec"], prices: PRICES });
 });
 app.post("/admin/dashboard-meta", async (c) => {
   const auth = c.req.header("authorization")?.replace(/^Bearer\s+/i, "") || c.req.query("key") || "";
