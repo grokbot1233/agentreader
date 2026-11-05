@@ -1,0 +1,57 @@
+== 2026-11-05T23:09:29Z free registry retries ==
+-- 402index /kyb --
+HTTP 201
+{"message":"Service registered and live (domain verified).","service":{"id":"e8e8dcd9-c425-4e58-bc0a-9b313831bd9b","name":"Axiom Works AgentReader /kyb","description":"KYB report: UK Companies House + EU VIES VAT + domain/DNS + risk flags","url":"https://api.axiomworks.co.uk/kyb?domain=tesco.com","p
+-- a2a-registry.org --
+{"success":true,"data":{"id":"b6fdf1bb-8cd2-4af4-99cb-310d083ce0b4","package_name":"uk.co.axiomworks.axiom_works_agentreader","status":"updated","refreshed":true,"message":"Unclaimed agent refreshed with the latest manifest."},"status":200}
+-- a2aregistry.org --
+HTTP/2 429 
+date: Thu, 05 Nov 2026 23:09:33 GMT
+content-type: application/json
+content-length: 150
+retry-after: 3027
+vary: Origin
+server: cloudflare
+via: 1.1 google
+alt-svc: h3=":443"; ma=8640
+{"detail":"The registry has reached its review capacity for now, so it is not accepting submissions. Retry after the time in the Retry-After header."}
+-- probe other free registries --
+200 https://www.agentregistry.org/
+000ERR https://agentregistry.directory/
+200 https://registry.directory/
+200 https://mcp.so/
+200 https://glama.ai/mcp/servers
+403 https://www.pulsemcp.com/
+200 https://smithery.ai/
+200 https://opentools.com/
+000ERR https://x402.templates/
+200 https://www.x402scan.com/
+200 https://402index.io/
+200 https://x402-list.com/
+000ERR https://www.agentskills.io/
+200 https://clawhub.com/
+200 https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1
+-- search-ish endpoints --
+gh search total 17
+JSONbored/awesome-claude HeyClaude is a curated registry and distribution surface for Claude and AI-workf https://github.com/JSONbored/awesome-claude
+vawe-hq/awesome-agent-skills-directories Where to list agent skills and plugins for Claude Code, Codex, Cursor and simila https://github.com/vawe-hq/awesome-agent-skills-directories
+ivishnuraj/awesome-mcp-servers The definitive registry of 1,000+ MCP (Model Context Protocol) servers. Automate https://github.com/ivishnuraj/awesome-mcp-servers
+tonylate520/awesome-agent-skills The Curated Registry, RFC 2026 Specification, and Universal Package Catalog for  https://github.com/tonylate520/awesome-agent-skills
+kryptobaseddev/awesome-skills Curated, validated collection of Agent Skills for Claude Code and other agent ru https://github.com/kryptobaseddev/awesome-skills
+mrsarac/awesome-agentic-loops Proof-oriented registry of reusable AI-agent operating loops https://github.com/mrsarac/awesome-agentic-loops
+backblaze-labs/awesome-agent-infrastructure A curated list of AI agent infrastructure: memory stores, vector databases, exec https://github.com/backblaze-labs/awesome-agent-infrastructure
+ishandutta2007/Awesome-AI-Agent-Tool-Registry Top AI Agent Tool Registry (Opensource) 🌟 Star if you like it! 🌟 https://github.com/ishandutta2007/Awesome-AI-Agent-Tool-Registry
+looptech-ai/understand-quickly Public registry of code-knowledge graphs for AI agents. Awesome-list 2.0: pointe https://github.com/looptech-ai/understand-quickly
+jdsadminllc/awesome-design-skills A curated registry of 67 design system skills for AI coding agents — Claude Code https://github.com/jdsadminllc/awesome-design-skills
+
+== New free marketplace notes (API/joinability) ==
+- agentregistry.org: Namecheap parking page — not a real registry.
+- agentregistry.directory: TLS fail.
+- registry.directory: site up (200), no public /api/register (404).
+- a2aregistry.org: 429 capacity; Retry-After ~3027s (~50m). Retry later free.
+- a2a-registry.org: OK refreshed (unclaimed).
+- 402index.io: OK 201 re-register /kyb.
+- mcp.so / glama / smithery / opentools / clawhub / x402scan / x402-list: sites up; no free unauthenticated register API found in this pass (mcp.so already have issue #6772).
+- claudemarketplaces.com: free GitHub-login submit exists (human); priority $4 — skip paid.
+- vawe-hq/awesome-agent-skills-directories: meta-list of skill directories; useful for future skill packaging, not an API join.
+- NEW candidate lists (stars floors often block us at 0★): heilcheng/awesome-agent-skills (20★), travisvn/awesome-claude-skills (10★), VoltAgent/awesome-agent-skills (usage bar).
