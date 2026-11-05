@@ -6,3 +6,12 @@
 - Alternative: ABN Lookup web services (free GUID registration, ABR) gives live ABN/ACN data — needs Liam to register (free, needs email).
 - Price idea: /au-company $0.02 (lookup), complements /uk-company & /eu-vat.
 - Risk: D1 size cap; verify row count before committing.
+
+## Feasibility numbers (COMPANY_202611, measured 2026-11-05)
+- Zip 79,298,881 B; CSV 400,768,703 B, TAB-delimited, UTF-8 BOM. 15 cols: Company Name, ACN, Type, Class, Sub Class, Status, Date of Registration, Date of Deregistration, Previous State of Registration, State Registration number, Modified since last report, Current Name Indicator, ABN, Current Name, Current Name Start Date.
+- Rows 4,456,870; distinct ACN 4,023,005 (extra rows = former-name rows).
+- Status: REGD 4,134,671; DRGD 233,629; SOFF 47,264; EXAD 40,756; NOAC 490; CNCL 59.
+- Trimmed 7 cols (name, ACN, type, status, reg date, dereg date, ABN) raw text = 301.1 MB (REGD only: 277.0 MB).
+- Estimate in SQLite/D1: + row overhead (~15%) + ACN PK index (~100 MB) + name index/FTS (~150-250 MB) => ~550-700 MB. Does NOT clearly fit one free 500 MB D1 DB.
+- Ways to fit for free: (a) integers for ACN/ABN/dates + 1-byte codes for type/status (cuts ~80 MB); (b) drop former-name rows (-433k rows); (c) shard by ACN range across 2 D1 DBs (free tier allows multiple DBs, 5 GB acct total); (d) name search via prefix index only, no FTS. (a)+(b)+(c) should fit comfortably.
+- Free-tier write limit: D1 free = 100k rows written/day -> initial 4M-row load would take ~40 days on free plan. BLOCKER for free ingest; weekly refresh also exceeds it. Alternative free path: R2 (10 GB free) static sharded JSON by ACN prefix (e.g. 3-digit prefix -> ~4k files) + name-prefix shards, served by the Worker; R2 free = 1M class-A writes/month, fine.
