@@ -1,0 +1,13 @@
+name = "agentreader"
+main = "src/index.ts"
+compatibility_date = "2025-09-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+
+[vars]
+PAY_TO = "0xB1A4e2C441fa896AF010222659AAbBb71E9Ef1D1"
+FACILITATOR_URL = "https://facilitator.payai.network"
+
+[[kv_namespaces]]
+binding = "LOG"
+id = "057b98b129ee44c39c49021c2ec20652"
