@@ -378,6 +378,7 @@ app.get("/health", (c) => c.json({ ok: true, ts: new Date().toISOString() }));
 app.get("/.well-known/x402", (c) => c.json(discovery(c)));
 app.get("/.well-known/x402.json", (c) => c.json(discovery(c)));
 app.get("/.well-known/402index-verify.txt", (c) => c.text("9a944a1ce3c68588c5fb1d104be63981bb5e6b6e302fa0a1bd65b6a3cd5f5372"));
+app.get("/.well-known/x402list.txt", (c) => c.text("x402list-verify-xS90Dr23BVuxDNiAyIixsofh77huTTGyjkKHySrsmk4\n"));
 app.get("/.well-known/agent-card.json", (c) => {
   const b = base(c);
   const tags = (p: string) => p.startsWith("/uk") ? ["uk", "companies-house", "due-diligence", "x402"] : p.startsWith("/us-sec") ? ["sec", "edgar", "filings", "x402"] : (p === "/sanctions" || p === "/sanctions-batch") ? ["sanctions", "compliance", "aml", "x402"] : (p === "/kyb" || p === "/eu-vat") ? ["kyb", "vat", "compliance", "x402"] : ["/read", "/links", "/check", "/convert", "/monitor", "/search", "/company", "/company-full"].includes(p) ? ["web", "research", "x402"] : ["onchain", "base", "evm", "x402"];
