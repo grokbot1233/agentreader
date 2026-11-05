@@ -1,0 +1,37 @@
+{
+  "title": "Canada corp lookup",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "numbers": {
+      "title": "Corporation numbers",
+      "type": "array",
+      "editor": "stringList",
+      "description": "Corporations Canada numbers",
+      "prefill": [
+        "8660115"
+      ]
+    },
+    "bns": {
+      "title": "Business Numbers",
+      "type": "array",
+      "editor": "stringList",
+      "description": "9-digit CRA BN"
+    },
+    "names": {
+      "title": "Name contains",
+      "type": "array",
+      "editor": "stringList",
+      "description": "Substring match on corporate name"
+    },
+    "limit": {
+      "title": "Max name matches per name",
+      "type": "integer",
+      "editor": "number",
+      "default": 25,
+      "minimum": 1,
+      "maximum": 500,
+      "description": "Cap for name search"
+    }
+  }
+}

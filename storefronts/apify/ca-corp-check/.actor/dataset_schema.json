@@ -1,0 +1,32 @@
+{
+  "actorSpecification": 1,
+  "fields": {},
+  "views": {
+    "overview": {
+      "title": "Overview",
+      "transformation": {
+        "fields": [
+          "vat",
+          "valid",
+          "name"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "vat": {
+            "label": "Vat"
+          },
+          "valid": {
+            "label": "Valid"
+          },
+          "name": {
+            "label": "Name"
+          }
+        }
+      },
+      "description": "Main results table"
+    }
+  },
+  "title": "EU VAT VIES Validation — Valid, Name & Address results"
+}

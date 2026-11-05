@@ -1,0 +1,24 @@
+{
+  "$schema": "https://apify.com/schemas/v1/actor.ide.json",
+  "actorSpecification": 1,
+  "name": "ca-corp-check",
+  "title": "Canada Federal Corporation Lookup \u2014 Number, BN or Name",
+  "description": "Look up ~697k active Canadian federal corporations (CBCA, NFP, co-ops) from Corporations Canada open data by corporation number, Business Number or name: legal name, status, annual filings, registered office, directors. Batch, KYB-ready JSON.",
+  "version": "1.0",
+  "buildTag": "latest",
+  "meta": {
+    "templateId": "js-empty",
+    "generatedBy": "axiom-works"
+  },
+  "dockerfile": "../Dockerfile",
+  "categories": [
+    "BUSINESS",
+    "AI",
+    "ECOMMERCE"
+  ],
+  "inputSchema": "./input_schema.json",
+  "output": "./output_schema.json",
+  "storages": {
+    "dataset": "./dataset_schema.json"
+  }
+}

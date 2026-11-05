@@ -1,0 +1,18 @@
+{
+  "name": "ca-corp-check",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Look up ~697k active Canadian federal corporations (CBCA, NFP, co-ops) from Corporations Canada open data by corporation number, Business Number or name: legal name, status, annual filings, registered office, directors. Batch, KYB-ready JSON.",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "apify": "^3.7.0",
+    "csv-parse": "^5.5.6"
+  },
+  "scripts": {
+    "start": "node ./src/main.js"
+  },
+  "author": "Axiom Works <info@axiomworks.co.uk>",
+  "license": "Apache-2.0"
+}
