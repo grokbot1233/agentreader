@@ -24,6 +24,7 @@ import { ukLeads, createLeadsFeed } from "./uk-leads";
 import { createUkWatch } from "./uk-watch";
 import { kybReport } from "./kyb";
 import { CHAIN_ROUTES } from "./chain";
+import { upsell } from "./upsell";
 for (const r of CHAIN_ROUTES) { TOOL_PATH["chain_" + r.path.slice(7).replace(/-/g, "_")] = r.path; EXAMPLES_CHAIN[r.path] = r.ex; }
 const EXAMPLES: Record<string, any> = { "/read": { url: "https://example.com" }, "/links": { url: "https://example.com" }, "/check": { domain: "example.com" }, "/company": { domain: "stripe.com" }, "/company-full": { domain: "tesco.com" },
   "/uk-company": { number: "00445790" }, "/uk-company-lite": { number: "00445790" }, "/convert": { url: "https://example.com/doc.pdf" }, "/monitor": { url: "https://example.com", webhook: "https://your.app/hook" },
@@ -55,6 +56,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
     } },
   } as any);
   const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.10.0" });
+  { const orig = (server as any).tool.bind(server); (server as any).tool = (name: string, desc: any, ...rest: any[]) => orig(name, typeof desc === "string" ? upsell(TOOL_PATH[name] || "", desc) : desc, ...rest); }
   const json = (d: any) => ({ content: [{ type: "text" as const, text: JSON.stringify(d) }] });
   const err = (e: any) => ({ isError: true, content: [{ type: "text" as const, text: String(e?.message || e) }] });
 

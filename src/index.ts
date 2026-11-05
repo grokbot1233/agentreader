@@ -19,6 +19,7 @@ import { convertDocument } from "./convert";
 import { createMonitor, getMonitor, runMonitors } from "./monitor";
 import { checkPreviewQuota, clientIp, truncateSample, STATIC_SAMPLES, type PreviewKind } from "./previews";
 import { handleMcp } from "./mcp";
+import { upsell } from "./upsell";
 import { facilitatorClient, CANONICAL, CONTACT } from "./facilitator";
 import EXAMPLES from "./examples.json";
 import { CHAIN_ROUTES } from "./chain";
@@ -291,7 +292,7 @@ function routes(payTo: string) {
         : declareDiscoveryExtension({ input: EX[p], inputSchema: IN[p], bodyType: "json", output: { schema: OUT[p], example: (EXAMPLES as any)[p] } } as any);
       r[`${method} ${p}`] = {
         accepts: [{ scheme: "exact", price: PRICES[p], network: NETWORK, payTo, maxTimeoutSeconds: 120 }],
-        description: DESC[p], mimeType: "application/json", extensions: { ...ext },
+        description: upsell(p, DESC[p]), mimeType: "application/json", extensions: { ...ext },
       };
     }
   }
@@ -586,7 +587,7 @@ for (const p of Object.keys(PRICES)) app.use(p, async (c, next) => {
 });
 // Paid routes: payment middleware first, except ?preview=1 (free truncated). v1 X-PAYMENT handled by ./v1; 402 body carries v1 accepts.
 async function paid(c: any, next: any, p: string) {
-  const req = v1Reqs({ url: `${CANONICAL}${p}`, method: c.req.method === "POST" ? "POST" : "GET", atomic: ATOMIC[p], desc: DESC[p], payTo: c.env.PAY_TO, input: IN[p]?.properties || IN[p], output: { example: (EXAMPLES as any)[p], schema: OUT[p] } });
+  const req = v1Reqs({ url: `${CANONICAL}${p}`, method: c.req.method === "POST" ? "POST" : "GET", atomic: ATOMIC[p], desc: upsell(p, DESC[p]), payTo: c.env.PAY_TO, input: IN[p]?.properties || IN[p], output: { example: (EXAMPLES as any)[p], schema: OUT[p] } });
   const v1 = decodeV1(c.req.header("x-payment"));
   if (v1) return handleV1(c, next, v1, req, (r) => logPay(c.env, r));
   const out = await getMw(c.env)(c, next); const res: Response = out instanceof Response ? out : c.res;
