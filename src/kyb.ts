@@ -17,7 +17,8 @@ function domainish(v: string) {
 export async function kybReport(env: Env, input: {
   domain?: string; number?: string; name?: string; vat?: string; country?: string; vat_number?: string;
 }) {
-  const domain = domainish(s(input.domain) || s(input.name).includes(".") ? s(input.name) : "");
+  const rawDomain = s(input.domain) || (s(input.name).includes(".") ? s(input.name) : "");
+  const domain = domainish(rawDomain);
   const number = s(input.number);
   const name = !domain && s(input.name) && !s(input.name).includes(".") ? s(input.name) : "";
   const vat = s(input.vat) || (s(input.country) && s(input.vat_number) ? s(input.country) + s(input.vat_number) : "");
