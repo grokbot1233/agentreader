@@ -4,6 +4,9 @@ import { ukProperty, ukArea } from "./ukdata";
 import { ukCharity } from "./uk-charity";
 import { usSec } from "./us-sec";
 import { euVat } from "./eu-vat";
+import { ukLeads, createLeadsFeed, getLeadsFeed, runLeadsFeeds } from "./uk-leads";
+import { createUkWatch, getUkWatch, runUkWatches } from "./uk-watch";
+import { kybReport } from "./kyb";
 import { Hono } from "hono";
 import { paymentMiddleware, x402ResourceServer } from "@x402/hono";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
@@ -18,6 +21,7 @@ import { checkPreviewQuota, clientIp, truncateSample, STATIC_SAMPLES, type Previ
 import { handleMcp } from "./mcp";
 import { facilitatorClient, CANONICAL, CONTACT } from "./facilitator";
 import EXAMPLES from "./examples.json";
+import { CHAIN_ROUTES } from "./chain";
 import { v1Reqs, v1Body, decodeV1, handleV1 } from "./v1";
 import { dashboardHtml } from "./dashboard";
 import { wallet, tx, tokenCheck, fx, CHAINS } from "./onchain";
@@ -45,6 +49,8 @@ const PRICES = {
   "/search": "$0.003", "/uk-property": "$0.01", "/uk-area": "$0.005",
   "/uk-charity": "$0.05", "/uk-charity-full": "$0.25",
   "/us-sec": "$0.05", "/us-sec-full": "$0.25", "/eu-vat": "$0.01",
+  "/uk-leads-lite": "$0.25", "/uk-leads": "$1.00", "/uk-leads-feed": "$25.00",
+  "/uk-watch": "$5.00", "/kyb": "$2.00",
 } as const;
 const ATOMIC: Record<string, number> = {
   "/read": 2000, "/links": 1000, "/check": 1000,
@@ -55,6 +61,8 @@ const ATOMIC: Record<string, number> = {
   "/search": 3000, "/uk-property": 10000, "/uk-area": 5000,
   "/uk-charity": 50000, "/uk-charity-full": 250000,
   "/us-sec": 50000, "/us-sec-full": 250000, "/eu-vat": 10000,
+  "/uk-leads-lite": 250000, "/uk-leads": 1000000, "/uk-leads-feed": 25000000,
+  "/uk-watch": 5000000, "/kyb": 2000000,
 };
 
 const urlIn = { type: "object", properties: { url: { type: "string", format: "uri", description: "Public http(s) URL to fetch" } }, required: ["url"] };
@@ -206,9 +214,45 @@ const DESC: Record<string, string> = {
   "/company-full": "Use this when you have a company website and also want UK Companies House DD in one call ($0.65 vs $0.75 separate). Runs /company then attaches /uk-company when a UK number/name is detected (.uk TLD or CH number on site). Example: {domain:\"tesco.com\"} → {company, uk, uk_included}. $0.65.",
   "/convert": "Use this when an agent needs PDF/DOCX/HTML/text as clean markdown or plain text (RAG, summarisation). PDF via unpdf; DOCX via mammoth. Example: {url, format:\"markdown\"} → {detected_format, markdown, pages, word_count}. $0.03.",
   "/monitor": "Use this when you need 30 days of hourly page-change alerts to your webhook (pricing pages, status, jobs). Returns id; GET /monitor/:id free. Example POST {url, webhook, selector?}. $1.00/30d.",
+  "/uk-leads-lite": "Use this for cheap UK new-incorporation lead lists filtered by SIC and/or location/postcode area (1-7 day lookback). Returns up to 100 companies: number, name, SIC, office, mass-formation flag. No directors. Example: {sic:\"62012\",days:1}. Upsell /uk-leads for directors. $0.25.",
+  "/uk-leads": "Use this for UK new-incorporation leads with active director names — filter by SIC/location/postcode_area, 1-7 days, up to 40 companies. Official Companies House data + mass-formation flags. Example: {sic:\"62\",location:\"Manchester\",days:2}. Daily webhook: /uk-leads-feed $25/30d. $1.00.",
+  "/uk-leads-feed": "Use this for a 30-day daily webhook of new UK incorporations matching your SIC/location/postcode_area (director-enriched). Deduped. Example POST {sic:\"62012\",webhook:\"https://your.app/hook\"}. Status GET /uk-leads-feed/:id free. $25.00/30d.",
+  "/uk-watch": "Use this to watch one UK company for 30 days: hourly Companies House poll of status/officers/filings → webhook on change. Example POST {number:\"00445790\",webhook:\"https://your.app/hook\"}. GET /uk-watch/:id free. $5.00/30d.",
+  "/kyb": "Use this for a one-shot agent KYB/due-diligence pack: optional website research + UK Companies House DD + EU VIES VAT → composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not a regulated determination. Example: {domain:\"tesco.com\",number:\"00445790\"} or {vat:\"IE6388047V\"}. $2.00.",
 };
-const OUT: any = { "/search": searchOut, "/uk-property": propOut, "/uk-area": areaOut, "/uk-charity": charityOut, "/uk-charity-full": charityFullOut, "/us-sec": secOut, "/us-sec-full": secFullOut, "/eu-vat": vatOut, "/ens": ensOut, "/token": tokenMetaOut, "/allowance": allowOut, "/contract": contractOut, "/gas": gasOut, "/block": blockOut, "/nft": nftOut, "/wallet": walletOut, "/tx": txOut, "/token-check": tokenOut, "/fx": fxOut, "/read": readOut, "/links": linksOut, "/check": checkOut, "/company": companyOut, "/uk-company": ukOut, "/uk-company-lite": ukLiteOut, "/company-full": companyFullOut, "/convert": convertOut, "/monitor": monitorOut };
-const EX: any = {
+
+const leadsIn = { type: "object", properties: {
+  sic: { type: "string", description: "SIC code or 2-5 digit prefix, e.g. 62 or 62012" },
+  location: { type: "string", description: "Town/city as indexed by Companies House, e.g. Manchester" },
+  postcode_area: { type: "string", description: "Postcode area/district prefix, e.g. M, SW, SW1" },
+  days: { type: "integer", description: "Lookback 1-7 days (default 1)" },
+  limit: { type: "integer", description: "Max companies returned" },
+}, description: "At least one of sic, location, postcode_area required" };
+const leadsOut = { type: "object", properties: {
+  product: { type: "string" }, query: { type: "object" }, hits_total_unfiltered_by_postcode: { type: "integer" },
+  returned: { type: "integer" }, companies: { type: "array", items: { type: "object" } }, notes: { type: "array" }, attribution: { type: "string" } } };
+const leadsFeedIn = { type: "object", properties: {
+  webhook: { type: "string", format: "uri" }, sic: { type: "string" }, location: { type: "string" }, postcode_area: { type: "string" },
+}, required: ["webhook"] };
+const leadsFeedOut = { type: "object", properties: {
+  id: { type: "string" }, kind: { type: "string" }, sic: {}, location: {}, postcode_area: {}, webhook: { type: "string" },
+  created: { type: "string" }, expires: { type: "string" }, status_url: { type: "string" }, price_paid: { type: "string" }, duration_days: { type: "integer" } } };
+const ukWatchIn = { type: "object", properties: {
+  number: { type: "string", description: "UK company number" }, webhook: { type: "string", format: "uri" },
+}, required: ["number", "webhook"] };
+const ukWatchOut = { type: "object", properties: {
+  id: { type: "string" }, company_number: { type: "string" }, company_name: {}, webhook: { type: "string" },
+  created: { type: "string" }, expires: { type: "string" }, snapshot: { type: "object" }, status_url: { type: "string" } } };
+const kybIn = { type: "object", properties: {
+  domain: { type: "string" }, number: { type: "string" }, name: { type: "string" }, vat: { type: "string" },
+  country: { type: "string" }, vat_number: { type: "string" },
+}, description: "Provide domain and/or UK number/name and/or EU vat" };
+const kybOut = { type: "object", properties: {
+  product: { type: "string" }, disclaimer: { type: "string" }, website: {}, uk: {}, eu_vat: {},
+  trust: { type: "object", properties: { flag: { type: "string" }, score: { type: "integer" }, reasons: { type: "array" } } } } };
+
+const OUT: any = { "/uk-leads": leadsOut, "/uk-leads-lite": leadsOut, "/uk-leads-feed": leadsFeedOut, "/uk-watch": ukWatchOut, "/kyb": kybOut, "/search": searchOut, "/uk-property": propOut, "/uk-area": areaOut, "/uk-charity": charityOut, "/uk-charity-full": charityFullOut, "/us-sec": secOut, "/us-sec-full": secFullOut, "/eu-vat": vatOut, "/ens": ensOut, "/token": tokenMetaOut, "/allowance": allowOut, "/contract": contractOut, "/gas": gasOut, "/block": blockOut, "/nft": nftOut, "/wallet": walletOut, "/tx": txOut, "/token-check": tokenOut, "/fx": fxOut, "/read": readOut, "/links": linksOut, "/check": checkOut, "/company": companyOut, "/uk-company": ukOut, "/uk-company-lite": ukLiteOut, "/company-full": companyFullOut, "/convert": convertOut, "/monitor": monitorOut };
+const EX: any = { "/uk-leads": { sic: "62012", days: 1, limit: 25 }, "/uk-leads-lite": { sic: "62", location: "London", days: 1 }, "/uk-leads-feed": { sic: "62012", webhook: "https://api.axiomworks.co.uk/hooks/sink" }, "/uk-watch": { number: "00445790", webhook: "https://api.axiomworks.co.uk/hooks/sink" }, "/kyb": { domain: "tesco.com", number: "00445790" }, 
   "/search": { q: "x402 agent payments" }, "/uk-property": { postcode: "CB1 2AB" }, "/uk-area": { postcode: "SW1A 2AA" },
   "/uk-charity": { number: "1089464" }, "/uk-charity-full": { number: "1089464" },
   "/us-sec": { ticker: "AAPL" }, "/us-sec-full": { ticker: "AAPL" }, "/eu-vat": { vat: "IE6388047V" },
@@ -223,7 +267,7 @@ const EX: any = {
   "/convert": { url: "https://raw.githubusercontent.com/mozilla/pdf.js/master/web/compressed.tracemonkey-pldi-09.pdf", format: "markdown" },
   "/monitor": { url: "https://example.com", webhook: "https://api.axiomworks.co.uk/hooks/sink" },
 };
-const IN: any = { "/search": searchIn, "/uk-property": pcIn, "/uk-area": areaIn, "/uk-charity": charityIn, "/uk-charity-full": charityIn, "/us-sec": secIn, "/us-sec-full": secIn, "/eu-vat": vatIn, "/ens": ensIn, "/token": tokenMetaIn, "/allowance": allowIn, "/contract": contractIn, "/gas": gasIn, "/block": blockIn, "/nft": nftIn, "/wallet": walletIn, "/tx": txIn, "/token-check": tokenIn, "/fx": fxIn, "/read": urlIn, "/links": urlIn, "/check": checkIn, "/company": companyIn, "/uk-company": ukIn, "/uk-company-lite": ukLiteIn, "/company-full": companyFullIn, "/convert": convertIn, "/monitor": monitorIn };
+const IN: any = { "/uk-leads": leadsIn, "/uk-leads-lite": leadsIn, "/uk-leads-feed": leadsFeedIn, "/uk-watch": ukWatchIn, "/kyb": kybIn, "/search": searchIn, "/uk-property": pcIn, "/uk-area": areaIn, "/uk-charity": charityIn, "/uk-charity-full": charityIn, "/us-sec": secIn, "/us-sec-full": secIn, "/eu-vat": vatIn, "/ens": ensIn, "/token": tokenMetaIn, "/allowance": allowIn, "/contract": contractIn, "/gas": gasIn, "/block": blockIn, "/nft": nftIn, "/wallet": walletIn, "/tx": txIn, "/token-check": tokenIn, "/fx": fxIn, "/read": urlIn, "/links": urlIn, "/check": checkIn, "/company": companyIn, "/uk-company": ukIn, "/uk-company-lite": ukLiteIn, "/company-full": companyFullIn, "/convert": convertIn, "/monitor": monitorIn };
 const METHODS: Record<string, ("GET" | "POST")[]> = {
   "/read": ["GET", "POST"], "/links": ["GET", "POST"], "/check": ["GET", "POST"],
   "/company": ["GET", "POST"], "/uk-company": ["GET", "POST"], "/uk-company-lite": ["GET", "POST"], "/company-full": ["GET", "POST"], "/convert": ["GET", "POST"],
@@ -233,7 +277,10 @@ const METHODS: Record<string, ("GET" | "POST")[]> = {
   "/search": ["GET", "POST"], "/uk-property": ["GET", "POST"], "/uk-area": ["GET", "POST"],
   "/uk-charity": ["GET", "POST"], "/uk-charity-full": ["GET", "POST"],
   "/us-sec": ["GET", "POST"], "/us-sec-full": ["GET", "POST"], "/eu-vat": ["GET", "POST"],
+  "/uk-leads": ["GET", "POST"], "/uk-leads-lite": ["GET", "POST"], "/uk-leads-feed": ["POST"], "/uk-watch": ["POST"], "/kyb": ["GET", "POST"],
 };
+
+for (const r of CHAIN_ROUTES) { (PRICES as any)[r.path] = r.price; ATOMIC[r.path] = r.atomic; (DESC as any)[r.path] = r.desc; OUT[r.path] = r.out; IN[r.path] = r.in; EX[r.path] = r.ex; METHODS[r.path] = ["GET", "POST"]; VALIDATE[r.path] = r.validate; }
 
 function routes(payTo: string) {
   const r: any = {};
@@ -294,7 +341,7 @@ app.get("/.well-known/agent.json", (c) => {
   return c.json({
     name: "Axiom Works AgentReader", description: "x402 pay-per-call web reader, company research, UK Companies House + Charity Commission + US SEC EDGAR + EU VIES VAT due diligence, document conversion, change monitoring, EVM wallet/tx/token risk checks and ECB FX rates for AI agents.",
     url: b, provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk", email: CONTACT },
-    version: "1.7.1", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
+    version: "1.9.0", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     skills: Object.entries(PRICES).map(([p, price]) => ({ id: p.slice(1), name: p, description: DESC[p], price, endpoint: `${b}${p}` })),
     mcp: `${b}/mcp`, payments: { protocol: "x402", network: NETWORK, asset: USDC, payTo: c.env.PAY_TO },
   });
@@ -311,16 +358,18 @@ app.get("/openapi.json", (c) => {
     if (METHODS[p].includes("GET")) paths[p].get = { summary: DESC[p], parameters: params, responses: resp, "x-price": price, "x-payment-info": payInfo, "x-402": { network: NETWORK, asset: USDC, amount: String(ATOMIC[p]) } };
     if (METHODS[p].includes("POST")) paths[p].post = { summary: DESC[p], requestBody: { content: { "application/json": { schema: IN[p] } } }, responses: resp, "x-price": price, "x-payment-info": payInfo, "x-402": { network: NETWORK, asset: USDC, amount: String(ATOMIC[p]) } };
   }
+  paths["/uk-leads-feed/{id}"] = { get: { summary: "Free UK leads-feed status (id is the secret)", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { "200": { description: "Feed status" }, "404": { description: "Not found" } }, "x-price": "free" } };
+  paths["/uk-watch/{id}"] = { get: { summary: "Free UK company-watch status (id is the secret)", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { "200": { description: "Watch status" }, "404": { description: "Not found" } }, "x-price": "free" } };
   paths["/monitor/{id}"] = { get: { summary: "Free monitor status (id is the secret)", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { "200": { description: "Monitor status" }, "404": { description: "Not found" } }, "x-price": "free" } };
-  paths["/samples/{kind}"] = { get: { summary: "Free truncated sample (rate-limited 8/IP/day) with x402 upsell", parameters: [{ name: "kind", in: "path", required: true, schema: { type: "string", enum: ["read","company","uk-company","uk-company-lite","convert","uk-charity","uk-charity-full","us-sec","us-sec-full","eu-vat"] } }], responses: { "200": { description: "Truncated sample" }, "429": { description: "Preview quota exceeded" } }, "x-price": "free" } };
+  paths["/samples/{kind}"] = { get: { summary: "Free truncated sample (rate-limited 8/IP/day) with x402 upsell", parameters: [{ name: "kind", in: "path", required: true, schema: { type: "string", enum: ["read","company","uk-company","uk-company-lite","convert","uk-charity","uk-charity-full","us-sec","us-sec-full","eu-vat","uk-leads","uk-leads-lite","kyb"] } }], responses: { "200": { description: "Truncated sample" }, "429": { description: "Preview quota exceeded" } }, "x-price": "free" } };
   paths["/hooks/sink"] = { post: { summary: "Free webhook test sink for /monitor", responses: { "200": { description: "Stored" } }, "x-price": "free" } };
-  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.7.1", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, company research, UK due diligence, document conversion, change monitoring. Payments: USDC on Base mainnet (eip155:8453)." },
+  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.9.0", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, company research, UK due diligence, document conversion, change monitoring. Payments: USDC on Base mainnet (eip155:8453)." },
     servers: [{ url: b }], paths });
 });
 const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
 
 > Pay-per-call tools for AI agents. No API keys: x402 (HTTP 402) + USDC on Base (eip155:8453), payTo ${payTo}.
-> Free truncated samples: ${b}/samples/{read|company|uk-company|uk-company-lite|convert|uk-charity|uk-charity-full|us-sec|us-sec-full|eu-vat} (8/IP/day). Or add &preview=1 on paid GETs (same limit).
+> Free truncated samples: ${b}/samples/{read|company|uk-company|uk-company-lite|convert|uk-charity|uk-charity-full|us-sec|us-sec-full|eu-vat|uk-leads|uk-leads-lite|kyb} (8/IP/day). Or add &preview=1 on paid GETs (same limit).
 
 ## When to use which (pick one)
 
@@ -353,6 +402,12 @@ const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
 | US SEC full + facts | ${b}/us-sec-full?ticker=AAPL | $0.25 | us-gaap highlights + red-flag heuristics |
 | EU VAT (VIES) | ${b}/eu-vat?vat=IE6388047V | $0.01 | Official VIES valid/name/address |
 | FX rates (ECB) | ${b}/fx?base=GBP&symbols=USD | $0.002 | Official ECB rates, history, conversion |
+| **Single-fact EVM (5 chains, $0.001–0.003)** | ${b}/chain/{erc20-balance,balance,block-number,nonce,total-supply,erc20-transfers,events,network-info,receipt,code,call,estimate-gas,nft-owner,erc1155-balance,storage,proxy,chain-id} | $0.001–0.003 | One answer per call, Base/Ethereum/Arbitrum/Optimism/Polygon; see /openapi.json |
+| UK new cos (lite) | ${b}/uk-leads-lite?sic=&location= | $0.25 | New incorporations 1-7d, no directors |
+| UK new cos + directors | ${b}/uk-leads?sic=&location= | $1.00 | + active officer names, mass-formation flags |
+| UK leads daily feed | POST ${b}/uk-leads-feed | $25.00/30d | Daily webhook of new matches |
+| UK company watch | POST ${b}/uk-watch | $5.00/30d | Hourly CH status/officers/filings → webhook |
+| Agent KYB pack | ${b}/kyb?domain=&number=&vat= | $2.00 | Website + UK CH + EU VAT + trust flag |
 | Hourly change alerts | POST ${b}/monitor | $1.00/30d | Webhook on change; GET /monitor/:id free |
 
 ## Free
@@ -419,7 +474,8 @@ app.get("/dashboard/data", async (c) => {
   const mcpTools = [
     ["read_url", "$0.002"], ["extract_links", "$0.001"], ["check_domain", "$0.001"],
     ["company_research", "$0.25"], ["uk_company", "$0.50"], ["uk_company_lite", "$0.05"], ["company_full", "$0.65"], ["convert_document", "$0.03"], ["create_monitor", "$1.00"],
-    ["wallet_balances", "$0.003"], ["tx_status", "$0.003"], ["token_check", "$0.01"], ["fx_rates", "$0.002"], ["ens_lookup", "$0.002"], ["token_metadata", "$0.001"], ["token_allowance", "$0.002"], ["contract_info", "$0.003"], ["gas_fees", "$0.001"], ["block_lookup", "$0.001"], ["nft_lookup", "$0.002"], ["web_search", "$0.003"], ["uk_property_prices", "$0.01"], ["uk_area_profile", "$0.005"], ["uk_charity", "$0.05"], ["uk_charity_full", "$0.25"], ["us_sec", "$0.05"], ["us_sec_full", "$0.25"], ["eu_vat", "$0.01"],
+    ["wallet_balances", "$0.003"], ["tx_status", "$0.003"], ["token_check", "$0.01"], ["fx_rates", "$0.002"], ["ens_lookup", "$0.002"], ["token_metadata", "$0.001"], ["token_allowance", "$0.002"], ["contract_info", "$0.003"], ["gas_fees", "$0.001"], ["block_lookup", "$0.001"], ["nft_lookup", "$0.002"], ["web_search", "$0.003"], ["uk_property_prices", "$0.01"], ["uk_area_profile", "$0.005"], ["uk_charity", "$0.05"], ["uk_charity_full", "$0.25"], ["us_sec", "$0.05"], ["us_sec_full", "$0.25"], ["eu_vat", "$0.01"], ["uk_leads_lite", "$0.25"], ["uk_leads", "$1.00"], ["uk_leads_feed", "$25.00"], ["uk_watch", "$5.00"], ["kyb_report", "$2.00"],
+    ...CHAIN_ROUTES.map((r) => ["chain_" + r.path.slice(7).replace(/-/g, "_"), r.price]),
     ["pricing", "free"],
   ];
   const services = [
@@ -467,7 +523,7 @@ app.get("/samples", (c) => c.json({
   samples: Object.keys(STATIC_SAMPLES),
   live_preview: "Add ?preview=1 to paid GET routes (same IP daily quota)",
   limit: "8 previews/IP/UTC day",
-  kinds: ["read","links","check","company","uk-company","uk-company-lite","convert","company-full","uk-charity","uk-charity-full","us-sec","us-sec-full","eu-vat"],
+  kinds: ["read","links","check","company","uk-company","uk-company-lite","convert","company-full","uk-charity","uk-charity-full","us-sec","us-sec-full","eu-vat","uk-leads","uk-leads-lite","kyb"],
 }));
 app.get("/samples/:kind", async (c) => {
   const kind = c.req.param("kind") as PreviewKind;
@@ -480,6 +536,17 @@ app.get("/samples/:kind", async (c) => {
 });
 
 // Free monitor status (id is secret) — registered BEFORE paid /monitor middleware
+
+app.get("/uk-leads-feed/:id", async (c) => {
+  const mon = await getLeadsFeed(c.env, c.req.param("id"));
+  if (!mon) return c.json({ error: "not found" }, 404);
+  return c.json({ ...mon, seen: undefined, seen_count: (mon.seen || []).length, status_url: `${CANONICAL}/uk-leads-feed/${mon.id}`, seconds_remaining: Math.max(0, Math.floor((new Date(mon.expires).getTime() - Date.now()) / 1000)) });
+});
+app.get("/uk-watch/:id", async (c) => {
+  const mon = await getUkWatch(c.env, c.req.param("id"));
+  if (!mon) return c.json({ error: "not found" }, 404);
+  return c.json({ ...mon, status_url: `${CANONICAL}/uk-watch/${mon.id}`, seconds_remaining: Math.max(0, Math.floor((new Date(mon.expires).getTime() - Date.now()) / 1000)) });
+});
 app.get("/monitor/:id", async (c) => {
   const mon = await getMonitor(c.env, c.req.param("id"));
   if (!mon) return c.json({ error: "not found" }, 404);
@@ -502,7 +569,7 @@ async function livePreview(c: any, kind: PreviewKind, runner: () => Promise<any>
 
 // Free validation BEFORE payment: bad input -> 400 with an example, never a 402.
 for (const p of Object.keys(PRICES)) app.use(p, async (c, next) => {
-  if (c.req.path !== p || (p === "/monitor" && c.req.method !== "POST")) return next();
+  if (c.req.path !== p || ((p === "/monitor" || p === "/uk-leads-feed" || p === "/uk-watch") && c.req.method !== "POST")) return next();
   const v = VALIDATE[p]; if (!v) return next();
   const b = await bodyObj(c); const given = Object.keys(b).filter((k) => k !== "preview" && b[k] !== "" && b[k] != null);
   if (!given.length && c.req.query("preview") !== "1") return next(); // bare probe (x402scan/Bazaar crawlers): show the 402 challenge with schema + example
@@ -522,15 +589,16 @@ async function paid(c: any, next: any, p: string) {
   }
   return out;
 }
+const POST_ONLY_PAID = new Set(["/monitor", "/uk-leads-feed", "/uk-watch"]);
 for (const p of Object.keys(PRICES)) {
-  if (p === "/monitor") {
-    app.use("/monitor", async (c, next) => {
-      if (c.req.method !== "POST" || c.req.path !== "/monitor") return next();
+  if (POST_ONLY_PAID.has(p)) {
+    app.use(p, async (c, next) => {
+      if (c.req.method !== "POST" || c.req.path !== p) return next();
       return paid(c, next, p);
     });
   } else {
     app.use(p, async (c, next) => {
-      if (c.req.query("preview") === "1" && c.req.method === "GET") return next(); // handler serves truncated preview
+      if (c.req.query("preview") === "1" && c.req.method === "GET") return next();
       return paid(c, next, p);
     });
   }
@@ -661,6 +729,29 @@ for (const m of ["get", "post"] as const) {
       return livePreview(c, "convert", () => convertDocument(url, format), `${CANONICAL}/convert?url=${encodeURIComponent(url)}`);
     return cached(c, `convert?url=${encodeURIComponent(url)}&format=${format}`, () => convertDocument(url, format), 600);
   });
+
+  app[m]("/uk-leads-lite", async (c) => {
+    const b = await bodyObj(c);
+    const key = `sic=${b.sic||""}&loc=${b.location||""}&pa=${b.postcode_area||""}&d=${b.days||1}&l=${b.limit||50}`;
+    if (c.req.query("preview") === "1" && m === "get")
+      return livePreview(c, "uk-leads-lite", () => ukLeads(c.env, { ...b, lite: true, limit: Math.min(Number(b.limit)||5, 5) }), `${CANONICAL}/uk-leads-lite?${key}`);
+    return cached(c, `uk-leads-lite?${encodeURIComponent(key)}`, () => ukLeads(c.env, { sic: b.sic, location: b.location, postcode_area: b.postcode_area, days: b.days, limit: b.limit, lite: true }), 900);
+  });
+  app[m]("/uk-leads", async (c) => {
+    const b = await bodyObj(c);
+    const key = `sic=${b.sic||""}&loc=${b.location||""}&pa=${b.postcode_area||""}&d=${b.days||1}&l=${b.limit||25}`;
+    if (c.req.query("preview") === "1" && m === "get")
+      return livePreview(c, "uk-leads", () => ukLeads(c.env, { ...b, lite: false, limit: Math.min(Number(b.limit)||3, 3) }), `${CANONICAL}/uk-leads?${key}`);
+    return cached(c, `uk-leads?${encodeURIComponent(key)}`, () => ukLeads(c.env, { sic: b.sic, location: b.location, postcode_area: b.postcode_area, days: b.days, limit: b.limit, lite: false }), 900);
+  });
+  app[m]("/kyb", async (c) => {
+    const b = await bodyObj(c);
+    const key = `domain=${b.domain||""}&number=${b.number||""}&name=${b.name||""}&vat=${b.vat||""}`;
+    if (c.req.query("preview") === "1" && m === "get")
+      return livePreview(c, "kyb", () => kybReport(c.env, b), `${CANONICAL}/kyb?${key}`);
+    return cached(c, `kyb?${encodeURIComponent(key)}`, () => kybReport(c.env, { domain: b.domain, number: b.number, name: b.name, vat: b.vat, country: b.country, vat_number: b.vat_number }), 120);
+  });
+
 }
 
 const ONCHAIN: Record<string, [(b: any) => Promise<any>, string[], number, string[]?]> = {
@@ -671,6 +762,7 @@ const ONCHAIN: Record<string, [(b: any) => Promise<any>, string[], number, strin
   "/token-check": [(b) => tokenCheck(b), ["address", "chain"], 120],
   "/search": [(b) => search(b), ["q", "sources", "limit", "lang"], 900, ["q"]], "/uk-property": [(b) => ukProperty(b), ["postcode", "radius", "limit"], 86400, ["postcode"]], "/uk-area": [(b) => ukArea(b), ["postcode"], 21600, ["postcode"]], "/fx": [(b) => fx(b), ["base", "symbols", "date", "amount"], 600, []],
 };
+for (const r of CHAIN_ROUTES) ONCHAIN[r.path] = [r.fn, r.keys, r.ttl, (r.in.required as string[] | undefined) ?? []];
 function nftSlim(d: any) { const m = d?.metadata; return { ...slim(d), metadata: m ? { name: m.name ?? null, image: m.image ? String(m.image).slice(0, 60) + "…" : null, attributes_count: Array.isArray(m.attributes) ? m.attributes.length : 0, truncated: "full metadata/attributes in paid call" } : null }; }
 function slim(d: any): any { if (Array.isArray(d)) return d.slice(0, 2); if (d && typeof d === "object") { const o: any = {}; for (const [k, v] of Object.entries(d)) o[k] = Array.isArray(v) ? (v as any[]).slice(0, 2) : (k === "rates" || k === "converted") && v ? Object.fromEntries(Object.entries(v as any).slice(0, 3)) : v; return o; } return d; }
 for (const [p, [fn, keys, ttl, need]] of Object.entries(ONCHAIN)) for (const m of ["get", "post"] as const) app[m](p, async (c) => {
@@ -684,6 +776,27 @@ for (const [p, [fn, keys, ttl, need]] of Object.entries(ONCHAIN)) for (const m o
   return cached(c, `${p.slice(1)}?${new URLSearchParams(Object.entries(args).sort() as any)}`, () => fn(args), ttl);
 });
 
+
+app.post("/uk-leads-feed", async (c) => {
+  try {
+    const b = await bodyObj(c);
+    const mon = await createLeadsFeed(c.env, { webhook: b.webhook, sic: b.sic, location: b.location, postcode_area: b.postcode_area });
+    return c.json({ ...mon, seen: undefined, status_url: `${CANONICAL}/uk-leads-feed/${mon.id}`, price_paid: PRICES["/uk-leads-feed"], duration_days: 30, delivery: "daily UTC morning via cron" });
+  } catch (e: any) {
+    const status = e instanceof UserError ? e.status : 502;
+    return c.json({ error: e?.message || String(e) }, status as any);
+  }
+});
+app.post("/uk-watch", async (c) => {
+  try {
+    const b = await bodyObj(c);
+    const mon = await createUkWatch(c.env, { number: b.number, webhook: b.webhook });
+    return c.json({ ...mon, status_url: `${CANONICAL}/uk-watch/${mon.id}`, price_paid: PRICES["/uk-watch"], duration_days: 30, check_interval: "hourly" });
+  } catch (e: any) {
+    const status = e instanceof UserError ? e.status : 502;
+    return c.json({ error: e?.message || String(e) }, status as any);
+  }
+});
 app.post("/monitor", async (c) => {
   try {
     const b = await bodyObj(c);
@@ -700,5 +813,9 @@ export default {
   fetch: app.fetch,
   async scheduled(_event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
     ctx.waitUntil(runMonitors(env).then((r) => console.log("monitors", r)).catch((e) => console.log("monitors error", e)));
+    ctx.waitUntil(runUkWatches(env).then((r) => console.log("uk-watch", r)).catch((e) => console.log("uk-watch error", e)));
+    // Leads feeds: run once near 07:00 Europe/London (cron is hourly)
+    const hour = new Date().getUTCHours(); // London = UTC+0 in winter
+    if (hour === 7) ctx.waitUntil(runLeadsFeeds(env).then((r) => console.log("leads-feed", r)).catch((e) => console.log("leads-feed error", e)));
   },
 };

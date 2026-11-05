@@ -10,5 +10,5 @@ const pc = new x402Client().register("eip155:8453", new ExactEvmScheme(account a
 const mcp = new Client({ name: "paytest", version: "1" });
 await mcp.connect(new StreamableHTTPClientTransport(new URL("https://api.axiomworks.co.uk/mcp")));
 const paid: any = wrapMCPClientWithPayment(mcp as any, pc as any, { autoPayment: true } as any);
-const r: any = await paid.callTool("gas_fees", { chain: "base" });
+const r: any = await paid.callTool(process.argv[2] || "gas_fees", JSON.parse(process.argv[3] || '{"chain":"base"}'));
 console.log(JSON.stringify(r.paymentResponse ?? r._meta ?? {}).slice(0, 300)); console.log(JSON.stringify(r.content).slice(0, 200)); process.exit(0);

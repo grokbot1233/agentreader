@@ -1,0 +1,322 @@
+[
+ {
+  "path": "/chain/erc20-balance",
+  "tool": "chain_erc20_balance",
+  "price": "$0.001",
+  "description": "ERC20 token balance for any wallet on Base/Ethereum/Arbitrum/Optimism/Polygon via balanceOf (eth_call). Returns raw + decimal-formatted balance, symbol, decimals, block. Example: {address:\"0xd8dA…6045\", token:\"0x8335…2913\", chain:\"base\"}. $0.001.",
+  "params": {
+   "address": "Wallet address",
+   "token": "ERC20 contract",
+   "chain": "EVM chain (default base)"
+  },
+  "required": [
+   "address",
+   "token"
+  ],
+  "example": {
+   "address": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+   "token": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+   "chain": "base"
+  }
+ },
+ {
+  "path": "/chain/balance",
+  "tool": "chain_balance",
+  "price": "$0.001",
+  "description": "Native coin balance (ETH/POL) of any address via eth_getBalance, optionally at a historical block. Example: {address:\"0xd8dA…6045\", chain:\"ethereum\"} → {balance:\"…\", balance_wei, block}. Use /wallet ($0.003) for native + major tokens in one call. $0.001.",
+  "params": {
+   "address": "Address",
+   "chain": "EVM chain (default base)",
+   "block": "Block number or tag (default latest)"
+  },
+  "required": [
+   "address"
+  ],
+  "example": {
+   "address": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+   "chain": "ethereum"
+  }
+ },
+ {
+  "path": "/chain/block-number",
+  "tool": "chain_block_number",
+  "price": "$0.001",
+  "description": "Latest block height (chain tip) plus safe/finalized heights and head age in seconds, via eth_blockNumber/eth_getBlockByNumber. Base/Ethereum/Arbitrum/Optimism/Polygon. Example: {chain:\"base\"}. $0.001.",
+  "params": {
+   "chain": "EVM chain (default base)"
+  },
+  "required": [],
+  "example": {
+   "chain": "base"
+  }
+ },
+ {
+  "path": "/chain/nonce",
+  "tool": "chain_nonce",
+  "price": "$0.001",
+  "description": "Next transaction nonce for any address (latest and pending) via eth_getTransactionCount — how many txs it has sent, and whether one is stuck in the mempool. Example: {address:\"0xd8dA…6045\", chain:\"base\"}. $0.001.",
+  "params": {
+   "address": "Address",
+   "chain": "EVM chain (default base)"
+  },
+  "required": [
+   "address"
+  ],
+  "example": {
+   "address": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+   "chain": "base"
+  }
+ },
+ {
+  "path": "/chain/total-supply",
+  "tool": "chain_total_supply",
+  "price": "$0.001",
+  "description": "Total supply of an ERC20 or ERC721 token via totalSupply (eth_call), formatted with decimals and symbol. Example: {token:\"0x8335…2913\", chain:\"base\"} → {total_supply, symbol, decimals}. $0.001.",
+  "params": {
+   "token": "Token contract",
+   "chain": "EVM chain (default base)"
+  },
+  "required": [
+   "token"
+  ],
+  "example": {
+   "token": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+   "chain": "base"
+  }
+ },
+ {
+  "path": "/chain/erc20-transfers",
+  "tool": "chain_erc20_transfers",
+  "price": "$0.003",
+  "description": "ERC20 Transfer events for a token and/or wallet via eth_getLogs, decoded (from, to, amount with decimals, tx hash, block). Default last 1000 blocks, max 5000. Example: {token:\"0x8335…2913\", address:\"0x88b1…3ff6\", chain:\"base\"} → newest first. Use it to confirm incoming payments. $0.003.",
+  "params": {
+   "token": "ERC20 contract (optional if address given)",
+   "address": "Wallet to filter (optional if token given)",
+   "direction": "one of in|out|any",
+   "blocks": "Lookback blocks (default 1000, max 5000)",
+   "from_block": "from_block",
+   "to_block": "to_block",
+   "limit": "Max items (default 50, max 200)",
+   "chain": "EVM chain (default base)"
+  },
+  "required": [],
+  "example": {
+   "token": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+   "address": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+   "chain": "base"
+  }
+ },
+ {
+  "path": "/chain/events",
+  "tool": "chain_events",
+  "price": "$0.003",
+  "description": "Contract event logs via eth_getLogs filtered by contract and topics (topic0 = event signature hash). Raw logs, newest first; default last 1000 blocks, max 5000. Example: {address:\"0x8335…2913\", topic0:\"0xddf2…b3ef\", chain:\"base\", blocks:\"50\"}. $0.003.",
+  "params": {
+   "address": "Contract emitting the logs",
+   "topic0": "Event signature hash (0x + 64 hex)",
+   "topic1": "topic1",
+   "topic2": "topic2",
+   "topic3": "topic3",
+   "blocks": "blocks",
+   "from_block": "from_block",
+   "to_block": "to_block",
+   "limit": "limit",
+   "chain": "EVM chain (default base)"
+  },
+  "required": [
+   "address"
+  ],
+  "example": {
+   "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+   "topic0": "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+   "blocks": "20",
+   "limit": "5",
+   "chain": "base"
+  }
+ },
+ {
+  "path": "/chain/network-info",
+  "tool": "chain_network_info",
+  "price": "$0.001",
+  "description": "EVM network info in one call: chain ID, client version, block height, head age, gas price, base fee, native symbol. Confirms which chain an RPC is on before signing. Example: {chain:\"base\"}. $0.001.",
+  "params": {
+   "chain": "EVM chain (default base)"
+  },
+  "required": [],
+  "example": {
+   "chain": "base"
+  }
+ },
+ {
+  "path": "/chain/receipt",
+  "tool": "chain_receipt",
+  "price": "$0.002",
+  "description": "Transaction receipt via eth_getTransactionReceipt: success/revert status, gas used, effective gas price, fee in native coin, contract created, log count + raw logs. Example: {hash:\"0x…\", chain:\"base\"}. Use /tx ($0.003) for decoded transfers + confirmations. $0.002.",
+  "params": {
+   "hash": "hash",
+   "chain": "EVM chain (default base)"
+  },
+  "required": [
+   "hash"
+  ],
+  "example": {
+   "hash": "0x6f0d9bbb400eef11b67d1b9b41a5b9053b6790f254a3e9dea264dd1a8ded6a73",
+   "chain": "base"
+  }
+ },
+ {
+  "path": "/chain/code",
+  "tool": "chain_code",
+  "price": "$0.001",
+  "description": "Is this address a contract or a wallet (EOA)? eth_getCode → is_contract, bytecode size and prefix, EIP-7702 delegation detection. Example: {address:\"0x8335…2913\", chain:\"base\"}. Use /contract ($0.003) for proxy/owner/token detail. $0.001.",
+  "params": {
+   "address": "Address",
+   "chain": "EVM chain (default base)"
+  },
+  "required": [
+   "address"
+  ],
+  "example": {
+   "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+   "chain": "base"
+  }
+ },
+ {
+  "path": "/chain/call",
+  "tool": "chain_call",
+  "price": "$0.002",
+  "description": "Read-only contract call via eth_call (no transaction sent): pass to + ABI-encoded data, get the raw return hex plus best-effort uint/address/string decodes and revert reason. Example: {to:\"0x8335…2913\", data:\"0x18160ddd\", chain:\"base\"}. $0.002.",
+  "params": {
+   "to": "Contract",
+   "data": "0x calldata",
+   "from": "Optional caller",
+   "block": "block",
+   "chain": "EVM chain (default base)"
+  },
+  "required": [
+   "to",
+   "data"
+  ],
+  "example": {
+   "to": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+   "data": "0x18160ddd",
+   "chain": "base"
+  }
+ },
+ {
+  "path": "/chain/estimate-gas",
+  "tool": "chain_estimate_gas",
+  "price": "$0.002",
+  "description": "Estimate gas for a transaction before signing (eth_estimateGas) plus current fee → cost in native coin; returns the revert reason if it would fail. Example: {from:\"0xd8dA…6045\", to:\"0x8335…2913\", data:\"0xa9059cbb…\", chain:\"base\"}. $0.002.",
+  "params": {
+   "to": "Recipient/contract",
+   "from": "Sender",
+   "data": "data",
+   "value": "Wei (decimal)",
+   "chain": "EVM chain (default base)"
+  },
+  "required": [
+   "to"
+  ],
+  "example": {
+   "from": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+   "to": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+   "value": "1000000000000",
+   "chain": "base"
+  }
+ },
+ {
+  "path": "/chain/nft-owner",
+  "tool": "chain_nft_owner",
+  "price": "$0.001",
+  "description": "Current owner of an ERC721 token_id via ownerOf (eth_call), plus collection name/symbol. Example: {contract:\"0xBC4C…f13D\", token_id:\"1\", chain:\"ethereum\"} → {owner}. Use /nft ($0.002) for metadata. $0.001.",
+  "params": {
+   "contract": "ERC721 contract",
+   "token_id": "token_id",
+   "chain": "EVM chain (default base)"
+  },
+  "required": [
+   "contract",
+   "token_id"
+  ],
+  "example": {
+   "contract": "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D",
+   "token_id": "1",
+   "chain": "ethereum"
+  }
+ },
+ {
+  "path": "/chain/erc1155-balance",
+  "tool": "chain_erc1155_balance",
+  "price": "$0.001",
+  "description": "ERC1155 balance: how many copies of token_id a wallet holds, via balanceOf(address,uint256) (eth_call). Example: {contract:\"0x…\", address:\"0x…\", token_id:\"1\", chain:\"base\"}. $0.001.",
+  "params": {
+   "contract": "ERC1155 contract",
+   "address": "Holder",
+   "token_id": "token_id",
+   "chain": "EVM chain (default base)"
+  },
+  "required": [
+   "contract",
+   "address",
+   "token_id"
+  ],
+  "example": {
+   "contract": "0x76be3b62873462d2142405439777e971754e8e77",
+   "address": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+   "token_id": "10229",
+   "chain": "ethereum"
+  }
+ },
+ {
+  "path": "/chain/storage",
+  "tool": "chain_storage",
+  "price": "$0.001",
+  "description": "Read a raw storage slot of any contract via eth_getStorageAt, with uint and address decodes. Example: {address:\"0x8335…2913\", slot:\"0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc\", chain:\"base\"} (EIP-1967 implementation slot). $0.001.",
+  "params": {
+   "address": "Contract",
+   "slot": "Slot (decimal or 0x hex)",
+   "block": "block",
+   "chain": "EVM chain (default base)"
+  },
+  "required": [
+   "address",
+   "slot"
+  ],
+  "example": {
+   "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+   "slot": "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
+   "chain": "base"
+  }
+ },
+ {
+  "path": "/chain/proxy",
+  "tool": "chain_proxy",
+  "price": "$0.002",
+  "description": "Detect upgradeable proxies (EIP-1967 transparent/UUPS, beacon, legacy OZ, EIP-1167 minimal clones, EIP-7702) via eth_getStorageAt/eth_getCode: implementation, admin, beacon, and whether the implementation is a live contract. Example: {address:\"0x8335…2913\", chain:\"base\"}. $0.002.",
+  "params": {
+   "address": "Contract",
+   "chain": "EVM chain (default base)"
+  },
+  "required": [
+   "address"
+  ],
+  "example": {
+   "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+   "chain": "base"
+  }
+ },
+ {
+  "path": "/chain/chain-id",
+  "tool": "chain_chain_id",
+  "price": "$0.001",
+  "description": "EIP-155 chain ID straight from the RPC (eth_chainId + net_version) — confirm which network you are about to sign on. Example: {chain:\"base\"} → {chain_id:8453}. $0.001.",
+  "params": {
+   "chain": "EVM chain (default base)"
+  },
+  "required": [],
+  "example": {
+   "chain": "base"
+  }
+ }
+]

@@ -1,0 +1,10 @@
+{
+  "actorSpecification": 1,
+  "name": "uk-new-company-leads",
+  "title": "UK New Company Leads (Companies House)",
+  "description": "New UK incorporations filtered by SIC code, location or postcode area, with optional active director names. Sourced from the official Companies House API via Axiom Works AgentReader.",
+  "version": "0.1",
+  "meta": { "templateId": "project_empty" },
+  "input": "./input_schema.json",
+  "dockerfile": "./Dockerfile"
+}

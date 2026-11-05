@@ -3,7 +3,7 @@ import { CANONICAL } from "./facilitator";
 const PREVIEW_LIMIT = 8; // per IP per UTC day across all preview kinds
 const PREVIEW_PREFIX = "prev:";
 
-export type PreviewKind = "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat";
+export type PreviewKind = "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "uk-leads" | "uk-leads-lite" | "kyb";
 
 const PRICE: Record<PreviewKind, string> = {
   read: "$0.002", links: "$0.001", check: "$0.001",
@@ -11,6 +11,7 @@ const PRICE: Record<PreviewKind, string> = {
   convert: "$0.03", "company-full": "$0.65",
   "uk-charity": "$0.05", "uk-charity-full": "$0.25",
   "us-sec": "$0.05", "us-sec-full": "$0.25", "eu-vat": "$0.01",
+  "uk-leads": "$1.00", "uk-leads-lite": "$0.25", kyb: "$2.00",
 };
 
 const PAID_CALL: Record<PreviewKind, string> = {
@@ -27,6 +28,7 @@ const PAID_CALL: Record<PreviewKind, string> = {
   "us-sec": `${CANONICAL}/us-sec?ticker=TICKER`,
   "us-sec-full": `${CANONICAL}/us-sec-full?ticker=TICKER`,
   "eu-vat": `${CANONICAL}/eu-vat?vat=VAT`,
+  "uk-leads": `${CANONICAL}/uk-leads?sic=62012`, "uk-leads-lite": `${CANONICAL}/uk-leads-lite?sic=62`, kyb: `${CANONICAL}/kyb?domain=tesco.com&number=00445790`,
 };
 
 function dayKey() { return new Date().toISOString().slice(0, 10); }
@@ -182,6 +184,28 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         name: data.name, address_preview: data.address ? String(data.address).slice(0, 80) : null,
         omitted: ["full address lines"],
       };
+    case "uk-leads":
+    case "uk-leads-lite":
+      return {
+        ...u,
+        product: data.product, query: data.query, hits_total_unfiltered_by_postcode: data.hits_total_unfiltered_by_postcode,
+        returned: data.returned,
+        companies_preview: (data.companies || []).slice(0, 2).map((c: any) => ({
+          company_number: c.company_number, company_name: c.company_name, sic_codes: c.sic_codes,
+          postcode: c.postcode, directors_preview: (c.directors || []).slice(0, 1),
+        })),
+        omitted: ["full company list", "full director lists"],
+        attribution: data.attribution,
+      };
+    case "kyb":
+      return {
+        ...u,
+        product: data.product, disclaimer: data.disclaimer, trust: data.trust,
+        has_website: !!data.website && !data.website.error,
+        has_uk: !!data.uk && !data.uk.error,
+        has_eu_vat: !!data.eu_vat && !data.eu_vat.error,
+        omitted: ["full website/uk/eu_vat payloads — pay for complete pack"],
+      };
     default:
       return { ...u, error: "unknown preview kind" };
   }
@@ -189,6 +213,20 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
 
 /** Frozen real samples (generated offline / first warm). Keep intentionally partial. */
 export const STATIC_SAMPLES: Record<string, any> = {
+  "uk-leads-lite": {
+    product: "uk-leads-lite", query: { sic: "62012", days: 1 }, returned: 2,
+    companies_preview: [{ company_number: "17560814", company_name: "MADE OF WHITE LTD", sic_codes: ["62012"], postcode: "W1" }],
+    attribution: "Contains public sector information licensed under the Open Government Licence v3.0.",
+  },
+  "uk-leads": {
+    product: "uk-leads", query: { sic: "62012", days: 1 }, returned: 1,
+    companies_preview: [{ company_number: "17560814", company_name: "MADE OF WHITE LTD", directors_preview: [{ name: "MADUBUIKE, Precious Emmanuel", role: "director" }] }],
+  },
+  kyb: {
+    product: "kyb", trust: { flag: "CLEAR", score: 85, reasons: ["UK company status active", "website research completed"] },
+    disclaimer: "Screening over public registries only. Not a regulated KYC/KYB/AML determination.",
+  },
+
   company: {
     domain: "example.com",
     homepage: { title: "Example Domain", description: "This domain is for use in illustrative examples in documents." },

@@ -1,0 +1,24 @@
+Metadata-Version: 2.4
+Name: agentreader-tools
+Version: 1.8.0
+Summary: LangChain tools for Axiom Works AgentReader: 44 pay-per-call x402 tools (web read, UK/US/EU company data, EVM reads) paid in USDC on Base.
+License: MIT
+Project-URL: Homepage, https://grokbot1233.github.io/agentreader/
+Project-URL: Source, https://github.com/grokbot1233/agentreader
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: x402[evm,requests]>=2.27
+Requires-Dist: eth-account>=0.13
+Requires-Dist: langchain-core>=0.3
+Requires-Dist: pydantic>=2
+
+# agentreader-tools (Python, prepared and not yet on PyPI)
+
+```bash
+pip install "git+https://github.com/grokbot1233/agentreader#subdirectory=python"
+```
+
+```python
+from agentreader_tools import agentreader_tools
+tools = agentreader_tools(private_key=KEY, max_price_usd=0.01)
+```

@@ -13,4 +13,4 @@ for p,q in EX.items():
     rq=urllib.request.Request("https://api.axiomworks.co.uk%s?%s&preview=1"%(p,urllib.parse.urlencode(q)),headers={"user-agent":"agentreader-examples/1.0"})
     r0=json.load(urllib.request.urlopen(rq,timeout=60)); out[p]=trim(r0.get('data',r0) if 'paid_call' in r0 else r0); print(p,len(json.dumps(out[p])))
   except Exception as e: print(p,'ERR',e)
-json.dump(out,open('src/examples.json','w'))
+old=json.load(open('src/examples.json')); old.update(out); json.dump(old,open('src/examples.json','w'))

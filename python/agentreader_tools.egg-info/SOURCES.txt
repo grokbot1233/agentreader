@@ -1,0 +1,9 @@
+README.md
+pyproject.toml
+agentreader_tools/__init__.py
+agentreader_tools/catalog.json
+agentreader_tools.egg-info/PKG-INFO
+agentreader_tools.egg-info/SOURCES.txt
+agentreader_tools.egg-info/dependency_links.txt
+agentreader_tools.egg-info/requires.txt
+agentreader_tools.egg-info/top_level.txt

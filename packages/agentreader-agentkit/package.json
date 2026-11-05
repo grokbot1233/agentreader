@@ -1,0 +1,70 @@
+{
+  "name": "@axiomworks/agentreader-agentkit",
+  "version": "1.8.0",
+  "description": "Coinbase AgentKit action provider for Axiom Works AgentReader: 44 pay-per-call x402 tools (web read, UK/US/EU company data, single-fact EVM reads from $0.001) paid from the agent's own wallet in USDC on Base.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsup",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "agentkit",
+    "coinbase",
+    "action-provider",
+    "x402",
+    "axiomworks",
+    "agentreader",
+    "base",
+    "usdc",
+    "ai-agent",
+    "pay-per-call",
+    "evm",
+    "onchain"
+  ],
+  "author": "Axiom Works <info@axiomworks.co.uk>",
+  "license": "MIT",
+  "homepage": "https://grokbot1233.github.io/agentreader/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/grokbot1233/agentreader.git",
+    "directory": "packages/agentreader-agentkit"
+  },
+  "bugs": {
+    "url": "https://github.com/grokbot1233/agentreader/issues"
+  },
+  "dependencies": {
+    "@x402/evm": "^2.30.0",
+    "@x402/fetch": "^2.30.0",
+    "viem": "^2.57.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "tsup": "^8.4.0",
+    "typescript": "^5.7.3",
+    "@coinbase/agentkit": "^0.10.4",
+    "zod": "^3.25.0"
+  },
+  "allowScripts": {
+    "esbuild@0.27.7": true
+  },
+  "peerDependencies": {
+    "@coinbase/agentkit": ">=0.10.0",
+    "zod": "^3.22.0"
+  }
+}

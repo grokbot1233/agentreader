@@ -1,0 +1,4 @@
+x402[evm,requests]>=2.27
+eth-account>=0.13
+langchain-core>=0.3
+pydantic>=2

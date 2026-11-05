@@ -1,3 +1,4 @@
+const EXAMPLES_CHAIN: Record<string, any> = {};
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { createPaymentWrapper, x402ResourceServer } from "@x402/mcp";
@@ -19,14 +20,20 @@ import { ukProperty, ukArea } from "./ukdata";
 import { ukCharity } from "./uk-charity";
 import { usSec } from "./us-sec";
 import { euVat } from "./eu-vat";
+import { ukLeads, createLeadsFeed } from "./uk-leads";
+import { createUkWatch } from "./uk-watch";
+import { kybReport } from "./kyb";
+import { CHAIN_ROUTES } from "./chain";
+for (const r of CHAIN_ROUTES) { TOOL_PATH["chain_" + r.path.slice(7).replace(/-/g, "_")] = r.path; EXAMPLES_CHAIN[r.path] = r.ex; }
 const EXAMPLES: Record<string, any> = { "/read": { url: "https://example.com" }, "/links": { url: "https://example.com" }, "/check": { domain: "example.com" }, "/company": { domain: "stripe.com" }, "/company-full": { domain: "tesco.com" },
   "/uk-company": { number: "00445790" }, "/uk-company-lite": { number: "00445790" }, "/convert": { url: "https://example.com/doc.pdf" }, "/monitor": { url: "https://example.com", webhook: "https://your.app/hook" },
   "/wallet": { address: "0x88b1c747c33A5868A34057D8C57318E5602b3ff6" }, "/tx": { hash: "0x" + "ab".repeat(32) }, "/token-check": { address: "0x940181a94A35A4569E4529A3CDfB74e38FD98631" }, "/token": { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" },
   "/contract": { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" }, "/fx": { base: "GBP", symbols: "USD,EUR" }, "/ens": { name: "vitalik.eth" }, "/allowance": { token: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", owner: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045", spender: "0x000000000022D473030F116dDEE9F6B43aC78BA3" },
   "/gas": { chain: "base" }, "/block": { timestamp: "2026-01-01T00:00:00Z" }, "/nft": { contract: "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D", token_id: "1", chain: "ethereum" },
-  "/search": { q: "x402 agent payments" }, "/uk-property": { postcode: "CB1 2AB" }, "/uk-area": { postcode: "SW1A 2AA" }, "/uk-charity": { number: "1089464" }, "/uk-charity-full": { number: "1089464" }, "/us-sec": { ticker: "AAPL" }, "/us-sec-full": { ticker: "AAPL" }, "/eu-vat": { vat: "IE6388047V" } };
+  "/search": { q: "x402 agent payments" }, "/uk-property": { postcode: "CB1 2AB" }, "/uk-area": { postcode: "SW1A 2AA" }, "/uk-charity": { number: "1089464" }, "/uk-charity-full": { number: "1089464" }, "/us-sec": { ticker: "AAPL" }, "/us-sec-full": { ticker: "AAPL" }, "/eu-vat": { vat: "IE6388047V" }, "/uk-leads": { sic: "62012", days: 1 }, "/uk-leads-lite": { sic: "62", location: "London" }, "/uk-leads-feed": { sic: "62012", webhook: "https://your.app/hook" }, "/uk-watch": { number: "00445790", webhook: "https://your.app/hook" }, "/kyb": { domain: "tesco.com", number: "00445790" } };
 
 const NETWORK = "eip155:8453";
+function EXAMPLES_CHAIN_GET(p: string) { return EXAMPLES_CHAIN[p]; }
 let rs: any = null; let ready: Promise<any> | null = null;
 
 export async function handleMcp(req: Request, env: any, log: (rec: any) => Promise<void>) {
@@ -38,7 +45,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
   await ready;
   const mk = async (price: string, tool: string, atomic: number) => { const w: any = await mk0(price, tool, atomic); return (h: any) => { const paid = w(h); return async (a: any, extra: any) => {
     const p = TOOL_PATH[tool]; const e = p && VALIDATE[p] ? VALIDATE[p](a || {}) : null;
-    if (e) return { isError: true, content: [{ type: "text" as const, text: JSON.stringify({ error: e, free: true, note: "Input rejected before payment; you were not charged.", example: EXAMPLES[p] || null }) }] };
+    if (e) return { isError: true, content: [{ type: "text" as const, text: JSON.stringify({ error: e, free: true, note: "Input rejected before payment; you were not charged.", example: EXAMPLES[p] || EXAMPLES_CHAIN_GET(p) || null }) }] };
     return paid(a, extra); }; }; };
   const mk0 = async (price: string, tool: string, atomic: number) => createPaymentWrapper(rs, {
     resource: { url: `mcp://tool/${tool}`, description: `Axiom Works AgentReader ${tool}`, mimeType: "application/json", serviceName: "Axiom Works AgentReader", tags: ["x402", "uk", "web", "onchain", "charity"] },
@@ -47,7 +54,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       await log({ endpoint: `mcp:${tool}`, payer: settlement?.payer || null, amount: settlement?.amount || String(atomic), network: settlement?.network, tx: settlement?.transaction, success: settlement?.success });
     } },
   } as any);
-  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.7.0" });
+  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.9.0" });
   const json = (d: any) => ({ content: [{ type: "text" as const, text: JSON.stringify(d) }] });
   const err = (e: any) => ({ isError: true, content: [{ type: "text" as const, text: String(e?.message || e) }] });
 
@@ -160,6 +167,11 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
   for (const [n, price, atomic, shape, fn] of MT)
     server.tool(n, MICRO_DESC[n], shape, (await mk(price, n, atomic))(async (a: any) => { try { return json(await fn(a)); } catch (e) { return err(e); } }) as any);
 
+  for (const r of CHAIN_ROUTES) {
+    const n = "chain_" + r.path.slice(7).replace(/-/g, "_"); const req: string[] = r.in.required || [];
+    const shape: any = Object.fromEntries(Object.keys(r.in.properties).map((k) => [k, req.includes(k) ? z.string() : z.string().optional()]));
+    server.tool(n, r.desc.replace(/\$0\.00\d\.$/, `${r.price} USDC.`), shape, (await mk(r.price, n, r.atomic))(async (a: any) => { try { return json(await r.fn(a)); } catch (e) { return err(e); } }) as any);
+  }
   server.tool("pricing", "Free: list Axiom Works AgentReader tools, prices, when-to-use hints and payment details.", {}, async () => json({
     network: NETWORK, asset: "USDC", payTo: env.PAY_TO,
     samples: "https://api.axiomworks.co.uk/samples/{read|company|uk-company|uk-company-lite|convert|uk-charity|uk-charity-full|us-sec|us-sec-full|eu-vat}",
@@ -186,10 +198,37 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       us_sec: { price: "$0.05", when: "US SEC EDGAR company snapshot" },
       us_sec_full: { price: "$0.25", when: "SEC + us-gaap highlights + red flags" },
       eu_vat: { price: "$0.01", when: "EU VIES VAT validation" },
+      ...Object.fromEntries(CHAIN_ROUTES.map((r) => ["chain_" + r.path.slice(7).replace(/-/g, "_"), { price: r.price, when: r.desc.split(".")[0].slice(0, 90) }])),
       pricing: { price: "free" },
     },
     how: "Paid tools return x402 PaymentRequired; retry with _meta['x402/payment'] via @x402/mcp createx402MCPClient.",
   }));
+  server.tool("uk_leads_lite",
+    "Use this for cheap UK new-incorporation lead lists by SIC/location/postcode_area (1-7 days). Up to 100 cos, no directors. Upsell uk_leads. $0.25 USDC.",
+    { sic: z.string().optional(), location: z.string().optional(), postcode_area: z.string().optional(), days: z.union([z.string(), z.number()]).optional(), limit: z.union([z.string(), z.number()]).optional() },
+    (await mk("$0.25", "uk_leads_lite", 250000))(async (a: any) => { try { return json(await ukLeads(env, { ...a, lite: true })); } catch (e) { return err(e); } }) as any);
+
+  server.tool("uk_leads",
+    "Use this for UK new-incorporation leads with active director names (SIC/location/postcode_area, 1-7 days, ≤40). Official CH data. Daily feed: uk_leads_feed $25/30d. $1.00 USDC.",
+    { sic: z.string().optional(), location: z.string().optional(), postcode_area: z.string().optional(), days: z.union([z.string(), z.number()]).optional(), limit: z.union([z.string(), z.number()]).optional() },
+    (await mk("$1.00", "uk_leads", 1000000))(async (a: any) => { try { return json(await ukLeads(env, { ...a, lite: false })); } catch (e) { return err(e); } }) as any);
+
+  server.tool("uk_leads_feed",
+    "Use this for a 30-day daily webhook of new UK incorporations matching SIC/location/postcode_area (director-enriched, deduped). $25.00/30d USDC.",
+    { webhook: z.string().url(), sic: z.string().optional(), location: z.string().optional(), postcode_area: z.string().optional() },
+    (await mk("$25.00", "uk_leads_feed", 25000000))(async (a: any) => { try { return json(await createLeadsFeed(env, a)); } catch (e) { return err(e); } }) as any);
+
+  server.tool("uk_watch",
+    "Use this to watch one UK company 30 days: hourly CH poll of status/officers/filings → webhook on change. $5.00/30d USDC.",
+    { number: z.string(), webhook: z.string().url() },
+    (await mk("$5.00", "uk_watch", 5000000))(async (a: any) => { try { return json(await createUkWatch(env, a)); } catch (e) { return err(e); } }) as any);
+
+  server.tool("kyb_report",
+    "Use this for one-shot agent KYB: website research + UK CH DD + EU VIES VAT → trust flag. Screening only, not a regulated determination. $2.00 USDC.",
+    { domain: z.string().optional(), number: z.string().optional(), name: z.string().optional(), vat: z.string().optional(), country: z.string().optional(), vat_number: z.string().optional() },
+    (await mk("$2.00", "kyb_report", 2000000))(async (a: any) => { try { return json(await kybReport(env, a)); } catch (e) { return err(e); } }) as any);
+
+
   const transport = new WebStandardStreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true });
   await server.connect(transport);
   return transport.handleRequest(req);

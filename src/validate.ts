@@ -40,6 +40,10 @@ export const VALIDATE: Record<string, (b: any) => string | null> = {
   "/uk-property": (b) => first(!s(b.postcode) ? "missing postcode" : PC.test(s(b.postcode)) ? null : "postcode must be a full UK postcode, e.g. CB1 2AB",
     s(b.radius) && !(Number(b.radius) >= 50 && Number(b.radius) <= 1000) ? "radius must be 50-1000 metres" : null, s(b.limit) && !(Number(b.limit) >= 5 && Number(b.limit) <= 200) ? "limit must be 5-200" : null),
   "/uk-area": (b) => (!s(b.postcode) ? "missing postcode" : PC.test(s(b.postcode)) ? null : "postcode must be a full UK postcode, e.g. SW1A 2AA"),
+  "/uk-leads": (b) => leads(b), "/uk-leads-lite": (b) => leads(b),
+  "/uk-leads-feed": (b) => first(leadsFilter(b), url(b.webhook, "webhook"), s(b.webhook) && !s(b.webhook).startsWith("https://") ? "webhook must be https" : null),
+  "/uk-watch": (b) => first(!s(b.number) ? "missing number" : CHNUM.test(s(b.number)) ? null : "number must be a Companies House number", url(b.webhook, "webhook"), s(b.webhook) && !s(b.webhook).startsWith("https://") ? "webhook must be https" : null),
+  "/kyb": (b) => kyb(b),
 };
 
 function sec(b: any) {
@@ -66,6 +70,25 @@ function uk(b: any) { const n = s(b.number), m = s(b.name); if (!n && !m) return
 const CNUM = /^\d{5,8}(?:[-\/]\d{1,2})?$/;
 function charity(b: any) { const n = s(b.number), m = s(b.name); if (!n && !m) return "missing number or name"; if (n && !CNUM.test(n)) return "number must be a Charity Commission registered number, e.g. 1089464 or 1089464/0"; if (s(b.suffix) && !/^\d{1,2}$/.test(s(b.suffix))) return "suffix must be 0-99"; if (!n && m.length < 2) return "name too short"; return null; }
 
+
+function leadsFilter(b: any) {
+  const sic = s(b.sic), loc = s(b.location), pa = s(b.postcode_area);
+  if (!sic && !loc && !pa) return "provide sic and/or location and/or postcode_area";
+  if (sic && !/^\d{2,5}$/.test(sic)) return "sic must be a 2-5 digit SIC code or prefix, e.g. 62 or 62012";
+  if (pa && !/^[A-Za-z]{1,2}\d{0,2}$/.test(pa)) return "postcode_area must look like M, SW, SW1, B1";
+  if (loc && loc.length < 2) return "location too short";
+  if (s(b.days) && !(Number(b.days) >= 1 && Number(b.days) <= 7)) return "days must be 1-7";
+  if (s(b.limit) && !(Number(b.limit) >= 1 && Number(b.limit) <= 100)) return "limit must be 1-100";
+  return null;
+}
+function leads(b: any) { return leadsFilter(b); }
+function kyb(b: any) {
+  const domain = s(b.domain), number = s(b.number), name = s(b.name), vat = s(b.vat);
+  if (!domain && !number && !name && !vat && !(s(b.country) && s(b.vat_number))) return "provide domain and/or UK number/name and/or EU vat";
+  if (number && !CHNUM.test(number)) return "number must be a Companies House number";
+  return null;
+}
+
 export const TOOL_PATH: Record<string, string> = { read_url: "/read", extract_links: "/links", check_domain: "/check", company_research: "/company", uk_company: "/uk-company", uk_company_lite: "/uk-company-lite",
   company_full: "/company-full", convert_document: "/convert", create_monitor: "/monitor", wallet_balances: "/wallet", tx_status: "/tx", token_check: "/token-check", fx_rates: "/fx",
-  ens_lookup: "/ens", token_metadata: "/token", token_allowance: "/allowance", contract_info: "/contract", gas_fees: "/gas", block_lookup: "/block", nft_lookup: "/nft", web_search: "/search", uk_property_prices: "/uk-property", uk_area_profile: "/uk-area", uk_charity: "/uk-charity", uk_charity_full: "/uk-charity-full", us_sec: "/us-sec", us_sec_full: "/us-sec-full", eu_vat: "/eu-vat" };
+  ens_lookup: "/ens", token_metadata: "/token", token_allowance: "/allowance", contract_info: "/contract", gas_fees: "/gas", block_lookup: "/block", nft_lookup: "/nft", web_search: "/search", uk_property_prices: "/uk-property", uk_area_profile: "/uk-area", uk_charity: "/uk-charity", uk_charity_full: "/uk-charity-full", us_sec: "/us-sec", us_sec_full: "/us-sec-full", eu_vat: "/eu-vat", uk_leads: "/uk-leads", uk_leads_lite: "/uk-leads-lite", uk_leads_feed: "/uk-leads-feed", uk_watch: "/uk-watch", kyb_report: "/kyb" };

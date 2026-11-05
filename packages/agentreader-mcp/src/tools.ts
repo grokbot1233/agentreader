@@ -1,7 +1,8 @@
 import { z } from "zod";
 
 export const ORIGIN = process.env.AGENTREADER_ORIGIN || "https://api.axiomworks.co.uk";
-export const VERSION = "1.7.0";
+export const VERSION = "1.9.0";
+import CHAIN from "./chain-routes.json";
 
 const CH = z.enum(["base", "ethereum", "arbitrum", "optimism", "polygon"]).optional();
 const qs = (a: Record<string, unknown>) =>
@@ -311,4 +312,82 @@ export const TOOLS: ToolDef[] = [
         : `${ORIGIN}/uk-charity-full?name=${encodeURIComponent(a.name || "")}`,
     previewable: true,
   },
+  {
+    name: "uk_leads_lite",
+    description: "UK new-incorporation leads by SIC/location/postcode_area (1-7 days), no directors. $0.25 USDC.",
+    price: "$0.25",
+    schema: {
+      sic: z.string().optional(),
+      location: z.string().optional(),
+      postcode_area: z.string().optional(),
+      days: z.union([z.string(), z.number()]).optional(),
+      limit: z.union([z.string(), z.number()]).optional(),
+    },
+    http: (a) => `${ORIGIN}/uk-leads-lite?${qs(a)}`,
+    previewable: true,
+  },
+  {
+    name: "uk_leads",
+    description: "UK new-incorporation leads with active director names. $1.00 USDC.",
+    price: "$1.00",
+    schema: {
+      sic: z.string().optional(),
+      location: z.string().optional(),
+      postcode_area: z.string().optional(),
+      days: z.union([z.string(), z.number()]).optional(),
+      limit: z.union([z.string(), z.number()]).optional(),
+    },
+    http: (a) => `${ORIGIN}/uk-leads?${qs(a)}`,
+    previewable: true,
+  },
+  {
+    name: "uk_leads_feed",
+    description: "30-day daily webhook of new UK incorporations matching SIC/location/postcode_area. $25.00/30d USDC.",
+    price: "$25.00",
+    schema: {
+      webhook: z.string().url(),
+      sic: z.string().optional(),
+      location: z.string().optional(),
+      postcode_area: z.string().optional(),
+    },
+    http: () => `${ORIGIN}/uk-leads-feed`,
+    method: "POST",
+    body: (a) => a,
+  },
+  {
+    name: "uk_watch",
+    description: "Watch one UK company 30 days: hourly CH poll → webhook on change. $5.00/30d USDC.",
+    price: "$5.00",
+    schema: { number: z.string(), webhook: z.string().url() },
+    http: () => `${ORIGIN}/uk-watch`,
+    method: "POST",
+    body: (a) => a,
+  },
+  {
+    name: "kyb_report",
+    description: "Agent KYB pack: website + UK CH + EU VAT → trust flag. Screening only. $2.00 USDC.",
+    price: "$2.00",
+    schema: {
+      domain: z.string().optional(),
+      number: z.string().optional(),
+      name: z.string().optional(),
+      vat: z.string().optional(),
+      country: z.string().optional(),
+      vat_number: z.string().optional(),
+    },
+    http: (a) => `${ORIGIN}/kyb?${qs(a)}`,
+    previewable: true,
+  },
 ];
+
+// Single-fact EVM tools (/chain/*), generated from the server's route table.
+for (const r of CHAIN as any[]) {
+  TOOLS.push({
+    name: r.tool,
+    description: r.description.replace(/\$0\.00\d\.$/, `${r.price} USDC.`),
+    price: r.price,
+    schema: Object.fromEntries(Object.keys(r.params).map((k) => [k, r.required.includes(k) ? z.string().describe(r.params[k]) : z.string().optional().describe(r.params[k])])),
+    http: (a) => `${ORIGIN}${r.path}?${qs(a)}`,
+    previewable: true,
+  } as ToolDef);
+}

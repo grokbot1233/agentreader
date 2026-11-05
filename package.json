@@ -1,6 +1,6 @@
 {
   "name": "agentreader",
-  "version": "1.7.0",
+  "version": "1.9.0",
   "description": "x402 pay-per-call web reader, company research, UK/US/EU due diligence (CH, charity, SEC EDGAR, VIES VAT), document conversion & monitoring for AI agents (HTTP + MCP)",
   "main": "index.js",
   "scripts": {

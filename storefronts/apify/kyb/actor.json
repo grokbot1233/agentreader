@@ -1,0 +1,9 @@
+{
+  "actorSpecification": 1,
+  "name": "agent-kyb-uk-eu",
+  "title": "Agent KYB — UK Companies House + EU VAT + Website",
+  "description": "One-shot KYB/due-diligence screening pack for AI agents and onboarding flows. Combines website research, UK Companies House DD and EU VIES VAT into a composite trust flag. Screening only — not a regulated determination.",
+  "version": "0.1",
+  "input": "./input_schema.json",
+  "dockerfile": "./Dockerfile"
+}

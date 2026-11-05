@@ -4,7 +4,7 @@ import { privateKeyToAccount } from "viem/accounts";
 import type { Chain, ClientOptions, RequestOpts } from "./types.js";
 
 const DEFAULT_ORIGIN = "https://api.axiomworks.co.uk";
-const VERSION = "1.7.0";
+const VERSION = "1.9.0";
 
 function normalizeKey(raw?: string): `0x${string}` | undefined {
   if (!raw) return undefined;
@@ -229,10 +229,50 @@ export class AgentReaderClient {
   usSecFull(input: { ticker?: string; cik?: string }, opts?: RequestOpts) {
     return this.get("/us-sec-full", input, opts);
   }
+  /** Single-fact EVM lookups ($0.001–0.003): name is e.g. "erc20-balance", "nonce", "receipt" (see chainRoutes). */
+  chain(name: ChainRouteName, input: Record<string, string | number | undefined> = {}, opts?: RequestOpts) {
+    return this.get(`/chain/${name}`, input as any, opts);
+  }
   euVat(input: { vat?: string; country?: string; number?: string }, opts?: RequestOpts) {
     return this.get("/eu-vat", input, opts);
   }
+  ukLeadsLite(input: { sic?: string; location?: string; postcode_area?: string; days?: string | number; limit?: string | number }, opts?: RequestOpts) {
+    return this.get("/uk-leads-lite", input as any, opts);
+  }
+  ukLeads(input: { sic?: string; location?: string; postcode_area?: string; days?: string | number; limit?: string | number }, opts?: RequestOpts) {
+    return this.get("/uk-leads", input as any, opts);
+  }
+  ukLeadsFeed(input: { webhook: string; sic?: string; location?: string; postcode_area?: string }, opts?: RequestOpts) {
+    return this.request(
+      `${this.origin}/uk-leads-feed`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(input),
+        previewable: false,
+      },
+      { ...opts, preview: false },
+    );
+  }
+  ukWatch(input: { number: string; webhook: string }, opts?: RequestOpts) {
+    return this.request(
+      `${this.origin}/uk-watch`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(input),
+        previewable: false,
+      },
+      { ...opts, preview: false },
+    );
+  }
+  kybReport(input: { domain?: string; number?: string; name?: string; vat?: string; country?: string; vat_number?: string }, opts?: RequestOpts) {
+    return this.get("/kyb", input as any, opts);
+  }
 }
+
+export type ChainRouteName = "erc20-balance" | "balance" | "block-number" | "nonce" | "total-supply" | "erc20-transfers" | "events" | "network-info" | "receipt" | "code" | "call" | "estimate-gas" | "nft-owner" | "erc1155-balance" | "storage" | "proxy" | "chain-id";
+export { default as chainRoutes } from "./chain-routes.json";
 
 /** Create a typed AgentReader client. Pass privateKey (or set AGENTREADER_PRIVATE_KEY) to auto-pay. */
 export function createClient(opts: ClientOptions = {}): AgentReaderClient {

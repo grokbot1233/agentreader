@@ -20,6 +20,11 @@ No API keys, no accounts. Agents pay per request in **USDC on Base mainnet** usi
 | `GET/POST /uk-charity-full?number=` / `?name=` | `uk_charity_full` | $0.25 | Full charity DD: trustees, 5y finances, assets, governance, regulatory + red flags |
 | `GET/POST /convert?url=` | `convert_document` | $0.03 | PDF/DOCX/HTML → markdown or text |
 | `GET /samples/:kind` | — | free* | Truncated real sample + upsell (*8/IP/day) |
+| `GET/POST /uk-leads-lite?sic=` | `uk_leads_lite` | $0.25 | UK new incorporations by SIC/area (no directors) |
+| `GET/POST /uk-leads?sic=` | `uk_leads` | $1.00 | New cos + active director names + mass-formation flags |
+| `POST /uk-leads-feed` | `uk_leads_feed` | $25.00 / 30d | Daily webhook of new matches for your filter |
+| `POST /uk-watch` | `uk_watch` | $5.00 / 30d | Hourly Companies House status/officers/filings → webhook |
+| `GET/POST /kyb` | `kyb_report` | $2.00 | Website + UK CH + EU VAT → trust flag (screening only) |
 | `POST /monitor` | `create_monitor` | $1.00 / 30d | Hourly change monitor → webhook |
 | `GET /monitor/:id` | — | free | Monitor status (id is the secret) |
 

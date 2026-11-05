@@ -32,10 +32,10 @@ export npm_config_userconfig="$TMP_NPMRC"
 echo "npm whoami:"
 npm whoami
 
-PACKAGES=(
+if [[ $# -gt 0 ]]; then PACKAGES=("$@"); else PACKAGES=(
   "$ROOT/packages/agentreader"
   "$ROOT/packages/agentreader-mcp"
-)
+); fi
 
 for pkg in "${PACKAGES[@]}"; do
   name="$(node -p "require('$pkg/package.json').name")"
