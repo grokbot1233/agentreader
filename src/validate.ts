@@ -25,7 +25,10 @@ export const VALIDATE: Record<string, (b: any) => string | null> = {
   "/tx": (b) => first(!s(b.hash) ? "missing hash" : HASH.test(s(b.hash)) ? null : "hash must be 0x + 64 hex chars", chain(b.chain)),
   "/token-check": (b) => first(addr(b.address, "address"), chain(b.chain)), "/token": (b) => first(addr(b.address, "address"), chain(b.chain)),
   "/contract": (b) => first(addr(b.address, "address"), chain(b.chain)),
-  "/fx": (b) => first(s(b.base) && !ISO.test(s(b.base)) ? "base must be a 3-letter ISO currency, e.g. GBP" : null,
+  "/fx": (b) => first(
+    s(b.from) && !s(b.base) ? "use base= (not from=), e.g. base=USD" : null,
+    s(b.to) && !s(b.symbols) ? "use symbols= (not to=), e.g. symbols=GBP,EUR" : null,
+    s(b.base) && !ISO.test(s(b.base)) ? "base must be a 3-letter ISO currency, e.g. GBP" : null,
     s(b.symbols) && s(b.symbols).split(",").some((x) => !ISO.test(x.trim())) ? "symbols must be comma-separated ISO codes, e.g. USD,EUR" : null,
     s(b.date) && !/^\d{4}-\d{2}-\d{2}$/.test(s(b.date)) ? "date must be YYYY-MM-DD" : null, s(b.amount) && !(Number(b.amount) >= 0) ? "amount must be a positive number" : null),
   "/ens": (b) => { const n = s(b.name), a = s(b.address); if (!n && !a) return "missing name or address"; if (a) return addr(a, "address"); return /^[^\s.]+(\.[^\s.]+)+$/.test(n) ? null : "name must be an ENS name like vitalik.eth"; },
@@ -58,12 +61,12 @@ function vat(b: any) {
   const country = s(b.country).toUpperCase();
   const number = s(b.number).toUpperCase().replace(/[\s.-]/g, "");
   if (v) {
-    if (!/^(?:GR|[A-Z]{2})[A-Z0-9]{2,12}$/.test(v)) return "vat must look like DE123456789 or IE6388047V";
+    if (!/^(?:GR|[A-Z]{2})[A-Z0-9]{2,12}$/.test(v) || !/\d/.test(v.slice(2))) return "vat must look like DE123456789 or IE6388047V";
     return null;
   }
   if (!country || !number) return "missing vat (e.g. IE6388047V) or country+number";
   if (!/^[A-Z]{2}$/.test(country)) return "country must be a 2-letter code (EL for Greece)";
-  if (!/^[A-Z0-9]{2,12}$/.test(number)) return "number must be 2-12 alphanumeric";
+  if (!/^[A-Z0-9]{2,12}$/.test(number) || !/\d/.test(number)) return "number must be 2-12 alphanumeric with at least one digit";
   return null;
 }
 function uk(b: any) { const n = s(b.number), m = s(b.name); if (!n && !m) return "missing number or name"; if (n && !CHNUM.test(n)) return "number must be a Companies House number: 8 digits (e.g. 00445790) or 2 letters + 6 digits (e.g. SC123456)"; if (!n && m.length < 2) return "name too short"; return null; }
@@ -85,7 +88,9 @@ function leads(b: any) { return leadsFilter(b); }
 function kyb(b: any) {
   const domain = s(b.domain), number = s(b.number), name = s(b.name), vat = s(b.vat);
   if (!domain && !number && !name && !vat && !(s(b.country) && s(b.vat_number))) return "provide domain and/or UK number/name and/or EU vat";
+  if (domain) { const d = domainish(domain); if (d) return d; }
   if (number && !CHNUM.test(number)) return "number must be a Companies House number";
+  if (vat && (!/^(?:GR|[A-Z]{2})[A-Z0-9]{2,12}$/i.test(vat.replace(/[\s.-]/g, "")) || !/\d/.test(vat.replace(/[\s.-]/g, "").slice(2)))) return "vat must look like DE123456789 or IE6388047V";
   return null;
 }
 
