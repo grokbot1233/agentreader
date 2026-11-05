@@ -28,3 +28,9 @@
   - 7 sample shards (0000,0001,0002,0004,0009,0040,0096; 8,683 companies, 1.4 MB).
   - GET /au-company?acn=004028077 -> 402 + PAYMENT-REQUIRED ($0.02); &preview=1 -> 200 name+status; ?abn= 11 digits accepted; /_au/0040.json -> 404 (run_worker_first=true keeps shards private).
 - Full rollout: (1) `python3 scripts/au-shards.py COMPANY_YYYYMM.csv <assets>/_au` (all shards); (2) either deploy the preview Worker with all shards and bind it to production via a Service Binding, or add [assets] (run_worker_first=true, binding ASSETS) to the main wrangler.toml and port the route (check main Worker's existing routes don't collide with an assets dir); (3) add /au-company to PRICES/IN/OUT/DESC, openapi, llms, MCP; (4) monthly refresh = rerun + redeploy (only changed files upload). Wrangler 4.157 in use.
+
+## Full preview + CPU (2026-11-05 21:20 GMT)
+- Full set deployed to preview Worker: 2,341 shards uploaded in ~71 s (version d34d2e63, later c8ab9671).
+- CPU (wrangler tail, largest shard 6996.json, ACN 699600014): with JSON.parse of whole shard 9-12 ms (over 10 ms free limit). Switched to indexOf+slice parse of only the one record: 5 ms steady (one 15 ms cold start). OK.
+- /internal/au (shared-secret header AU_INTERNAL_KEY, secret set on both Workers) for production Service Binding; 403 without key.
+- Production wiring prepared on branch `au-company-prod` (not deployed): /au-company $0.02 + /au-company/{acn|abn} alias, openapi/llms/discovery auto-generated, validate + TOOL_PATH; MCP tool not yet added. Dry-run build OK (7.2 MiB).
