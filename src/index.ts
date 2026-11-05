@@ -56,7 +56,7 @@ const PRICES = {
   "/uk-charity": "$0.05", "/uk-charity-full": "$0.25",
   "/us-sec": "$0.05", "/us-sec-full": "$0.25", "/eu-vat": "$0.01",
   "/uk-leads-lite": "$0.25", "/uk-leads": "$1.00", "/uk-leads-feed": "$25.00",
-  "/uk-watch": "$5.00", "/kyb": "$2.00",
+  "/uk-watch": "$5.00", "/kyb": "$2.50",
   "/sanctions": "$0.05", "/sanctions-batch": "$1.00",
   "/uk-officer": "$0.15",
 } as const;
@@ -73,7 +73,7 @@ const ATOMIC: Record<string, number> = {
   "/uk-charity": 50000, "/uk-charity-full": 250000,
   "/us-sec": 50000, "/us-sec-full": 250000, "/eu-vat": 10000,
   "/uk-leads-lite": 250000, "/uk-leads": 1000000, "/uk-leads-feed": 25000000,
-  "/uk-watch": 5000000, "/kyb": 2000000,
+  "/uk-watch": 5000000, "/kyb": 2500000,
   "/sanctions": 50000, "/sanctions-batch": 1000000,
   "/uk-officer": 150000,
 };
@@ -269,7 +269,7 @@ const DESC: Record<string, string> = {
   "/uk-leads": "Use this for UK new-incorporation leads with active director names — filter by SIC/location/postcode_area, 1-7 days, up to 40 companies. Official Companies House data + mass-formation flags. Example: {sic:\"62\",location:\"Manchester\",days:2}. Daily webhook: /uk-leads-feed $25/30d. $1.00.",
   "/uk-leads-feed": "Use this for a 30-day daily webhook of new UK incorporations matching your SIC/location/postcode_area (director-enriched). Deduped. Example POST {sic:\"62012\",webhook:\"https://your.app/hook\"}. Status GET /uk-leads-feed/:id free. $25.00/30d.",
   "/uk-watch": "Use this to watch one UK company for 30 days: hourly Companies House poll of status/officers/filings → webhook on change. Example POST {number:\"00445790\",webhook:\"https://your.app/hook\"}. GET /uk-watch/:id free. $5.00/30d.",
-  "/kyb": "Use this for a one-shot agent KYB/due-diligence pack: optional website research + UK Companies House DD + EU VIES VAT + public sanctions screen (entity + directors) → composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not a regulated determination. Example: {domain:\"tesco.com\",number:\"00445790\"} or {vat:\"IE6388047V\"}. $2.00.",
+  "/kyb": "Use this for a one-shot agent KYB/due-diligence pack: optional website research + UK Companies House DD and/or Australia ASIC (acn/abn) and/or Canada Corporations Canada (ca_number/bn) + EU VIES VAT + public sanctions screen (entity + directors) + director appointment skim (nominee/formation pattern) → composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not a regulated determination. Example: {domain:\"tesco.com\",number:\"00445790\"} or {vat:\"IE6388047V\"}. $2.50.",
   "/sanctions": "Screen a person or entity name against public OFAC SDN/CONS, UK FCDO, UN SC and EU financial sanctions lists. Fuzzy scored matches with list/programme/id/aliases/DOB/nationality. Screening aid only - not a regulated AML/KYC determination. Example: {name:\"BANCO NACIONAL DE CUBA\"}. $0.05.",
   "/sanctions-batch": "Screen up to 50 names against OFAC/UK/UN/EU public sanctions lists. Screening aid only. Example: {names:[\"BANCO NACIONAL DE CUBA\",\"Alice Wonderland\"]}. $1.00.",
   "/uk-officer": "Use this to reverse-search a UK Companies House officer name to their appointments (company_number, role, appointed/resigned, status). Returns matches with address_snippet, appointment_count, DOB month/year, heuristic high-appointment / mass-formation flags. Public register (OGL); screening/research aid only - not a credit check. Example: {name:\"Ken Olisa\",limit:10}. $0.15.",
@@ -403,7 +403,7 @@ app.get("/.well-known/agent-card.json", (c) => {
   return c.json({
     protocolVersion: "0.3.0", name: "Axiom Works AgentReader",
     description: "Pay-per-call (x402, USDC on Base) UK Companies House, KYB, SEC EDGAR, EU VAT, web-to-markdown and EVM on-chain lookups for AI agents. HTTP + MCP; no API keys.",
-    url: b, preferredTransport: "HTTP+JSON", version: "1.12.0", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
+    url: b, preferredTransport: "HTTP+JSON", version: "1.12.4", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
     provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk" },
     capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
     defaultInputModes: ["application/json"], defaultOutputModes: ["application/json"],
@@ -416,14 +416,14 @@ app.get("/.well-known/agent.json", (c) => {
   return c.json({
     name: "Axiom Works AgentReader", description: "x402 pay-per-call web reader, company research, UK Companies House + Charity Commission + US SEC EDGAR + EU VIES VAT + OFAC/UK/UN/EU sanctions screening due diligence, document conversion, change monitoring, EVM wallet/tx/token risk checks and ECB FX rates for AI agents.",
     url: b, provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk", email: CONTACT },
-    version: "1.12.0", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
+    version: "1.12.4", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     skills: Object.entries(PRICES).map(([p, price]) => ({ id: p.slice(1), name: p, description: DESC[p], price, endpoint: `${b}${p}` })),
     mcp: `${b}/mcp`, payments: { protocol: "x402", network: NETWORK, asset: USDC, payTo: c.env.PAY_TO },
   });
 });
 app.get("/.well-known/mcp.json", (c) => {
   const b = base(c);
-  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.12.0",
+  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.12.4",
     description: "x402 pay-per-call MCP: web reader, UK/AU company registries, SEC, VAT, sanctions, EVM chain data.",
     transport: { type: "streamable-http", url: `${b}/mcp` }, documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     payments: { protocol: "x402", network: NETWORK, asset: USDC } });
@@ -460,7 +460,7 @@ app.get("/openapi.json", (c) => {
     paths[ap] = { get: { summary: `Path alias of ${to} (same price/x402 challenge). ${DESC[to] || ""}`, parameters: [...ks.map((k) => ({ name: k, in: "path", required: true, schema: { type: "string" } })), { name: "chain", in: "query", required: false, schema: { type: "string" } }, { name: "preview", in: "query", required: false, schema: { type: "string", enum: ["1"] } }],
       responses: { "200": { description: "Success", content: { "application/json": { schema: OUT[to] } } }, "402": { description: `Payment required: ${price} USDC on Base (x402)` } }, "x-price": price, "x-alias-of": to } }; }
   paths["/hooks/sink"] = { post: { summary: "Free webhook test sink for /monitor", responses: { "200": { description: "Stored" } }, "x-price": "free" } };
-  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.12.0", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, company research, UK due diligence, document conversion, change monitoring. Payments: USDC on Base mainnet (eip155:8453)." },
+  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.12.4", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, company research, UK due diligence, document conversion, change monitoring. Payments: USDC on Base mainnet (eip155:8453)." },
     servers: [{ url: b }], paths });
 });
 const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
@@ -920,10 +920,11 @@ for (const m of ["get", "post"] as const) {
   });
   app[m]("/kyb", async (c) => {
     const b = await bodyObj(c);
-    const key = `domain=${b.domain||""}&number=${b.number||""}&name=${b.name||""}&vat=${b.vat||""}`;
+    const key = `domain=${b.domain||""}&number=${b.number||""}&name=${b.name||""}&vat=${b.vat||""}&acn=${b.acn||b.abn||""}&ca_number=${b.ca_number||""}&bn=${b.bn||""}`;
+    const KREG = { au: auCompany, ca: caCompany };
     if (c.req.query("preview") === "1" && m === "get")
-      return livePreview(c, "kyb", () => kybReport(c.env, b), `${CANONICAL}/kyb?${key}`);
-    return cached(c, `kyb?${encodeURIComponent(key)}`, () => kybReport(c.env, { domain: b.domain, number: b.number, name: b.name, vat: b.vat, country: b.country, vat_number: b.vat_number }), 120);
+      return livePreview(c, "kyb", () => kybReport(c.env, b, KREG), `${CANONICAL}/kyb?${key}`);
+    return cached(c, `kyb?${encodeURIComponent(key)}`, () => kybReport(c.env, { domain: b.domain, number: b.number, name: b.name, vat: b.vat, country: b.country, vat_number: b.vat_number, acn: b.acn || b.abn, ca_number: b.ca_number, bn: b.bn }, KREG), 120);
   });
 
 
