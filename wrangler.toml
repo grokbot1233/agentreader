@@ -15,3 +15,7 @@ id = "057b98b129ee44c39c49021c2ec20652"
 
 [triggers]
 crons = ["0 * * * *"]
+
+[[services]]
+binding = "AU"
+service = "agentreader-au-preview"

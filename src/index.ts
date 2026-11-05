@@ -30,11 +30,12 @@ import { dashboardHtml } from "./dashboard";
 import { wallet, tx, tokenCheck, fx, CHAINS } from "./onchain";
 import { ens, tokenMeta, allowance, contractInfo, gas, block, nft } from "./micro";
 
-type Env = { LOG: KVNamespace; STATS_SECRET: string; DASHBOARD_KEY: string; PAY_TO: string; FACILITATOR_URL: string; CDP_API_KEY_ID?: string; CDP_API_KEY_SECRET?: string; FACILITATOR?: string; CH_API_KEY?: string; CHARITY_KEY?: string };
+type Env = { AU?: Fetcher; AU_INTERNAL_KEY?: string; LOG: KVNamespace; STATS_SECRET: string; DASHBOARD_KEY: string; PAY_TO: string; FACILITATOR_URL: string; CDP_API_KEY_ID?: string; CDP_API_KEY_SECRET?: string; FACILITATOR?: string; CH_API_KEY?: string; CHARITY_KEY?: string };
 const NETWORK = "eip155:8453";
 const USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 
 const PRICES = {
+  "/au-company": "$0.02",
   "/read": "$0.002",
   "/links": "$0.001",
   "/check": "$0.001",
@@ -58,6 +59,7 @@ const PRICES = {
   "/uk-officer": "$0.15",
 } as const;
 const ATOMIC: Record<string, number> = {
+  "/au-company": 20000,
   "/read": 2000, "/links": 1000, "/check": 1000,
   "/company": 250000, "/uk-company": 500000, "/uk-company-lite": 50000, "/company-full": 650000,
   "/convert": 30000, "/monitor": 1000000,
@@ -136,6 +138,8 @@ const txIn = { type: "object", properties: { hash: { type: "string", description
 const txOut = { type: "object", properties: { status: { type: "string" }, block: { type: ["integer", "null"] }, timestamp: { type: ["string", "null"] }, from: { type: "string" }, to: { type: ["string", "null"] }, value_native: { type: "string" }, fee_native: { type: "string" }, erc20_transfers: { type: "array", items: { type: "object" } } } };
 const tokenIn = { type: "object", properties: { address: { type: "string", description: "0x ERC20 token contract address" }, chain: chainP }, required: ["address"] };
 const tokenOut = { type: "object", properties: { name: { type: ["string", "null"] }, symbol: { type: ["string", "null"] }, decimals: { type: ["integer", "null"] }, total_supply: { type: "string" }, owner: { type: ["string", "null"] }, proxy: { type: "object" }, market: { type: ["object", "null"] }, risk_flags: { type: "array", items: { type: "object" } }, risk_score: { type: "integer" }, verdict: { type: "string" } } };
+const auIn = { type: "object", properties: { acn: { type: "string", description: "9-digit Australian Company Number" }, abn: { type: "string", description: "11-digit ABN (alternative to acn)" } } };
+const auOut = { type: "object", properties: { acn: { type: "string" }, abn: { type: "string" }, name: { type: "string" }, former_names: { type: "array" }, type: { type: "string" }, type_desc: { type: "string" }, class: { type: "string" }, status: { type: "string" }, status_desc: { type: "string" }, registered: { type: "string" }, deregistered: { type: "string" }, source: { type: "string" } } };
 const fxIn = { type: "object", properties: { base: { type: "string", description: "ISO currency, default USD" }, symbols: { type: "string", description: "Comma list e.g. GBP,EUR (default all ~30)" }, date: { type: "string", description: "YYYY-MM-DD historical (default latest)" }, amount: { type: "string", description: "Optional amount to convert" } } };
 const fxOut = { type: "object", properties: { base: { type: "string" }, date: { type: "string" }, rates: { type: "object" }, converted: { type: "object" } } };
 const A = (d: string) => ({ type: "string", description: d });
@@ -222,6 +226,7 @@ const officerOut = { type: "object", properties: {
   officers: { type: "array", items: { type: "object" } }, notes: { type: "array" }, attribution: { type: "string" } } };
 
 const DESC: Record<string, string> = {
+  "/au-company": "Use this for an Australian company lookup from the ASIC register by ACN or ABN: current name, former names, type (proprietary/public…), class, status (registered/deregistered/strike-off/external admin), registration and deregistration dates, ABN. Source: ASIC Company Dataset (data.gov.au, CC BY 3.0 AU), monthly snapshot. Example: {acn:\"009661901\"} (Qantas). $0.02.",
   "/search": "Use this for cheap research search over open sources: Wikipedia + OpenAlex (250M scholarly works) + arXiv + Crossref, merged, deduplicated (DOI/title) and ranked, with snippets, authors, dates, DOIs and citation counts. Not a general web index. Example: {q:\"x402 agent payments\"}. $0.003.",
   "/uk-property": "Use this for UK (England & Wales) house prices around a postcode: HM Land Registry Price Paid sales (address, price, date, type, tenure, new-build) within a radius, plus median overall/last-12m/by type. OGL data. Example: {postcode:\"CB1 2AB\"}. $0.01.",
   "/uk-area": "Use this for a UK postcode profile: ONS geography (LA, ward, constituency, LSOA, codes), lat/lon, police street crime last month by category (~1 mile), and FSA food hygiene rating mix nearby. All OGL. Example: {postcode:\"SW1A 2AA\"}. $0.005.",
@@ -290,8 +295,8 @@ const kybOut = { type: "object", properties: {
   product: { type: "string" }, disclaimer: { type: "string" }, website: {}, uk: {}, eu_vat: {},
   trust: { type: "object", properties: { flag: { type: "string" }, score: { type: "integer" }, reasons: { type: "array" } } } } };
 
-const OUT: any = { "/uk-officer": officerOut, "/sanctions": sanctionsOut, "/sanctions-batch": sanctionsBatchOut, "/uk-leads": leadsOut, "/uk-leads-lite": leadsOut, "/uk-leads-feed": leadsFeedOut, "/uk-watch": ukWatchOut, "/kyb": kybOut, "/search": searchOut, "/uk-property": propOut, "/uk-area": areaOut, "/uk-charity": charityOut, "/uk-charity-full": charityFullOut, "/us-sec": secOut, "/us-sec-full": secFullOut, "/eu-vat": vatOut, "/ens": ensOut, "/token": tokenMetaOut, "/allowance": allowOut, "/contract": contractOut, "/gas": gasOut, "/block": blockOut, "/nft": nftOut, "/wallet": walletOut, "/tx": txOut, "/token-check": tokenOut, "/fx": fxOut, "/read": readOut, "/links": linksOut, "/check": checkOut, "/company": companyOut, "/uk-company": ukOut, "/uk-company-lite": ukLiteOut, "/company-full": companyFullOut, "/convert": convertOut, "/monitor": monitorOut };
-const EX: any = { "/uk-officer": { name: "Ken Olisa", limit: 10 }, "/sanctions": { name: "BANCO NACIONAL DE CUBA" }, "/sanctions-batch": { names: ["BANCO NACIONAL DE CUBA", "Alice Wonderland"] }, "/uk-leads": { sic: "62012", days: 1, limit: 25 }, "/uk-leads-lite": { sic: "62", location: "London", days: 1 }, "/uk-leads-feed": { sic: "62012", webhook: "https://api.axiomworks.co.uk/hooks/sink" }, "/uk-watch": { number: "00445790", webhook: "https://api.axiomworks.co.uk/hooks/sink" }, "/kyb": { domain: "tesco.com", number: "00445790" }, 
+const OUT: any = { "/au-company": auOut, "/uk-officer": officerOut, "/sanctions": sanctionsOut, "/sanctions-batch": sanctionsBatchOut, "/uk-leads": leadsOut, "/uk-leads-lite": leadsOut, "/uk-leads-feed": leadsFeedOut, "/uk-watch": ukWatchOut, "/kyb": kybOut, "/search": searchOut, "/uk-property": propOut, "/uk-area": areaOut, "/uk-charity": charityOut, "/uk-charity-full": charityFullOut, "/us-sec": secOut, "/us-sec-full": secFullOut, "/eu-vat": vatOut, "/ens": ensOut, "/token": tokenMetaOut, "/allowance": allowOut, "/contract": contractOut, "/gas": gasOut, "/block": blockOut, "/nft": nftOut, "/wallet": walletOut, "/tx": txOut, "/token-check": tokenOut, "/fx": fxOut, "/read": readOut, "/links": linksOut, "/check": checkOut, "/company": companyOut, "/uk-company": ukOut, "/uk-company-lite": ukLiteOut, "/company-full": companyFullOut, "/convert": convertOut, "/monitor": monitorOut };
+const EX: any = { "/au-company": { acn: "009661901" }, "/uk-officer": { name: "Ken Olisa", limit: 10 }, "/sanctions": { name: "BANCO NACIONAL DE CUBA" }, "/sanctions-batch": { names: ["BANCO NACIONAL DE CUBA", "Alice Wonderland"] }, "/uk-leads": { sic: "62012", days: 1, limit: 25 }, "/uk-leads-lite": { sic: "62", location: "London", days: 1 }, "/uk-leads-feed": { sic: "62012", webhook: "https://api.axiomworks.co.uk/hooks/sink" }, "/uk-watch": { number: "00445790", webhook: "https://api.axiomworks.co.uk/hooks/sink" }, "/kyb": { domain: "tesco.com", number: "00445790" }, 
   "/search": { q: "x402 agent payments" }, "/uk-property": { postcode: "CB1 2AB" }, "/uk-area": { postcode: "SW1A 2AA" },
   "/uk-charity": { number: "1089464" }, "/uk-charity-full": { number: "1089464" },
   "/us-sec": { ticker: "AAPL" }, "/us-sec-full": { ticker: "AAPL" }, "/eu-vat": { vat: "IE6388047V" },
@@ -306,7 +311,7 @@ const EX: any = { "/uk-officer": { name: "Ken Olisa", limit: 10 }, "/sanctions":
   "/convert": { url: "https://raw.githubusercontent.com/mozilla/pdf.js/master/web/compressed.tracemonkey-pldi-09.pdf", format: "markdown" },
   "/monitor": { url: "https://example.com", webhook: "https://api.axiomworks.co.uk/hooks/sink" },
 };
-const IN: any = { "/uk-officer": officerIn, "/sanctions": sanctionsIn, "/sanctions-batch": sanctionsBatchIn, "/uk-leads": leadsIn, "/uk-leads-lite": leadsIn, "/uk-leads-feed": leadsFeedIn, "/uk-watch": ukWatchIn, "/kyb": kybIn, "/search": searchIn, "/uk-property": pcIn, "/uk-area": areaIn, "/uk-charity": charityIn, "/uk-charity-full": charityIn, "/us-sec": secIn, "/us-sec-full": secIn, "/eu-vat": vatIn, "/ens": ensIn, "/token": tokenMetaIn, "/allowance": allowIn, "/contract": contractIn, "/gas": gasIn, "/block": blockIn, "/nft": nftIn, "/wallet": walletIn, "/tx": txIn, "/token-check": tokenIn, "/fx": fxIn, "/read": urlIn, "/links": urlIn, "/check": checkIn, "/company": companyIn, "/uk-company": ukIn, "/uk-company-lite": ukLiteIn, "/company-full": companyFullIn, "/convert": convertIn, "/monitor": monitorIn };
+const IN: any = { "/au-company": auIn, "/uk-officer": officerIn, "/sanctions": sanctionsIn, "/sanctions-batch": sanctionsBatchIn, "/uk-leads": leadsIn, "/uk-leads-lite": leadsIn, "/uk-leads-feed": leadsFeedIn, "/uk-watch": ukWatchIn, "/kyb": kybIn, "/search": searchIn, "/uk-property": pcIn, "/uk-area": areaIn, "/uk-charity": charityIn, "/uk-charity-full": charityIn, "/us-sec": secIn, "/us-sec-full": secIn, "/eu-vat": vatIn, "/ens": ensIn, "/token": tokenMetaIn, "/allowance": allowIn, "/contract": contractIn, "/gas": gasIn, "/block": blockIn, "/nft": nftIn, "/wallet": walletIn, "/tx": txIn, "/token-check": tokenIn, "/fx": fxIn, "/read": urlIn, "/links": urlIn, "/check": checkIn, "/company": companyIn, "/uk-company": ukIn, "/uk-company-lite": ukLiteIn, "/company-full": companyFullIn, "/convert": convertIn, "/monitor": monitorIn };
 const METHODS: Record<string, ("GET" | "POST")[]> = {
   "/read": ["GET", "POST"], "/links": ["GET", "POST"], "/check": ["GET", "POST"],
   "/company": ["GET", "POST"], "/uk-company": ["GET", "POST"], "/uk-company-lite": ["GET", "POST"], "/company-full": ["GET", "POST"], "/convert": ["GET", "POST"],
@@ -319,6 +324,7 @@ const METHODS: Record<string, ("GET" | "POST")[]> = {
   "/uk-leads": ["GET", "POST"], "/uk-leads-lite": ["GET", "POST"], "/uk-leads-feed": ["POST"], "/uk-watch": ["POST"], "/kyb": ["GET", "POST"],
   "/sanctions": ["GET", "POST"], "/sanctions-batch": ["GET", "POST"],
   "/uk-officer": ["GET", "POST"],
+  "/au-company": ["GET", "POST"],
 };
 
 for (const r of CHAIN_ROUTES) { (PRICES as any)[r.path] = r.price; ATOMIC[r.path] = r.atomic; (DESC as any)[r.path] = r.desc; OUT[r.path] = r.out; IN[r.path] = r.in; EX[r.path] = r.ex; METHODS[r.path] = ["GET", "POST"]; VALIDATE[r.path] = r.validate; }
@@ -408,7 +414,7 @@ const ALIAS_DOCS: [string, string, string[]][] = [
   ["/wallet/{address}", "/wallet", ["address"]], ["/address/{address}", "/wallet", ["address"]], ["/token/{address}", "/token", ["address"]],
   ["/token-check/{address}", "/token-check", ["address"]], ["/block/{number}", "/block", ["number"]], ["/nft/{contract}/{token_id}", "/nft", ["contract", "token_id"]],
   ["/gas/{chain}", "/gas", ["chain"]], ["/check/{domain}", "/check", ["domain"]], ["/uk-company/{number}", "/uk-company", ["number"]],
-  ["/uk-charity/{number}", "/uk-charity", ["number"]], ["/us-sec/{ticker}", "/us-sec", ["ticker"]], ["/eu-vat/{vat}", "/eu-vat", ["vat"]],
+  ["/uk-charity/{number}", "/uk-charity", ["number"]], ["/us-sec/{ticker}", "/us-sec", ["ticker"]], ["/eu-vat/{vat}", "/eu-vat", ["vat"]], ["/au-company/{acn}", "/au-company", ["acn"]],
 ];
 app.get("/openapi.json", (c) => {
   const b = base(c); const paths: any = {};
@@ -919,7 +925,17 @@ for (const m of ["get", "post"] as const) {
 
 }
 
+async function auCompany(b: any) {
+  const env = currentEnv!; const raw = String(b.acn || b.abn || "").replace(/\s/g, "");
+  const acn = /^\d{11}$/.test(raw) ? raw.slice(2) : raw;
+  if (!/^\d{9}$/.test(acn)) throw new UserError("acn must be 9 digits (or abn 11 digits)", 400);
+  if (!env.AU) throw new Error("au-company backend not bound");
+  const r = await env.AU.fetch(`https://au.internal/internal/au?acn=${acn}`, { headers: { "x-internal-key": env.AU_INTERNAL_KEY || "" } });
+  const j: any = await r.json(); if (r.status === 404) throw new UserError(`ACN ${acn} not found in ASIC register snapshot`, 404); if (!r.ok) throw new Error(j?.error || "au backend error");
+  return j;
+}
 const ONCHAIN: Record<string, [(b: any) => Promise<any>, string[], number, string[]?]> = {
+  "/au-company": [(b) => auCompany(b), ["acn", "abn"], 86400, ["acn|abn"]],
   "/ens": [(b) => ens(b), ["name", "address"], 900, ["name|address"]], "/token": [(b) => tokenMeta(b), ["address", "chain"], 3600],
   "/allowance": [(b) => allowance(b), ["token", "owner", "spender", "chain"], 20, ["token", "owner", "spender"]], "/contract": [(b) => contractInfo(b), ["address", "chain"], 1800],
   "/gas": [(b) => gas(b), ["chain"], 10, []], "/block": [(b) => block(b), ["number", "timestamp", "chain"], 60, []], "/nft": [(b) => nft(b), ["contract", "token_id", "chain"], 300, ["contract", "token_id"]],
@@ -991,6 +1007,7 @@ const ALIASES: [RegExp, string, (m: RegExpMatchArray) => Record<string, string>]
   [/^\/uk-charity\/(\d{6,8}(?:\/\d{1,2})?)$/, "/uk-charity", (m) => ({ number: m[1] })],
   [/^\/us-sec\/(\d{1,10})$/, "/us-sec", (m) => ({ cik: m[1] })],
   [/^\/us-sec\/([A-Za-z][A-Za-z0-9.\-]{0,9})$/, "/us-sec", (m) => ({ ticker: m[1].toUpperCase() })],
+  [/^\/au-company\/(\d{9}|\d{11})$/, "/au-company", (m) => ({ [m[1].length === 11 ? "abn" : "acn"]: m[1] })],
   [/^\/eu-vat\/([A-Za-z]{2}[A-Za-z0-9]{2,14})$/, "/eu-vat", (m) => ({ vat: m[1].toUpperCase() })],
 ];
 export function rewriteAlias(req: Request): Request {
