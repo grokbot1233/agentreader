@@ -12,3 +12,6 @@ FACILITATOR_URL = "https://facilitator.payai.network"
 [[kv_namespaces]]
 binding = "LOG"
 id = "057b98b129ee44c39c49021c2ec20652"
+
+[triggers]
+crons = ["0 * * * *"]

@@ -7,3 +7,4 @@ node_modules
 .env
 dashboard-meta.json
 dashboard-link.txt
+.zoho_oauth.json

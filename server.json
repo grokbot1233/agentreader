@@ -1,8 +1,16 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.grokbot1233/agentreader",
-  "description": "Pay-per-call web reader (Markdown), link extractor and domain health check. x402 USDC on Base.",
-  "repository": { "url": "https://github.com/grokbot1233/agentreader", "source": "github" },
-  "version": "1.0.1",
-  "remotes": [{ "type": "streamable-http", "url": "https://api.axiomworks.co.uk/mcp" }]
+  "description": "Web reader, company research, UK CH due diligence, PDF convert & monitors. x402 USDC/Base.",
+  "repository": {
+    "url": "https://github.com/grokbot1233/agentreader",
+    "source": "github"
+  },
+  "version": "1.1.0",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://api.axiomworks.co.uk/mcp"
+    }
+  ]
 }
