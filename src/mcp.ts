@@ -27,7 +27,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       await log({ endpoint: `mcp:${tool}`, payer: settlement?.payer || null, amount: settlement?.amount || String(atomic), network: settlement?.network, tx: settlement?.transaction, success: settlement?.success });
     } },
   } as any);
-  const server = new McpServer({ name: "agentreader", version: "1.1.0" });
+  const server = new McpServer({ name: "agentreader", version: "1.1.1" });
   const json = (d: any) => ({ content: [{ type: "text" as const, text: JSON.stringify(d) }] });
   const err = (e: any) => ({ isError: true, content: [{ type: "text" as const, text: String(e?.message || e) }] });
   const wrap = (fn: (v: string) => Promise<any>, k: string) => async (a: any) => { try { return json(await fn(a[k])); } catch (e) { return err(e); } };
@@ -40,9 +40,12 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
     { domain: z.string() }, (await mk("$0.001", "check_domain", 1000))(wrap(checkDomain, "domain")) as any);
   server.tool("company_research", "Structured company research from real fetched data (no LLM): homepage + key pages, tech stack, socials, emails/phones, DNS/MX/SPF/DMARC, RDAP, SSL, sitemap, news. Costs $0.25 USDC on Base via x402.",
     { domain: z.string() }, (await mk("$0.25", "company_research", 250000))(async (a: any) => { try { return json(await companyResearch({ domain: a.domain })); } catch (e) { return err(e); } }) as any);
-  server.tool("uk_company", "UK Companies House due-diligence pack: profile, officers, PSCs, filings, charges, overdue flags, red-flags. Pass number or name. Costs $0.50 USDC on Base via x402.",
+  server.tool("uk_company", "Full UK Companies House due-diligence pack via official REST API (public fallback): profile, officers, PSCs, filings, charges, insolvency, overdue flags, mass-formation office, red-flags. Pass number or name. Costs $0.50 USDC on Base via x402.",
     { number: z.string().optional(), name: z.string().optional() },
-    (await mk("$0.50", "uk_company", 500000))(async (a: any) => { try { return json(await ukCompany({ number: a.number, name: a.name })); } catch (e) { return err(e); } }) as any);
+    (await mk("$0.50", "uk_company", 500000))(async (a: any) => { try { return json(await ukCompany(env, { number: a.number, name: a.name })); } catch (e) { return err(e); } }) as any);
+  server.tool("uk_company_lite", "Cheap UK company snapshot: profile, status, SIC, office, compliance flags and red-flags. Costs $0.05 USDC on Base via x402. Use uk_company for the full pack.",
+    { number: z.string().optional(), name: z.string().optional() },
+    (await mk("$0.05", "uk_company_lite", 50000))(async (a: any) => { try { return json(await ukCompany(env, { number: a.number, name: a.name, lite: true })); } catch (e) { return err(e); } }) as any);
   server.tool("convert_document", "Convert a public PDF, DOCX, HTML or text URL to markdown or plain text. Costs $0.03 USDC on Base via x402.",
     { url: z.string().url(), format: z.enum(["markdown", "text"]).optional() },
     (await mk("$0.03", "convert_document", 30000))(async (a: any) => { try { return json(await convertDocument(a.url, a.format === "text" ? "text" : "markdown")); } catch (e) { return err(e); } }) as any);
@@ -58,13 +61,13 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
     network: NETWORK, asset: "USDC", payTo: env.PAY_TO,
     tools: {
       read_url: "$0.002", extract_links: "$0.001", check_domain: "$0.001",
-      company_research: "$0.25", uk_company: "$0.50", convert_document: "$0.03", create_monitor: "$1.00 / 30 days",
-      pricing: "free",
+      company_research: "$0.25", uk_company: "$0.50", uk_company_lite: "$0.05",
+      convert_document: "$0.03", create_monitor: "$1.00 / 30 days", pricing: "free",
     },
     http: {
       "/read": "$0.002", "/links": "$0.001", "/check": "$0.001",
-      "/company": "$0.25", "/uk-company": "$0.50", "/convert": "$0.03", "/monitor": "$1.00 / 30 days",
-      "GET /monitor/:id": "free",
+      "/company": "$0.25", "/uk-company": "$0.50", "/uk-company-lite": "$0.05",
+      "/convert": "$0.03", "/monitor": "$1.00 / 30 days", "GET /monitor/:id": "free",
     },
     how: "Paid tools return an x402 PaymentRequired error; retry with _meta['x402/payment'] (use @x402/mcp createx402MCPClient).",
   }));

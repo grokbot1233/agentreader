@@ -11,7 +11,7 @@ import { handleMcp } from "./mcp";
 import { facilitatorClient, CANONICAL, CONTACT } from "./facilitator";
 import { dashboardHtml } from "./dashboard";
 
-type Env = { LOG: KVNamespace; STATS_SECRET: string; DASHBOARD_KEY: string; PAY_TO: string; FACILITATOR_URL: string; CDP_API_KEY_ID?: string; CDP_API_KEY_SECRET?: string; FACILITATOR?: string };
+type Env = { LOG: KVNamespace; STATS_SECRET: string; DASHBOARD_KEY: string; PAY_TO: string; FACILITATOR_URL: string; CDP_API_KEY_ID?: string; CDP_API_KEY_SECRET?: string; FACILITATOR?: string; CH_API_KEY?: string };
 const NETWORK = "eip155:8453";
 const USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 
@@ -21,12 +21,13 @@ const PRICES = {
   "/check": "$0.001",
   "/company": "$0.25",
   "/uk-company": "$0.50",
+  "/uk-company-lite": "$0.05",
   "/convert": "$0.03",
   "/monitor": "$1.00",
 } as const;
 const ATOMIC: Record<string, number> = {
   "/read": 2000, "/links": 1000, "/check": 1000,
-  "/company": 250000, "/uk-company": 500000, "/convert": 30000, "/monitor": 1000000,
+  "/company": 250000, "/uk-company": 500000, "/uk-company-lite": 50000, "/convert": 30000, "/monitor": 1000000,
 };
 
 const urlIn = { type: "object", properties: { url: { type: "string", format: "uri", description: "Public http(s) URL to fetch" } }, required: ["url"] };
@@ -59,6 +60,11 @@ const ukOut = { type: "object", properties: {
   persons_with_significant_control: { type: "object" }, filing_history_highlights: { type: "object" }, charges: { type: "object" },
   compliance: { type: "object" }, red_flags: { type: "array", items: { type: "object" } }, sources: { type: "object" } } };
 
+const ukLiteIn = ukIn;
+const ukLiteOut = { type: "object", properties: {
+  company_number: { type: "string" }, name: { type: ["string", "null"] }, status: { type: ["string", "null"] },
+  incorporation_date: { type: ["string", "null"] }, sic_codes: { type: "array" }, registered_office_text: { type: ["string", "null"] },
+  compliance: { type: "object" }, red_flags: { type: "array", items: { type: "object" } }, mass_formation_office: { type: "object" } } };
 const convertIn = { type: "object", properties: {
   url: { type: "string", format: "uri", description: "Public URL of a PDF, DOCX, HTML or text document" },
   format: { type: "string", enum: ["markdown", "text"], description: "Output format (default markdown)" },
@@ -82,21 +88,22 @@ const DESC: Record<string, string> = {
   "/links": "Fetch a public web page and return all extracted, de-duplicated absolute links with anchor text and internal/external flag.",
   "/check": "Domain health check: DNS records via DNS-over-HTTPS (A, AAAA, CNAME, MX, TXT, NS, CAA, SOA, DNSSEC), HTTPS/TLS reachability, HTTP status and redirect chain, HSTS, email auth (MX, SPF, DMARC) and a list of issues.",
   "/company": "Structured company research report from real fetched data (no LLM): homepage + about/contact/pricing/careers, meta, tech stack, social links, public emails/phones, DNS/MX/email provider, SPF/DMARC, RDAP domain age/registrar, SSL, sitemap size, recent news headlines. Every field cites sources.",
-  "/uk-company": "UK company due-diligence pack from Companies House public data: profile, status, SIC, registered office, officers, PSCs, filing highlights, charges, overdue flags, rule-based red-flags summary with sources.",
+  "/uk-company": "UK company due-diligence pack via Companies House REST API (fallback to public data): profile, status, SIC, registered office, officers, PSCs, filing highlights, charges, insolvency, overdue flags, mass-formation office detection, rule-based red-flags with sources.",
+  "/uk-company-lite": "Cheap UK company snapshot: profile, status, SIC, registered office, compliance overdue flags, mass-formation office check and red-flags summary. Use /uk-company for full officers/PSC/filings/charges/insolvency.",
   "/convert": "Convert a public document URL (PDF, DOCX, HTML, text) into clean markdown or plain text. PDF via unpdf/PDF.js; DOCX via mammoth; HTML via Readability+Turndown.",
   "/monitor": "Create a 30-day web change monitor (hourly checks). Stores a content hash in KV and POSTs a JSON diff summary to your webhook on change. Returns an id; GET /monitor/:id is free for status.",
 };
-const OUT: any = { "/read": readOut, "/links": linksOut, "/check": checkOut, "/company": companyOut, "/uk-company": ukOut, "/convert": convertOut, "/monitor": monitorOut };
+const OUT: any = { "/read": readOut, "/links": linksOut, "/check": checkOut, "/company": companyOut, "/uk-company": ukOut, "/uk-company-lite": ukLiteOut, "/convert": convertOut, "/monitor": monitorOut };
 const EX: any = {
   "/read": { url: "https://example.com" }, "/links": { url: "https://example.com" }, "/check": { domain: "example.com" },
-  "/company": { domain: "stripe.com" }, "/uk-company": { number: "00445790" },
+  "/company": { domain: "stripe.com" }, "/uk-company": { number: "00445790" }, "/uk-company-lite": { number: "00445790" },
   "/convert": { url: "https://raw.githubusercontent.com/mozilla/pdf.js/master/web/compressed.tracemonkey-pldi-09.pdf", format: "markdown" },
   "/monitor": { url: "https://example.com", webhook: "https://webhook.site/your-id" },
 };
-const IN: any = { "/read": urlIn, "/links": urlIn, "/check": checkIn, "/company": companyIn, "/uk-company": ukIn, "/convert": convertIn, "/monitor": monitorIn };
+const IN: any = { "/read": urlIn, "/links": urlIn, "/check": checkIn, "/company": companyIn, "/uk-company": ukIn, "/uk-company-lite": ukLiteIn, "/convert": convertIn, "/monitor": monitorIn };
 const METHODS: Record<string, ("GET" | "POST")[]> = {
   "/read": ["GET", "POST"], "/links": ["GET", "POST"], "/check": ["GET", "POST"],
-  "/company": ["GET", "POST"], "/uk-company": ["GET", "POST"], "/convert": ["GET", "POST"],
+  "/company": ["GET", "POST"], "/uk-company": ["GET", "POST"], "/uk-company-lite": ["GET", "POST"], "/convert": ["GET", "POST"],
   "/monitor": ["POST"],
 };
 
@@ -189,7 +196,8 @@ const llms = (b: string, payTo: string) => `# AgentReader
 - GET|POST ${b}/links?url=URL - $0.001 - extracted absolute links with anchor text
 - GET|POST ${b}/check?domain=DOMAIN - $0.001 - DNS (DoH), TLS/HTTPS, redirects, HSTS, MX/SPF/DMARC, issues
 - GET|POST ${b}/company?domain=DOMAIN - $0.25 - structured company research report (tech, contacts, DNS, RDAP, SSL, news) with source URLs
-- GET|POST ${b}/uk-company?number=NUM|name=NAME - $0.50 - UK Companies House due-diligence pack + red flags
+- GET|POST ${b}/uk-company?number=NUM|name=NAME - $0.50 - UK Companies House full due-diligence pack (API) + red flags
+- GET|POST ${b}/uk-company-lite?number=NUM|name=NAME - $0.05 - UK company snapshot: profile/status/flags (conversion tier)
 - GET|POST ${b}/convert?url=URL&format=markdown|text - $0.03 - PDF/DOCX/HTML → markdown or text
 - POST ${b}/monitor - $1.00 - 30 days of hourly web change checks → webhook (body: url, webhook, optional selector/keyword)
 
@@ -254,7 +262,7 @@ app.get("/dashboard/data", async (c) => {
   const meta = (await c.env.LOG.get("meta:dashboard", "json")) || {};
   const mcpTools = [
     ["read_url", "$0.002"], ["extract_links", "$0.001"], ["check_domain", "$0.001"],
-    ["company_research", "$0.25"], ["uk_company", "$0.50"], ["convert_document", "$0.03"], ["create_monitor", "$1.00"],
+    ["company_research", "$0.25"], ["uk_company", "$0.50"], ["uk_company_lite", "$0.05"], ["convert_document", "$0.03"], ["create_monitor", "$1.00"],
     ["pricing", "free"],
   ];
   const services = [
@@ -337,7 +345,14 @@ for (const m of ["get", "post"] as const) {
     const b = await bodyObj(c);
     if (!(b.number || b.name)) return c.json({ error: "missing number or name" }, 400);
     const key = b.number ? `number=${b.number}` : `name=${b.name}`;
-    return cached(c, `uk-company?${encodeURIComponent(key)}`, () => ukCompany({ number: b.number, name: b.name }), 600);
+    // Short edge cache; authoritative 24h cache is in KV inside ukCompany
+    return cached(c, `uk-company?${encodeURIComponent(key)}`, () => ukCompany(c.env, { number: b.number, name: b.name }), 60);
+  });
+  app[m]("/uk-company-lite", async (c) => {
+    const b = await bodyObj(c);
+    if (!(b.number || b.name)) return c.json({ error: "missing number or name" }, 400);
+    const key = b.number ? `number=${b.number}` : `name=${b.name}`;
+    return cached(c, `uk-company-lite?${encodeURIComponent(key)}`, () => ukCompany(c.env, { number: b.number, name: b.name, lite: true }), 60);
   });
   app[m]("/convert", async (c) => {
     const b = await bodyObj(c);

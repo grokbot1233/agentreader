@@ -12,9 +12,9 @@ async function main() {
   const co = await companyResearch({ domain: "example.com" });
   console.log({ domain: co.domain, title: co.homepage.title, tech: co.tech_stack.detected, emails: co.contacts.emails.length, mx: co.dns.mx.length, news: co.news.headlines.length, rdap: co.domain_registration.registrar });
 
-  console.log("=== uk-company 00445790 ===");
-  const uk = await ukCompany({ number: "00445790" });
-  console.log({ name: uk.profile?.name || uk.overview.name, status: uk.overview.status, officers: (uk.officers as any).total_listed, flags: uk.red_flags.length, sic: uk.overview.sic_codes });
+  console.log("=== uk-company 00445790 (public fallback harness) ===");
+  const uk = await ukCompany({ LOG: { get: async () => null, put: async () => {} } as any, CH_API_KEY: "" }, { number: "00445790" });
+  console.log({ name: uk.profile?.name, status: uk.profile?.status, officers: uk.officers?.total_results ?? uk.officers?.items?.length, flags: uk.red_flags?.map((f: any) => f.flag), sic: uk.profile?.sic_codes, mode: uk.mode });
 
   console.log("done in", Date.now() - t0, "ms");
 }
