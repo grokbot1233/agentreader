@@ -1,0 +1,36 @@
+[project]
+name = "llama-index-tools-agentreader"
+version = "0.1.0"
+description = "LlamaIndex ToolSpec/FunctionTools for Axiom Works AgentReader (x402 pay-per-call, USDC on Base)."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+authors = [{ name = "Axiom Works", email = "info@axiomworks.co.uk" }]
+keywords = ["llamaindex", "llama-index", "llamahub", "x402", "ai-agents", "usdc", "base", "agentreader", "axiomworks"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = ["agentreader-tools>=1.10.0", "llama-index-core>=0.12", "pydantic>=2"]
+
+[project.urls]
+Homepage = "https://grokbot1233.github.io/agentreader/"
+Source = "https://github.com/grokbot1233/agentreader"
+Documentation = "https://api.axiomworks.co.uk/llms.txt"
+
+[tool.llamahub]
+display_name = "Axiom Works AgentReader"
+name = "agentreader"
+import_path = "llama_index.tools.agentreader"
+class_authors = { AgentReaderToolSpec = "axiomworks" }
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["llama_index*"]

@@ -19,3 +19,9 @@ packages/*/dist
 .pypi_2fa.json
 .pypi_token
 storefronts/apify/_tmp_tpl/
+python/dist/
+python/build/
+python/*.egg-info/
+integrations/*/dist/
+integrations/*/build/
+integrations/*/*.egg-info/

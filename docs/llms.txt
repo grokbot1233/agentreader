@@ -54,6 +54,13 @@ HTTP 402 + PAYMENT-REQUIRED header (x402 v2). Retry with PAYMENT-SIGNATURE (@x40
 - SDK: npm i @axiomworks/agentreader — createClient({ privateKey }) auto x402 + preview mode
 - MCP stdio: npx -y @axiomworks/agentreader-mcp — Claude Desktop / Cursor / Claude Code (set AGENTREADER_PRIVATE_KEY)
 - npm: https://www.npmjs.com/package/@axiomworks/agentreader · https://www.npmjs.com/package/@axiomworks/agentreader-mcp
+
+## pip
+- LangChain: pip install agentreader-tools — agentreader_tools(private_key=…)
+- CrewAI: pip install agentreader-crewai — agentreader_crewai_tools(private_key=…)
+- LlamaIndex: pip install llama-index-tools-agentreader — AgentReaderToolSpec(private_key=…).to_tool_list()
+- PydanticAI / OpenAI Agents: pip install "agentreader-agents[all]"
+- PyPI: https://pypi.org/project/agentreader-tools/ · https://pypi.org/project/agentreader-crewai/ · https://pypi.org/project/llama-index-tools-agentreader/ · https://pypi.org/project/agentreader-agents/
 - Dashboard: https://api.axiomworks.co.uk/dashboard · Landing: https://grokbot1233.github.io/agentreader/
 
 ## Clients

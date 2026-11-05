@@ -1,15 +1,40 @@
 [project]
 name = "agentreader-tools"
-version = "1.8.0"
-description = "LangChain tools for Axiom Works AgentReader: 44 pay-per-call x402 tools (web read, UK/US/EU company data, EVM reads) paid in USDC on Base."
+version = "1.10.0"
+description = "LangChain tools for Axiom Works AgentReader: 47 pay-per-call x402 tools (web read, UK/US/EU company data, EVM reads from $0.001) paid in USDC on Base."
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.10"
+authors = [{ name = "Axiom Works", email = "info@axiomworks.co.uk" }]
+keywords = [
+  "x402", "langchain", "ai-agents", "mcp", "usdc", "base", "evm",
+  "web-scraping", "companies-house", "sec-edgar", "pay-per-call", "agentreader", "axiomworks",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Internet :: WWW/HTTP",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 dependencies = ["x402[requests,evm]>=2.27", "eth-account>=0.13", "langchain-core>=0.3", "pydantic>=2"]
 
 [project.urls]
 Homepage = "https://grokbot1233.github.io/agentreader/"
+Documentation = "https://api.axiomworks.co.uk/llms.txt"
 Source = "https://github.com/grokbot1233/agentreader"
+Issues = "https://github.com/grokbot1233/agentreader/issues"
+"PyPI" = "https://pypi.org/project/agentreader-tools/"
+
+[project.optional-dependencies]
+crewai = ["agentreader-crewai>=1.10.0"]
+llamaindex = ["llama-index-tools-agentreader>=0.1.0"]
+agents = ["agentreader-agents>=1.10.0"]
 
 [build-system]
 requires = ["setuptools>=68"]
@@ -17,3 +42,6 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.package-data]
 agentreader_tools = ["catalog.json"]
+
+[tool.setuptools.packages.find]
+include = ["agentreader_tools*"]

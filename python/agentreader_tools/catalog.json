@@ -588,6 +588,126 @@
   ]
  },
  {
+  "name": "uk_leads_lite",
+  "path": "/uk-leads-lite",
+  "price": "$0.25",
+  "description": "Use this for cheap UK new-incorporation lead lists filtered by SIC and/or location/postcode area (1-7 day lookback). Returns up to 100 companies: number, name, SIC, office, mass-formation flag. No directors. Example: {sic:\"62012\",days:1}. Upsell /uk-leads for directors. $0.25.",
+  "params": [
+   {
+    "name": "sic",
+    "required": false,
+    "type": "string",
+    "description": "SIC code or 2-5 digit prefix, e.g. 62 or 62012"
+   },
+   {
+    "name": "location",
+    "required": false,
+    "type": "string",
+    "description": "Town/city as indexed by Companies House, e.g. Manchester"
+   },
+   {
+    "name": "postcode_area",
+    "required": false,
+    "type": "string",
+    "description": "Postcode area/district prefix, e.g. M, SW, SW1"
+   },
+   {
+    "name": "days",
+    "required": false,
+    "type": "string",
+    "description": "Lookback 1-7 days (default 1)"
+   },
+   {
+    "name": "limit",
+    "required": false,
+    "type": "string",
+    "description": "Max companies returned"
+   }
+  ]
+ },
+ {
+  "name": "uk_leads",
+  "path": "/uk-leads",
+  "price": "$1.00",
+  "description": "Use this for UK new-incorporation leads with active director names \u2014 filter by SIC/location/postcode_area, 1-7 days, up to 40 companies. Official Companies House data + mass-formation flags. Example: {sic:\"62\",location:\"Manchester\",days:2}. Daily webhook: /uk-leads-feed $25/30d. $1.00.",
+  "params": [
+   {
+    "name": "sic",
+    "required": false,
+    "type": "string",
+    "description": "SIC code or 2-5 digit prefix, e.g. 62 or 62012"
+   },
+   {
+    "name": "location",
+    "required": false,
+    "type": "string",
+    "description": "Town/city as indexed by Companies House, e.g. Manchester"
+   },
+   {
+    "name": "postcode_area",
+    "required": false,
+    "type": "string",
+    "description": "Postcode area/district prefix, e.g. M, SW, SW1"
+   },
+   {
+    "name": "days",
+    "required": false,
+    "type": "string",
+    "description": "Lookback 1-7 days (default 1)"
+   },
+   {
+    "name": "limit",
+    "required": false,
+    "type": "string",
+    "description": "Max companies returned"
+   }
+  ]
+ },
+ {
+  "name": "kyb",
+  "path": "/kyb",
+  "price": "$2.00",
+  "description": "Use this for a one-shot agent KYB/due-diligence pack: optional website research + UK Companies House DD + EU VIES VAT \u2192 composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not a regulated determination. Example: {domain:\"tesco.com\",number:\"00445790\"} or {vat:\"IE6388047V\"}. $2.00.",
+  "params": [
+   {
+    "name": "domain",
+    "required": false,
+    "type": "string",
+    "description": ""
+   },
+   {
+    "name": "number",
+    "required": false,
+    "type": "string",
+    "description": ""
+   },
+   {
+    "name": "name",
+    "required": false,
+    "type": "string",
+    "description": ""
+   },
+   {
+    "name": "vat",
+    "required": false,
+    "type": "string",
+    "description": ""
+   },
+   {
+    "name": "country",
+    "required": false,
+    "type": "string",
+    "description": ""
+   },
+   {
+    "name": "vat_number",
+    "required": false,
+    "type": "string",
+    "description": ""
+   }
+  ]
+ },
+ {
   "name": "chain_erc20_balance",
   "path": "/chain/erc20-balance",
   "price": "$0.001",

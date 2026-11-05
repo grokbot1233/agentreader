@@ -24,7 +24,13 @@ import { createClient } from "@axiomworks/agentreader";
 const client = createClient({ privateKey: process.env.AGENTREADER_PRIVATE_KEY });
 await client.readUrl({ url: "https://example.com" });
 
+# Python (LangChain / CrewAI / LlamaIndex / PydanticAI / OpenAI Agents)
+pip install agentreader-tools
+# pip install agentreader-crewai llama-index-tools-agentreader "agentreader-agents[all]"
+from agentreader_tools import agentreader_tools
+tools = agentreader_tools(private_key=KEY, max_price_usd=0.01)
+
 # Or low-level @x402/fetch
 npm i @x402/fetch @x402/evm viem
 await pay("https://api.axiomworks.co.uk/read?url=https://example.com")</pre>
-<p>npm: <a href="https://www.npmjs.com/package/@axiomworks/agentreader">@axiomworks/agentreader</a> · <a href="https://www.npmjs.com/package/@axiomworks/agentreader-mcp">@axiomworks/agentreader-mcp</a> · Source: <a href="https://github.com/grokbot1233/agentreader">github.com/grokbot1233/agentreader</a> · Dashboard: <a href="https://api.axiomworks.co.uk/dashboard">api.axiomworks.co.uk/dashboard</a> · Axiom Works (UK)</p></html>
+<p>npm: <a href="https://www.npmjs.com/package/@axiomworks/agentreader">@axiomworks/agentreader</a> · <a href="https://www.npmjs.com/package/@axiomworks/agentreader-mcp">@axiomworks/agentreader-mcp</a> · PyPI: <a href="https://pypi.org/project/agentreader-tools/">agentreader-tools</a> · <a href="https://pypi.org/project/agentreader-crewai/">agentreader-crewai</a> · <a href="https://pypi.org/project/llama-index-tools-agentreader/">llama-index-tools-agentreader</a> · <a href="https://pypi.org/project/agentreader-agents/">agentreader-agents</a> · Source: <a href="https://github.com/grokbot1233/agentreader">github.com/grokbot1233/agentreader</a> · Dashboard: <a href="https://api.axiomworks.co.uk/dashboard">api.axiomworks.co.uk/dashboard</a> · Axiom Works (UK)</p></html>

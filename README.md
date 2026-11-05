@@ -115,6 +115,28 @@ npx -y @axiomworks/agentreader-mcp
 
 > Unscoped `agentreader-mcp` on npm is a **different** product; use the `@axiomworks` scope.
 
+### Python packages (Axiom Works)
+
+```bash
+# LangChain tools (47 x402 tools, agent wallet pays USDC on Base)
+pip install agentreader-tools
+
+# Framework thin wrappers (same payment model)
+pip install agentreader-crewai
+pip install llama-index-tools-agentreader
+pip install "agentreader-agents[all]"   # PydanticAI + OpenAI Agents SDK
+```
+
+```python
+from agentreader_tools import agentreader_tools
+tools = agentreader_tools(private_key=KEY, max_price_usd=0.01)
+```
+
+- [`agentreader-tools`](https://pypi.org/project/agentreader-tools/) — LangChain `StructuredTool`s
+- [`agentreader-crewai`](https://pypi.org/project/agentreader-crewai/) — CrewAI `BaseTool`s
+- [`llama-index-tools-agentreader`](https://pypi.org/project/llama-index-tools-agentreader/) — LlamaIndex `FunctionTool` / ToolSpec
+- [`agentreader-agents`](https://pypi.org/project/agentreader-agents/) — PydanticAI `Tool` + OpenAI Agents SDK `function_tool`
+
 ## Limits
 
 Public http(s) URLs only (private/internal IPs blocked), 3 MB max, timeouts 10–120 s by route, 5 redirects, read/links/check cached ~5 min, max 40 active monitors.

@@ -1,0 +1,26 @@
+[project]
+name = "agentreader-crewai"
+version = "1.10.0"
+description = "CrewAI tools for Axiom Works AgentReader: pay-per-call x402 web/UK-US-EU DD/EVM tools in USDC on Base."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+authors = [{ name = "Axiom Works", email = "info@axiomworks.co.uk" }]
+keywords = ["crewai", "x402", "ai-agents", "usdc", "base", "agentreader", "axiomworks", "pay-per-call"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = ["agentreader-tools>=1.10.0", "crewai>=0.80", "pydantic>=2"]
+
+[project.urls]
+Homepage = "https://grokbot1233.github.io/agentreader/"
+Source = "https://github.com/grokbot1233/agentreader"
+Documentation = "https://api.axiomworks.co.uk/llms.txt"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
