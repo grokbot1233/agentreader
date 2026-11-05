@@ -6,7 +6,7 @@ workers_dev = true
 routes = [{ pattern = "api.axiomworks.co.uk", custom_domain = true }]
 
 [vars]
-PAY_TO = "0x560d1dbb6e973082EBd20D340EAd3a198452b3Ec"
+PAY_TO = "0x88b1c747c33A5868A34057D8C57318E5602b3ff6"
 FACILITATOR_URL = "https://facilitator.payai.network"
 
 [[kv_namespaces]]

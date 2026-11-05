@@ -282,7 +282,7 @@ app.get("/dashboard/data", async (c) => {
   ];
   let treasury_usdc: number | null = null, treasury_err: string | undefined;
   try { const r: any = await (await fetch("https://base-rpc.publicnode.com", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_call", params: [{ to: USDC, data: "0x70a08231" + c.env.PAY_TO.slice(2).toLowerCase().padStart(64, "0") }, "latest"] }) })).json(); treasury_usdc = Number(BigInt(r.result)) / 1e6; } catch (e: any) { treasury_err = String(e).slice(0, 200); }
-  c.header("cache-control", "no-store"); return c.json({ ...(await stats(c.env)), health, services, meta, network: NETWORK, payTo: c.env.PAY_TO, treasury_usdc, treasury_err, legacy_payTo: ["0xB1A4e2C441fa896AF010222659AAbBb71E9Ef1D1"], prices: PRICES });
+  c.header("cache-control", "no-store"); return c.json({ ...(await stats(c.env)), health, services, meta, network: NETWORK, payTo: c.env.PAY_TO, treasury_usdc, treasury_err, legacy_payTo: ["0xB1A4e2C441fa896AF010222659AAbBb71E9Ef1D1", "0x560d1dbb6e973082EBd20D340EAd3a198452b3Ec"], prices: PRICES });
 });
 app.post("/admin/dashboard-meta", async (c) => {
   const auth = c.req.header("authorization")?.replace(/^Bearer\s+/i, "") || c.req.query("key") || "";
