@@ -42,5 +42,21 @@ app.get("/internal/au", async (c) => {
   const acn = c.req.query("acn") || ""; if (!/^\d{9}$/.test(acn)) return c.json({ error: "bad acn" }, 400);
   const e = await lookup(c.env, acn); if (!e) return c.json({ acn, found: false }, 404); return c.json(full(acn, e));
 });
+// /internal/ca: Corporations Canada active federal corporations (OGL-Canada), service-binding only.
+const CA_ATTR = "Corporations Canada, Federal Corporations open data (open.canada.ca), Open Government Licence - Canada. Active corporations snapshot 2026-11.";
+async function caShard(env: Env, path: string) { const r = await env.ASSETS.fetch(new Request(`https://assets.local/_ca/${path}.json`)); return r.ok ? r.json<any>() : null; }
+function caFull(num: string, e: any) { return { corporation_number: num.replace(/^0+/, "") || "0", business_number: e.bn || null, name: e.n, name_alt: e.n2 || null, governing_legislation: e.l || null, status: e.s || null, status_detail: e.sd || null, anniversary_date: e.a || null, last_annual_filing_year: e.y || null, last_annual_meeting: e.m || null, registered_office: e.ad || null, directors_min: e.dmin ? +e.dmin : null, directors_max: e.dmax ? +e.dmax : null, source: CA_ATTR }; }
+app.get("/internal/ca", async (c) => {
+  if (!c.env.AU_INTERNAL_KEY || c.req.header("x-internal-key") !== c.env.AU_INTERNAL_KEY) return c.json({ error: "forbidden" }, 403);
+  let nums: string[] = [];
+  const num = (c.req.query("number") || "").replace(/\D/g, ""), bn = (c.req.query("bn") || "").replace(/\D/g, "").slice(0, 9);
+  if (num && num.length <= 8) nums = [num.padStart(8, "0")];
+  else if (bn.length === 9) { const b = await caShard(c.env, `b/${bn.slice(0, 3)}`); nums = b?.[bn] || []; }
+  else return c.json({ error: "bad number/bn" }, 400);
+  const out: any[] = [];
+  for (const n of nums.slice(0, 10)) { const s = await caShard(c.env, `n/${n.slice(0, 4)}`); if (s?.[n]) out.push(caFull(n, s[n])); }
+  if (!out.length) return c.json({ found: false }, 404);
+  return c.json(out.length === 1 ? out[0] : { matches: out });
+});
 app.all("*", (c) => c.json({ error: "not found" }, 404));
 export default app;

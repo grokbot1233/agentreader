@@ -159,6 +159,14 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       if (!/^\d{9}$/.test(acn)) throw new Error("acn must be 9 digits (or abn 11 digits)");
       const r = await env.AU.fetch(`https://au.internal/internal/au?acn=${acn}`, { headers: { "x-internal-key": env.AU_INTERNAL_KEY || "" } });
       return json(await r.json()); } catch (e) { return err(e); } }) as any);
+  server.tool("ca_company",
+    "Use this for a Canadian federal corporation lookup (Corporations Canada) by corporation number or 9-digit Business Number: legal name, governing act, status, annual filing, registered office, directors min/max. OGL-Canada. $0.02 USDC.",
+    { number: z.string().optional(), bn: z.string().optional() },
+    (await mk("$0.02", "ca_company", 20000))(async (a: any) => { try {
+      const bn = String(a.bn || "").replace(/\D/g, "").slice(0, 9), num = String(a.number || "").replace(/\D/g, "");
+      const q = num && num.length <= 8 ? `number=${num}` : bn.length === 9 ? `bn=${bn}` : null; if (!q) throw new Error("number (up to 8 digits) or bn (9 digits) required");
+      const r = await env.AU.fetch(`https://au.internal/internal/ca?${q}`, { headers: { "x-internal-key": env.AU_INTERNAL_KEY || "" } });
+      return json(await r.json()); } catch (e) { return err(e); } }) as any);
   server.tool("fx_rates",
     "Use this for official ECB currency exchange rates (~30 fiat incl GBP/EUR/USD/JPY), latest or a historical date (YYYY-MM-DD), with optional amount conversion. $0.002 USDC.",
     { base: z.string().optional(), symbols: z.string().optional(), date: z.string().optional(), amount: z.string().optional() },
@@ -202,6 +210,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       token_check: { price: "$0.01", when: "ERC20 token risk/liquidity" },
       fx_rates: { price: "$0.002", when: "ECB fiat FX rates" },
       au_company: { price: "$0.02", when: "Australian ASIC company lookup by ACN/ABN" },
+      ca_company: { price: "$0.02", when: "Canadian federal corporation lookup by number/BN" },
       ens_lookup: { price: "$0.002", when: "ENS name <-> address" }, token_metadata: { price: "$0.001", when: "ERC20 name/symbol/decimals/supply" },
       token_allowance: { price: "$0.002", when: "ERC20 approval check" }, contract_info: { price: "$0.003", when: "proxy/clone/standards/verified name" },
       gas_fees: { price: "$0.001", when: "current fees + USD cost" }, block_lookup: { price: "$0.001", when: "block by number or timestamp" }, nft_lookup: { price: "$0.002", when: "NFT owner + metadata" },
