@@ -11,15 +11,16 @@ Scoring: payment evidence × price/volume potential × our fit (free data, exist
 | 5 | Token risk / verdict | ax1 ~$0.02 / 48k calls | Medium–high $ | Medium — `/token-check` $0.01 (deterministic) | Live |
 | 6 | FX / rates | tick.hugen / ECB-class | Micro | High — `/fx` $0.002 | Live |
 | 7 | UK new-co leads / watch | NewcoSignal £49–149/mo; Apify CH feed | Subscription ARPU | High — `/uk-leads*`, `/uk-watch` | Live; needs buyers |
-| 8 | IP geolocation | Bazaar keyword hits in top hosts | Micro | Medium — free APIs have ToS limits | Candidate later |
+| 8 | IP geolocation | Bazaar keyword hits in top hosts | Micro | Medium — free APIs have ToS limits | Candidate later (ToS/rate limits on free geo) |
 | 9 | Standalone RDAP/domain age | Partial in `/company` | Micro | High | **SHIPPED → `/domain` $0.002** |
+| — | **DNS resolve** (A/AAAA/MX/TXT/NS) | Agents need records; pairs with domain/email | Micro $0.001 | High — DoH already in `core.ts` | **SHIPPED → `/dns` $0.001** |
 | 10 | People enrichment | Stableenrich people-search $0.15 | High $ | Low — legal/ToS | **Skip** |
 | 11 | LLM inference | blockrun 89k calls | High volume | Low — COGS | **Skip** |
 | 12 | NZ company registry | Open data / free API after approval | Medium | Medium — blocked on portal | Blocked |
 
 ## Next passes (spider-web)
 
-1. Ship `/domain` (done) + `/email-check` → npm/MCP bump when convenient; Apify actor after publish window.
+1. Ship `/domain` + `/email-check` + `/dns` (done v1.16.0) → keep IP geo as candidate later; Apify actor after publish window.
 2. Register any missing `/chain/*` on x402scan/Bazaar as **distinct** resources (explorer payer theory).
 3. Soft distribution of `/kyb` + `/email-check` together (onboarding agents).
 4. Re-pull CDP Bazaar monthly; refresh this ranking.

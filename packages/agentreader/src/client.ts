@@ -4,7 +4,7 @@ import { privateKeyToAccount } from "viem/accounts";
 import type { Chain, ClientOptions, RequestOpts } from "./types.js";
 
 const DEFAULT_ORIGIN = "https://api.axiomworks.co.uk";
-const VERSION = "1.15.0";
+const VERSION = "1.16.0";
 
 function normalizeKey(raw?: string): `0x${string}` | undefined {
   if (!raw) return undefined;
@@ -146,6 +146,10 @@ export class AgentReaderClient {
   /** RDAP domain registration: registrar, registered, expires, age_days ($0.002). */
   domainLookup(input: { domain: string }, opts?: RequestOpts) {
     return this.get("/domain", input, opts);
+  }
+  /** DNS resolve via Cloudflare DoH: A/AAAA/MX/TXT/NS/CNAME ($0.001). */
+  dnsLookup(input: { name: string; type?: string }, opts?: RequestOpts) {
+    return this.get("/dns", input, opts);
   }
   companyResearch(input: { domain: string }, opts?: RequestOpts) {
     return this.get("/company", input, opts);

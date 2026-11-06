@@ -119,6 +119,8 @@ export async function emailCheck(input: { email?: string }) {
     provider,
     mx_hosts: mxHosts,
     upsell: {
+      dns: { path: "/dns", price: "$0.001", why: "raw A/AAAA/MX/TXT/NS for the domain" },
+      domain: { path: "/domain", price: "$0.002", why: "RDAP registrar/age for the domain" },
       domain_posture: { path: "/check", price: "$0.001", why: "SPF/DMARC/TLS for the domain" },
       kyb: { path: "/kyb", price: "$2.50", why: "full company due-diligence pack" },
     },

@@ -45,6 +45,7 @@ export async function domainLookup(input: { domain?: string }) {
       upstream: ["TLD RDAP (Verisign/PIR/Nominet/…)", "https://rdap.org/domain/{domain}"],
     },
     upsell: {
+      dns: { path: "/dns", price: "$0.001", why: "A/AAAA/MX/TXT/NS resolve for the same name" },
       domain_posture: { path: "/check", price: "$0.001", why: "DNS/TLS/MX/SPF/DMARC score for the same domain" },
       company: { path: "/company", price: "$0.25", why: "website research pack (includes RDAP plus tech/contacts/news)" },
       email_check: { path: "/email-check", price: "$0.002", why: "validate a contact address on this domain" },

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const ORIGIN = process.env.AGENTREADER_ORIGIN || "https://api.axiomworks.co.uk";
-export const VERSION = "1.15.0";
+export const VERSION = "1.16.0";
 import CHAIN from "./chain-routes.json";
 
 const CH = z.enum(["base", "ethereum", "arbitrum", "optimism", "polygon"]).optional();
@@ -65,6 +65,18 @@ export const TOOLS: ToolDef[] = [
     price: "$0.002",
     schema: { domain: z.string() },
     http: (a) => `${ORIGIN}/domain?domain=${encodeURIComponent(a.domain)}`,
+    previewable: true,
+  },
+  {
+    name: "dns_lookup",
+    description: "DNS resolve via Cloudflare DoH: A/AAAA/MX/TXT/NS/CNAME (optional type=). $0.001 USDC.",
+    price: "$0.001",
+    schema: { name: z.string(), type: z.string().optional() },
+    http: (a) => {
+      const q = new URLSearchParams({ name: a.name });
+      if (a.type) q.set("type", a.type);
+      return `${ORIGIN}/dns?${q}`;
+    },
     previewable: true,
   },
   {

@@ -3,7 +3,7 @@ import { CANONICAL } from "./facilitator";
 const PREVIEW_LIMIT = 8; // per IP per UTC day across all preview kinds
 const PREVIEW_PREFIX = "prev:";
 
-export type PreviewKind = "domain" | "email-check" | "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "kyb" | "sanctions" | "sanctions-batch" | "uk-officer";
+export type PreviewKind = "dns" | "au-company" | "ca-company" | "domain" | "email-check" | "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "kyb" | "sanctions" | "sanctions-batch" | "uk-officer";
 
 const PRICE: Record<PreviewKind, string> = {
   read: "$0.002", links: "$0.001", check: "$0.001",
@@ -11,7 +11,7 @@ const PRICE: Record<PreviewKind, string> = {
   convert: "$0.03", "company-full": "$0.65",
   "uk-charity": "$0.05", "uk-charity-full": "$0.25",
   "us-sec": "$0.05", "us-sec-full": "$0.25", "eu-vat": "$0.01", "lei": "$0.005", "lei-full": "$0.05", "read-batch": "$0.015",
-  "uk-leads": "$1.00", "uk-leads-lite": "$0.25", kyb: "$2.50", "email-check": "$0.002", domain: "$0.002",
+  "uk-leads": "$1.00", "uk-leads-lite": "$0.25", kyb: "$2.50", "email-check": "$0.002", domain: "$0.002", dns: "$0.001", "au-company": "$0.02", "ca-company": "$0.02",
   sanctions: "$0.05", "sanctions-batch": "$1.00",
   "uk-officer": "$0.15",
 };
@@ -33,7 +33,7 @@ const PAID_CALL: Record<PreviewKind, string> = {
   "lei": `${CANONICAL}/lei?lei=HWUPKR0MPOU8FGXBT394`,
   "lei-full": `${CANONICAL}/lei-full?name=Apple+Inc.`,
   "read-batch": `${CANONICAL}/read-batch?urls=https://example.com,https://example.org`,
-  "uk-leads": `${CANONICAL}/uk-leads?sic=62012`, "uk-leads-lite": `${CANONICAL}/uk-leads-lite?sic=62`, "email-check": `${CANONICAL}/email-check?email=info@stripe.com`, domain: `${CANONICAL}/domain?domain=stripe.com`, kyb: `${CANONICAL}/kyb?domain=tesco.com&number=00445790`,
+  "uk-leads": `${CANONICAL}/uk-leads?sic=62012`, "uk-leads-lite": `${CANONICAL}/uk-leads-lite?sic=62`, "email-check": `${CANONICAL}/email-check?email=info@stripe.com`, domain: `${CANONICAL}/domain?domain=stripe.com`, dns: `${CANONICAL}/dns?name=example.com`, "au-company": `${CANONICAL}/au-company?acn=004028077`, "ca-company": `${CANONICAL}/ca-company?number=8660115`, kyb: `${CANONICAL}/kyb?domain=tesco.com&number=00445790`,
   sanctions: `${CANONICAL}/sanctions?name=BANCO+NACIONAL+DE+CUBA`, "sanctions-batch": `${CANONICAL}/sanctions-batch`,
   "uk-officer": `${CANONICAL}/uk-officer?name=Ken+Olisa`,
 };
@@ -208,6 +208,22 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
       return { ...u, product: data.product, email: data.email, verdict: data.verdict, score: data.score, flags: data.flags, checks: data.checks, provider: data.provider, omitted: ["mx_hosts full", "upsell detail"] };
     case "domain":
       return { ...u, product: data.product, domain: data.domain, registrar: data.registrar, registered: data.registered, expires: data.expires, age_days: data.age_days, status: data.status, flags: data.flags, omitted: ["upsell detail", "full RDAP entities"] };
+    case "dns":
+      return {
+        ...u, product: data.product, name: data.name, type: data.type, flags: data.flags,
+        records_preview: data.records ? Object.fromEntries(Object.entries(data.records).map(([k, v]: any) => [k, Array.isArray(v) ? v.slice(0, 2) : v])) : {},
+        omitted: ["full TXT/NS lists", "upsell detail"],
+      };
+    case "au-company":
+      return {
+        ...u, acn: data.acn, name: data.name, status: data.status, status_desc: data.status_desc,
+        omitted: data.omitted || ["abn", "former_names", "type", "class", "registered", "deregistered"],
+      };
+    case "ca-company":
+      return {
+        ...u, corporation_number: data.corporation_number, name: data.name, status: data.status,
+        omitted: data.omitted || ["business_number", "registered_office", "filings", "directors", "governing_legislation"],
+      };
     case "kyb":
       return {
         ...u,
@@ -329,6 +345,22 @@ export const STATIC_SAMPLES: Record<string, any> = {
     product: "domain", domain: "stripe.com", registrar: "SafeNames Ltd.", registered: "1995-09-12T04:00:00Z",
     expires: "2027-09-11T04:00:00Z", age_days: 11377, status: ["clientDeleteProhibited", "clientTransferProhibited"],
     flags: [], disclaimer: "Public RDAP registration data only. Not proof of ownership.",
+  },
+  dns: {
+    product: "dns", name: "example.com", type: ["A","AAAA","MX","TXT","NS","CNAME"],
+    records: {
+      A: ["93.184.216.34"], AAAA: ["2606:2800:220:1:248:1893:25c8:1946"],
+      MX: [], TXT: ["v=spf1 -all"], NS: ["a.iana-servers.net", "b.iana-servers.net"], CNAME: [],
+    },
+    flags: [], disclaimer: "Public DNS via Cloudflare DoH only. Not authoritative proof.",
+  },
+  "au-company": {
+    acn: "004028077", name: "BHP GROUP LIMITED", status: "REGD", status_desc: "Registered",
+    omitted: ["abn", "former_names", "type", "class", "registered", "deregistered"],
+  },
+  "ca-company": {
+    corporation_number: "8660115", name: "MINDANGLER CAPITAL INC.", status: "Active",
+    omitted: ["business_number", "registered_office", "filings", "directors", "governing_legislation"],
   },
   "uk-officer": {
     product: "uk-officer", query: { name: "Ken Olisa", limit: 10 }, hits_total: 3, returned: 2,
