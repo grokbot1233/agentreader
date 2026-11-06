@@ -693,6 +693,34 @@ app.get("/stats", async (c) => {
 app.get("/dashboard", async (c) => {
   c.header("cache-control", "no-store"); return c.html(dashboardHtml());
 });
+
+/** Read treasury USDC + ETH for dashboard (sweep-gas visibility). Tries multiple public Base RPCs; never throws. */
+async function readTreasuryBalances(payTo: string): Promise<{ treasury_usdc: number | null; treasury_eth: number | null; treasury_err?: string }> {
+  const data = "0x70a08231" + payTo.slice(2).toLowerCase().padStart(64, "0");
+  const rpcs = ["https://base-rpc.publicnode.com", "https://mainnet.base.org", "https://base.gateway.tenderly.co"];
+  const errs: string[] = [];
+  for (const rpc of rpcs) {
+    try {
+      const [balRes, usdcRes]: any[] = await Promise.all([
+        fetch(rpc, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_getBalance", params: [payTo, "latest"] }) }).then((r) => r.json()),
+        fetch(rpc, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 2, method: "eth_call", params: [{ to: USDC, data }, "latest"] }) }).then((r) => r.json()),
+      ]);
+      const ethHex = balRes?.result, usdcHex = usdcRes?.result;
+      if (typeof ethHex !== "string" || typeof usdcHex !== "string") {
+        errs.push(`${rpc}: ${balRes?.error?.message || usdcRes?.error?.message || "missing result"}`);
+        continue;
+      }
+      return {
+        treasury_eth: Math.round((Number(BigInt(ethHex)) / 1e18) * 1e9) / 1e9,
+        treasury_usdc: Math.round((Number(BigInt(usdcHex)) / 1e6) * 1e6) / 1e6,
+      };
+    } catch (e: any) {
+      errs.push(`${rpc}: ${String(e?.message || e).slice(0, 80)}`);
+    }
+  }
+  return { treasury_usdc: null, treasury_eth: null, treasury_err: errs.slice(0, 3).join(" | ").slice(0, 240) };
+}
+
 app.get("/dashboard/data", async (c) => {
   const t = Date.now(); let health: any = { ok: true };
   try { await c.env.LOG.get("health-probe"); health.kv_ms = Date.now() - t; } catch (e: any) { health = { ok: false, error: String(e) }; }
@@ -711,10 +739,9 @@ app.get("/dashboard/data", async (c) => {
     ...mcpTools.map(([n, price]) => ({ name: `MCP ${n}`, url: `${CANONICAL}/mcp`, price, paid: price !== "free", status: "live" })),
     ...["/health", "/llms.txt", "/openapi.json", "/.well-known/x402", "/.well-known/agent.json", "/samples/company", "/hooks/sink"].map((p) => ({ name: p, url: `${CANONICAL}${p}`, price: "free", paid: false, status: "live" })),
   ];
-  let treasury_usdc: number | null = null, treasury_err: string | undefined;
-  try { const r: any = await (await fetch("https://base-rpc.publicnode.com", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_call", params: [{ to: USDC, data: "0x70a08231" + c.env.PAY_TO.slice(2).toLowerCase().padStart(64, "0") }, "latest"] }) })).json(); treasury_usdc = Number(BigInt(r.result)) / 1e6; } catch (e: any) { treasury_err = String(e).slice(0, 200); }
+  const { treasury_usdc, treasury_eth, treasury_err } = await readTreasuryBalances(c.env.PAY_TO);
   c.header("cache-control", "no-store"); const st: any = await stats(c.env); for (const k of ["revenue_usdc", "test_revenue_usdc"]) if (typeof st[k] === "number") st[k] = Math.round(st[k] * 1e6) / 1e6;
-  return c.json({ ...st, health, services, meta, network: NETWORK, payTo: c.env.PAY_TO, treasury_usdc, treasury_err, legacy_payTo: ["0xB1A4e2C441fa896AF010222659AAbBb71E9Ef1D1", "0x560d1dbb6e973082EBd20D340EAd3a198452b3Ec"], prices: PRICES });
+  return c.json({ ...st, health, services, meta, network: NETWORK, payTo: c.env.PAY_TO, treasury_usdc, treasury_eth, treasury_err, legacy_payTo: ["0xB1A4e2C441fa896AF010222659AAbBb71E9Ef1D1", "0x560d1dbb6e973082EBd20D340EAd3a198452b3Ec"], prices: PRICES });
 });
 app.post("/admin/dashboard-meta", async (c) => {
   const auth = c.req.header("authorization")?.replace(/^Bearer\s+/i, "") || c.req.query("key") || "";
