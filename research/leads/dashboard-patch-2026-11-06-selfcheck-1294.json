@@ -1,0 +1,24 @@
+{
+  "next_steps": [
+    "Focus big hitters only: /kyb $2.50, /uk-dd $1, /uk-company $0.50, /uk-watch $5, /uk-leads $1, /uk-leads-feed $25, /company+/company-full, /sanctions-batch $1, /uk-charity-full, /fr-company $0.25.",
+    "Buyer hunt + soft GH/X outreach for those routes; stop promoting $0.001\u2013$0.003 format validators.",
+    "Re-pull CDP Bazaar next demand run; SSL/IP-geo still deferred."
+  ],
+  "self_check_latest": {
+    "when": "2026-11-06T20:12:00Z",
+    "status": "improved",
+    "openapi": "1.29.4",
+    "mcp_tools": 72,
+    "deploy": "1f8fe77c-7693-4d35-8cf8-12ccb4f7506e",
+    "commit": "pending",
+    "fixes": [
+      "uk-leads/uk-officer KV cache put fail-open so free previews no longer 502 when CF daily put limit hit"
+    ],
+    "npm": "@axiomworks/agentreader@1.29.4 + mcp 1.29.4",
+    "treasury_eth": 0.00039894,
+    "treasury_usdc": 2.588,
+    "outside_revenue": "$0.004 / 3 paid / 1 payer",
+    "notes": "Hourly self-check; payment paths untouched (no settle). FR preview still upstream 429 soft."
+  },
+  "ops_notes_append": "2026-11-06 ~20:12 GMT self-check: healthy\u2192improved. v1.29.4 deploy 1f8fe77c\u2026 \u2014 uk-leads/uk-officer cache put fail-open under CF KV daily put cap (preview was 502). Live health/OpenAPI/agent 1.29.4; MCP 72 (micros unlisted; fr_company present). Outside $0.004/3/1. Soft: /fr-company preview upstream 429; dashboard-meta KV put likely still blocked."
+}
