@@ -24,7 +24,8 @@ Scoring: payment evidence × price/volume potential × our fit (free data, exist
 
 ## Next passes (spider-web)
 
-1. **`/chain/nft-metadata` $0.002 shipping v1.20.0** — onesource ~228 payers @ $0.008; undercut 4×; complements `/nft` + `/chain/nft-owner`.
-2. Register `/chain/nft-metadata` (+ remaining `/chain/*`) on x402scan/Bazaar; soft distribute.
-3. Soft distribute `/meta` + `/read` and higher-ticket `/kyb`+`/uk-leads*`.
-4. Re-pull CDP Bazaar on next demand run; keep IP geo / SSL deferred; consider phone validate + UK DD bundle.
+1. `/chain/nft-metadata` **LIVE** v1.20.0 + x402scan registered (2026-11-06).
+2. Sanctions UK/UN/EU **preserve-on-fail** shipped (2026-11-06).
+3. Soft distribute `/kyb`+`/email-check`+`/uk-officer` (GH comments posted).
+4. Re-pull CDP Bazaar next demand run; IP geo / SSL still deferred; consider phone validate.
+5. awesome-langchain: **do not re-PR** (guidelines + close pattern).
