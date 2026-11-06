@@ -16,7 +16,14 @@ export const VALIDATE: Record<string, (b: any) => string | null> = {
   "/read": (b) => url(b.url), "/links": (b) => url(b.url), "/convert": (b) => first(url(b.url), b.format && !["markdown", "text"].includes(b.format) ? "format must be markdown or text" : null),
   "/email-check": (b) => { const e = s(b.email); if (!e) return "email required"; return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e) ? null : "email must look like name@domain.tld"; },
   "/check": (b) => domainish(b.domain),
-  "/company": (b) => domainish(b.domain || b.name || b.url), "/company-full": (b) => domainish(b.domain || b.name || b.url),
+  "/company": (b) => {
+    if (!s(b.domain || b.name || b.url) && s(b.number)) return "domain required (got number= — for UK Companies House use /uk-company?number=)";
+    return domainish(b.domain || b.name || b.url);
+  },
+  "/company-full": (b) => {
+    if (!s(b.domain || b.name || b.url) && s(b.number)) return "domain required (got number= — for UK Companies House use /uk-company?number=, or pass domain= for /company-full)";
+    return domainish(b.domain || b.name || b.url);
+  },
   "/uk-company": (b) => uk(b), "/uk-company-lite": (b) => uk(b),
   "/uk-charity": (b) => charity(b), "/uk-charity-full": (b) => charity(b),
   "/us-sec": (b) => sec(b), "/us-sec-full": (b) => sec(b),
