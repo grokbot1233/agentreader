@@ -1,0 +1,9 @@
+== 402index.io (routes not already aggregated from Bazaar)
+/kyb: 201 {"message":"Service registered and live (domain verified).","service":{"id":"e8e8dcd9-c425-4e58-bc0a-9b313831bd9b","name":"Axiom Works AgentReader /kyb","description":"KYB report: UK Companies House +
+/uk-leads: 201 {"message":"Service registered and live (domain verified).","service":{"id":"0ccda457-c36c-4e94-b765-d7f1bfda60d1","name":"Axiom Works AgentReader /uk-leads","description":"New UK company leads by SIC
+/uk-leads-feed: 201 {"message":"Service registered and live (domain verified).","service":{"id":"1a14e0fa-7492-4e1e-90ef-c1ad001272c9","name":"Axiom Works AgentReader /uk-leads-feed","description":"Daily webhook feed of 
+/uk-watch: 201 {"message":"Service registered and live (domain verified).","service":{"id":"a56d480a-c269-4833-9d3f-9f892bc36e23","name":"Axiom Works AgentReader /uk-watch","description":"Watch a UK company for fili
+== a2a-registry.org
+{"success":true,"data":{"id":"b6fdf1bb-8cd2-4af4-99cb-310d083ce0b4","package_name":"uk.co.axiomworks.axiom_works_agentreader","status":"updated","refreshed":true,"message":"Unclaimed agent refreshed with the latest manifest."},"status":200}
+== a2aregistry.org
+{"detail":"The registry has reached its review capacity for now, so it is not accepting submissions. Retry after the time in the Retry-After header."}

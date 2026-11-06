@@ -1,0 +1,50 @@
+== 2026-11-06T11:31:01Z growth-sprint mid-discovery registry ==
+-- skip 402index (parked / for-sale) --
+-- a2a-registry.org --
+{"success":true,"data":{"id":"b6fdf1bb-8cd2-4af4-99cb-310d083ce0b4","package_name":"uk.co.axiomworks.axiom_works_agentreader","status":"updated","refreshed":true,"message":"Unclaimed agent refreshed with the latest manifest."},"status":200}
+-- a2aregistry.org --
+HTTP/2 429 
+date: Fri, 06 Nov 2026 11:31:04 GMT
+content-type: application/json
+content-length: 150
+retry-after: 44936
+vary: Origin
+server: cloudflare
+via: 1.1 google
+alt-svc: h3=":443"; ma=86400
+cf-cache-status: DYNAMIC
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=oZ3A5t6UVaKsF%2FYBS2oJbXitWHw6sqZ%2BUb0iS29hWSRt3uHFgpz48AQKgUQBersNHW7jnismfl9ETbB7ZtzkVqwW68Yqgb2fInh%2BzbVtqz0sUtwAyrzhpJDtfb23M%2BLZE54RQ7er1WuxoYsn9ZQ%3D"}]}
+cf-ray: a563c511bff0310a-IAD
+
+BODY:
+{"detail":"The registry has reached its review capacity for now, so it is not accepting submissions. Retry after the time in the Retry-After header."}
+-- agent402.tools --
+HTTP/2 200 
+date: Fri, 06 Nov 2026 11:31:11 GMT
+content-type: application/json; charset=utf-8
+access-control-allow-origin: *
+access-control-expose-headers: PAYMENT-REQUIRED, PAYMENT-RESPONSE, WWW-Authenticate, Payment-Receipt, X-Cache, X-Credits-Balance, X-Metered-Usd, X-Idempotent-Replay, X-Replayed-Answer, X-Agent402-Allowance, Retry-After, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-Id, Link, X-Total-Count, X-Async-Recommended, Location, Preference-Applied, Sunset
+etag: W/"25a-qkO+lhcmmLusAo+ESeCwOalTTjQ"
+referrer-policy: strict-origin-when-cross-origin
+server: cloudflare
+strict-transport-security: max-age=63072000; includeSubDomains; preload
+vary: Accept-Encoding
+x-content-type-options: nosniff
+x-railway-request-id: 16snxE7ySnSluDDawUFZXw
+BODY:
+{"listed":true,"origin":"https://api.axiomworks.co.uk","seller":{"displayName":"Axiom Works AgentReader","toolCount":226,"toolsTotal":226,"toolsCapped":false,"networks":["eip155:8453"],"routable":true,"health":1},"reverify":{"documentsReread":true,"routesRechecked":true,"routesProbed":120,"rereadCooldownSeconds":900,"recheckCooldownSeconds":600,"nextRereadInSeconds":0,"nextRecheckInSeconds":0,"rec
+-- mcp.directory API probe --
+mcp.directory/submit POST:404
+mcp.directory search:404
+-- glama live --
+glama:200
+-- x402scan server page --
+x402scan_server:200
+-- official MCP registry latest --
+n 16
+io.github.grokbot1233/agentreader ver 1.0.0 latest False status active
+io.github.grokbot1233/agentreader ver 1.0.1 latest False status active
+io.github.grokbot1233/agentreader ver 1.1.0 latest False status active
+io.github.grokbot1233/agentreader ver 1.1.1 latest False status active
+io.github.grokbot1233/agentreader ver 1.12.0 latest False status active
