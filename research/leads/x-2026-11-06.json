@@ -1,17 +1,102 @@
 [
- {"username":"vet402_com","url":"https://x.com/vet402_com/status/2118592122890883217","text":"vet402 audits x402 paid API answers on Arc/Circle — 55 buys checked; cares about delivery quality. Likely to test/review real company-data x402 APIs including AgentReader."},
- {"username":"0xMetrion","url":"https://x.com/0xMetrion/status/2118611565067026785","text":"Metrion agent service marketplace: providers publish USDG-priced work, buyers via MCP/API, x402 settles. Peer marketplace; agents that pay for tools could consume our company-data routes."},
- {"username":"Lamulabs","url":"https://x.com/Lamulabs/status/2118595135701434771","text":"Edith agent pays x402 API calls and remembers bad endpoints; Mandate for shared spending limits. Peer builders on payment integrity — complementary to free ?preview=1 + fixed prices."},
- {"username":"payagents","url":"https://x.com/payagents/status/2118591712423719410","text":"PayAgents: set a price on any API route, unpaid get 402. Multi-rail (L402/x402) for agentic economy and MCP. Distribution peer; agents need data APIs behind the rails."},
- {"username":"joejossy_12","url":"https://x.com/joejossy_12/status/2118590553495318815","text":"Agents can pay for APIs but first need to find them — promoting BAI_AGI x402 Catalog. Discovery/distribution angle; get AgentReader listed or cross-linked."},
- {"username":"AlexReynol74094","url":"https://x.com/AlexReynol74094/status/2118586852206674182","text":"Demo: SEC EDGAR company_lookup for AAPL at $0.001 USDC on Base via x402. Same buyer problem we sell (/sec, /edgar); competitor/complement — soft tech reply or differentiate."},
- {"username":"niceday19960224","url":"https://x.com/niceday19960224/status/2118566896761274430","text":"Wants agents to collaborate on due diligence and show sources, not just conclusions. Exact buyer intent for KYB/CH/SEC sourced company data via AgentReader."},
- {"username":"benny617","url":"https://x.com/benny617/status/2118559404446667209","text":"KYA extends KYC/KYB to AI agents (identity, verified human/business, spending limits, audit). Adjacent to our KYB/company routes — useful technical reply."},
- {"username":"daniiie7","url":"https://x.com/daniiie7/status/2118609886095544807","text":"Claude Code transcripts show agents hitting SEC EDGAR (and Wikimedia) with contact emails in User-Agent. Real agent demand for EDGAR/company data APIs we already sell."},
- {"username":"stretchcloud","url":"https://x.com/stretchcloud/status/2118588188650246610","text":"Six-layer defenses against Claude/Cursor/Grok scraping sites. Agent web-fetch demand; our SSRF-safe /fetch /markdown /meta are the paid alternative to brittle scrapes."},
- {"username":"GrindFreeLabs","url":"https://x.com/GrindFreeLabs/status/2118562704608973180","text":"PromptShield $0.002 USDC x402 content gate for agent-browsed HTML. Peer on x402 content safety; complementary to our clean markdown/meta routes."},
- {"username":"ashish258042","url":"https://x.com/ashish258042/status/2118609745045295473","text":"Asks how an agent pays for multiple paid tools in one task. Early buyer education; reply with concrete free preview + x402 company-data example."},
- {"username":"aergo_io","url":"https://x.com/aergo_io/status/2118599523131871668","text":"House Party Protocol: agents already pay for what they use; x402 live, payment is part of the request. Platform that could surface or consume data APIs."},
- {"username":"io_enthusiast","url":"https://x.com/io_enthusiast/status/2118613279836721304","text":"Chainalysis mapped AI agent buys by country via public x402 payments (138M+ on Base). Distribution/awareness; useful quote-reply with AgentReader as real data seller."},
- {"username":"tranngocthuycom","url":"https://x.com/tranngocthuycom/status/2118611978314772721","text":"Highlighting trafilatura for agent web text extraction. Demand for html→markdown/fetch; our /markdown /fetch /meta are pay-per-call alternatives."}
+ {
+  "username": "lanatools",
+  "url": "https://x.com/lanatools/status/2118652954702229766",
+  "text": "Jev-powered paid data marketplace: agents find Solana data providers and pay per call from $0.01. Peer x402 data seller; AgentReader company/KYB/SEC routes are complementary off-chain registry layer."
+ },
+ {
+  "username": "qtqychdv",
+  "url": "https://x.com/qtqychdv/status/2118652256002437389",
+  "text": "Pay-per-call data is the agent economy \u2014 cites Long Events $0.005 USDC/MCP. Worries junk data at cheap prices. High-signal buyer/educator; reply with sourced registry data + free ?preview=1."
+ },
+ {
+  "username": "gmgnjordan",
+  "url": "https://x.com/gmgnjordan/status/2118642947243782561",
+  "text": "Exact buyer intent: research agent may need a company database + news + paid API in one task; wants budget approval not per-purchase. Perfect fit for /kyb /uk-company /us-sec over x402."
+ },
+ {
+  "username": "Meryal_Raven",
+  "url": "https://x.com/Meryal_Raven/status/2118659669707071876",
+  "text": "Meryal: agent pays per request over x402 with per-payment/session/day caps and kill switch. Platform that needs real data sinks behind payment rails \u2014 company/KYB/SEC fit."
+ },
+ {
+  "username": "stefabrudan",
+  "url": "https://x.com/stefabrudan/status/2118627911830065269",
+  "text": "Pay-per-call with signed receipt binding answer bytes to payment is the right shape for agent APIs. Technical peer; good soft reply showing AgentReader preview+paid twin + receipt model."
+ },
+ {
+  "username": "con_golias",
+  "url": "https://x.com/con_golias/status/2118652981306421262",
+  "text": "Searched 1,500 SEC 10-Ks for AI-agent risk warnings (52 companies). Heavy SEC/EDGAR consumer \u2014 soft reply with /us-sec keyless x402 as scraping alternative."
+ },
+ {
+  "username": "brij_fi",
+  "url": "https://x.com/brij_fi/status/2118644259641597971",
+  "text": "Conclave opened live council data to any agent over x402 on Solana (PayAINetwork), no signup/API key. Peer x402 data seller; cross-link opportunity for Base USDC company-data routes."
+ },
+ {
+  "username": "Mehdi_",
+  "url": "https://x.com/Mehdi_/status/2118652331269230901",
+  "text": "x402 payment size analysis: tiny per-call vs escrow for larger. Thought-leader on agent payments; good soft mention of fixed-price registry routes + free preview."
+ },
+ {
+  "username": "neser_nk",
+  "url": "https://x.com/neser_nk/status/2118658482182168916",
+  "text": "SeismicSys KYB now needs MSB fields + KYC IP/device fingerprint. Compliance API builders \u2014 adjacent to our /kyb (CH+VIES+sanctions) as registry enrichment."
+ },
+ {
+  "username": "fekunze",
+  "url": "https://x.com/fekunze/status/2118638038070780266",
+  "text": "Hot take: OS repos will gate read access on KYC/KYB. Adjacent demand narrative for business identity verification APIs agents will call."
+ },
+ {
+  "username": "thoughtfullab",
+  "url": "https://x.com/thoughtfullab/status/2118490771255132570",
+  "text": "Agent wrote/ran Python and downloaded SEC filings from EDGAR on 149/150 tasks, working around access blocks. Direct demand for fair-use /us-sec instead of scraping."
+ },
+ {
+  "username": "kabelsalat_info",
+  "url": "https://x.com/kabelsalat_info/status/2118626361237438525",
+  "text": "Explains EDGAR blocks without contact User-Agent and why Claude Code leaked emails. Soft reply pointing at keyless /us-sec over x402."
+ },
+ {
+  "username": "0xMetrion",
+  "url": "https://x.com/0xMetrion/status/2118611565067026785",
+  "text": "Metrion agent service marketplace: providers publish USDG-priced work, buyers via MCP/API, x402 settles. Peer marketplace; agents that pay for tools could consume company-data routes."
+ },
+ {
+  "username": "Lamulabs",
+  "url": "https://x.com/Lamulabs/status/2118595135701434771",
+  "text": "Edith agent pays x402 API calls and remembers bad endpoints; Mandate for shared spending limits. Peer builders on payment integrity \u2014 complementary to free ?preview=1 + fixed prices."
+ },
+ {
+  "username": "GrindFreeLabs",
+  "url": "https://x.com/GrindFreeLabs/status/2118562704608973180",
+  "text": "PromptShield $0.002 USDC x402 content gate for agent-browsed HTML. Peer on x402 content safety; complementary to our clean markdown/meta routes."
+ },
+ {
+  "username": "aergo_io",
+  "url": "https://x.com/aergo_io/status/2118599523131871668",
+  "text": "House Party Protocol: agents already pay for what they use; x402 live, payment is part of the request. Platform that could surface or consume data APIs."
+ },
+ {
+  "username": "io_enthusiast",
+  "url": "https://x.com/io_enthusiast/status/2118613279836721304",
+  "text": "Chainalysis mapped AI agent buys by country via public x402 payments (138M+ on Base). Distribution/awareness; useful quote-reply with AgentReader as real data seller."
+ },
+ {
+  "username": "Hakanisleten",
+  "url": "https://x.com/Hakanisleten/status/2118660222474440893",
+  "text": "Lightning on x402: open standard using HTTP 402 so AI agents make automatic micropayments (stablecoins focus). Education angle for pay-per-call registry APIs."
+ },
+ {
+  "username": "openanysi",
+  "url": "https://x.com/openanysi/status/2118594227986739451",
+  "text": "OpenAny: one key for 160+ models + 3000+ APIs, pay per call. Agent stack needing data APIs \u2014 possible distribution peer for company/KYB routes."
+ },
+ {
+  "username": "MariaOnchainDev",
+  "url": "https://x.com/MariaOnchainDev/status/2118659662778155134",
+  "text": "Would you send money to a stranger with no name/history? AI agents get asked that constantly \u2014 identity (8004) angle. Soft reply: registry KYB before agent spends."
+ }
 ]

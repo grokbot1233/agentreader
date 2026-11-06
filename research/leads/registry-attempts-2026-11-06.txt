@@ -51,3 +51,14 @@ cf-ray: a5629c3a7ecff2b9-IAD
 - a2aregistry.org: still capacity-full (prior)
 - mcpservers.org/servers/grokbot1233/agentreader: CF challenge on curl; Zoho approval earlier today — treat as live pending browser confirm
 - Glama: TDQS B 3.3/5.0 scored 2026-11-06; badge SVG live; nudged punkpeye/awesome-mcp-servers#18634
+=== 2026-11-06 ~11:15 GMT buyer-hunt registry pass ===
+402index.io: re-registered /kyb /uk-leads /uk-leads-feed /uk-watch -> 201 live (domain verified)
+a2a-registry.org: success refreshed uk.co.axiomworks.axiom_works_agentreader
+a2aregistry.org: capacity-full (Retry-After) — not accepting submissions
+agent402.tools /api/index/register: rate-limited this hour; ALREADY LISTED origin=https://api.axiomworks.co.uk health=1 routable=true paidToolCount=222
+402.com.tr: catalog read-only (no public seller submit found this pass); partners field present
+probe 404 https://mcp.directory/api/servers
+probe 200 https://registry.modelcontextprotocol.io/v0/servers?search=agentreader
+probe 000err https://glama.ai/mcp/servers/grokbot1233/agentreader
+probe 307 https://x402scan.com/api
+probe 000err https://api.wellknown.network/agents
