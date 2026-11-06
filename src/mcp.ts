@@ -63,7 +63,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       await log({ endpoint: `mcp:${tool}`, payer: settlement?.payer || null, amount: settlement?.amount || String(atomic), network: settlement?.network, tx: settlement?.transaction, success: settlement?.success });
     } },
   } as any);
-  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.18.0" });
+  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.18.1" });
   { const orig = (server as any).tool.bind(server); (server as any).tool = (name: string, desc: any, ...rest: any[]) => orig(name, typeof desc === "string" ? upsell(TOOL_PATH[name] || "", desc) : desc, ...rest); }
   const json = (d: any) => ({ content: [{ type: "text" as const, text: JSON.stringify(d) }] });
   const err = (e: any) => ({ isError: true, content: [{ type: "text" as const, text: String(e?.message || e) }] });
@@ -246,7 +246,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
   }
   server.tool("pricing", "Free: list Axiom Works AgentReader tools, prices, when-to-use hints and payment details.", {}, async () => json({
     network: NETWORK, asset: "USDC", payTo: env.PAY_TO,
-    samples: "https://api.axiomworks.co.uk/samples/{read|company|uk-company|uk-company-lite|convert|uk-charity|uk-charity-full|us-sec|us-sec-full|eu-vat}",
+    samples: "https://api.axiomworks.co.uk/samples/{read|company|uk-company|uk-property|uk-area|meta|dns|redirects|…}",
     tools: {
       read_url: { price: "$0.002", when: "page → Markdown + metadata" },
       extract_links: { price: "$0.001", when: "links only" },

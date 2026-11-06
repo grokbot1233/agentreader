@@ -3,7 +3,7 @@ import { CANONICAL } from "./facilitator";
 const PREVIEW_LIMIT = 8; // per IP per UTC day across all preview kinds
 const PREVIEW_PREFIX = "prev:";
 
-export type PreviewKind = "meta" | "redirects" | "dns" | "au-company" | "ca-company" | "domain" | "email-check" | "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "kyb" | "sanctions" | "sanctions-batch" | "uk-officer";
+export type PreviewKind = "meta" | "redirects" | "dns" | "au-company" | "ca-company" | "domain" | "email-check" | "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "kyb" | "sanctions" | "sanctions-batch" | "uk-officer" | "uk-property" | "uk-area";
 
 const PRICE: Record<PreviewKind, string> = {
   read: "$0.002", links: "$0.001", check: "$0.001",
@@ -14,6 +14,7 @@ const PRICE: Record<PreviewKind, string> = {
   "uk-leads": "$1.00", "uk-leads-lite": "$0.25", kyb: "$2.50", "email-check": "$0.002", domain: "$0.002", dns: "$0.001", redirects: "$0.001", meta: "$0.001", "au-company": "$0.02", "ca-company": "$0.02",
   sanctions: "$0.05", "sanctions-batch": "$1.00",
   "uk-officer": "$0.15",
+  "uk-property": "$0.01", "uk-area": "$0.005",
 };
 
 const PAID_CALL: Record<PreviewKind, string> = {
@@ -36,6 +37,8 @@ const PAID_CALL: Record<PreviewKind, string> = {
   "uk-leads": `${CANONICAL}/uk-leads?sic=62012`, "uk-leads-lite": `${CANONICAL}/uk-leads-lite?sic=62`, "email-check": `${CANONICAL}/email-check?email=info@stripe.com`, domain: `${CANONICAL}/domain?domain=stripe.com`, dns: `${CANONICAL}/dns?name=example.com`, redirects: `${CANONICAL}/redirects?url=https://example.com`, meta: `${CANONICAL}/meta?url=https://example.com`, "au-company": `${CANONICAL}/au-company?acn=004028077`, "ca-company": `${CANONICAL}/ca-company?number=8660115`, kyb: `${CANONICAL}/kyb?domain=tesco.com&number=00445790`,
   sanctions: `${CANONICAL}/sanctions?name=BANCO+NACIONAL+DE+CUBA`, "sanctions-batch": `${CANONICAL}/sanctions-batch`,
   "uk-officer": `${CANONICAL}/uk-officer?name=Ken+Olisa`,
+  "uk-property": `${CANONICAL}/uk-property?postcode=CB1+2AB`,
+  "uk-area": `${CANONICAL}/uk-area?postcode=SW1A+2AA`,
 };
 
 function dayKey() { return new Date().toISOString().slice(0, 10); }
@@ -319,6 +322,39 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         })),
         omitted: ["remaining URLs", "full markdown"],
       };
+    case "uk-property":
+      return {
+        ...u,
+        postcode: data.postcode,
+        area: data.area ? { district: data.area.district, ward: data.area.ward, region: data.area.region, country: data.area.country } : null,
+        summary: data.summary ? {
+          sales: data.summary.sales, latest_sale: data.summary.latest_sale,
+          median_price: data.summary.median_price, median_last_12m: data.summary.median_last_12m,
+          sales_last_12m: data.summary.sales_last_12m,
+        } : null,
+        sales_preview: Array.isArray(data.sales) ? data.sales.slice(0, 2) : [],
+        source: data.source, coverage: data.coverage,
+        omitted: ["full sales list", "median_by_type detail", "search postcodes"],
+      };
+    case "uk-area":
+      return {
+        ...u,
+        postcode: data.postcode,
+        location: data.location ? { lat: data.location.lat, lon: data.location.lon } : null,
+        geography: data.geography ? {
+          country: data.geography.country, region: data.geography.region,
+          local_authority: data.geography.local_authority, ward: data.geography.ward,
+          constituency: data.geography.constituency,
+        } : null,
+        crime: data.crime ? { month: data.crime.month, total_within_1mile: data.crime.total_within_1mile } : null,
+        food_hygiene: data.food_hygiene ? {
+          establishments_within_400m: data.food_hygiene.establishments_within_400m,
+          average_rating: data.food_hygiene.average_rating,
+        } : null,
+        source: data.source,
+        omitted: ["crime by_category", "food hygiene lowest_rated", "full geography codes"],
+      };
+
     default:
       return { ...u, error: "unknown preview kind" };
   }
@@ -403,6 +439,26 @@ export const STATIC_SAMPLES: Record<string, any> = {
     ],
     attribution: "Contains public sector information licensed under the Open Government Licence v3.0.",
   },
+  "uk-property": {
+    postcode: "CB1 2AB",
+    area: { district: "Cambridge", ward: "Petersfield", region: "East of England", country: "England" },
+    summary: { sales: 50, latest_sale: "2026-05-28", median_price: 590000, median_last_12m: 453000, sales_last_12m: 10 },
+    sales: [
+      { date: "2026-05-28", price: 715000, postcode: "CB1 2AW", address: "75, MILL ROAD, CAMBRIDGE", property_type: "terraced", tenure: "freehold" },
+      { date: "2026-05-21", price: 445000, postcode: "CB1 1BB", address: "34, PETERSFIELD MANSIONS, PETERSFIELD, CAMBRIDGE", property_type: "flat-maisonette", tenure: "leasehold" },
+    ],
+    source: "HM Land Registry Price Paid Data (OGL v3) + postcodes.io",
+    coverage: "England & Wales, sales since 1995",
+  },
+  "uk-area": {
+    postcode: "SW1A 2AA",
+    location: { lat: 51.503541, lon: -0.12767 },
+    geography: { country: "England", region: "London", local_authority: "Westminster", ward: "St James's", constituency: "Cities of London and Westminster" },
+    crime: { month: "2026-08", total_within_1mile: 3908 },
+    food_hygiene: { establishments_within_400m: 5000, average_rating: 5 },
+    source: "postcodes.io + data.police.uk + FSA (OGL v3)",
+  },
+
   sanctions: {
     product: "sanctions", possible_match: true, match_count: 1, highest_score: 1,
     query: { name: "BANCO NACIONAL DE CUBA" },
