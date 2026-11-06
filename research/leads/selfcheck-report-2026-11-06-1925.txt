@@ -1,0 +1,13 @@
+SELF-CHECK REPORT 2026-11-06 ~19:25 Europe/London (GMT)
+
+Live version + deploy id: 1.29.2 / d70a40e3-a41a-4d5e-82d9-03842b98fb81 (commit fc23a22 bump; /fr-company lineage 9522b7e→316574d→603734c→fc23a22; prior big-hitters discovery f7e77e4)
+
+Health summary: overall improved / healthy. Health+OpenAPI 1.29.2; well-known/x402 + agent + llms.txt + dashboard 200. npm @axiomworks/agentreader(+mcp) 1.29.2. MCP 72 tools (micros unlisted; big hitters present: kyb_report, uk_dd, uk_company, fr_company, sanctions_batch, uk_watch, uk_leads). Bare paid GET 402: ~84+/92 confirmed (4 path-param-only 404 by design); a few no-param routes intermittently timed out under probe load (/fx /gas /wallet /dns /convert /block) — not treated as product breaks. Empty known-param free 400: 8/8. Key previews 200 (uk-company/uk-dd/kyb/company/company-full/uk-charity-full/sanctions-batch/read/us-sec); /fr-company preview currently upstream 429 rate-limit (bare still 402 maxAmountRequired 250000 = $0.25); /uk-watch is POST-only (GET 404 expected).
+
+What was broken/fixed: Nothing critically broken. Cleared npm staged 1.29.1 conflict via 1.29.2 bump. SDK frCompany corrected to get() + FR types in KYB/registry-batch. Discovery already aligned to Liam big-hitters-only (v1.28.0): $0.001 format validators unlisted from MCP/llms/well-known (HTTP routes kept, still 402). CF KV daily put limit still blocks dashboard-meta writes (known; patches queued) — not fixed this cycle.
+
+Improvement made with commit/deploy: Shipped /fr-company $0.25 FR registry big-hitter + KYB/registry-batch FR expand + discovery/llms/dashboard alignment (commits 9522b7e, 316574d, 603734c, fc23a22; live deploy d70a40e3-a41a-4d5e-82d9-03842b98fb81). Continues v1.28.0 big-hitters-first directive (f7e77e4 / deploy 93faea61-…).
+
+LIAM_ACTIONABLE: no
+
+token/treasury notes: payTo 0x88b1c747… (Base). Dashboard snapshot treasury ~2.588 USDC / 0.000399 ETH (from /tmp/dashdata.json; live RPC from box currently 403). Outside revenue $0.004 / 3 paid / 1 payer. Below $20 sweep threshold; no funds moved; no Liam spend.

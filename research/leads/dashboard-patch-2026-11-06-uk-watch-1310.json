@@ -1,0 +1,18 @@
+{
+  "what_shipped_prepend": {
+    "date": "2026-11-06 ~21:01 UK",
+    "version": "1.31.0",
+    "deploy_id": "718c17c4-5a63-4350-9c11-b6c83a6a7075",
+    "commit": "7fa6dfa",
+    "items": [
+      "/uk-watch $5 enriched: hourly PSC + charges change detection (with status/officers/filings)",
+      "Free /samples/uk-watch discovery sample (psc_active + charges_outstanding)",
+      "npm @axiomworks/agentreader(+mcp) 1.31.0"
+    ]
+  },
+  "next_steps": [
+    "Push conversion on live big hitters: /kyb $2.50, /uk-dd $1, /uk-leads $1, /uk-leads-feed $25, /uk-watch $5 (now PSC+charges), /company-full $0.65",
+    "No new $0.001–$0.003 micro validators"
+  ],
+  "ops_notes_append": "2026-11-06 ~21:01 GMT: shipped v1.31.0 /uk-watch PSC+charges + sample. No spend. CF KV put may still block dashboard-meta."
+}
