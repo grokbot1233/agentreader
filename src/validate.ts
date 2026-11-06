@@ -14,6 +14,15 @@ const ISO = /^[A-Z]{3}$/i;
 
 export const VALIDATE: Record<string, (b: any) => string | null> = {
   "/read": (b) => url(b.url), "/links": (b) => url(b.url), "/meta": (b) => url(b.url),
+  "/headers": (b) => {
+    let x = s(b.url || b.domain); if (!x) return "missing url or domain"; if (!/^https?:\/\//i.test(x)) x = `https://${x}`; return url(x);
+  },
+  "/iban": (b) => {
+    const x = s(b.iban).replace(/[\s\-]+/g, "").toUpperCase();
+    if (!x) return "missing iban";
+    if (x.length < 15 || x.length > 34) return "iban length must be 15-34";
+    return /^[A-Z]{2}\d{2}[A-Z0-9]+$/.test(x) ? null : "iban must look like GB82WEST12345698765432";
+  },
   "/redirects": (b) => {
     let x = s(b.url); if (!x) return "missing url"; if (!/^https?:\/\//i.test(x)) x = `https://${x}`; return url(x);
   }, "/convert": (b) => first(url(b.url), b.format && !["markdown", "text"].includes(b.format) ? "format must be markdown or text" : null),
@@ -188,4 +197,4 @@ function kyb(b: any) {
 
 export const TOOL_PATH: Record<string, string> = { read_url: "/read", extract_links: "/links", check_domain: "/check", company_research: "/company", uk_company: "/uk-company", uk_company_lite: "/uk-company-lite",
   company_full: "/company-full", convert_document: "/convert", create_monitor: "/monitor", wallet_balances: "/wallet", tx_status: "/tx", token_check: "/token-check", fx_rates: "/fx", au_company: "/au-company", ca_company: "/ca-company", registry_batch: "/registry-batch",
-  ens_lookup: "/ens", token_metadata: "/token", token_allowance: "/allowance", contract_info: "/contract", gas_fees: "/gas", block_lookup: "/block", nft_lookup: "/nft", web_search: "/search", uk_property_prices: "/uk-property", uk_area_profile: "/uk-area", uk_charity: "/uk-charity", uk_charity_full: "/uk-charity-full", us_sec: "/us-sec", us_sec_full: "/us-sec-full", eu_vat: "/eu-vat", lei_lookup: "/lei", lei_full: "/lei-full", read_batch: "/read-batch", uk_leads: "/uk-leads", uk_leads_lite: "/uk-leads-lite", uk_leads_feed: "/uk-leads-feed", uk_watch: "/uk-watch", kyb_report: "/kyb", email_check: "/email-check", domain_lookup: "/domain", dns_lookup: "/dns", url_redirects: "/redirects", page_meta: "/meta", sanctions_screen: "/sanctions", sanctions_batch: "/sanctions-batch", uk_officer: "/uk-officer" };
+  ens_lookup: "/ens", token_metadata: "/token", token_allowance: "/allowance", contract_info: "/contract", gas_fees: "/gas", block_lookup: "/block", nft_lookup: "/nft", web_search: "/search", uk_property_prices: "/uk-property", uk_area_profile: "/uk-area", uk_charity: "/uk-charity", uk_charity_full: "/uk-charity-full", us_sec: "/us-sec", us_sec_full: "/us-sec-full", eu_vat: "/eu-vat", lei_lookup: "/lei", lei_full: "/lei-full", read_batch: "/read-batch", uk_leads: "/uk-leads", uk_leads_lite: "/uk-leads-lite", uk_leads_feed: "/uk-leads-feed", uk_watch: "/uk-watch", kyb_report: "/kyb", email_check: "/email-check", domain_lookup: "/domain", dns_lookup: "/dns", url_redirects: "/redirects", page_meta: "/meta", http_headers: "/headers", iban_validate: "/iban", sanctions_screen: "/sanctions", sanctions_batch: "/sanctions-batch", uk_officer: "/uk-officer" };

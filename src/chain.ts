@@ -212,4 +212,40 @@ add({ path: "/chain/chain-id", price: "$0.001", atomic: 1000, ttl: 3600, keys: [
   ex: { chain: "base" }, validate: chainErr,
   fn: async (b) => { const [name, ch] = chainOf(b.chain); const [cid] = await rpcBatch(ch.rpc, [["eth_chainId", []]]); return { chain: name, chain_id: Number(big(cid)), hex: cid, matches_expected: Number(big(cid)) === ch.id, caip2: `eip155:${Number(big(cid))}`, source: "eth_chainId" }; } });
 
+
+add({ path: "/chain/pending", price: "$0.001", atomic: 1000, ttl: 2, keys: ["chain"],
+  desc: "Pending + latest block snapshot via eth_getBlockByNumber: pending number/hash/parentHash/timestamp/gas/baseFee/tx count/miner vs latest head age. Public RPCs may omit pending — then 502. Example: {chain:\"base\"}. $0.001.",
+  in: { type: "object", properties: { chain: chainP } },
+  out: { type: "object", properties: { number: { type: ["number", "null"] }, hash: { type: ["string", "null"] }, parentHash: { type: ["string", "null"] }, timestamp: { type: ["string", "null"] }, gasLimit: { type: ["number", "null"] }, gasUsed: { type: ["number", "null"] }, baseFeePerGas: { type: ["number", "null"] }, transactions_count: { type: ["number", "null"] }, miner: { type: ["string", "null"] }, vs_latest: { type: "object" } } },
+  ex: { chain: "base" }, validate: chainErr,
+  fn: async (b) => {
+    const [name, ch] = chainOf(b.chain);
+    const [pending, latest] = await rpcBatch(ch.rpc, [["eth_getBlockByNumber", ["pending", false]], ["eth_getBlockByNumber", ["latest", false]]]);
+    if (!pending || typeof pending !== "object") throw new UserError(`public RPC for ${name} did not return a pending block (many free endpoints omit eth_getBlockByNumber(\"pending\"))`, 502);
+    const num = pending.number != null && pending.number !== "0x" ? Number(big(pending.number)) : null;
+    const ts = pending.timestamp != null && pending.timestamp !== "0x" ? Number(big(pending.timestamp)) : null;
+    const latestNum = latest?.number != null ? Number(big(latest.number)) : null;
+    const latestTs = latest?.timestamp != null ? Number(big(latest.timestamp)) : null;
+    const txs = pending.transactions;
+    const txCount = Array.isArray(txs) ? txs.length : null;
+    const miner = pending.miner || pending.feeRecipient || null;
+    return {
+      ...meta(name, ch),
+      number: Number.isFinite(num as number) ? num : null,
+      hash: pending.hash || null,
+      parentHash: pending.parentHash || null,
+      timestamp: ts != null && Number.isFinite(ts) ? new Date(ts * 1000).toISOString() : null,
+      gasLimit: pending.gasLimit != null ? Number(big(pending.gasLimit)) : null,
+      gasUsed: pending.gasUsed != null ? Number(big(pending.gasUsed)) : null,
+      baseFeePerGas: pending.baseFeePerGas != null ? Number(big(pending.baseFeePerGas)) / 1e9 : null,
+      transactions_count: txCount,
+      miner,
+      vs_latest: {
+        block: latestNum,
+        head_age_s: latestTs != null ? Math.max(0, Math.round(Date.now() / 1000 - latestTs)) : null,
+      },
+      source: "eth_getBlockByNumber pending+latest",
+    };
+  } });
+
 export const CHAIN_ROUTES = R;

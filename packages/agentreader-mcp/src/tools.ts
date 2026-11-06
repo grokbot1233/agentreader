@@ -96,6 +96,27 @@ export const TOOLS: ToolDef[] = [
     previewable: true,
   },
   {
+    name: "http_headers",
+    description: "HTTP security headers audit: HSTS/CSP/XFO/XCTO + score (SSRF-safe). Not a pen-test. $0.001 USDC.",
+    price: "$0.001",
+    schema: { url: z.string().optional(), domain: z.string().optional() },
+    http: (a) => {
+      const q = new URLSearchParams();
+      if (a.url) q.set("url", a.url);
+      if (a.domain) q.set("domain", a.domain);
+      return `${ORIGIN}/headers?${q}`;
+    },
+    previewable: true,
+  },
+  {
+    name: "iban_validate",
+    description: "Offline IBAN validation (ISO 13616 mod-97 + country length). Checksum only. $0.001 USDC.",
+    price: "$0.001",
+    schema: { iban: z.string() },
+    http: (a) => `${ORIGIN}/iban?iban=${encodeURIComponent(a.iban)}`,
+    previewable: true,
+  },
+  {
     name: "company_research",
     description:
       "Website company research (tech, contacts, DNS, RDAP, news) with sources — not UK Companies House. $0.25 USDC.",

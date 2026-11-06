@@ -28,13 +28,15 @@ import { domainLookup } from "./domain";
 import { dnsLookup } from "./dns";
 import { redirectsLookup } from "./redirects";
 import { pageMeta } from "./meta";
+import { headersAudit } from "./headers";
+import { validateIban } from "./iban";
 import { kybReport, bindingRegistries } from "./kyb";
 import { screenSanctions, screenSanctionsBatch } from "./sanctions";
 import { ukOfficerSearch } from "./uk-officer";
 import { CHAIN_ROUTES } from "./chain";
 import { upsell } from "./upsell";
 for (const r of CHAIN_ROUTES) { TOOL_PATH["chain_" + r.path.slice(7).replace(/-/g, "_")] = r.path; EXAMPLES_CHAIN[r.path] = r.ex; }
-const EXAMPLES: Record<string, any> = { "/read": { url: "https://example.com" }, "/links": { url: "https://example.com" }, "/check": { domain: "example.com" }, "/domain": { domain: "stripe.com" }, "/dns": { name: "example.com" }, "/redirects": { url: "https://example.com" }, "/meta": { url: "https://example.com" }, "/company": { domain: "stripe.com" }, "/company-full": { domain: "tesco.com" },
+const EXAMPLES: Record<string, any> = { "/read": { url: "https://example.com" }, "/links": { url: "https://example.com" }, "/check": { domain: "example.com" }, "/domain": { domain: "stripe.com" }, "/dns": { name: "example.com" }, "/redirects": { url: "https://example.com" }, "/meta": { url: "https://example.com" }, "/headers": { url: "https://example.com" }, "/iban": { iban: "GB82WEST12345698765432" }, "/company": { domain: "stripe.com" }, "/company-full": { domain: "tesco.com" },
   "/uk-company": { number: "00445790" }, "/uk-company-lite": { number: "00445790" }, "/convert": { url: "https://pdfobject.com/pdf/sample.pdf" }, "/monitor": { url: "https://example.com", webhook: "https://your.app/hook" },
   "/wallet": { address: "0x88b1c747c33A5868A34057D8C57318E5602b3ff6" }, "/tx": { hash: "0x" + "ab".repeat(32) }, "/token-check": { address: "0x940181a94A35A4569E4529A3CDfB74e38FD98631" }, "/token": { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" },
   "/contract": { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" }, "/fx": { base: "GBP", symbols: "USD,EUR" }, "/ens": { name: "vitalik.eth" }, "/allowance": { token: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", owner: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045", spender: "0x000000000022D473030F116dDEE9F6B43aC78BA3" },
@@ -63,7 +65,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       await log({ endpoint: `mcp:${tool}`, payer: settlement?.payer || null, amount: settlement?.amount || String(atomic), network: settlement?.network, tx: settlement?.transaction, success: settlement?.success });
     } },
   } as any);
-  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.18.1" });
+  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.19.0" });
   { const orig = (server as any).tool.bind(server); (server as any).tool = (name: string, desc: any, ...rest: any[]) => orig(name, typeof desc === "string" ? upsell(TOOL_PATH[name] || "", desc) : desc, ...rest); }
   const json = (d: any) => ({ content: [{ type: "text" as const, text: JSON.stringify(d) }] });
   const err = (e: any) => ({ isError: true, content: [{ type: "text" as const, text: String(e?.message || e) }] });
@@ -98,6 +100,14 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
     "Lightweight page metadata: title, description, canonical, Open Graph + Twitter tags, favicons, JSON-LD @types, h1/h2. Cheaper than read_url when you do not need Markdown. Example: {url:\"https://example.com\"}. $0.001 USDC.",
     { url: z.string() },
     (await mk("$0.001", "page_meta", 1000))(async (a: any) => { try { return json(await pageMeta(a)); } catch (e) { return err(e); } }) as any);
+  server.tool("http_headers",
+    "HTTP security headers audit: HSTS/CSP/XFO/XCTO/Referrer/Permissions/COOP/CORP/COEP + score (SSRF-safe). Not a pen-test. Example: {url:\"https://example.com\"} or {domain:\"example.com\"}. $0.001 USDC.",
+    { url: z.string().optional(), domain: z.string().optional() },
+    (await mk("$0.001", "http_headers", 1000))(async (a: any) => { try { return json(await headersAudit(a)); } catch (e) { return err(e); } }) as any);
+  server.tool("iban_validate",
+    "Offline IBAN validation (ISO 13616 mod-97 + country length). Checksum only — not proof account exists. Example: {iban:\"GB82WEST12345698765432\"}. $0.001 USDC.",
+    { iban: z.string() },
+    (await mk("$0.001", "iban_validate", 1000))(async (a: any) => { try { return json(validateIban(a)); } catch (e) { return err(e); } }) as any);
   server.tool("check_domain",
     "Use this when vetting domain health before outreach: DNS (DoH), DNSSEC, TLS/HTTPS, HSTS, MX/SPF/DMARC, issues + score. Structured JSON beats shell dig/openssl. Example: {domain:\"stripe.com\"}. $0.001 USDC.",
     { domain: z.string() },
@@ -254,6 +264,8 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       dns_lookup: { price: "$0.001", when: "raw DNS A/AAAA/MX/TXT/NS" },
       url_redirects: { price: "$0.001", when: "unwrap short/redirect URLs" },
       page_meta: { price: "$0.001", when: "title/OG/Twitter/canonical without full Markdown" },
+      http_headers: { price: "$0.001", when: "HTTP security headers + score" },
+      iban_validate: { price: "$0.001", when: "offline IBAN mod-97 checksum" },
       company_research: { price: "$0.25", when: "website company research (not UK CH)" },
       uk_company: { price: "$0.50", when: "full UK Companies House DD" },
       uk_company_lite: { price: "$0.05", when: "cheap UK status + flags" },

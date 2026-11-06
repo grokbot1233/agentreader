@@ -159,6 +159,14 @@ export class AgentReaderClient {
   pageMeta(input: { url: string }, opts?: RequestOpts) {
     return this.get("/meta", input, opts);
   }
+  /** HTTP security headers audit + score ($0.001). */
+  httpHeaders(input: { url?: string; domain?: string }, opts?: RequestOpts) {
+    return this.get("/headers", input as any, opts);
+  }
+  /** Offline IBAN mod-97 + country length validate ($0.001). */
+  ibanValidate(input: { iban: string }, opts?: RequestOpts) {
+    return this.get("/iban", input, opts);
+  }
   companyResearch(input: { domain: string }, opts?: RequestOpts) {
     return this.get("/company", input, opts);
   }

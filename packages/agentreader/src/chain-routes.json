@@ -88,12 +88,12 @@
   "path": "/chain/erc20-transfers",
   "tool": "chain_erc20_transfers",
   "price": "$0.003",
-  "description": "ERC20 Transfer events for a token and/or wallet via eth_getLogs, decoded (from, to, amount with decimals, tx hash, block). Default last 1000 blocks, max 5000. Example: {token:\"0x8335…2913\", address:\"0x88b1…3ff6\", chain:\"base\"} → newest first. Use it to confirm incoming payments. $0.003.",
+  "description": "ERC20 Transfer events for a token and/or wallet via eth_getLogs, decoded (from, to, amount with decimals, tx hash, block). Default last 100 blocks, max 5000. Public RPCs need a contract filter: pass token=; if only wallet address is given, known chain tokens (USDC/WETH/…) are scanned. Example: {token:\"0x8335…2913\", address:\"0x88b1…3ff6\", chain:\"base\"}. $0.003.",
   "params": {
-   "token": "ERC20 contract (optional if address given)",
+   "token": "ERC20 contract (recommended; required unless scanning known tokens for a wallet)",
    "address": "Wallet to filter (optional if token given)",
    "direction": "one of in|out|any",
-   "blocks": "Lookback blocks (default 1000, max 5000)",
+   "blocks": "Lookback blocks (default 100, max 5000)",
    "from_block": "from_block",
    "to_block": "to_block",
    "limit": "Max items (default 50, max 200)",
@@ -103,14 +103,15 @@
   "example": {
    "token": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
    "address": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
-   "chain": "base"
+   "chain": "base",
+   "blocks": "100"
   }
  },
  {
   "path": "/chain/events",
   "tool": "chain_events",
   "price": "$0.003",
-  "description": "Contract event logs via eth_getLogs filtered by contract and topics (topic0 = event signature hash). Raw logs, newest first; default last 1000 blocks, max 5000. Example: {address:\"0x8335…2913\", topic0:\"0xddf2…b3ef\", chain:\"base\", blocks:\"50\"}. $0.003.",
+  "description": "Contract event logs via eth_getLogs filtered by contract and topics (topic0 = event signature hash). Raw logs, newest first; default last 100 blocks, max 5000 (auto-chunked for public RPC limits). Example: {address:\"0x8335…2913\", topic0:\"0xddf2…b3ef\", chain:\"base\", blocks:\"50\"}. $0.003.",
   "params": {
    "address": "Contract emitting the logs",
    "topic0": "Event signature hash (0x + 64 hex)",
@@ -311,6 +312,19 @@
   "tool": "chain_chain_id",
   "price": "$0.001",
   "description": "EIP-155 chain ID straight from the RPC (eth_chainId + net_version) — confirm which network you are about to sign on. Example: {chain:\"base\"} → {chain_id:8453}. $0.001.",
+  "params": {
+   "chain": "EVM chain (default base)"
+  },
+  "required": [],
+  "example": {
+   "chain": "base"
+  }
+ },
+ {
+  "path": "/chain/pending",
+  "tool": "chain_pending",
+  "price": "$0.001",
+  "description": "Pending + latest block snapshot via eth_getBlockByNumber: pending number/hash/parentHash/timestamp/gas/baseFee/tx count/miner vs latest head age. Public RPCs may omit pending — then 502. Example: {chain:\"base\"}. $0.001.",
   "params": {
    "chain": "EVM chain (default base)"
   },
