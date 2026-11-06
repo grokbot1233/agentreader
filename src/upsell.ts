@@ -50,6 +50,7 @@ export const UPSELL: Record<string, string> = {
   "/uk-dd": "Multi-jurisdiction onboarding: /kyb $2.50 (AU/CA/VAT/LEI); monitor: /uk-watch $5/30d; screen extra names: /sanctions $0.05; cheap status: /uk-company-lite $0.05.",
   "/kyb": "UK-only cheaper: /uk-dd $1; emails: /email-check $0.002; screen extra names: /sanctions $0.05 (OFAC/UK/UN/EU); batch <=50: /sanctions-batch $1; officer appointments: /uk-officer $0.15; GLEIF LEI: /lei $0.005.",
   "/sanctions": "Full KYB pack (UK+VAT+domain+sanctions): /kyb $2.50; many names: /sanctions-batch $1 (<=50); UK officer appointments: /uk-officer $0.15.",
+  "/fr-company": "Need multi-country KYB? /kyb $2.50 (pass siren=); EU TVA /eu-vat $0.01; sanctions /sanctions $0.05; batch /registry-batch $0.30.",
   "/au-company": "Many companies: /registry-batch $0.30 (<=25 UK+AU+CA ids); sanctions screen: /sanctions $0.05.",
   "/ca-company": "Many companies: /registry-batch $0.30 (<=25 UK+AU+CA ids); sanctions screen: /sanctions $0.05.",
   "/registry-batch": "Screen the directors/names: /sanctions-batch $1 (<=50).",

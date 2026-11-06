@@ -243,17 +243,18 @@ export class AgentReaderClient {
     return this.get("/uk-officer", input as any, opts);
   }
   /** Batch verify up to 25 UK (max 10) / AU / CA company ids, comma-separated ($0.30). */
-  registryBatch(input: { uk?: string; au?: string; ca?: string }, opts?: RequestOpts) {
+  registryBatch(input: { uk?: string; au?: string; ca?: string; fr?: string }, opts?: RequestOpts) {
     return this.get("/registry-batch", input as any, opts);
   }
   /** Canadian federal corporation lookup (Corporations Canada) by number or BN ($0.02). */
   caCompany(input: { number?: string; bn?: string }, opts?: RequestOpts) {
     return this.get("/ca-company", input as any, opts);
   }
-  /** Australian company lookup (ASIC register) by ACN or ABN ($0.02). */
+  /** French company lookup (Recherche d'entreprises) by SIREN/SIRET/name ($0.25). */
   frCompany(input: { siren?: string; siret?: string; name?: string; q?: string; limit?: number | string }, opts?: RequestOpts) {
-    return this.request("/fr-company", input, opts);
+    return this.get("/fr-company", input as any, opts);
   }
+  /** Australian company lookup (ASIC register) by ACN or ABN ($0.02). */
   auCompany(input: { acn?: string; abn?: string }, opts?: RequestOpts) {
     return this.get("/au-company", input as any, opts);
   }
@@ -391,7 +392,7 @@ export class AgentReaderClient {
   ukDd(input: { number?: string; name?: string; domain?: string }, opts?: RequestOpts) {
     return this.get("/uk-dd", input as any, opts);
   }
-  kybReport(input: { domain?: string; number?: string; name?: string; vat?: string; country?: string; vat_number?: string; acn?: string; ca_number?: string; bn?: string; lei?: string }, opts?: RequestOpts) {
+  kybReport(input: { domain?: string; number?: string; name?: string; vat?: string; country?: string; vat_number?: string; acn?: string; ca_number?: string; bn?: string; lei?: string ; siren?: string; siret?: string }, opts?: RequestOpts) {
     return this.get("/kyb", input as any, opts);
   }
 }
