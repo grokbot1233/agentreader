@@ -3,7 +3,7 @@ import { CANONICAL } from "./facilitator";
 const PREVIEW_LIMIT = 8; // per IP per UTC day across all preview kinds
 const PREVIEW_PREFIX = "prev:";
 
-export type PreviewKind = "headers" | "iban" | "phone" | "meta" | "redirects" | "dns" | "au-company" | "ca-company" | "domain" | "email-check" | "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "kyb" | "uk-dd" | "sanctions" | "sanctions-batch" | "uk-officer" | "uk-property" | "uk-area" | "uk-postcode";
+export type PreviewKind = "headers" | "iban" | "phone" | "meta" | "redirects" | "dns" | "au-company" | "ca-company" | "domain" | "email-check" | "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "kyb" | "uk-dd" | "sanctions" | "sanctions-batch" | "uk-officer" | "uk-property" | "uk-area" | "uk-postcode" | "siren" | "siret";
 
 const PRICE: Record<PreviewKind, string> = {
   read: "$0.002", links: "$0.001", check: "$0.001",
@@ -14,7 +14,7 @@ const PRICE: Record<PreviewKind, string> = {
   "uk-leads": "$1.00", "uk-leads-lite": "$0.25", kyb: "$2.50", "uk-dd": "$1.00", "email-check": "$0.002", domain: "$0.002", dns: "$0.001", redirects: "$0.001", meta: "$0.001", headers: "$0.001", iban: "$0.001", phone: "$0.001", "au-company": "$0.02", "ca-company": "$0.02",
   sanctions: "$0.05", "sanctions-batch": "$1.00",
   "uk-officer": "$0.15",
-  "uk-property": "$0.01", "uk-area": "$0.005", "uk-postcode": "$0.001",
+  "uk-property": "$0.01", "uk-area": "$0.005", "uk-postcode": "$0.001", siren: "$0.001", siret: "$0.001",
 };
 
 const PAID_CALL: Record<PreviewKind, string> = {
@@ -41,6 +41,8 @@ const PAID_CALL: Record<PreviewKind, string> = {
   "uk-property": `${CANONICAL}/uk-property?postcode=CB1+2AB`,
   "uk-area": `${CANONICAL}/uk-area?postcode=SW1A+2AA`,
   "uk-postcode": `${CANONICAL}/uk-postcode?postcode=SW1A+2AA`,
+  siren: `${CANONICAL}/siren?siren=732829320`,
+  siret: `${CANONICAL}/siret?siret=73282932000074`,
 };
 
 function dayKey() { return new Date().toISOString().slice(0, 10); }
@@ -259,6 +261,17 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         ...u, product: data.product, postcode: data.postcode, postcode_compact: data.postcode_compact,
         valid: data.valid, format_ok: data.format_ok, outward: data.outward, inward: data.inward,
         area: data.area, district: data.district, sector: data.sector, unit: data.unit,
+        disclaimer: data.disclaimer, omitted: ["upsell detail"],
+      };
+    case "siren":
+      return {
+        ...u, product: data.product, siren: data.siren, valid: data.valid, luhn_ok: data.luhn_ok,
+        length_ok: data.length_ok, digits: data.digits, disclaimer: data.disclaimer, omitted: ["upsell detail"],
+      };
+    case "siret":
+      return {
+        ...u, product: data.product, siret: data.siret, valid: data.valid, luhn_ok: data.luhn_ok,
+        length_ok: data.length_ok, digits: data.digits, nic: data.nic, parent_siren: data.parent_siren,
         disclaimer: data.disclaimer, omitted: ["upsell detail"],
       };
     case "au-company":

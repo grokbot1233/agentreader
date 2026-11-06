@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const ORIGIN = process.env.AGENTREADER_ORIGIN || "https://api.axiomworks.co.uk";
-export const VERSION = "1.25.0";
+export const VERSION = "1.25.1";
 import CHAIN from "./chain-routes.json";
 
 const CH = z.enum(["base", "ethereum", "arbitrum", "optimism", "polygon"]).optional();
@@ -134,6 +134,22 @@ export const TOOLS: ToolDef[] = [
     price: "$0.001",
     schema: { postcode: z.string() },
     http: (a) => `${ORIGIN}/uk-postcode?postcode=${encodeURIComponent(a.postcode)}`,
+    previewable: true,
+  },
+  {
+    name: "siren_validate",
+    description: "Offline French SIREN (9-digit Luhn) validate. Structure only. $0.001 USDC.",
+    price: "$0.001",
+    schema: { siren: z.string() },
+    http: (a) => `${ORIGIN}/siren?siren=${encodeURIComponent(a.siren)}`,
+    previewable: true,
+  },
+  {
+    name: "siret_validate",
+    description: "Offline French SIRET (14-digit Luhn = SIREN+NIC) validate. Structure only. $0.001 USDC.",
+    price: "$0.001",
+    schema: { siret: z.string() },
+    http: (a) => `${ORIGIN}/siret?siret=${encodeURIComponent(a.siret)}`,
     previewable: true,
   },
   {

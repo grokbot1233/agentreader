@@ -19,6 +19,8 @@ No API keys, no accounts. Agents pay per request in **USDC on Base mainnet** usi
 | `GET/POST /email-check?email=` | `email_check` | $0.002 | Syntax + MX/A + disposable/free/role flags + score/verdict |
 | `GET/POST /phone?phone=` | `phone_check` | $0.001 | Offline E.164 + country length validate (not HLR/carrier) |
 | `GET/POST /uk-postcode?postcode=` | `uk_postcode_validate` | $0.001 | Offline UK postcode format validate (not geocode/assigned) |
+| `GET/POST /siren?siren=` | `siren_validate` | $0.001 | Offline French SIREN 9-digit Luhn |
+| `GET/POST /siret?siret=` | `siret_validate` | $0.001 | Offline French SIRET 14-digit Luhn |
 | `GET/POST /domain?domain=` | `domain_lookup` | $0.002 | RDAP registrar / registered / expires / age_days / status |
 | `GET/POST /company?domain=` | `company_research` | $0.25 | Company research report (tech, contacts, DNS, RDAP, SSL, news) with sources |
 | `GET/POST /uk-company?number=` / `?name=` | `uk_company` | $0.50 | Full UK Companies House due-diligence (API) + insolvency + red flags |

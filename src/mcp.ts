@@ -32,6 +32,7 @@ import { headersAudit } from "./headers";
 import { validateIban } from "./iban";
 import { validatePhone } from "./phone";
 import { validateUkPostcode } from "./uk-postcode";
+import { validateSiren, validateSiret } from "./fr-company-id";
 import { kybReport, bindingRegistries } from "./kyb";
 import { ukDdReport } from "./uk-dd";
 import { screenSanctions, screenSanctionsBatch } from "./sanctions";
@@ -39,7 +40,7 @@ import { ukOfficerSearch } from "./uk-officer";
 import { CHAIN_ROUTES } from "./chain";
 import { upsell } from "./upsell";
 for (const r of CHAIN_ROUTES) { TOOL_PATH["chain_" + r.path.slice(7).replace(/-/g, "_")] = r.path; EXAMPLES_CHAIN[r.path] = r.ex; }
-const EXAMPLES: Record<string, any> = { "/read": { url: "https://example.com" }, "/links": { url: "https://example.com" }, "/check": { domain: "example.com" }, "/domain": { domain: "stripe.com" }, "/dns": { name: "example.com" }, "/redirects": { url: "https://example.com" }, "/meta": { url: "https://example.com" }, "/headers": { url: "https://example.com" }, "/iban": { iban: "GB82WEST12345698765432" }, "/phone": { phone: "+447911123456" }, "/uk-postcode": { postcode: "SW1A 2AA" }, "/company": { domain: "stripe.com" }, "/company-full": { domain: "tesco.com" },
+const EXAMPLES: Record<string, any> = { "/read": { url: "https://example.com" }, "/links": { url: "https://example.com" }, "/check": { domain: "example.com" }, "/domain": { domain: "stripe.com" }, "/dns": { name: "example.com" }, "/redirects": { url: "https://example.com" }, "/meta": { url: "https://example.com" }, "/headers": { url: "https://example.com" }, "/iban": { iban: "GB82WEST12345698765432" }, "/phone": { phone: "+447911123456" }, "/uk-postcode": { postcode: "SW1A 2AA" }, "/siren": { siren: "732829320" }, "/siret": { siret: "73282932000074" }, "/company": { domain: "stripe.com" }, "/company-full": { domain: "tesco.com" },
   "/uk-company": { number: "00445790" }, "/uk-company-lite": { number: "00445790" }, "/convert": { url: "https://pdfobject.com/pdf/sample.pdf" }, "/monitor": { url: "https://example.com", webhook: "https://your.app/hook" },
   "/wallet": { address: "0x88b1c747c33A5868A34057D8C57318E5602b3ff6" }, "/tx": { hash: "0x" + "ab".repeat(32) }, "/token-check": { address: "0x940181a94A35A4569E4529A3CDfB74e38FD98631" }, "/token": { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" },
   "/contract": { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" }, "/fx": { base: "GBP", symbols: "USD,EUR" }, "/ens": { name: "vitalik.eth" }, "/allowance": { token: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", owner: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045", spender: "0x000000000022D473030F116dDEE9F6B43aC78BA3" },
@@ -119,6 +120,14 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
     "Offline UK postcode structural validate (Royal Mail format only — not assigned/deliverable/geocode). Path alias /uk-postcode/{postcode}. Example: {postcode:\"SW1A 2AA\"}. Upsell uk_area / uk_property. $0.001 USDC.",
     { postcode: z.string() },
     (await mk("$0.001", "uk_postcode_validate", 1000))(async (a: any) => { try { return json(validateUkPostcode(a)); } catch (e) { return err(e); } }) as any);
+  server.tool("siren_validate",
+    "Offline French SIREN validate (9-digit Luhn; La Poste exception). Structure only. Example: {siren:\"732829320\"}. $0.001 USDC.",
+    { siren: z.string() },
+    (await mk("$0.001", "siren_validate", 1000))(async (a: any) => { try { return json(validateSiren(a)); } catch (e) { return err(e); } }) as any);
+  server.tool("siret_validate",
+    "Offline French SIRET validate (14-digit Luhn = SIREN+NIC). Structure only. Example: {siret:\"73282932000074\"}. $0.001 USDC.",
+    { siret: z.string() },
+    (await mk("$0.001", "siret_validate", 1000))(async (a: any) => { try { return json(validateSiret(a)); } catch (e) { return err(e); } }) as any);
   server.tool("check_domain",
     "Use this when vetting domain health before outreach: DNS (DoH), DNSSEC, TLS/HTTPS, HSTS, MX/SPF/DMARC, issues + score. Structured JSON beats shell dig/openssl. Example: {domain:\"stripe.com\"}. $0.001 USDC.",
     { domain: z.string() },
@@ -279,6 +288,8 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       iban_validate: { price: "$0.001", when: "offline IBAN mod-97 checksum" },
       phone_check: { price: "$0.001", when: "offline E.164 phone structure validate" },
       uk_postcode_validate: { price: "$0.001", when: "offline UK postcode format validate" },
+      siren_validate: { price: "$0.001", when: "offline French SIREN Luhn validate" },
+      siret_validate: { price: "$0.001", when: "offline French SIRET Luhn validate" },
       company_research: { price: "$0.25", when: "website company research (not UK CH)" },
       uk_company: { price: "$0.50", when: "full UK Companies House DD" },
       uk_company_lite: { price: "$0.05", when: "cheap UK status + flags" },

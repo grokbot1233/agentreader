@@ -175,6 +175,12 @@ export class AgentReaderClient {
   ukPostcodeValidate(input: { postcode: string }, opts?: RequestOpts) {
     return this.get("/uk-postcode", input as any, opts);
   }
+  sirenValidate(input: { siren: string }, opts?: RequestOpts) {
+    return this.get("/siren", input as any, opts);
+  }
+  siretValidate(input: { siret: string }, opts?: RequestOpts) {
+    return this.get("/siret", input as any, opts);
+  }
   companyResearch(input: { domain: string }, opts?: RequestOpts) {
     return this.get("/company", input, opts);
   }

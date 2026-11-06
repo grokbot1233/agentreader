@@ -14,13 +14,12 @@ const client = new x402Client((_v: number, reqs: any[]) => {
 }).register("eip155:8453", new ExactEvmScheme(account as any));
 const pay = wrapFetchWithPayment(fetch, client);
 console.log("payer", account.address);
-const url = "https://api.axiomworks.co.uk/iban?iban=" + encodeURIComponent("GB82WEST12345698765432");
+const url = "https://api.axiomworks.co.uk/uk-postcode?postcode=" + encodeURIComponent("SW1A 1AA");
 const res = await pay(url);
 console.log("status", res.status);
 const pr = res.headers.get("PAYMENT-RESPONSE") || res.headers.get("X-PAYMENT-RESPONSE");
 if (pr) console.log("settlement", decodePaymentResponseHeader(pr));
 const body: any = await res.json();
 console.log(JSON.stringify({
-  product: body.product, postcode: body.postcode, valid: body.valid, valid_format: body.valid_format,
-  outward: body.outward, inward: body.inward, price: body.price,
+  product: body.product, postcode: body.postcode, valid: body.valid, outward: body.outward, inward: body.inward, price: body.price,
 }, null, 2));

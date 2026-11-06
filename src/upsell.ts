@@ -19,6 +19,8 @@ export const UPSELL: Record<string, string> = {
   "/headers": "Domain posture pack: /check $0.001; unwrap redirects: /redirects $0.001; page metadata: /meta $0.001; DNS: /dns $0.001.",
   "/iban": "EU VAT: /eu-vat $0.01; UK postcode format: /uk-postcode $0.001; onboarding pack: /kyb $2.50; name screen: /sanctions $0.05.",
   "/phone": "Email check: /email-check $0.002; IBAN: /iban $0.001; UK postcode: /uk-postcode $0.001; onboarding pack: /kyb $2.50; sanctions: /sanctions $0.05.",
+  "/siren": "SIRET establishment: /siret $0.001; EU VAT: /eu-vat $0.01; LEI: /lei $0.005; KYB: /kyb $2.50; sanctions: /sanctions $0.05.",
+  "/siret": "Parent SIREN: /siren $0.001; EU VAT: /eu-vat $0.01; LEI: /lei $0.005; KYB: /kyb $2.50; sanctions: /sanctions $0.05.",
   "/uk-postcode": "Live geography/crime/FSA: /uk-area $0.005; Price Paid: /uk-property $0.01; phone: /phone $0.001; email: /email-check $0.002; KYB: /kyb $2.50.",
   "/meta": "Full Markdown body: /read $0.002; page links: /links $0.001; unwrap redirects: /redirects $0.001; domain posture: /check $0.001.",
   "/convert": "Watch a doc/page for changes: /monitor $1.",
