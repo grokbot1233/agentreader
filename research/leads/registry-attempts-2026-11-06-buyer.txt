@@ -1,0 +1,43 @@
+=== 14:00 Europe/London buyer hunt registry attempts 2026-11-06T14:15:10Z ===
+-- a2aregistry.org (retry) --
+HTTP 404
+{"detail":"Resource not found","path":"http://a2aregistry.org/api/v1/agents"}
+-- a2aregistry.org Retry-After probe --
+HTTP/2 422 
+date: Fri, 06 Nov 2026 14:15:10 GMT
+content-type: application/json
+content-length: 1029
+vary: Origin
+server: cloudflare
+via: 1.1 google
+alt-svc: h3=":443"; ma=86400
+cf-cache-status: DYNAMIC
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=7RIFZAlnHdYaodzg%2BsiBYLp5RaMp4u%2BdptK9KcHx%2FF6rz8oVQgBZNXnwB35pvTee6zSlbkZfnU6HXq5Kypx1RgJCKAAGoSkFJ6PkWiBpMjkjF9GMgDsXBmpY4CtdSumCe%2F6CXLuuHGA%2BALRBGQI%3D"}]}
+cf-ray: a564b5730a77c59e-IAD
+
+-- a2a-registry.org status (already refreshed by run.sh) --
+HTTP 301
+-- 402index.io ping --
+HTTP 200
+-- agentverse / other free probes --
+000ERR https://api.mcp.directory/v1/servers
+404 https://mcpmarket.com/api/servers
+200 https://glama.ai/mcp/servers
+200 https://registry.modelcontextprotocol.io/v0/servers?limit=1
+404 https://mcp.so/api/servers
+000ERR https://www.mcpservers.org
+404 https://portkey.ai/mcp-directory
+200 https://opentools.com
+200 https://www.pulsemcp.com
+000ERR https://mcp-registry.browserbase.com
+-- notes --
+a2aregistry.org: previously at review capacity (run.sh 14:08). mcp.directory/submit + mcpmarket.com free queue need browser (parent). No paid registries. Spend $0.
+a2aregistry.org POST /api/agents → 422 (validation or capacity; see body above). Still not accepting cleanly.
+Official MCP registry search agentreader/axiomworks: checked 14:15.
+mcp.directory + mcpmarket free submit: need parent browser.
+pulsemcp.com / opentools.com: sites up (200) but no free machine-join API found this run — browser/manual later.
+Glama already listed historically — no re-submit.
+Spend $0.
+a2aregistry.org full-ish POST still 422 missing defaultInputModes/defaultOutputModes (schema strict). run.sh earlier: review capacity full. Not pursuing further without complete agent-card schema — free but blocked.
+Official MCP registry: search "agentreader" returns third-party io.github.ajanani1/agentreader-mcp (different product on agentreader.dev) — our @axiomworks/agentreader-mcp not listed under axiomworks. Publishing via official registry is free but needs GitHub OIDC publish flow (parent/CI) — flag for later, no spend.
