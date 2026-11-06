@@ -112,6 +112,34 @@ async function fetchText(url: string, timeoutMs = 120000): Promise<string> {
   return await r.text();
 }
 
+/** Try URLs in order; used for OFAC which often 525s on treasury.gov from Workers. */
+async function fetchTextFirst(urls: string[], timeoutMs = 120000): Promise<{ text: string; url: string }> {
+  const errors: string[] = [];
+  for (const url of urls) {
+    try {
+      const text = await fetchText(url, timeoutMs);
+      if (text && text.length > 100) return { text, url };
+      errors.push(`${url}: empty`);
+    } catch (e: any) {
+      errors.push(`${url}: ${e?.message || e}`);
+    }
+  }
+  throw new Error(errors.join(" | "));
+}
+
+const OFAC_SDN = [
+  "https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/SDN.CSV",
+  "https://www.treasury.gov/ofac/downloads/sdn.csv",
+];
+const OFAC_ALT = [
+  "https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/ALT.CSV",
+  "https://www.treasury.gov/ofac/downloads/alt.csv",
+];
+const OFAC_CONS = [
+  "https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/CONS_PRIM.CSV",
+  "https://www.treasury.gov/ofac/downloads/consolidated/cons_prim.csv",
+];
+
 async function gzipJson(obj: any): Promise<ArrayBuffer> {
   const bytes = new TextEncoder().encode(JSON.stringify(obj));
   const cs = new CompressionStream("gzip");
@@ -370,6 +398,11 @@ function parseEu(xml: string): { entries: SanctionsEntry[]; pub: string | null }
 let cached: Indexed | null = null;
 let cachedAt = 0;
 
+export function clearSanctionsCache() {
+  cached = null;
+  cachedAt = 0;
+}
+
 export async function getSanctionsIndex(env: EnvKV): Promise<Indexed> {
   if (cached && Date.now() - cachedAt < 30 * 60 * 1000) return cached;
   const raw = await env.LOG.get(KV_KEY, "arrayBuffer");
@@ -389,35 +422,56 @@ export async function refreshSanctionsIndex(env: EnvKV): Promise<{ ok: boolean; 
   const all: SanctionsEntry[] = [];
   const errors: string[] = [];
 
+  // Load previous index so a transient OFAC failure does not wipe good SDN/CONS rows.
+  let prev: SanctionsIndex | null = null;
   try {
-    const [sdn, alt] = await Promise.all([
-      fetchText("https://www.treasury.gov/ofac/downloads/sdn.csv"),
-      fetchText("https://www.treasury.gov/ofac/downloads/alt.csv"),
-    ]);
-    const entries = parseOfacSdn(sdn, alt);
+    const raw = await env.LOG.get(KV_KEY, "arrayBuffer");
+    if (raw) prev = await gunzipJson(raw);
+    else {
+      const text = await env.LOG.get(KV_KEY);
+      if (text) prev = await gunzipJson(text);
+    }
+  } catch { prev = null; }
+  const prevOfac = (prev?.entries || []).filter((e) => e.list === "OFAC-SDN" || e.list === "OFAC-CONS");
+
+  try {
+    const [sdn, alt] = await Promise.all([fetchTextFirst(OFAC_SDN), fetchTextFirst(OFAC_ALT)]);
+    const entries = parseOfacSdn(sdn.text, alt.text);
     all.push(...entries);
     sources["OFAC-SDN"] = {
-      url: "https://www.treasury.gov/ofac/downloads/sdn.csv",
+      url: sdn.url,
       licence: "US government public domain",
       count: entries.length,
     };
   } catch (e: any) {
     errors.push(`OFAC-SDN: ${e?.message || e}`);
-    sources["OFAC-SDN"] = { url: "https://www.treasury.gov/ofac/downloads/sdn.csv", licence: "US government public domain", count: 0, error: String(e?.message || e) };
+    const kept = prevOfac.filter((e) => e.list === "OFAC-SDN");
+    if (kept.length) {
+      all.push(...kept);
+      sources["OFAC-SDN"] = { url: OFAC_SDN[0], licence: "US government public domain", count: kept.length, error: `refresh failed, kept prior ${kept.length}: ${String(e?.message || e)}` };
+    } else {
+      sources["OFAC-SDN"] = { url: OFAC_SDN[0], licence: "US government public domain", count: 0, error: String(e?.message || e) };
+    }
   }
 
   try {
-    const cons = await fetchText("https://www.treasury.gov/ofac/downloads/consolidated/cons_prim.csv");
-    const entries = parseOfacCons(cons);
+    const cons = await fetchTextFirst(OFAC_CONS);
+    const entries = parseOfacCons(cons.text);
     all.push(...entries);
     sources["OFAC-CONS"] = {
-      url: "https://www.treasury.gov/ofac/downloads/consolidated/cons_prim.csv",
+      url: cons.url,
       licence: "US government public domain",
       count: entries.length,
     };
   } catch (e: any) {
     errors.push(`OFAC-CONS: ${e?.message || e}`);
-    sources["OFAC-CONS"] = { url: "https://www.treasury.gov/ofac/downloads/consolidated/cons_prim.csv", licence: "US government public domain", count: 0, error: String(e?.message || e) };
+    const kept = prevOfac.filter((e) => e.list === "OFAC-CONS");
+    if (kept.length) {
+      all.push(...kept);
+      sources["OFAC-CONS"] = { url: OFAC_CONS[0], licence: "US government public domain", count: kept.length, error: `refresh failed, kept prior ${kept.length}: ${String(e?.message || e)}` };
+    } else {
+      sources["OFAC-CONS"] = { url: OFAC_CONS[0], licence: "US government public domain", count: 0, error: String(e?.message || e) };
+    }
   }
 
   try {

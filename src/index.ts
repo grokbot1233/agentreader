@@ -9,7 +9,7 @@ import { ukLeads, createLeadsFeed, getLeadsFeed, runLeadsFeeds } from "./uk-lead
 import { createUkWatch, getUkWatch, runUkWatches } from "./uk-watch";
 import { kybReport, bindingRegistries } from "./kyb";
 import { ukOfficerSearch } from "./uk-officer";
-import { screenSanctions, screenSanctionsBatch, refreshSanctionsIndex } from "./sanctions";
+import { screenSanctions, screenSanctionsBatch, refreshSanctionsIndex, clearSanctionsCache } from "./sanctions";
 import { Hono } from "hono";
 import { paymentMiddleware, x402ResourceServer } from "@x402/hono";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
@@ -773,6 +773,15 @@ app.post("/admin/dashboard-meta", async (c) => {
   const next = { ...cur, ...body, updated: new Date().toISOString() };
   await c.env.LOG.put("meta:dashboard", JSON.stringify(next)); return c.json({ ok: true, meta: next });
 });
+app.post("/admin/sanctions-refresh", async (c) => {
+  const auth = c.req.header("authorization")?.replace(/^Bearer\s+/i, "") || c.req.query("key") || "";
+  if (!(await keyOk(auth, c.env.DASHBOARD_KEY || ""))) return c.json({ error: "unauthorized" }, 401);
+  clearSanctionsCache();
+  const r = await refreshSanctionsIndex(c.env);
+  clearSanctionsCache();
+  return c.json(r, r.ok ? 200 : 502);
+});
+
 app.all("/mcp", (c) => handleMcp(c.req.raw, c.env, (r) => logPay(c.env, r)));
 
 // Free webhook sink for monitor tests (stores last payload briefly)
