@@ -88,6 +88,14 @@ export const TOOLS: ToolDef[] = [
     previewable: true,
   },
   {
+    name: "page_meta",
+    description: "Lightweight page metadata: title, description, canonical, Open Graph + Twitter, favicons, JSON-LD types, h1/h2. $0.001 USDC.",
+    price: "$0.001",
+    schema: { url: z.string() },
+    http: (a) => `${ORIGIN}/meta?url=${encodeURIComponent(a.url)}`,
+    previewable: true,
+  },
+  {
     name: "company_research",
     description:
       "Website company research (tech, contacts, DNS, RDAP, news) with sources — not UK Companies House. $0.25 USDC.",

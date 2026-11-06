@@ -155,6 +155,10 @@ export class AgentReaderClient {
   urlRedirects(input: { url: string }, opts?: RequestOpts) {
     return this.get("/redirects", input, opts);
   }
+  /** Page metadata / Open Graph / Twitter / canonical / favicons ($0.001). */
+  pageMeta(input: { url: string }, opts?: RequestOpts) {
+    return this.get("/meta", input, opts);
+  }
   companyResearch(input: { domain: string }, opts?: RequestOpts) {
     return this.get("/company", input, opts);
   }

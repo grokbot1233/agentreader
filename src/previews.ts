@@ -3,7 +3,7 @@ import { CANONICAL } from "./facilitator";
 const PREVIEW_LIMIT = 8; // per IP per UTC day across all preview kinds
 const PREVIEW_PREFIX = "prev:";
 
-export type PreviewKind = "redirects" | "dns" | "au-company" | "ca-company" | "domain" | "email-check" | "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "kyb" | "sanctions" | "sanctions-batch" | "uk-officer";
+export type PreviewKind = "meta" | "redirects" | "dns" | "au-company" | "ca-company" | "domain" | "email-check" | "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "kyb" | "sanctions" | "sanctions-batch" | "uk-officer";
 
 const PRICE: Record<PreviewKind, string> = {
   read: "$0.002", links: "$0.001", check: "$0.001",
@@ -11,7 +11,7 @@ const PRICE: Record<PreviewKind, string> = {
   convert: "$0.03", "company-full": "$0.65",
   "uk-charity": "$0.05", "uk-charity-full": "$0.25",
   "us-sec": "$0.05", "us-sec-full": "$0.25", "eu-vat": "$0.01", "lei": "$0.005", "lei-full": "$0.05", "read-batch": "$0.015",
-  "uk-leads": "$1.00", "uk-leads-lite": "$0.25", kyb: "$2.50", "email-check": "$0.002", domain: "$0.002", dns: "$0.001", redirects: "$0.001", "au-company": "$0.02", "ca-company": "$0.02",
+  "uk-leads": "$1.00", "uk-leads-lite": "$0.25", kyb: "$2.50", "email-check": "$0.002", domain: "$0.002", dns: "$0.001", redirects: "$0.001", meta: "$0.001", "au-company": "$0.02", "ca-company": "$0.02",
   sanctions: "$0.05", "sanctions-batch": "$1.00",
   "uk-officer": "$0.15",
 };
@@ -33,7 +33,7 @@ const PAID_CALL: Record<PreviewKind, string> = {
   "lei": `${CANONICAL}/lei?lei=HWUPKR0MPOU8FGXBT394`,
   "lei-full": `${CANONICAL}/lei-full?name=Apple+Inc.`,
   "read-batch": `${CANONICAL}/read-batch?urls=https://example.com,https://example.org`,
-  "uk-leads": `${CANONICAL}/uk-leads?sic=62012`, "uk-leads-lite": `${CANONICAL}/uk-leads-lite?sic=62`, "email-check": `${CANONICAL}/email-check?email=info@stripe.com`, domain: `${CANONICAL}/domain?domain=stripe.com`, dns: `${CANONICAL}/dns?name=example.com`, redirects: `${CANONICAL}/redirects?url=https://example.com`, "au-company": `${CANONICAL}/au-company?acn=004028077`, "ca-company": `${CANONICAL}/ca-company?number=8660115`, kyb: `${CANONICAL}/kyb?domain=tesco.com&number=00445790`,
+  "uk-leads": `${CANONICAL}/uk-leads?sic=62012`, "uk-leads-lite": `${CANONICAL}/uk-leads-lite?sic=62`, "email-check": `${CANONICAL}/email-check?email=info@stripe.com`, domain: `${CANONICAL}/domain?domain=stripe.com`, dns: `${CANONICAL}/dns?name=example.com`, redirects: `${CANONICAL}/redirects?url=https://example.com`, meta: `${CANONICAL}/meta?url=https://example.com`, "au-company": `${CANONICAL}/au-company?acn=004028077`, "ca-company": `${CANONICAL}/ca-company?number=8660115`, kyb: `${CANONICAL}/kyb?domain=tesco.com&number=00445790`,
   sanctions: `${CANONICAL}/sanctions?name=BANCO+NACIONAL+DE+CUBA`, "sanctions-batch": `${CANONICAL}/sanctions-batch`,
   "uk-officer": `${CANONICAL}/uk-officer?name=Ken+Olisa`,
 };
@@ -222,6 +222,14 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         content_type: data.content_type, disclaimer: data.disclaimer,
         omitted: ["full redirect chain", "upsell detail"],
       };
+    case "meta":
+      return {
+        ...u, product: data.product, url: data.url, final_url: data.final_url, title: data.title,
+        description: data.description, canonical_url: data.canonical_url, language: data.language,
+        site_name: data.site_name, og_keys: data.og ? Object.keys(data.og).slice(0, 8) : [],
+        headings_preview: data.headings, disclaimer: data.disclaimer,
+        omitted: ["full og/twitter maps", "favicons", "json_ld_types", "upsell detail"],
+      };
     case "au-company":
       return {
         ...u, acn: data.acn, name: data.name, status: data.status, status_desc: data.status_desc,
@@ -361,6 +369,13 @@ export const STATIC_SAMPLES: Record<string, any> = {
       MX: [], TXT: ["v=spf1 -all"], NS: ["a.iana-servers.net", "b.iana-servers.net"], CNAME: [],
     },
     flags: [], disclaimer: "Public DNS via Cloudflare DoH only. Not authoritative proof.",
+  },
+  meta: {
+    product: "meta", url: "https://example.com", final_url: "https://example.com/",
+    title: "Example Domain", description: null, canonical_url: "https://example.com/",
+    language: "en", site_name: null, og: {}, twitter: {}, favicons: [], json_ld_types: [],
+    headings: { h1: ["Example Domain"], h2: [] },
+    disclaimer: "Live HTML head/meta extract. Not a ranking or safety verdict.",
   },
   redirects: {
     product: "redirects", url: "https://example.com", final_url: "https://example.com/",

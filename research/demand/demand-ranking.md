@@ -1,27 +1,29 @@
-# Demand ranking — 2026-11-06
+# Demand ranking — 2026-11-06 (AM refresh)
 
-Scoring: payment evidence × price/volume potential × our fit (free data, existing code) × unbuilt. Status as of 2026-11-06.
+Scoring: payment evidence × price/volume potential × our fit (free data, existing code) × unbuilt. Status as of 2026-11-06 ~07:20 Europe/London.
 
-| Rank | Need | Payment evidence | Price / volume signal | Fit | Status |
+| Rank | Need | Payment evidence | Est. price / volume | Fit | Status |
 |---|---|---|---|---|---|
-| 1 | **Email address verification** (syntax+MX+disposable+free/role) | Toll402 `verify_email` $0.001; Apify email validators; MCP domain email tools | Micro $0.001–0.005 band = majority of Bazaar calls; attaches to leads/KYB | High — DoH already in `core.ts`; no upstream fee | **BUILD NOW → `/email-check` $0.002** |
-| 2 | On-chain one-fact breadth (path aliases, more distinct listings) | onesource 250–536 unique payers/resource @ $0.001–0.005 | High payer count, low ARPU (payers≈calls) | High — `/chain/*` already live | Live; optional alias/register churn later |
-| 3 | KYB / multi-registry packs | Brazilayer $0.05; Lion $0.03; Apify KYB ~$0.05; NewcoSignal £49+/mo | Higher ticket, lower call count | High — `/kyb` $2.50, `/registry-batch` $0.30 | Live; grow distribution |
-| 4 | Web read / search | Exa / ScrapeGraphAI $0.007–0.20; historical 218k search calls | High volume | High — `/read`, `/search`, `/read-batch` | Live |
-| 5 | Token risk / verdict | ax1 ~$0.02 / 48k calls | Medium–high $ | Medium — `/token-check` $0.01 (deterministic) | Live |
-| 6 | FX / rates | tick.hugen / ECB-class | Micro | High — `/fx` $0.002 | Live |
-| 7 | UK new-co leads / watch | NewcoSignal £49–149/mo; Apify CH feed | Subscription ARPU | High — `/uk-leads*`, `/uk-watch` | Live; needs buyers |
-| 8 | IP geolocation | Bazaar keyword hits in top hosts | Micro | Medium — free APIs have ToS limits | Candidate later (ToS/rate limits on free geo) |
-| 9 | Standalone RDAP/domain age | Partial in `/company` | Micro | High | **SHIPPED → `/domain` $0.002** |
-| — | **DNS resolve** (A/AAAA/MX/TXT/NS) | Agents need records; pairs with domain/email | Micro $0.001 | High — DoH already in `core.ts` | **SHIPPED → `/dns` $0.001** |
-| — | **URL redirects unwrap / unshorten** | Toll402 unwrap/unshorten sellers $0.001–0.01 | Micro $0.001 band | High — `safeFetch` already returns chain | **SHIPPED → `/redirects` $0.001** |
-| 10 | People enrichment | Stableenrich people-search $0.15 | High $ | Low — legal/ToS | **Skip** |
-| 11 | LLM inference | blockrun 89k calls | High volume | Low — COGS | **Skip** |
-| 12 | NZ company registry | Open data / free API after approval | Medium | Medium — blocked on portal | Blocked |
+| 1 | **Page metadata / Open Graph extract** | Own legacy `/meta`: agentreader.dev **7** payers, workers.dev **5**; minifetch preview/metadata **7–8**; Toll `extract_page_links_meta` $0.003 | Micro $0.001; high explorer + SEO-agent use | High — safeFetch + linkedom; cheaper than `/read` | **SHIPPED → `/meta` $0.001 (v1.18.0)** |
+| 2 | On-chain pending block (`/chain/pending`) | onesource pending **72** unique payers @ $0.01 | Micro–$0.01; payers≈calls | High — public RPC `eth_getBlockByNumber("pending")` | Unbuilt (next; avoid CI collision) |
+| 3 | HTTP security headers audit | headers.use.x402atlas **17** payers @ $0.01; Toll ~$0.0115 | Micro $0.001–0.01 | High — HEAD via safeFetch; `/check` only HSTS | Candidate `/headers` |
+| 4 | IBAN mod-97 validate | halowerk **8**, agentindex **6**, greeneris **5**; Toll `$0.001` | Micro $0.001 | High — offline; pairs with `/eu-vat`/KYB | Candidate `/iban` |
+| 5 | On-chain one-fact breadth (other aliases) | onesource 100–547 payers/resource @ $0.001–0.005 | High payer count, low ARPU | High — `/chain/*` live | Live; register distinct resources |
+| 6 | KYB / multi-registry packs | Brazilayer $0.05; Lion $0.03; Apify ~$0.05 | Higher ticket | High — `/kyb` $2.50 etc. | Live |
+| 7 | Web read / search | Exa / ScrapeGraphAI; hist. ~218k search calls | High volume | High — `/read`, `/search`, `/read-batch` | Live |
+| 8 | Email address verification | Toll `verify_email` $0.001 | Micro | High — DoH | **SHIPPED → `/email-check` $0.002** |
+| 9 | Standalone RDAP/domain age | Partial historically in `/company` | Micro | High | **SHIPPED → `/domain` $0.002** |
+| 10 | DNS resolve | Agents need records; our workers.dev `/dns` **13** payers | Micro $0.001 | High — DoH | **SHIPPED → `/dns` $0.001** |
+| 11 | URL redirects / unshorten | Toll unwrap sellers $0.001–0.01 | Micro $0.001 | High — safeFetch chain | **SHIPPED → `/redirects` $0.001** |
+| 12 | SSL/cert expiry standalone | macaroon **10**, x402atlas ssl **8** | Micro–$0.01 | Medium — Workers peer-cert hard | Deferred |
+| 13 | IP geolocation | Multiple geo sellers ~10–13 payers | Micro | Medium — free geo ToS/rate | Deferred (ToS) |
+| 14 | People enrichment | Stableenrich $0.15 | High $ | Low — legal/ToS | **Skip** |
+| 15 | LLM inference | blockrun 89k calls | High volume | Low — COGS | **Skip** |
+| 16 | NZ company registry | Open data after approval | Medium | Medium — portal blocked | Blocked |
 
 ## Next passes (spider-web)
 
-1. Ship `/domain` + `/email-check` + `/dns` + `/redirects` (done v1.17.0) → keep IP geo as candidate later (ToS); Apify actor after publish window.
-2. Register any missing `/chain/*` on x402scan/Bazaar as **distinct** resources (explorer payer theory).
-3. Soft distribution of `/kyb` + `/email-check` together (onboarding agents).
-4. Re-pull CDP Bazaar monthly; refresh this ranking.
+1. `/meta` shipped v1.18.0 → next `/chain/pending` or `/headers` or `/iban` by evidence.
+2. Register missing `/chain/*` (esp. pending) as distinct Bazaar/x402scan resources.
+3. Soft distribute `/meta` + `/read` (metadata vs full body) and `/kyb`+`/email-check`.
+4. Re-pull CDP Bazaar on next demand run; keep IP geo deferred.
