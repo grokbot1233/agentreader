@@ -34,5 +34,8 @@ export const UPSELL: Record<string, string> = {
   "/ca-company": "Many companies: /registry-batch $0.30 (<=25 UK+AU+CA ids); sanctions screen: /sanctions $0.05.",
   "/registry-batch": "Screen the directors/names: /sanctions-batch $1 (<=50).",
   "/sanctions-batch": "Single name: /sanctions $0.05; onboarding pack: /kyb $2.50.",
+  "/chain/nft-metadata": "Need current owner too? /nft $0.002 (owner+metadata); owner only: /chain/nft-owner $0.001.",
+  "/nft": "Metadata-only alias: /chain/nft-metadata $0.002; owner only: /chain/nft-owner $0.001.",
+  "/chain/nft-owner": "Metadata JSON: /chain/nft-metadata $0.002; owner+metadata: /nft $0.002.",
 };
 export const upsell = (p: string, d: string) => (UPSELL[p] ? `${d} Related: ${UPSELL[p]}` : d);

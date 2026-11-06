@@ -247,6 +247,26 @@
   }
  },
  {
+  "path": "/chain/nft-metadata",
+  "tool": "chain_nft_metadata",
+  "price": "$0.002",
+  "description": "ERC721/1155 tokenURI/uri + resolved JSON metadata (IPFS/Arweave/data URI) plus collection name/symbol. Does not require ownerOf — use when explorers ask for /chain/nft-metadata. Prefer /nft ($0.002) when you also need current owner; /chain/nft-owner ($0.001) for owner only. Example: {contract:\"0xBC4C…f13D\", token_id:\"1\", chain:\"ethereum\"}. $0.002.",
+  "params": {
+   "contract": "ERC721/1155 contract",
+   "token_id": "token_id",
+   "chain": "EVM chain (default base)"
+  },
+  "required": [
+   "contract",
+   "token_id"
+  ],
+  "example": {
+   "contract": "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D",
+   "token_id": "1",
+   "chain": "ethereum"
+  }
+ },
+ {
   "path": "/chain/erc1155-balance",
   "tool": "chain_erc1155_balance",
   "price": "$0.001",

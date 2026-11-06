@@ -175,6 +175,45 @@ add({ path: "/chain/nft-owner", price: "$0.001", atomic: 1000, ttl: 30, keys: ["
     if (!o || o === "0x") throw new UserError(`ownerOf(${b.token_id}) reverted — token not minted, burned, or not ERC721 on ${name}`, 404);
     return { ...meta(name, ch), contract: b.contract, token_id: b.token_id, owner: "0x" + o.slice(26), name: decStr(n), symbol: decStr(s), source: "eth_call ownerOf" }; } });
 
+add({ path: "/chain/nft-metadata", price: "$0.002", atomic: 2000, ttl: 120, keys: ["contract", "token_id", "chain"],
+  desc: "ERC721/1155 tokenURI/uri + resolved JSON metadata (IPFS/Arweave/data URI) plus collection name/symbol. Does not require ownerOf — use when explorers ask for /chain/nft-metadata. Prefer /nft ($0.002) when you also need current owner; /chain/nft-owner ($0.001) for owner only. Example: {contract:\"0xBC4C…f13D\", token_id:\"1\", chain:\"ethereum\"}. $0.002.",
+  in: { type: "object", properties: { contract: addrP("ERC721/1155 contract"), token_id: { type: "string" }, chain: chainP }, required: ["contract", "token_id"] },
+  out: { type: "object", properties: { standard: { type: ["string", "null"] }, token_uri: { type: ["string", "null"] }, metadata: { type: ["object", "null"] }, metadata_error: { type: ["string", "null"] }, collection: { type: "object" } } },
+  ex: { contract: "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D", token_id: "1", chain: "ethereum" },
+  validate: (b) => first(addrErr(b.contract, "contract"), !/^\d{1,78}$/.test(S(b.token_id)) ? "token_id must be a decimal integer" : null, chainErr(b)),
+  fn: async (b) => {
+    const [name, ch] = chainOf(b.chain);
+    const id = BigInt(b.token_id).toString(16).padStart(64, "0");
+    const [uri721, uri1155, nm, sym] = await rpcBatch(ch.rpc, [call(b.contract, "0xc87b56dd" + id), call(b.contract, "0x0e89341c" + id), call(b.contract, "0x06fdde03"), call(b.contract, "0x95d89b41")]);
+    let uri = decStr(uri721) || decStr(uri1155);
+    const standard = uri721 && decStr(uri721) ? "ERC721" : uri1155 && decStr(uri1155) ? "ERC1155" : null;
+    if (uri && uri1155 && !decStr(uri721)) uri = uri.replace("{id}", id);
+    let metadata: any = null, metaErr: string | null = null;
+    if (!uri) metaErr = "tokenURI/uri returned empty — not ERC721/1155 or URI unset";
+    else {
+      try {
+        const ipfs = uri.startsWith("ipfs://") ? uri.slice(7).replace(/^ipfs\//, "") : null;
+        const urls = ipfs
+          ? ["https://ipfs.filebase.io/ipfs/", "https://4everland.io/ipfs/", "https://nftstorage.link/ipfs/", "https://dweb.link/ipfs/", "https://w3s.link/ipfs/", "https://ipfs.io/ipfs/", "https://gateway.pinata.cloud/ipfs/"].map((g) => g + ipfs)
+          : [uri.startsWith("ar://") ? "https://arweave.net/" + uri.slice(5) : uri];
+        const u0 = urls[0];
+        if (u0.startsWith("data:application/json;base64,")) metadata = JSON.parse(atob(u0.split(",")[1]));
+        else if (u0.startsWith("data:application/json")) metadata = JSON.parse(decodeURIComponent(u0.split(",").slice(1).join(",")));
+        else if (/^https?:\/\//.test(u0)) {
+          for (const x of urls) {
+            try {
+              const r = await fetch(x, { signal: AbortSignal.timeout(5000) });
+              if (r.ok) { metadata = JSON.parse((await r.text()).slice(0, 200000)); metaErr = null; break; }
+              metaErr = `metadata HTTP ${r.status} (${new URL(x).host})`;
+            } catch (e: any) { metaErr = String(e?.message || e).slice(0, 60); }
+          }
+        } else metaErr = "unsupported token_uri scheme";
+      } catch (e: any) { metaErr = String(e?.message || e).slice(0, 80); }
+    }
+    if (metadata && typeof metadata.image === "string" && metadata.image.length > 2000) metadata.image = metadata.image.slice(0, 200) + "…(truncated data URI)";
+    return { ...meta(name, ch), contract: b.contract, token_id: b.token_id, standard, token_uri: uri || null, metadata, metadata_error: metaErr, collection: { name: decStr(nm), symbol: decStr(sym) }, source: "eth_call tokenURI/uri + IPFS/Arweave/HTTP gateway" };
+  } });
+
 add({ path: "/chain/erc1155-balance", price: "$0.001", atomic: 1000, ttl: 15, keys: ["contract", "address", "token_id", "chain"],
   desc: "ERC1155 balance: how many copies of token_id a wallet holds, via balanceOf(address,uint256) (eth_call). Example: {contract:\"0x…\", address:\"0x…\", token_id:\"1\", chain:\"base\"}. $0.001.",
   in: { type: "object", properties: { contract: addrP("ERC1155 contract"), address: addrP("Holder"), token_id: { type: "string" }, chain: chainP }, required: ["contract", "address", "token_id"] }, out: { type: "object", properties: { balance: { type: "string" } } },
