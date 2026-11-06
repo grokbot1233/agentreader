@@ -25,6 +25,10 @@ export function aliasInput(path: string, b: any) {
     // Agents often send wallet= for the owner; map even when empty so ?wallet= is free 400 (via address).
     if (!s(b.address) && Object.prototype.hasOwnProperty.call(b, "wallet")) b.address = s(b.wallet);
   }
+  // Agents often send domain= (like /domain|/check) for DNS; map even when empty so ?domain= is free 400.
+  if (path === "/dns") {
+    if (!s(b.name) && Object.prototype.hasOwnProperty.call(b, "domain")) b.name = s(b.domain);
+  }
   return b;
 }
 

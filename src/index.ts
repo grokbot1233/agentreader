@@ -114,7 +114,7 @@ const emailCheckIn = { type: "object", properties: { email: { type: "string", de
 const emailCheckOut = { type: "object", properties: { email: { type: "string" }, syntax_ok: { type: "boolean" }, verdict: { type: "string" }, score: { type: "number" }, flags: { type: "array" }, checks: { type: "object" }, provider: { type: "string" }, mx_hosts: { type: "array" } } };
 const domainIn = { type: "object", properties: { domain: { type: "string", description: "Domain name, e.g. stripe.com" } }, required: ["domain"] };
 const domainOut = { type: "object", properties: { domain: { type: "string" }, registrar: { type: ["string", "null"] }, registered: { type: ["string", "null"] }, expires: { type: ["string", "null"] }, age_days: { type: ["integer", "null"] }, status: { type: "array" }, flags: { type: "array" }, sources: { type: "object" } } };
-const dnsIn = { type: "object", properties: { name: { type: "string", description: "Hostname to resolve, e.g. example.com" }, type: { type: "string", description: "Optional DNS type or comma list: A,AAAA,MX,TXT,NS,CNAME (default all of those); also SOA,PTR,CAA" } }, required: ["name"] };
+const dnsIn = { type: "object", properties: { name: { type: "string", description: "Hostname to resolve, e.g. example.com" }, domain: { type: "string", description: "Alias for name" }, type: { type: "string", description: "Optional DNS type or comma list: A,AAAA,MX,TXT,NS,CNAME (default all of those); also SOA,PTR,CAA" } }, required: ["name"] };
 const dnsOut = { type: "object", properties: { name: { type: "string" }, type: {}, records: { type: "object" }, flags: { type: "array" }, sources: { type: "object" } } };
 const metaOut = { type: "object", properties: { url: { type: "string" }, final_url: { type: "string" }, title: { type: ["string", "null"] }, description: { type: ["string", "null"] }, canonical_url: { type: "string" }, language: { type: ["string", "null"] }, site_name: { type: ["string", "null"] }, og: { type: "object" }, twitter: { type: "object" }, favicons: { type: "array", items: { type: "string" } }, json_ld_types: { type: "array", items: { type: "string" } }, headings: { type: "object" }, disclaimer: { type: "string" } } };
 const redirectsOut = { type: "object", properties: { url: { type: "string" }, final_url: { type: "string" }, status: { type: ["integer", "null"] }, hops: { type: "integer" }, redirect_count: { type: "integer" }, chain: { type: "array", items: { type: "object", properties: { url: { type: "string" }, status: { type: "integer" } } } }, content_type: { type: ["string", "null"] }, ok: { type: "boolean" }, truncated_chain: { type: "boolean" }, disclaimer: { type: "string" } } };
@@ -341,7 +341,7 @@ const DESC: Record<string, string> = {
   "/siret": "Offline French SIRET validate (14 digits = SIREN+NIC, Luhn on all 14). Path alias /siret/{siret}. Example: {siret:\"73282932000074\"}. $0.001.",
   "/meta": "Lightweight page metadata for agents: title, description, canonical, Open Graph + Twitter card tags, favicons, JSON-LD @types, h1/h2. Cheaper/faster than /read when you do not need Markdown body. Example: {url:\"https://example.com\"}. $0.001.",
   "/redirects": "Unwrap URL redirects / short links: follow http(s) Location hops with SSRF guards, return final_url + chain (no body download). Not a malware verdict. Example: {url:\"https://bit.ly/...\"} or {url:\"example.com\"}. $0.001.",
-  "/dns": "DNS resolve via Cloudflare DoH: A/AAAA/MX/TXT/NS/CNAME (or single type=). Public DNS only, not authoritative. Example: {name:\"example.com\"} or {name:\"example.com\",type:\"MX\"}. $0.001.",
+  "/dns": "DNS resolve via Cloudflare DoH: A/AAAA/MX/TXT/NS/CNAME (or single type=). Public DNS only, not authoritative. Accepts domain= as alias of name=. Example: {name:\"example.com\"} or {domain:\"example.com\",type:\"MX\"}. $0.001.",
   "/check": "Use this when vetting a domain's health before outreach or onboarding: DNS (DoH), DNSSEC, TLS/HTTPS, redirects, HSTS, MX/SPF/DMARC + score/issues. Structured JSON beats dig+openssl. Example: {domain:\"stripe.com\"} → {score, issues, email}. $0.001.",
   "/company": "Use this when researching any company from its website domain — not Companies House. Returns sourced tech stack, socials, emails/phones, DNS/MX/SPF/DMARC, RDAP age/registrar, SSL, sitemap, news. No LLM inventing facts. Example: {domain:\"stripe.com\"} → {homepage, tech_stack, contacts, dns, news, sources}. Prefer /uk-company* for UK filings. $0.25.",
   "/uk-company": "Use this for UK due diligence on a Companies House number or name: official API profile, officers, PSCs, filings, charges, insolvency + rule-based red flags (overdue, dissolved, churn, mass-formation office). Sourced JSON. Example: {number:\"00445790\"} or {name:\"TESCO\"}. Prefer /uk-company-lite ($0.05) for status/flags only. $0.50.",
@@ -490,7 +490,7 @@ function discovery(c: any) {
     contact: CONTACT, ownershipProofs: [] };
 }
 
-app.get("/health", (c) => c.json({ ok: true, version: "1.25.0", ts: new Date().toISOString() }));
+app.get("/health", (c) => c.json({ ok: true, version: "1.25.2", ts: new Date().toISOString() }));
 app.get("/.well-known/x402", (c) => c.json(discovery(c)));
 app.get("/.well-known/x402.json", (c) => c.json(discovery(c)));
 app.get("/.well-known/402index-verify.txt", (c) => c.text("9a944a1ce3c68588c5fb1d104be63981bb5e6b6e302fa0a1bd65b6a3cd5f5372"));
@@ -501,7 +501,7 @@ app.get("/.well-known/agent-card.json", (c) => {
   return c.json({
     protocolVersion: "0.3.0", name: "Axiom Works AgentReader",
     description: "Pay-per-call (x402, USDC on Base) UK Companies House, KYB, SEC EDGAR, EU VAT, web-to-markdown and EVM on-chain lookups for AI agents. HTTP + MCP; no API keys.",
-    url: b, preferredTransport: "HTTP+JSON", version: "1.25.0", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
+    url: b, preferredTransport: "HTTP+JSON", version: "1.25.2", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
     provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk" },
     capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
     defaultInputModes: ["application/json"], defaultOutputModes: ["application/json"],
@@ -514,14 +514,14 @@ app.get("/.well-known/agent.json", (c) => {
   return c.json({
     name: "Axiom Works AgentReader", description: "x402 pay-per-call web reader, email/phone/IBAN validate, company research, UK Companies House + Charity Commission + US SEC EDGAR + EU VIES VAT + OFAC/UK/UN/EU sanctions screening due diligence, document conversion, change monitoring, EVM wallet/tx/token risk checks and ECB FX rates for AI agents.",
     url: b, provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk", email: CONTACT },
-    version: "1.25.0", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
+    version: "1.25.2", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     skills: Object.entries(PRICES).map(([p, price]) => ({ id: p.slice(1), name: p, description: DESC[p], price, endpoint: `${b}${p}` })),
     mcp: `${b}/mcp`, payments: { protocol: "x402", network: NETWORK, asset: USDC, payTo: c.env.PAY_TO },
   });
 });
 app.get("/.well-known/mcp.json", (c) => {
   const b = base(c);
-  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.25.0",
+  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.25.2",
     description: "x402 pay-per-call MCP: web reader, email/phone/IBAN validate, UK/AU/CA registries, SEC, VAT, sanctions, EVM chain data.",
     transport: { type: "streamable-http", url: `${b}/mcp` }, documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     payments: { protocol: "x402", network: NETWORK, asset: USDC } });
@@ -558,7 +558,7 @@ app.get("/openapi.json", (c) => {
     paths[ap] = { get: { summary: `Path alias of ${to} (same price/x402 challenge). ${DESC[to] || ""}`, parameters: [...ks.map((k) => ({ name: k, in: "path", required: true, schema: { type: "string" } })), { name: "chain", in: "query", required: false, schema: { type: "string" } }, { name: "preview", in: "query", required: false, schema: { type: "string", enum: ["1"] } }],
       responses: { "200": { description: "Success", content: { "application/json": { schema: OUT[to] } } }, "402": { description: `Payment required: ${price} USDC on Base (x402)` } }, "x-price": price, "x-alias-of": to } }; }
   paths["/hooks/sink"] = { post: { summary: "Free webhook test sink for /monitor", responses: { "200": { description: "Stored" } }, "x-price": "free" } };
-  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.25.0", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, email-check, domain RDAP, DNS resolve, URL redirects unwrap, page metadata/OG, HTTP security headers, IBAN/phone/UK-postcode/SIREN/SIRET validate, company research, UK/AU/CA registries, LEI, sanctions, SEC, VIES VAT, document conversion, change monitoring, EVM/FX. Payments: USDC on Base mainnet (eip155:8453)." },
+  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.25.2", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, email-check, domain RDAP, DNS resolve, URL redirects unwrap, page metadata/OG, HTTP security headers, IBAN/phone/UK-postcode/SIREN/SIRET validate, company research, UK/AU/CA registries, LEI, sanctions, SEC, VIES VAT, document conversion, change monitoring, EVM/FX. Payments: USDC on Base mainnet (eip155:8453)." },
     servers: [{ url: b }], paths });
 });
 const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
@@ -1009,7 +1009,7 @@ for (const m of ["get", "post"] as const) {
     return cached(c, `domain?domain=${encodeURIComponent(domain.toLowerCase())}`, () => domainLookup({ domain }), 3600);
   });
   app[m]("/dns", async (c) => {
-    const b = await bodyObj(c);
+    const b = await bodyObj(c); aliasInput("/dns", b);
     const name = (b.name || "").trim(); if (!name) return c.json({ error: "missing name", example: { name: "example.com" } }, 400);
     const type = (b.type || "").trim() || undefined;
     const cacheKey = `dns?name=${encodeURIComponent(name.toLowerCase())}&type=${encodeURIComponent(type || "default")}`;
