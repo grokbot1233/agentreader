@@ -1,12 +1,12 @@
 # Demand ranking — 2026-11-06 (evening refresh)
 
-Scoring: payment evidence × price/volume potential × our fit (free data, existing code) × unbuilt. **High-ticket first.** Status as of 2026-11-06 ~19:40 Europe/London. Live: **v1.29.1**.
+Scoring: payment evidence × price/volume potential × our fit (free data, existing code) × unbuilt. **High-ticket first.** Status as of 2026-11-06 ~19:40 Europe/London. Live: **v1.29.2**.
 
 **Directive (Liam 2026-11-06):** do not ship $0.001–$0.003 offline format validators. Micros stay HTTP-callable but unlisted from MCP/llms/discovery (since v1.28.0). Focus big hitters + expansions.
 
 | Rank | Need | Payment evidence | Est. price / volume | Fit | Status |
 |---|---|---|---|---|---|
-| 1 | **FR company registry (live Sirene/RNE)** | Toll FR peers historically $0.002–0.01; RapidAPI FR KYB seats; Apify EU KYB router lists FR; GH KYB threads want multi-registry | **$0.25**; attaches to `/kyb` | High — free `recherche-entreprises.api.gouv.fr` | **SHIPPED → `/fr-company` $0.25 + `/kyb` siren/siret + `/registry-batch` fr= (v1.29.1)** |
+| 1 | **FR company registry (live Sirene/RNE)** | Toll FR peers historically $0.002–0.01; RapidAPI FR KYB seats; Apify EU KYB router lists FR; GH KYB threads want multi-registry | **$0.25**; attaches to `/kyb` | High — free `recherche-entreprises.api.gouv.fr` | **SHIPPED → `/fr-company` $0.25 + `/kyb` siren/siret + `/registry-batch` fr= (v1.29.2)** |
 | 2 | KYB / multi-registry packs | Brazilayer/Lion/Apify ~$0.03–0.05; our pack priced premium | Higher ticket $2.50 | High | Live `/kyb` **$2.50** (now UK/AU/CA/**FR**) |
 | 3 | UK DD / watch / leads | NewcoSignal £49–149/mo; Apify CH feed | $1–$25 | High | Live `/uk-dd` `$1`, `/uk-watch` `$5`, `/uk-leads` `$1`, `/uk-leads-feed` `$25` |
 | 4 | Company research / full | Own `/company` band; BuiltWith $0.05 | $0.25–$0.65 | High | Live `/company` `$0.25`, `/company-full` `$0.65` |
