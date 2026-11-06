@@ -1,0 +1,45 @@
+== 2026-11-06T08:08:25Z free registry retries ==
+-- from run.sh (already executed) --
+402index: /kyb /uk-leads /uk-leads-feed /uk-watch → HTTP 201 (registered/live, domain verified)
+a2a-registry.org: success refreshed id=b6fdf1bb-8cd2-4af4-99cb-310d083ce0b4
+a2aregistry.org: capacity full — detail: The registry has reached its review capacity...
+
+-- a2aregistry.org retry now --
+HTTP/2 429 
+date: Fri, 06 Nov 2026 08:08:26 GMT
+content-type: application/json
+content-length: 150
+retry-after: 57094
+vary: Origin
+server: cloudflare
+via: 1.1 google
+alt-svc: h3=":443"; ma=86400
+cf-cache-status: DYNAMIC
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=oz1dHeDOAgFUAME7MPvFXuV4WPP1KA5U7s1YYoTjSnN92HlIigI6%2F8ZaA8qTAx7wlZfFcxCuuHxLqG1cZA3WT2HNLeBhSyvoPyDLn1HfystOLYsyXs0itQ2RXb2MwCICZObV8Es77jvlw9JWc2Q%3D"}]}
+cf-ray: a5629c3a7ecff2b9-IAD
+
+
+{"detail":"The registry has reached its review capacity for now, so it is not accepting submissions. Retry after the time in the Retry-After header."}
+
+-- a2a-registry.org refresh --
+{"success":true,"data":{"id":"b6fdf1bb-8cd2-4af4-99cb-310d083ce0b4","package_name":"uk.co.axiomworks.axiom_works_agentreader","status":"updated","refreshed":true,"message":"Unclaimed agent refreshed with the latest manifest."},"status":200}
+
+-- probe new/other free surfaces --
+200 https://www.agentregistry.org/
+200 https://registry.directory/
+200 https://mcp.so/
+200 https://glama.ai/mcp/servers/grokbot1233/agentreader
+308 https://smithery.ai/
+307 https://clawhub.com/
+200 https://www.x402scan.com/
+200 https://402index.io/
+200 https://x402-list.com/
+200 https://mcpservers.org/servers/grokbot1233/agentreader
+200 https://registry.modelcontextprotocol.io/v0/servers?search=grokbot1233
+
+-- official MCP registry: io.github.grokbot1233/agentreader isLatest=true (active) --
+-- competitor note: io.github.ajanani1/agentreader-mcp and xyz.agentreader/agentreader also listed (different products) --
+-- Azure MCP Center onboarding comment posted 2026-11-06 (see GitHub actions) --
+-- x402-health seed request: https://github.com/automaton-revenue/x402-health/issues/5 --
+-- No new free join-by-API registries found beyond register.sh set; a2aregistry still capacity-blocked --
