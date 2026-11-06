@@ -83,7 +83,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       await log({ endpoint: `mcp:${tool}`, payer: settlement?.payer || null, amount: settlement?.amount || String(atomic), network: settlement?.network, tx: settlement?.transaction, success: settlement?.success });
     } },
   } as any);
-  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.30.0" }, { instructions: "Start with the big hitters: kyb ($2.50 one-shot KYB pack), uk_dd ($1 UK due diligence), uk_company ($0.50), uk_watch ($5/30d), uk_leads ($1), uk_leads_feed ($25/30d), company_research ($0.25), company_full ($0.65), sanctions_batch ($1), uk_charity_full ($0.25), fr_company ($0.25), no_company ($0.25), registry_batch ($0.30), uk_officer ($0.15). Call pricing for the full list." });
+  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.31.0" }, { instructions: "Start with the big hitters: kyb ($2.50 one-shot KYB pack), uk_dd ($1 UK due diligence), uk_company ($0.50), uk_watch ($5/30d), uk_leads ($1), uk_leads_feed ($25/30d), company_research ($0.25), company_full ($0.65), sanctions_batch ($1), uk_charity_full ($0.25), fr_company ($0.25), no_company ($0.25), registry_batch ($0.30), uk_officer ($0.15). Call pricing for the full list." });
   const HIDDEN_TOOLS = new Set(["iban_validate","phone_check","uk_postcode_validate","siren_validate","siret_validate","partita_iva_validate","orgnr_se_validate","bn_ca_validate","cvr_dk_validate","fn_at_validate","cin_in_validate","kvk_nl_validate","hr_de_validate","nif_es_validate","cnpj_validate","nip_pl_validate","uid_ch_validate"]);
   { const _tool = server.tool.bind(server); (server as any).tool = (n: string, ...r: any[]) => HIDDEN_TOOLS.has(n) ? undefined : (_tool as any)(n, ...r); }
   { const orig = (server as any).tool.bind(server); (server as any).tool = (name: string, desc: any, ...rest: any[]) => orig(name, typeof desc === "string" ? upsell(TOOL_PATH[name] || "", desc) : desc, ...rest); }
@@ -413,7 +413,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
     (await mk("$25.00", "uk_leads_feed", 25000000))(async (a: any) => { try { return json(await createLeadsFeed(env, a)); } catch (e) { return err(e); } }) as any);
 
   server.tool("uk_watch",
-    "Use this to watch one UK company 30 days: hourly CH poll of status/officers/filings → webhook on change. $5.00/30d USDC.",
+    "Use this to watch one UK company 30 days: hourly CH poll of status/officers/filings/PSC/charges → webhook on change. $5.00/30d USDC.",
     { number: z.string(), webhook: z.string().url() },
     (await mk("$5.00", "uk_watch", 5000000))(async (a: any) => { try { return json(await createUkWatch(env, a)); } catch (e) { return err(e); } }) as any);
 

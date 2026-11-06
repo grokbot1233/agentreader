@@ -3,7 +3,7 @@ import { CANONICAL } from "./facilitator";
 const PREVIEW_LIMIT = 8; // per IP per UTC day across all preview kinds
 const PREVIEW_PREFIX = "prev:";
 
-export type PreviewKind = "headers" | "iban" | "phone" | "meta" | "redirects" | "dns" | "au-company" | "ca-company" | "fr-company" | "no-company" | "domain" | "email-check" | "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "kyb" | "uk-dd" | "sanctions" | "sanctions-batch" | "uk-officer" | "uk-property" | "uk-area" | "uk-postcode" | "siren" | "siret" | "partita-iva" | "orgnr" | "bn-ca" | "cvr" | "fn-at" | "cin-in" | "kvk-nl" | "hr-de" | "nif-es" | "cnpj" | "nip-pl" | "uid-ch";
+export type PreviewKind = "headers" | "iban" | "phone" | "meta" | "redirects" | "dns" | "au-company" | "ca-company" | "fr-company" | "no-company" | "domain" | "email-check" | "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "kyb" | "uk-dd" | "uk-watch" | "sanctions" | "sanctions-batch" | "uk-officer" | "uk-property" | "uk-area" | "uk-postcode" | "siren" | "siret" | "partita-iva" | "orgnr" | "bn-ca" | "cvr" | "fn-at" | "cin-in" | "kvk-nl" | "hr-de" | "nif-es" | "cnpj" | "nip-pl" | "uid-ch";
 
 const PRICE: Record<PreviewKind, string> = {
   read: "$0.002", links: "$0.001", check: "$0.001",
@@ -11,7 +11,7 @@ const PRICE: Record<PreviewKind, string> = {
   convert: "$0.03", "company-full": "$0.65",
   "uk-charity": "$0.05", "uk-charity-full": "$0.25",
   "us-sec": "$0.05", "us-sec-full": "$0.25", "eu-vat": "$0.01", "lei": "$0.005", "lei-full": "$0.05", "read-batch": "$0.015",
-  "uk-leads": "$1.00", "uk-leads-lite": "$0.25", kyb: "$2.50", "uk-dd": "$1.00", "email-check": "$0.002", domain: "$0.002", dns: "$0.001", redirects: "$0.001", meta: "$0.001", headers: "$0.001", iban: "$0.001", phone: "$0.001", "au-company": "$0.02", "ca-company": "$0.02", "fr-company": "$0.25", "no-company": "$0.25",
+  "uk-leads": "$1.00", "uk-leads-lite": "$0.25", kyb: "$2.50", "uk-dd": "$1.00", "uk-watch": "$5.00", "email-check": "$0.002", domain: "$0.002", dns: "$0.001", redirects: "$0.001", meta: "$0.001", headers: "$0.001", iban: "$0.001", phone: "$0.001", "au-company": "$0.02", "ca-company": "$0.02", "fr-company": "$0.25", "no-company": "$0.25",
   sanctions: "$0.05", "sanctions-batch": "$1.00",
   "uk-officer": "$0.15",
   "uk-property": "$0.01", "uk-area": "$0.005", "uk-postcode": "$0.001", siren: "$0.001", siret: "$0.001", "partita-iva": "$0.001", orgnr: "$0.001", "bn-ca": "$0.001", cvr: "$0.001", "fn-at": "$0.001", "cin-in": "$0.001", "kvk-nl": "$0.001", "hr-de": "$0.001", "nif-es": "$0.001", cnpj: "$0.001", "nip-pl": "$0.001", "uid-ch": "$0.001",
@@ -36,6 +36,7 @@ const PAID_CALL: Record<PreviewKind, string> = {
   "read-batch": `${CANONICAL}/read-batch?urls=https://example.com,https://example.org`,
   "uk-leads": `${CANONICAL}/uk-leads?sic=62012`, "uk-leads-lite": `${CANONICAL}/uk-leads-lite?sic=62`, "email-check": `${CANONICAL}/email-check?email=info@stripe.com`, domain: `${CANONICAL}/domain?domain=stripe.com`, dns: `${CANONICAL}/dns?name=example.com`, redirects: `${CANONICAL}/redirects?url=https://example.com`, meta: `${CANONICAL}/meta?url=https://example.com`, headers: `${CANONICAL}/headers?url=https://example.com`, iban: `${CANONICAL}/iban?iban=GB82WEST12345698765432`, phone: `${CANONICAL}/phone?phone=%2B447911123456`, "au-company": `${CANONICAL}/au-company?acn=004028077`, "ca-company": `${CANONICAL}/ca-company?number=8660115`, "fr-company": `${CANONICAL}/fr-company?siren=443061841`, "no-company": `${CANONICAL}/no-company?orgnr=923609016`, kyb: `${CANONICAL}/kyb?domain=tesco.com&number=00445790`,
   "uk-dd": `${CANONICAL}/uk-dd?number=00445790`,
+  "uk-watch": `POST ${CANONICAL}/uk-watch {number,webhook}`,
   sanctions: `${CANONICAL}/sanctions?name=BANCO+NACIONAL+DE+CUBA`, "sanctions-batch": `${CANONICAL}/sanctions-batch`,
   "uk-officer": `${CANONICAL}/uk-officer?name=Ken+Olisa`,
   "uk-property": `${CANONICAL}/uk-property?postcode=CB1+2AB`,
@@ -519,6 +520,19 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         omitted: ["crime by_category", "food hygiene lowest_rated", "full geography codes"],
       };
 
+    case "uk-watch":
+      return {
+        ...u,
+        id: data.id, kind: data.kind || "uk-watch",
+        company_number: data.company_number, company_name: data.company_name,
+        webhook: data.webhook, created: data.created, expires: data.expires,
+        snapshot: data.snapshot, status_url: data.status_url,
+        price: data.price || PRICE["uk-watch"] + "/30d",
+        watches_psc_and_charges: data.watches_psc_and_charges ?? true,
+        disclaimer: data.disclaimer || "Static preview sample — not a live watch.",
+        omitted: ["live hourly checks", "webhook deliveries", "KV-backed watch id"],
+      };
+
     default:
       return { ...u, error: "unknown preview kind" };
   }
@@ -526,6 +540,35 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
 
 /** Frozen real samples (generated offline / first warm). Keep intentionally partial. */
 export const STATIC_SAMPLES: Record<string, any> = {
+  "uk-watch": {
+    id: "preview00000000000000000000000001",
+    kind: "uk-watch",
+    company_number: "00445790",
+    company_name: "TESCO PLC",
+    webhook: "https://your.app/hook",
+    created: "2026-11-06T12:00:00.000Z",
+    expires: "2026-12-06T12:00:00.000Z",
+    checks: 1, changes: 0, active: true,
+    snapshot: {
+      company_number: "00445790",
+      name: "TESCO PLC",
+      status: "active",
+      status_detail: null,
+      accounts_overdue: false,
+      confirmation_overdue: false,
+      sic_codes: ["47110"],
+      registered_office: { address_line_1: "Tesco House", postal_code: "AL7 1GA" },
+      officers_active: ["director:SAMPLE, Director:2020-01-01"],
+      recent_filings: ["TxSample1", "TxSample2"],
+      psc_active: ["SAMPLE PSC LTD|ownership-of-shares-75-to-100-percent|2016-06-30"],
+      charges_outstanding: 1,
+      charges_ids: ["2020-01-15:outstanding:SAMPLE BANK PLC"],
+    },
+    status_url: "https://api.axiomworks.co.uk/uk-watch/preview00000000000000000000000001",
+    price: "$5.00/30d",
+    watches_psc_and_charges: true,
+    disclaimer: "Static preview sample — not a live watch. Pay via x402 POST /uk-watch to create a real 30-day hourly watch.",
+  },
   "lei": {
     lei: "HWUPKR0MPOU8FGXBT394", legal_name: "Apple Inc.", status: { entity: "ACTIVE", registration: "ISSUED" },
     jurisdiction: "US-CA", parents: { direct: null, ultimate: null },
