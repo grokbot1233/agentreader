@@ -1,0 +1,73 @@
+{
+  "apify_store": {
+    "name": "Apify Store",
+    "profile": "https://apify.com/ultramarine_gusto",
+    "note": "Pay-per-event; price changes on public Actors take ~14 days (web-to-markdown effective 19 Nov 2026). agent-kyb-check + uk-charity-check published public 2026-11-06 ~17:26 UTC. Identity verification (Dotfile) still pending Apify review for payouts.",
+    "actors": [
+      {
+        "name": "uk-company-dd",
+        "event": "company-report",
+        "price": "$0.025/company-report",
+        "status": "public",
+        "url": "https://apify.com/ultramarine_gusto/uk-company-dd"
+      },
+      {
+        "name": "uk-new-company-leads",
+        "event": "company-lead",
+        "price": "$0.040/company-lead",
+        "status": "public",
+        "url": "https://apify.com/ultramarine_gusto/uk-new-company-leads"
+      },
+      {
+        "name": "agent-kyb-check",
+        "event": "kyb-check",
+        "price": "$0.120/kyb-check",
+        "status": "public",
+        "url": "https://apify.com/ultramarine_gusto/agent-kyb-check"
+      },
+      {
+        "name": "us-sec-edgar-snapshot",
+        "event": "sec-snapshot",
+        "price": "$0.030/sec-snapshot",
+        "status": "public",
+        "url": "https://apify.com/ultramarine_gusto/us-sec-edgar-snapshot"
+      },
+      {
+        "name": "eu-vat-vies-check",
+        "event": "vat-check",
+        "price": "$0.010/vat-check",
+        "status": "public",
+        "url": "https://apify.com/ultramarine_gusto/eu-vat-vies-check"
+      },
+      {
+        "name": "uk-charity-check",
+        "event": "charity-check",
+        "price": "$0.030/charity-check",
+        "status": "public",
+        "url": "https://apify.com/ultramarine_gusto/uk-charity-check"
+      },
+      {
+        "name": "web-to-markdown",
+        "event": "page-markdown",
+        "price": "$0.005/page-markdown",
+        "status": "public",
+        "url": "https://apify.com/ultramarine_gusto/web-to-markdown"
+      },
+      {
+        "name": "au-company-check",
+        "event": "company-report",
+        "price": "$0.005/company-report (suggested)",
+        "status": "built private; publish after daily limit/KYC (after 17:03 UTC 6 Nov)",
+        "url": "https://console.apify.com/actors/ZiTsqxZuYLdzc4WJW"
+      },
+      {
+        "name": "ca-corp-check",
+        "event": "company-report",
+        "price": "$0.005/company-report (suggested)",
+        "status": "built private, test OK; publish after daily limit/KYC",
+        "url": "https://console.apify.com/actors/A083ssMt9eocS5qY4"
+      }
+    ]
+  },
+  "ops_notes_append": "2026-11-06 ~17:28 GMT: Apify agent-kyb-check + uk-charity-check isPublic=true Store live. CF KV put daily limit blocked dashboard-meta write; apply research/leads/dashboard-patch-apify-public-2026-11-06.json when puts resume."
+}

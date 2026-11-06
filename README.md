@@ -51,10 +51,10 @@ Same data as no-wallet Apify Actors (pay per event, billed by Apify) — profile
 |---|---|---|
 | [uk-company-dd](https://apify.com/ultramarine_gusto/uk-company-dd) | $0.025 | public |
 | [uk-new-company-leads](https://apify.com/ultramarine_gusto/uk-new-company-leads) | $0.040 | public |
-| [agent-kyb-check](https://apify.com/ultramarine_gusto/agent-kyb-check) | $0.120 | pending |
+| [agent-kyb-check](https://apify.com/ultramarine_gusto/agent-kyb-check) | $0.120 | public |
 | [us-sec-edgar-snapshot](https://apify.com/ultramarine_gusto/us-sec-edgar-snapshot) | $0.030 | public |
 | [eu-vat-vies-check](https://apify.com/ultramarine_gusto/eu-vat-vies-check) | $0.010 | public |
-| [uk-charity-check](https://apify.com/ultramarine_gusto/uk-charity-check) | $0.030 | pending |
+| [uk-charity-check](https://apify.com/ultramarine_gusto/uk-charity-check) | $0.030 | public |
 | [web-to-markdown](https://apify.com/ultramarine_gusto/web-to-markdown) | $0.005 | public |
 
 
