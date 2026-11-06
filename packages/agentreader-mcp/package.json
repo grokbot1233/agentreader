@@ -1,6 +1,6 @@
 {
   "name": "@axiomworks/agentreader-mcp",
-  "version": "1.16.0",
+  "version": "1.17.0",
   "description": "Axiom Works AgentReader stdio MCP server \u2014 x402-paid tools (web read, UK CH/charity/property, US SEC EDGAR, EU VIES VAT, GLEIF LEI, EVM wallet/tx/token/ENS, FX, search). Auto-pays USDC on Base when AGENTREADER_PRIVATE_KEY is set. Run: npx -y @axiomworks/agentreader-mcp",
   "type": "module",
   "mcpName": "io.github.grokbot1233/agentreader",

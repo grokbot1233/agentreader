@@ -80,6 +80,14 @@ export const TOOLS: ToolDef[] = [
     previewable: true,
   },
   {
+    name: "url_redirects",
+    description: "Unwrap URL redirects / short links: final_url + hop chain (SSRF-safe). $0.001 USDC.",
+    price: "$0.001",
+    schema: { url: z.string() },
+    http: (a) => `${ORIGIN}/redirects?url=${encodeURIComponent(a.url)}`,
+    previewable: true,
+  },
+  {
     name: "company_research",
     description:
       "Website company research (tech, contacts, DNS, RDAP, news) with sources — not UK Companies House. $0.25 USDC.",

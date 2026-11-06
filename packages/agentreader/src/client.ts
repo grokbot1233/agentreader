@@ -151,6 +151,10 @@ export class AgentReaderClient {
   dnsLookup(input: { name: string; type?: string }, opts?: RequestOpts) {
     return this.get("/dns", input, opts);
   }
+  /** Unwrap URL redirects / short links → final_url + chain ($0.001). */
+  urlRedirects(input: { url: string }, opts?: RequestOpts) {
+    return this.get("/redirects", input, opts);
+  }
   companyResearch(input: { domain: string }, opts?: RequestOpts) {
     return this.get("/company", input, opts);
   }

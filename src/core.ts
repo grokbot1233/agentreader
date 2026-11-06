@@ -62,7 +62,9 @@ export async function safeFetch(raw: string, init: RequestInit = {}) {
     if (res.status >= 300 && res.status < 400 && loc) { url = new URL(loc, u).toString(); continue; }
     return { res, finalUrl: u.toString(), chain };
   }
-  throw new UserError("too many redirects", 422);
+  const err = new UserError("too many redirects", 422);
+  (err as any).chain = chain;
+  throw err;
 }
 
 async function readCapped(res: Response): Promise<string> {
