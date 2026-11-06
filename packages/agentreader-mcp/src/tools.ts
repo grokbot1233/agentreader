@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const ORIGIN = process.env.AGENTREADER_ORIGIN || "https://api.axiomworks.co.uk";
-export const VERSION = "1.28.0";
+export const VERSION = "1.29.0";
 import CHAIN from "./chain-routes.json";
 
 const CH = z.enum(["base", "ethereum", "arbitrum", "optimism", "polygon"]).optional();
@@ -262,10 +262,18 @@ const ALL_TOOLS: ToolDef[] = [
     http: (a) => `${ORIGIN}/uk-officer?name=${encodeURIComponent(a.name)}${a.limit ? `&limit=${encodeURIComponent(a.limit)}` : ""}`,
   },
   {
+    name: "fr_company",
+    description: "French company lookup (Recherche d'entreprises): SIREN/SIRET/name → status, NAF, siège, dirigeants, finances. $0.25 USDC.",
+    price: "$0.25",
+    schema: { siren: z.string().optional(), siret: z.string().optional(), name: z.string().optional(), q: z.string().optional(), limit: z.string().optional() },
+    http: (a) => `${ORIGIN}/fr-company?${qs(a)}`,
+    previewable: true,
+  },
+  {
     name: "registry_batch",
     description: "Batch verify up to 25 UK (Companies House, max 10), Australian (ACN/ABN) and Canadian (number/BN) companies in one call; comma-separated ids. $0.30 USDC.",
     price: "$0.30",
-    schema: { uk: z.string().optional(), au: z.string().optional(), ca: z.string().optional() },
+    schema: { uk: z.string().optional(), au: z.string().optional(), ca: z.string().optional(), fr: z.string().optional() },
     http: (a) => `${ORIGIN}/registry-batch?${new URLSearchParams(Object.entries(a).filter(([, v]) => v) as any)}`,
   },
   {
@@ -624,7 +632,7 @@ const ALL_TOOLS: ToolDef[] = [
   },
   {
     name: "kyb_report",
-    description: "Agent KYB pack: UK/AU/CA registry + EU VAT + optional GLEIF LEI (parents) + website + sanctions + director appointments → trust flag. Screening only. $2.50 USDC.",
+    description: "Agent KYB pack: UK/AU/CA/FR registry + EU VAT + optional GLEIF LEI (parents) + website + sanctions + director appointments → trust flag. Screening only. $2.50 USDC.",
     price: "$2.50",
     schema: {
       domain: z.string().optional(),
@@ -638,6 +646,8 @@ const ALL_TOOLS: ToolDef[] = [
       ca_number: z.string().optional(),
       bn: z.string().optional(),
       lei: z.string().optional(),
+      siren: z.string().optional(),
+      siret: z.string().optional(),
     },
     http: (a) => `${ORIGIN}/kyb?${qs(a)}`,
     previewable: true,

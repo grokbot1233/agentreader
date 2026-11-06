@@ -251,6 +251,9 @@ export class AgentReaderClient {
     return this.get("/ca-company", input as any, opts);
   }
   /** Australian company lookup (ASIC register) by ACN or ABN ($0.02). */
+  frCompany(input: { siren?: string; siret?: string; name?: string; q?: string; limit?: number | string }, opts?: RequestOpts) {
+    return this.request("/fr-company", input, opts);
+  }
   auCompany(input: { acn?: string; abn?: string }, opts?: RequestOpts) {
     return this.get("/au-company", input as any, opts);
   }
