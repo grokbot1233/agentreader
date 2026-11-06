@@ -14,7 +14,7 @@
 | UK leads daily webhook feed | POST https://api.axiomworks.co.uk/uk-leads-feed | $25.00/30d |
 | UK company full report | https://api.axiomworks.co.uk/uk-company?number=00445790 | $0.50 |
 | Company research from a domain | https://api.axiomworks.co.uk/company?domain=stripe.com | $0.25 |
-| Company research + UK pack | https://api.axiomworks.co.uk/company-full?domain=tesco.com | $0.65 |
+| Company research + multi-registry pack (UK/FR/NO/AU/CA/charity when signals match) | https://api.axiomworks.co.uk/company-full?domain=tesco.com | $0.65 |
 | Sanctions batch (OFAC/UK/UN/EU) | POST https://api.axiomworks.co.uk/sanctions-batch | $1.00 |
 | UK charity full (trustees + 5y financials + red flags) | https://api.axiomworks.co.uk/uk-charity-full?number=1089464 | $0.25 |
 | French company (SIREN/SIRET/name → dirigeants + siège + NAF) | https://api.axiomworks.co.uk/fr-company?siren=443061841 | $0.25 |
@@ -42,7 +42,7 @@ Supporting real-data checks: /uk-company-lite, /uk-charity, /sanctions, /au-comp
 | UK CH full DD | https://api.axiomworks.co.uk/uk-company?number=|name= | $0.50 | Official API: officers/PSC/filings/charges/insolvency + red flags |
 | UK officer search | https://api.axiomworks.co.uk/uk-officer?name= | $0.15 | Reverse officer name → appointments + high-appt/mass-formation flags |
 | UK CH cheap snapshot | https://api.axiomworks.co.uk/uk-company-lite?number=|name= | $0.05 | Status + compliance flags; upsell full pack |
-| Website + UK DD bundle | https://api.axiomworks.co.uk/company-full?domain= | $0.65 | $0.10 cheaper than $0.25+$0.50 when UK detected |
+| Website + multi-registry DD bundle | https://api.axiomworks.co.uk/company-full?domain= | $0.65 | Auto-attaches UK/FR/NO/AU/CA/charity when TLD/page signals match |
 | PDF/DOCX → text | https://api.axiomworks.co.uk/convert?url= | $0.03 | Structured markdown/text for RAG |
 | EVM wallet balances | https://api.axiomworks.co.uk/wallet?address=&chain=base | $0.003 | Native + 7 stablecoins/majors, 5 chains, one call |
 | Tx / payment receipt | https://api.axiomworks.co.uk/tx?hash=&chain=base | $0.003 | Status, confirmations, fee, decoded USDC transfers |

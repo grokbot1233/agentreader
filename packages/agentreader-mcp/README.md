@@ -118,7 +118,7 @@ Without a key, GET tools automatically add `preview=1` so you still see truncate
 | `company_research` | `/company?domain=` | $0.25 | Website company research (sourced) |
 | `uk_company` | `/uk-company?number=` / `name=` | $0.50 | Full UK Companies House DD + red flags |
 | `uk_company_lite` | `/uk-company-lite?...` | $0.05 | UK company snapshot |
-| `company_full` | `/company-full?domain=` | $0.65 | Website research + UK DD when detected |
+| `company_full` | `/company-full?domain=` | $0.65 | Website research + multi-registry DD when signals match |
 | `uk_charity` | `/uk-charity?...` | $0.05 | Charity Commission snapshot |
 | `uk_charity_full` | `/uk-charity-full?...` | $0.25 | Full charity DD + red flags |
 | `convert_document` | `/convert?url=` | $0.03 | PDF/DOCX/HTML → markdown/text |

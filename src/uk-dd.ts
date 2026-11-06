@@ -217,7 +217,7 @@ export async function ukDdReport(env: Env, input: {
 
   out.upsell = {
     multi_jurisdiction: { path: "/kyb", price: "$2.50", why: "add AU/CA/VAT/LEI + director appointment skim" },
-    monitor: { path: "/uk-watch", price: "$5.00/30d", why: "webhook when officers/status/filings change" },
+    monitor: { path: "/uk-watch", price: "$5.00/30d", why: "webhook when officers/status/filings/PSC/charges change" },
     lite: { path: "/uk-company-lite", price: "$0.05", why: "cheap status/flags only" },
     sanctions: { path: "/sanctions", price: "$0.05", why: "screen any extra names" },
   };

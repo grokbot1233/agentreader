@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const ORIGIN = process.env.AGENTREADER_ORIGIN || "https://api.axiomworks.co.uk";
-export const VERSION = "1.31.0";
+export const VERSION = "1.32.0";
 import CHAIN from "./chain-routes.json";
 
 const CH = z.enum(["base", "ethereum", "arbitrum", "optimism", "polygon"]).optional();
@@ -312,7 +312,7 @@ const ALL_TOOLS: ToolDef[] = [
   },
   {
     name: "company_full",
-    description: "Website company research + UK CH pack when detected ($0.65 vs $0.75 separate).",
+    description: "Website company research + multi-registry DD (UK/FR/NO/AU/CA/charity when signals) ($0.65).",
     price: "$0.65",
     schema: { domain: z.string() },
     http: (a) => `${ORIGIN}/company-full?domain=${encodeURIComponent(a.domain)}`,
