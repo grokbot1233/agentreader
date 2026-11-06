@@ -6,6 +6,7 @@ import { leiLookup } from "./lei";
 import { kybSanctionsScreen } from "./sanctions";
 import { ukOfficerSearch } from "./uk-officer";
 import { frCompany } from "./fr-company";
+import { noCompany } from "./no-company";
 export function bindingRegistries(env: any): KybRegistries {
   const call = async (q: string) => { if (!env.AU) throw new Error("registry backend not bound"); const r = await env.AU.fetch(`https://au.internal/internal/${q}`, { headers: { "x-internal-key": env.AU_INTERNAL_KEY || "" } }); const j: any = await r.json(); if (!r.ok) throw new Error(r.status === 404 ? "not found in register snapshot" : j?.error || "registry error"); return j; };
   return {
@@ -28,11 +29,12 @@ function domainish(v: string) {
 /** Composite agent KYB / due-diligence pack. Screening only — not a regulated determination. */
 export async function kybReport(env: Env, input: {
   domain?: string; number?: string; name?: string; vat?: string; country?: string; vat_number?: string;
-  acn?: string; abn?: string; ca_number?: string; bn?: string; lei?: string; siren?: string; siret?: string; preview?: boolean;
+  acn?: string; abn?: string; ca_number?: string; bn?: string; lei?: string; siren?: string; siret?: string; orgnr?: string; preview?: boolean;
 }, reg: KybRegistries = {}) {
   const preview = !!input.preview;
   const acn = s(input.acn) || s(input.abn), caNum = s(input.ca_number), bn = s(input.bn);
   const siren = s(input.siren).replace(/\D/g, ""), siret = s(input.siret).replace(/\D/g, "");
+  const orgnr = s(input.orgnr).replace(/\D/g, "");
   const rawDomain = s(input.domain) || (s(input.name).includes(".") ? s(input.name) : "");
   const domain = domainish(rawDomain);
   const number = s(input.number);
@@ -40,18 +42,19 @@ export async function kybReport(env: Env, input: {
   const vat = s(input.vat) || (s(input.country) && s(input.vat_number) ? s(input.country) + s(input.vat_number) : "");
   const lei = s(input.lei).toUpperCase().replace(/[\s-]/g, "");
 
-  if (!domain && !number && !name && !vat && !acn && !caNum && !bn && !lei && !siren && !siret) {
-    throw new UserError("provide domain and/or UK company number/name, AU acn/abn, CA ca_number/bn, FR siren/siret, EU VAT and/or lei");
+  if (!domain && !number && !name && !vat && !acn && !caNum && !bn && !lei && !siren && !siret && !orgnr) {
+    throw new UserError("provide domain and/or UK company number/name, AU acn/abn, CA ca_number/bn, FR siren/siret, NO orgnr, EU VAT and/or lei");
   }
 
   const out: any = {
     product: "kyb",
     price: "$2.50",
     disclaimer: "Screening over public registries and public sanctions lists only. Not a KYC/KYB/AML determination, credit score, or investment advice. Sanctions matches are scored candidates — never a certainty. Confirm identifiers at source before onboarding, contracting, or paying.",
-    inputs: { domain: domain || null, number: number || null, name: name || null, vat: vat || null, acn: acn || null, ca_number: caNum || null, bn: bn || null, lei: lei || null, siren: siren || null, siret: siret || null },
+    inputs: { domain: domain || null, number: number || null, name: name || null, vat: vat || null, acn: acn || null, ca_number: caNum || null, bn: bn || null, lei: lei || null, siren: siren || null, siret: siret || null, orgnr: orgnr || null },
     au: null as any,
     ca: null as any,
     fr: null as any,
+    no: null as any,
     directors_appointments: null as any,
     website: null as any,
     uk: null as any,
@@ -102,6 +105,7 @@ export async function kybReport(env: Env, input: {
   if (acn && reg.au) tasks.push((async () => { try { out.au = await reg.au!(/^\d{11}$/.test(acn.replace(/\s/g, "")) ? { abn: acn } : { acn }); out.sources.asic = true; } catch (e: any) { out.au = { error: String(e?.message || e) }; } })());
   if ((caNum || bn) && reg.ca) tasks.push((async () => { try { out.ca = await reg.ca!(caNum ? { number: caNum } : { bn }); if (out.ca?.matches) out.ca = out.ca.matches[0]; out.sources.corporations_canada = true; } catch (e: any) { out.ca = { error: String(e?.message || e) }; } })());
   if (siren || siret) tasks.push((async () => { try { out.fr = await frCompany({ siren: siren || undefined, siret: siret || undefined, lite: preview }); out.sources.fr_recherche_entreprises = true; } catch (e: any) { out.fr = { error: String(e?.message || e) }; } })());
+  if (orgnr) tasks.push((async () => { try { out.no = await noCompany({ orgnr, lite: preview }); out.sources.no_brreg = true; } catch (e: any) { out.no = { error: String(e?.message || e) }; } })());
   if (vat) {
     tasks.push((async () => {
       try {
@@ -138,6 +142,7 @@ export async function kybReport(env: Env, input: {
       out.au?.name ||
       out.ca?.name ||
       out.fr?.name ||
+      out.no?.name ||
       name ||
       null;
     const officers = out.uk?.officers?.items || out.uk?.officers || [];
@@ -209,6 +214,13 @@ export async function kybReport(env: Env, input: {
     const frHigh = (out.fr.red_flags || []).filter((f: any) => f.severity === "high").length;
     if (frHigh) { score -= 25 * frHigh; reasons.push(`${frHigh} high-severity FR red flag(s)`); }
   }
+  if (out.no && !out.no.error) {
+    const st = String(out.no.status || "").toLowerCase();
+    if (st === "active") { score += 40; reasons.push("NO Brreg status active"); }
+    else if (st) { score -= 30; reasons.push(`NO Brreg status: ${st}`); }
+    const noHigh = (out.no.red_flags || []).filter((f: any) => f.severity === "high").length;
+    if (noHigh) { score -= 25 * noHigh; reasons.push(`${noHigh} high-severity NO red flag(s)`); }
+  }
   for (const d of out.directors_appointments || []) if ((d.active_appointments || 0) >= 20) { score -= 10; reasons.push(`director ${d.director} has ${d.active_appointments} active appointments (nominee/formation pattern?)`); }
   if (out.eu_vat && !out.eu_vat.error) {
     if (out.eu_vat.valid === true || out.eu_vat.isValid === true) { score += 30; reasons.push("EU VIES VAT valid"); }
@@ -228,7 +240,7 @@ export async function kybReport(env: Env, input: {
   score = Math.max(0, Math.min(100, score));
   let flag = "INSUFFICIENT_DATA";
   if (out.lei && !out.lei.error && out.lei.lei) { score += 20; reasons.push("GLEIF LEI resolved" + (out.lei.parents?.ultimate?.lei ? " (ultimate parent present)" : out.lei.parents?.direct?.lei ? " (direct parent present)" : "")); }
-  const have = [out.uk && !out.uk.error, out.au && !out.au.error, out.ca && !out.ca.error, out.fr && !out.fr.error, out.eu_vat && !out.eu_vat.error, out.website && !out.website.error, out.lei && !out.lei.error].filter(Boolean).length;
+  const have = [out.uk && !out.uk.error, out.au && !out.au.error, out.ca && !out.ca.error, out.fr && !out.fr.error, out.no && !out.no.error, out.eu_vat && !out.eu_vat.error, out.website && !out.website.error, out.lei && !out.lei.error].filter(Boolean).length;
   if (have === 0) flag = "INSUFFICIENT_DATA";
   else if (high > 0 || score < 30) flag = "REVIEW";
   else if (score < 55 || medium >= 2) flag = "CAUTION";

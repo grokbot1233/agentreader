@@ -1,0 +1,25 @@
+{
+  "what_shipped_prepend": {
+    "date": "2026-11-06 ~20:42 UK",
+    "version": "1.30.0",
+    "deploy_id": "6be5806d-cc1e-4a8e-9a94-a1f41623ef76",
+    "items": [
+      "/no-company $0.25 Brreg Enhetsregisteret (orgnr/name) — wired into /kyb orgnr= + /registry-batch no=",
+      "Apify Store public: au-company-check + ca-corp-check (ultramarine_gusto)",
+      "x402scan: /no-company 36bd8c63-…; re-registered /kyb + /registry-batch",
+      "npm @axiomworks/agentreader(+mcp) 1.30.0"
+    ]
+  },
+  "outside_revenue": { "usd": 0.004, "paid_calls": 3, "outside_payers": 1 },
+  "grow_cut_7d": "N/A keep all — products <7 days from launch",
+  "next_steps": [
+    "Push conversion on live big hitters: /kyb $2.50, /uk-dd $1, /uk-leads $1, /uk-leads-feed $25, /uk-watch $5, /company-full $0.65, /no-company $0.25, /fr-company $0.25",
+    "Next free high-ticket registry after NO (more Nordic/EU attaching to /kyb + /registry-batch)",
+    "No new $0.001–$0.003 micro validators"
+  ],
+  "apify_store": {
+    "au-company-check": { "isPublic": true, "url": "https://apify.com/ultramarine_gusto/au-company-check" },
+    "ca-corp-check": { "isPublic": true, "url": "https://apify.com/ultramarine_gusto/ca-corp-check" }
+  },
+  "ops_notes_append": "2026-11-06 ~20:42 GMT growth sprint: shipped v1.30.0 /no-company $0.25 + Apify au/ca public. Outside $0.004 unchanged. No spend. CF KV put may still block dashboard-meta."
+}

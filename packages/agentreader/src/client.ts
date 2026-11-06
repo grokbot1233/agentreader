@@ -4,7 +4,7 @@ import { privateKeyToAccount } from "viem/accounts";
 import type { Chain, ClientOptions, RequestOpts } from "./types.js";
 
 const DEFAULT_ORIGIN = "https://api.axiomworks.co.uk";
-const VERSION = "1.16.0";
+const VERSION = "1.30.0";
 
 function normalizeKey(raw?: string): `0x${string}` | undefined {
   if (!raw) return undefined;
@@ -243,7 +243,7 @@ export class AgentReaderClient {
     return this.get("/uk-officer", input as any, opts);
   }
   /** Batch verify up to 25 UK (max 10) / AU / CA company ids, comma-separated ($0.30). */
-  registryBatch(input: { uk?: string; au?: string; ca?: string; fr?: string }, opts?: RequestOpts) {
+  registryBatch(input: { uk?: string; au?: string; ca?: string; fr?: string; no?: string }, opts?: RequestOpts) {
     return this.get("/registry-batch", input as any, opts);
   }
   /** Canadian federal corporation lookup (Corporations Canada) by number or BN ($0.02). */
@@ -253,6 +253,9 @@ export class AgentReaderClient {
   /** French company lookup (Recherche d'entreprises) by SIREN/SIRET/name ($0.25). */
   frCompany(input: { siren?: string; siret?: string; name?: string; q?: string; limit?: number | string }, opts?: RequestOpts) {
     return this.get("/fr-company", input as any, opts);
+  }
+  noCompany(input: { orgnr?: string; name?: string; q?: string; limit?: number | string }, opts?: RequestOpts) {
+    return this.get("/no-company", input as any, opts);
   }
   /** Australian company lookup (ASIC register) by ACN or ABN ($0.02). */
   auCompany(input: { acn?: string; abn?: string }, opts?: RequestOpts) {

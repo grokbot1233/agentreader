@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const ORIGIN = process.env.AGENTREADER_ORIGIN || "https://api.axiomworks.co.uk";
-export const VERSION = "1.29.3";
+export const VERSION = "1.30.0";
 import CHAIN from "./chain-routes.json";
 
 const CH = z.enum(["base", "ethereum", "arbitrum", "optimism", "polygon"]).optional();
@@ -270,10 +270,18 @@ const ALL_TOOLS: ToolDef[] = [
     previewable: true,
   },
   {
+    name: "no_company",
+    description: "Norwegian company lookup via Brønnøysundregistrene Enhetsregisteret by orgnr (9 digits) or name. $0.25 USDC.",
+    price: "$0.25",
+    schema: { orgnr: z.string().optional(), name: z.string().optional(), q: z.string().optional(), limit: z.string().optional() },
+    http: (a) => `${ORIGIN}/no-company?${qs(a)}`,
+    previewable: true,
+  },
+  {
     name: "registry_batch",
-    description: "Batch verify up to 25 UK (Companies House, max 10), Australian (ACN/ABN) and Canadian (number/BN) companies in one call; comma-separated ids. $0.30 USDC.",
+    description: "Batch verify up to 25 UK (Companies House, max 10), Australian (ACN/ABN), Canadian (number/BN), French (SIREN) and Norwegian (orgnr) companies in one call; comma-separated ids. $0.30 USDC.",
     price: "$0.30",
-    schema: { uk: z.string().optional(), au: z.string().optional(), ca: z.string().optional(), fr: z.string().optional() },
+    schema: { uk: z.string().optional(), au: z.string().optional(), ca: z.string().optional(), fr: z.string().optional(), no: z.string().optional() },
     http: (a) => `${ORIGIN}/registry-batch?${new URLSearchParams(Object.entries(a).filter(([, v]) => v) as any)}`,
   },
   {
