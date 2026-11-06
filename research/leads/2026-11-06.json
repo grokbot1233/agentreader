@@ -1,590 +1,13 @@
 {
- "generated": "2026-11-06T22:59:26.267391+00:00",
+ "generated": "2026-11-06T23:11:13.300987+00:00",
  "counts": {
-  "github-issue": 78,
-  "onchain": 70,
-  "github-repo": 53,
+  "github-issue": 70,
   "x": 19,
-  "github-code": 43,
-  "hn": 11
+  "github-code": 37,
+  "hn": 11,
+  "github-repo": 48
  },
- "bazaar_top_services": [
-  {
-   "resource": "https://blockrun.ai/api/v1/chat/completions",
-   "payTo": "0xe9030014f5dae217d0a152f02a043567b16c1abf",
-   "calls30": 88310,
-   "payers30": 300,
-   "category": "ai/llm",
-   "coverage": {
-    "from_block": 54057262,
-    "to_block": 54077261,
-    "complete": true,
-    "completed_ranges": [
-     {
-      "from_block": 54057262,
-      "to_block": 54067261
-     },
-     {
-      "from_block": 54067262,
-      "to_block": 54077261
-     }
-    ],
-    "failed_ranges": []
-   }
-  },
-  {
-   "resource": "https://www.ax1.vc/api/dashboard/q-verdict/resource",
-   "payTo": "0x7284d41b5b852f2bd4c99bdf95043d84452d299c",
-   "calls30": 37392,
-   "payers30": 234,
-   "category": "finance/markets",
-   "coverage": {
-    "from_block": 54057262,
-    "to_block": 54077261,
-    "complete": true,
-    "completed_ranges": [
-     {
-      "from_block": 54057262,
-      "to_block": 54067261
-     },
-     {
-      "from_block": 54067262,
-      "to_block": 54077261
-     }
-    ],
-    "failed_ranges": []
-   }
-  },
-  {
-   "resource": "https://stableenrich.dev/api/exa/search",
-   "payTo": "0x325bdf6f7efab24a2210c48c1b64cab2eae1d430",
-   "calls30": 31427,
-   "payers30": 145,
-   "category": "web/scrape",
-   "coverage": {
-    "from_block": 54057262,
-    "to_block": 54077261,
-    "complete": true,
-    "completed_ranges": [
-     {
-      "from_block": 54057262,
-      "to_block": 54067261
-     },
-     {
-      "from_block": 54067262,
-      "to_block": 54077261
-     }
-    ],
-    "failed_ranges": []
-   }
-  },
-  {
-   "resource": "https://agent.pocket.network/v1/meadow",
-   "payTo": "0xf732ea490c5766071785a2310523f7fa2cebb829",
-   "calls30": 17880,
-   "payers30": 35,
-   "category": "other",
-   "coverage": {
-    "from_block": 54057262,
-    "to_block": 54077261,
-    "complete": true,
-    "completed_ranges": [
-     {
-      "from_block": 54057262,
-      "to_block": 54067261
-     },
-     {
-      "from_block": 54067262,
-      "to_block": 54077261
-     }
-    ],
-    "failed_ranges": []
-   }
-  },
-  {
-   "resource": "https://keyring-agent.blockchhub.link/api/send-native",
-   "payTo": "0x17cd53c04d707ef0dd615ef56c633f02915a7905",
-   "calls30": 14503,
-   "payers30": 61,
-   "category": "other",
-   "coverage": {
-    "from_block": 54057262,
-    "to_block": 54077261,
-    "complete": true,
-    "completed_ranges": [
-     {
-      "from_block": 54057262,
-      "to_block": 54067261
-     },
-     {
-      "from_block": 54067262,
-      "to_block": 54077261
-     }
-    ],
-    "failed_ranges": []
-   }
-  },
-  {
-   "resource": "https://win.oneshotagent.com/v1/tools/web-read",
-   "payTo": "0x9fb365e4e9385e2a39febad70368267e6f571d9a",
-   "calls30": 9784,
-   "payers30": 31,
-   "category": "web/scrape",
-   "coverage": {
-    "from_block": 54057262,
-    "to_block": 54077261,
-    "complete": true,
-    "completed_ranges": [
-     {
-      "from_block": 54057262,
-      "to_block": 54067261
-     },
-     {
-      "from_block": 54067262,
-      "to_block": 54077261
-     }
-    ],
-    "failed_ranges": []
-   }
-  },
-  {
-   "resource": "https://api.exa.ai/search",
-   "payTo": "0x6d6e695b09861467c7d462f5aaf31cf3540b9192",
-   "calls30": 9574,
-   "payers30": 117,
-   "category": "web/scrape",
-   "coverage": {
-    "from_block": 54057262,
-    "to_block": 54077261,
-    "complete": true,
-    "completed_ranges": [
-     {
-      "from_block": 54057262,
-      "to_block": 54067261
-     },
-     {
-      "from_block": 54067262,
-      "to_block": 54077261
-     }
-    ],
-    "failed_ranges": []
-   }
-  },
-  {
-   "resource": "https://www.api-xpay.com/x402/ping",
-   "payTo": "0x589a2314a2e05f45e40c4823da3ba58d421db3d8",
-   "calls30": 5665,
-   "payers30": 243,
-   "category": "other",
-   "coverage": {
-    "from_block": 54057262,
-    "to_block": 54077261,
-    "complete": true,
-    "completed_ranges": [
-     {
-      "from_block": 54057262,
-      "to_block": 54067261
-     },
-     {
-      "from_block": 54067262,
-      "to_block": 54077261
-     }
-    ],
-    "failed_ranges": []
-   }
-  },
-  {
-   "resource": "https://api.gondola-ai.com/v1/chat/completions",
-   "payTo": "0x8180a3cb090815d50de7d786fa98f4a908e70cd0",
-   "calls30": 5559,
-   "payers30": 20,
-   "category": "ai/llm",
-   "coverage": {
-    "from_block": 54057262,
-    "to_block": 54077261,
-    "complete": true,
-    "completed_ranges": [
-     {
-      "from_block": 54057262,
-      "to_block": 54067261
-     },
-     {
-      "from_block": 54067262,
-      "to_block": 54077261
-     }
-    ],
-    "failed_ranges": []
-   }
-  },
-  {
-   "resource": "https://x402.twit.sh/tweets/search",
-   "payTo": "0x9dba414637c611a16bea6f0796bfcbcbdc410df8",
-   "calls30": 4517,
-   "payers30": 34,
-   "category": "web/scrape",
-   "coverage": {
-    "from_block": 54057262,
-    "to_block": 54077261,
-    "complete": true,
-    "completed_ranges": [
-     {
-      "from_block": 54057262,
-      "to_block": 54067261
-     },
-     {
-      "from_block": 54067262,
-      "to_block": 54077261
-     }
-    ],
-    "failed_ranges": []
-   }
-  },
-  {
-   "resource": "https://glim.sh/api/v1/twitter/search",
-   "payTo": "0xc751344ee09b5159160173f77d4a1169bcd386a1",
-   "calls30": 4016,
-   "payers30": 34,
-   "category": "web/scrape",
-   "coverage": {
-    "from_block": 54057262,
-    "to_block": 54077261,
-    "complete": true,
-    "completed_ranges": [
-     {
-      "from_block": 54057262,
-      "to_block": 54067261
-     },
-     {
-      "from_block": 54067262,
-      "to_block": 54077261
-     }
-    ],
-    "failed_ranges": []
-   }
-  },
-  {
-   "resource": "https://api.kadec0.xyz/v1/token-price",
-   "payTo": "0x4df66b6c140778fe0717880a7c6dde5ea53acdea",
-   "calls30": 3762,
-   "payers30": 8,
-   "category": "finance/markets",
-   "coverage": {
-    "from_block": 54057262,
-    "to_block": 54077261,
-    "complete": true,
-    "completed_ranges": [
-     {
-      "from_block": 54057262,
-      "to_block": 54067261
-     },
-     {
-      "from_block": 54067262,
-      "to_block": 54077261
-     }
-    ],
-    "failed_ranges": []
-   }
-  },
-  {
-   "resource": "https://api.clawfetch.ai/fetch",
-   "payTo": "0xc2afb91833f4de19542a025872c6085cc29185eb",
-   "calls30": 3080,
-   "payers30": 25,
-   "category": "web/scrape",
-   "coverage": {
-    "from_block": 54057262,
-    "to_block": 54077261,
-    "complete": true,
-    "completed_ranges": [
-     {
-      "from_block": 54057262,
-      "to_block": 54067261
-     },
-     {
-      "from_block": 54067262,
-      "to_block": 54077261
-     }
-    ],
-    "failed_ranges": []
-   }
-  },
-  {
-   "resource": "https://api.surplusintelligence.ai/v1/chat/completions",
-   "payTo": "0x0f99fc0cbd7a114b2da171fda5a0167858f7afc2",
-   "calls30": 2300,
-   "payers30": 20,
-   "category": "finance/markets",
-   "coverage": {
-    "from_block": 54057262,
-    "to_block": 54077261,
-    "complete": true,
-    "completed_ranges": [
-     {
-      "from_block": 54057262,
-      "to_block": 54067261
-     },
-     {
-      "from_block": 54067262,
-      "to_block": 54077261
-     }
-    ],
-    "failed_ranges": []
-   }
-  },
-  {
-   "resource": "https://api.solenrich.com/entrypoints/stonk-gems/invoke",
-   "payTo": "0x8ede9ed2e6acdd9b2bafa42ff4078d3f3263607c",
-   "calls30": 1270,
-   "payers30": 6,
-   "category": "other",
-   "coverage": {
-    "from_block": 54057262,
-    "to_block": 54077261,
-    "complete": true,
-    "completed_ranges": [
-     {
-      "from_block": 54057262,
-      "to_block": 54067261
-     },
-     {
-      "from_block": 54067262,
-      "to_block": 54077261
-     }
-    ],
-    "failed_ranges": []
-   }
-  },
-  {
-   "resource": "https://api.nansen.ai/api/v1/profiler/address/current-balance",
-   "payTo": "0x93053f1e7a5efeda532fe69cbbe43cbec3a0f13f",
-   "calls30": 1184,
-   "payers30": 64,
-   "category": "onchain/data",
-   "coverage": {
-    "from_block": 54057262,
-    "to_block": 54077261,
-    "complete": true,
-    "completed_ranges": [
-     {
-      "from_block": 54057262,
-      "to_block": 54067261
-     },
-     {
-      "from_block": 54067262,
-      "to_block": 54077261
-     }
-    ],
-    "failed_ranges": []
-   }
-  },
-  {
-   "resource": "https://twitter.use.x402atlas.com/search",
-   "payTo": "0x51d577c8cbb8b3fb1ba0ce31c7923cc27a07f78b",
-   "calls30": 951,
-   "payers30": 34,
-   "category": "web/scrape",
-   "coverage": {
-    "from_block": 54057262,
-    "to_block": 54077261,
-    "complete": true,
-    "completed_ranges": [
-     {
-      "from_block": 54057262,
-      "to_block": 54067261
-     },
-     {
-      "from_block": 54067262,
-      "to_block": 54077261
-     }
-    ],
-    "failed_ranges": []
-   }
-  },
-  {
-   "resource": "https://x402.ottoai.services/crypto-news",
-   "payTo": "0x0e84ddedaae6a779c462c22a59f301ec31b6b808",
-   "calls30": 824,
-   "payers30": 52,
-   "category": "finance/markets",
-   "coverage": {
-    "from_block": 54057262,
-    "to_block": 54077261,
-    "complete": true,
-    "completed_ranges": [
-     {
-      "from_block": 54057262,
-      "to_block": 54067261
-     },
-     {
-      "from_block": 54067262,
-      "to_block": 54077261
-     }
-    ],
-    "failed_ranges": []
-   }
-  },
-  {
-   "resource": "https://netintel.dev/email-auth",
-   "payTo": "0xdadc335482ad545296fd7b28518a251ffcbeb9df",
-   "calls30": 726,
-   "payers30": 13,
-   "category": "other",
-   "coverage": {
-    "from_block": 54057262,
-    "to_block": 54077261,
-    "complete": true,
-    "completed_ranges": [
-     {
-      "from_block": 54057262,
-      "to_block": 54067261
-     },
-     {
-      "from_block": 54067262,
-      "to_block": 54077261
-     }
-    ],
-    "failed_ranges": []
-   }
-  },
-  {
-   "resource": "https://cheaptokens.ai/api/buy",
-   "payTo": "0x213c8d7434e2ae7aa1c392767c5120778d413215",
-   "calls30": 583,
-   "payers30": 21,
-   "category": "finance/markets",
-   "coverage": {
-    "from_block": 54057262,
-    "to_block": 54077261,
-    "complete": true,
-    "completed_ranges": [
-     {
-      "from_block": 54057262,
-      "to_block": 54067261
-     },
-     {
-      "from_block": 54067262,
-      "to_block": 54077261
-     }
-    ],
-    "failed_ranges": []
-   }
-  },
-  {
-   "resource": "https://api.onesource.io/api/chain/erc20-balance",
-   "payTo": "0x52e29e0d2aa49bfbfc548c0a9f2196f4aa51f3ea",
-   "calls30": 579,
-   "payers30": 574,
-   "category": "finance/markets",
-   "coverage": {
-    "from_block": 54057262,
-    "to_block": 54077261,
-    "complete": true,
-    "completed_ranges": [
-     {
-      "from_block": 54057262,
-      "to_block": 54067261
-     },
-     {
-      "from_block": 54067262,
-      "to_block": 54077261
-     }
-    ],
-    "failed_ranges": []
-   }
-  },
-  {
-   "resource": "https://base-gas-x402-production.up.railway.app/gas",
-   "payTo": "0x0d083590c048a243e24a75e3a7c968145de25b44",
-   "calls30": 564,
-   "payers30": 18,
-   "category": "finance/markets",
-   "coverage": {
-    "from_block": 54057262,
-    "to_block": 54077261,
-    "complete": true,
-    "completed_ranges": [
-     {
-      "from_block": 54057262,
-      "to_block": 54067261
-     },
-     {
-      "from_block": 54067262,
-      "to_block": 54077261
-     }
-    ],
-    "failed_ranges": []
-   }
-  },
-  {
-   "resource": "https://stableupload.dev/api/upload",
-   "payTo": "0x06dff3c8380b5d1799874ada903fc3422882fd6f",
-   "calls30": 456,
-   "payers30": 33,
-   "category": "other",
-   "coverage": {
-    "from_block": 54057262,
-    "to_block": 54077261,
-    "complete": true,
-    "completed_ranges": [
-     {
-      "from_block": 54057262,
-      "to_block": 54067261
-     },
-     {
-      "from_block": 54067262,
-      "to_block": 54077261
-     }
-    ],
-    "failed_ranges": []
-   }
-  },
-  {
-   "resource": "https://x402.botsmith.dev/x/search",
-   "payTo": "0xcb9b3f94387389e38ef2a7b3c0b851fb8325d7e9",
-   "calls30": 435,
-   "payers30": 10,
-   "category": "web/scrape",
-   "coverage": {
-    "from_block": 54057262,
-    "to_block": 54077261,
-    "complete": true,
-    "completed_ranges": [
-     {
-      "from_block": 54057262,
-      "to_block": 54067261
-     },
-     {
-      "from_block": 54067262,
-      "to_block": 54077261
-     }
-    ],
-    "failed_ranges": []
-   }
-  },
-  {
-   "resource": "https://web.cyberwarex.com/fetch",
-   "payTo": "0x058d0cc5cc97e61e8a9f38d6d6365bce525921b2",
-   "calls30": 423,
-   "payers30": 25,
-   "category": "web/scrape",
-   "coverage": {
-    "from_block": 54057262,
-    "to_block": 54077261,
-    "complete": true,
-    "completed_ranges": [
-     {
-      "from_block": 54057262,
-      "to_block": 54067261
-     },
-     {
-      "from_block": 54067262,
-      "to_block": 54077261
-     }
-    ],
-    "failed_ranges": []
-   }
-  }
- ],
+ "bazaar_top_services": [],
  "leads": [
   {
    "source": "github-issue",
@@ -643,6 +66,28 @@
   },
   {
    "source": "github-issue",
+   "id": "https://github.com/alex09x/kyb/issues/51",
+   "url": "https://github.com/alex09x/kyb/issues/51",
+   "title": "alex09x/kyb: Complementary note: corporate registry KYB (Companies House/sanctions) beside fleet memory KYB",
+   "why": "Open issue mentioning /uk-company ($0.50) \u00b7 /uk-company-lite ($0.05), /kyb ($2); 0 comments, updated 2026-11-06",
+   "product": "/uk-company ($0.50) \u00b7 /uk-company-lite ($0.05)",
+   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
+   "score": 92,
+   "rank": 6
+  },
+  {
+   "source": "github-issue",
+   "id": "https://github.com/kychee-com/run402/issues/634",
+   "url": "https://github.com/kychee-com/run402/issues/634",
+   "title": "kychee-com/run402: Optional data sink: keyless company/KYB/sanctions over x402 after bootstrap",
+   "why": "Open issue mentioning /uk-company ($0.50) \u00b7 /uk-company-lite ($0.05), /kyb ($2); 0 comments, updated 2026-11-06",
+   "product": "/uk-company ($0.50) \u00b7 /uk-company-lite ($0.05)",
+   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
+   "score": 92,
+   "rank": 7
+  },
+  {
+   "source": "github-issue",
    "id": "https://github.com/codespar/mcp-dev-latam/issues/238",
    "url": "https://github.com/codespar/mcp-dev-latam/issues/238",
    "title": "codespar/mcp-dev-latam: Complementary registry: UK/EU KYB alongside LatAm commerce MCP (same Base USDC)",
@@ -650,7 +95,7 @@
    "product": "/uk-company ($0.50) \u00b7 /uk-company-lite ($0.05)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 92,
-   "rank": 6
+   "rank": 8
   },
   {
    "source": "github-issue",
@@ -661,7 +106,7 @@
    "product": "/uk-company ($0.50) \u00b7 /uk-company-lite ($0.05)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 92,
-   "rank": 7
+   "rank": 9
   },
   {
    "source": "github-issue",
@@ -672,7 +117,7 @@
    "product": "/uk-company ($0.50) \u00b7 /uk-company-lite ($0.05)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 92,
-   "rank": 8
+   "rank": 10
   },
   {
    "source": "github-issue",
@@ -683,7 +128,7 @@
    "product": "/uk-company ($0.50) \u00b7 /uk-company-lite ($0.05)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 92,
-   "rank": 9
+   "rank": 11
   },
   {
    "source": "github-issue",
@@ -694,35 +139,13 @@
    "product": "/uk-company ($0.50) \u00b7 /uk-company-lite ($0.05)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 92,
-   "rank": 10
+   "rank": 12
   },
   {
    "source": "github-issue",
    "id": "https://github.com/celfons/kya-brasil/issues/56",
    "url": "https://github.com/celfons/kya-brasil/issues/56",
    "title": "celfons/kya-brasil: Cross-link idea: UK/EU registry KYB alongside ICP-Brasil KYA",
-   "why": "Open issue mentioning /uk-company ($0.50) \u00b7 /uk-company-lite ($0.05), /kyb ($2); 0 comments, updated 2026-11-06",
-   "product": "/uk-company ($0.50) \u00b7 /uk-company-lite ($0.05)",
-   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
-   "score": 92,
-   "rank": 11
-  },
-  {
-   "source": "github-issue",
-   "id": "https://github.com/jschunter/witnessd-mcp/issues/1",
-   "url": "https://github.com/jschunter/witnessd-mcp/issues/1",
-   "title": "jschunter/witnessd-mcp: Complementary data: witness a registry response (company/KYB/SEC) after x402 pay",
-   "why": "Open issue mentioning /uk-company ($0.50) \u00b7 /uk-company-lite ($0.05), /kyb ($2); 0 comments, updated 2026-11-06",
-   "product": "/uk-company ($0.50) \u00b7 /uk-company-lite ($0.05)",
-   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
-   "score": 92,
-   "rank": 12
-  },
-  {
-   "source": "github-issue",
-   "id": "https://github.com/agamemnon-coder/x402-business-agents/issues/59",
-   "url": "https://github.com/agamemnon-coder/x402-business-agents/issues/59",
-   "title": "agamemnon-coder/x402-business-agents: Optional lock: registry KYB / sanctions before an agent pays a new counterparty",
    "why": "Open issue mentioning /uk-company ($0.50) \u00b7 /uk-company-lite ($0.05), /kyb ($2); 0 comments, updated 2026-11-06",
    "product": "/uk-company ($0.50) \u00b7 /uk-company-lite ($0.05)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
@@ -764,9 +187,9 @@
   },
   {
    "source": "github-issue",
-   "id": "https://github.com/meghal86/stacksignal/issues/2",
-   "url": "https://github.com/meghal86/stacksignal/issues/2",
-   "title": "meghal86/stacksignal: Skill idea: keyless company/KYB/sanctions over x402 for agent research",
+   "id": "https://github.com/alalanet/x402-guard/issues/2",
+   "url": "https://github.com/alalanet/x402-guard/issues/2",
+   "title": "alalanet/x402-guard: Optional companion check: registry KYB/sanctions before signing a 402",
    "why": "Open issue mentioning /kyb ($2), /eu-vat ($0.01); 0 comments, updated 2026-11-06",
    "product": "/kyb ($2)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
@@ -775,47 +198,14 @@
   },
   {
    "source": "github-issue",
-   "id": "https://github.com/RDW-Labz/agentread/issues/1",
-   "url": "https://github.com/RDW-Labz/agentread/issues/1",
-   "title": "RDW-Labz/agentread: Cross-link idea: registry KYB/company alongside fallback page-read",
+   "id": "https://github.com/meghal86/stacksignal/issues/2",
+   "url": "https://github.com/meghal86/stacksignal/issues/2",
+   "title": "meghal86/stacksignal: Skill idea: keyless company/KYB/sanctions over x402 for agent research",
    "why": "Open issue mentioning /kyb ($2), /eu-vat ($0.01); 0 comments, updated 2026-11-06",
    "product": "/kyb ($2)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 84,
    "rank": 18
-  },
-  {
-   "source": "github-issue",
-   "id": "https://github.com/pikcui/Walawe/issues/53",
-   "url": "https://github.com/pikcui/Walawe/issues/53",
-   "title": "pikcui/Walawe: Example data sink: spend a bounded budget on company/KYB/SEC over x402",
-   "why": "Open issue mentioning /kyb ($2), /eu-vat ($0.01); 0 comments, updated 2026-11-06",
-   "product": "/kyb ($2)",
-   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
-   "score": 84,
-   "rank": 19
-  },
-  {
-   "source": "github-issue",
-   "id": "https://github.com/thedevkansal/bouncer/issues/1",
-   "url": "https://github.com/thedevkansal/bouncer/issues/1",
-   "title": "thedevkansal/bouncer: After admission: counterparty registry KYB over x402 (complementary data sink)",
-   "why": "Open issue mentioning /kyb ($2), /eu-vat ($0.01); 0 comments, updated 2026-11-06",
-   "product": "/kyb ($2)",
-   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
-   "score": 84,
-   "rank": 20
-  },
-  {
-   "source": "github-issue",
-   "id": "https://github.com/tang-vu/keryx/issues/835",
-   "url": "https://github.com/tang-vu/keryx/issues/835",
-   "title": "tang-vu/keryx: Source idea: keyless company/KYB/SEC registry over x402 for cited research",
-   "why": "Open issue mentioning /kyb ($2), /eu-vat ($0.01); 0 comments, updated 2026-11-06",
-   "product": "/kyb ($2)",
-   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
-   "score": 84,
-   "rank": 21
   },
   {
    "source": "github-issue",
@@ -826,7 +216,7 @@
    "product": "/us-sec ($0.05) \u00b7 /us-sec-full ($0.25)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 84,
-   "rank": 22
+   "rank": 19
   },
   {
    "source": "github-issue",
@@ -837,7 +227,7 @@
    "product": "/eu-vat ($0.01)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 80,
-   "rank": 23
+   "rank": 20
   },
   {
    "source": "github-issue",
@@ -848,18 +238,7 @@
    "product": "/eu-vat ($0.01)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 79,
-   "rank": 24
-  },
-  {
-   "source": "onchain",
-   "id": "0x72c573fd7de6a3dec3035d48db938ebf733d159b",
-   "url": "https://basescan.org/address/0x72c573fd7de6a3dec3035d48db938ebf733d159b",
-   "title": "Active x402 payer: 7 payments, $0.04 USDC to 4 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys finance/markets, web/scrape. Services: https://web.cyberwarex.com/fetch, https://glim.sh/api/v1/twitter/search, https://x402.ottoai.services/crypto-news",
-   "product": "/read \u00b7 /search",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 78,
-   "rank": 25
+   "rank": 21
   },
   {
    "source": "github-issue",
@@ -870,7 +249,7 @@
    "product": "/us-sec ($0.05) \u00b7 /us-sec-full ($0.25)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 78,
-   "rank": 26
+   "rank": 22
   },
   {
    "source": "github-issue",
@@ -881,7 +260,7 @@
    "product": "/read ($0.002) \u00b7 /convert ($0.03)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 78,
-   "rank": 27
+   "rank": 23
   },
   {
    "source": "github-issue",
@@ -892,7 +271,7 @@
    "product": "/eu-vat ($0.01)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 78,
-   "rank": 28
+   "rank": 24
   },
   {
    "source": "github-issue",
@@ -903,18 +282,7 @@
    "product": "/read ($0.002) \u00b7 /convert ($0.03)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 78,
-   "rank": 29
-  },
-  {
-   "source": "github-issue",
-   "id": "https://github.com/openclaw/openclaw/issues/191008",
-   "url": "https://github.com/openclaw/openclaw/issues/191008",
-   "title": "openclaw/openclaw: ClawHub skill offer: Company Research Job, a paid research job for when the free search tier runs dry",
-   "why": "Open issue mentioning /company ($0.25) \u00b7 /company-full ($0.65), MCP /mcp + any route (x402-native buyer); 2 comments, updated 2026-11-06",
-   "product": "/company ($0.25) \u00b7 /company-full ($0.65)",
-   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
-   "score": 78,
-   "rank": 30
+   "rank": 25
   },
   {
    "source": "github-issue",
@@ -925,7 +293,7 @@
    "product": "/read ($0.002) \u00b7 /convert ($0.03)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 78,
-   "rank": 31
+   "rank": 26
   },
   {
    "source": "github-issue",
@@ -936,18 +304,7 @@
    "product": "MCP /mcp + any route (x402-native buyer)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 78,
-   "rank": 32
-  },
-  {
-   "source": "github-issue",
-   "id": "https://github.com/Conxian/conxian-gateway/issues/711",
-   "url": "https://github.com/Conxian/conxian-gateway/issues/711",
-   "title": "Conxian/conxian-gateway: P1: Publish OpenAPI + RFC 9727 api-catalog for agent discovery",
-   "why": "Open issue mentioning /read ($0.002) \u00b7 /convert ($0.03), MCP /mcp + any route (x402-native buyer); 1 comments, updated 2026-11-06",
-   "product": "/read ($0.002) \u00b7 /convert ($0.03)",
-   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
-   "score": 77,
-   "rank": 33
+   "rank": 27
   },
   {
    "source": "github-issue",
@@ -958,7 +315,7 @@
    "product": "/company ($0.25) \u00b7 /company-full ($0.65)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 77,
-   "rank": 34
+   "rank": 28
   },
   {
    "source": "github-issue",
@@ -969,7 +326,51 @@
    "product": "/uk-company ($0.50) \u00b7 /uk-company-lite ($0.05)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 76,
-   "rank": 35
+   "rank": 29
+  },
+  {
+   "source": "github-issue",
+   "id": "https://github.com/mikeperry-tor/x402_treazury/issues/2",
+   "url": "https://github.com/mikeperry-tor/x402_treazury/issues/2",
+   "title": "mikeperry-tor/x402_treazury: Example seller idea: fixed-price registry KYB with free preview (privacy-friendly)",
+   "why": "Open issue mentioning /kyb ($2), MCP /mcp + any route (x402-native buyer); 0 comments, updated 2026-11-06",
+   "product": "/kyb ($2)",
+   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
+   "score": 76,
+   "rank": 30
+  },
+  {
+   "source": "github-issue",
+   "id": "https://github.com/onlinewebdirectory/onlinewebdirectory-skill/issues/2",
+   "url": "https://github.com/onlinewebdirectory/onlinewebdirectory-skill/issues/2",
+   "title": "onlinewebdirectory/onlinewebdirectory-skill: Interop note: registry KYB after directory discovery (x402, free preview)",
+   "why": "Open issue mentioning /kyb ($2), MCP /mcp + any route (x402-native buyer); 0 comments, updated 2026-11-06",
+   "product": "/kyb ($2)",
+   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
+   "score": 76,
+   "rank": 31
+  },
+  {
+   "source": "github-issue",
+   "id": "https://github.com/ToolSnap-app/toolsnap-mcp/issues/153",
+   "url": "https://github.com/ToolSnap-app/toolsnap-mcp/issues/153",
+   "title": "ToolSnap-app/toolsnap-mcp: Related tools note: keyless company/KYB/sanctions over x402 beside web fetch",
+   "why": "Open issue mentioning /kyb ($2), MCP /mcp + any route (x402-native buyer); 0 comments, updated 2026-11-06",
+   "product": "/kyb ($2)",
+   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
+   "score": 76,
+   "rank": 32
+  },
+  {
+   "source": "github-issue",
+   "id": "https://github.com/vAPI-Network/vapi-network/issues/34",
+   "url": "https://github.com/vAPI-Network/vapi-network/issues/34",
+   "title": "vAPI-Network/vapi-network: Docs/example idea: fixed-price company/KYB/sanctions sellers as x402 data sinks",
+   "why": "Open issue mentioning /kyb ($2), MCP /mcp + any route (x402-native buyer); 0 comments, updated 2026-11-06",
+   "product": "/kyb ($2)",
+   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
+   "score": 76,
+   "rank": 33
   },
   {
    "source": "github-issue",
@@ -980,7 +381,7 @@
    "product": "/kyb ($2)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 76,
-   "rank": 36
+   "rank": 34
   },
   {
    "source": "github-issue",
@@ -991,7 +392,7 @@
    "product": "/kyb ($2)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 76,
-   "rank": 37
+   "rank": 35
   },
   {
    "source": "github-issue",
@@ -1002,18 +403,7 @@
    "product": "/kyb ($2)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 76,
-   "rank": 38
-  },
-  {
-   "source": "github-issue",
-   "id": "https://github.com/nirholas/x402-fetch/issues/2",
-   "url": "https://github.com/nirholas/x402-fetch/issues/2",
-   "title": "nirholas/x402-fetch: Docs example: pay for a registry GET (company/KYB) with free preview first",
-   "why": "Open issue mentioning /kyb ($2), MCP /mcp + any route (x402-native buyer); 0 comments, updated 2026-11-06",
-   "product": "/kyb ($2)",
-   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
-   "score": 76,
-   "rank": 39
+   "rank": 36
   },
   {
    "source": "github-issue",
@@ -1024,7 +414,7 @@
    "product": "/eu-vat ($0.01)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 76,
-   "rank": 40
+   "rank": 37
   },
   {
    "source": "github-issue",
@@ -1035,18 +425,7 @@
    "product": "/eu-vat ($0.01)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 76,
-   "rank": 41
-  },
-  {
-   "source": "github-issue",
-   "id": "https://github.com/APIs-guru/openapi-directory/issues/4245",
-   "url": "https://github.com/APIs-guru/openapi-directory/issues/4245",
-   "title": "APIs-guru/openapi-directory: Add \"Bosco Labs data\" API",
-   "why": "Open issue mentioning /us-sec ($0.05) \u00b7 /us-sec-full ($0.25), MCP /mcp + any route (x402-native buyer); 0 comments, updated 2026-11-06",
-   "product": "/us-sec ($0.05) \u00b7 /us-sec-full ($0.25)",
-   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
-   "score": 76,
-   "rank": 42
+   "rank": 38
   },
   {
    "source": "github-issue",
@@ -1057,7 +436,7 @@
    "product": "/read ($0.002) \u00b7 /convert ($0.03)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 76,
-   "rank": 43
+   "rank": 39
   },
   {
    "source": "github-issue",
@@ -1068,7 +447,7 @@
    "product": "/us-sec ($0.05) \u00b7 /us-sec-full ($0.25)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 76,
-   "rank": 44
+   "rank": 40
   },
   {
    "source": "github-issue",
@@ -1079,18 +458,29 @@
    "product": "/eu-vat ($0.01)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 75,
-   "rank": 45
+   "rank": 41
   },
   {
    "source": "github-issue",
    "id": "https://github.com/blocknine0/geomacro/issues/3634",
    "url": "https://github.com/blocknine0/geomacro/issues/3634",
    "title": "blocknine0/geomacro: [P0][SINGLE MASTER] GeoMacro Full Audit \u2014 Website, 195\u00d73 Sources, Hot50\u00d73 Risk Gate, B2/D1, Ask, Crypto Revenue (18 Parts)",
+   "why": "Open issue mentioning MCP /mcp + any route (x402-native buyer); 7 comments, updated 2026-11-06",
+   "product": "MCP /mcp + any route (x402-native buyer)",
+   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
+   "score": 75,
+   "rank": 42
+  },
+  {
+   "source": "github-issue",
+   "id": "https://github.com/probityai/agent-evidence-vectors/issues/307",
+   "url": "https://github.com/probityai/agent-evidence-vectors/issues/307",
+   "title": "probityai/agent-evidence-vectors: Stablecoin settlement cases: asset, payee and settled terms in the consumption member",
    "why": "Open issue mentioning MCP /mcp + any route (x402-native buyer); 5 comments, updated 2026-11-06",
    "product": "MCP /mcp + any route (x402-native buyer)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 73,
-   "rank": 46
+   "rank": 43
   },
   {
    "source": "github-issue",
@@ -1101,7 +491,7 @@
    "product": "/read ($0.002) \u00b7 /convert ($0.03)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 73,
-   "rank": 47
+   "rank": 44
   },
   {
    "source": "github-issue",
@@ -1112,7 +502,7 @@
    "product": "/read ($0.002) \u00b7 /convert ($0.03)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 73,
-   "rank": 48
+   "rank": 45
   },
   {
    "source": "github-issue",
@@ -1123,7 +513,7 @@
    "product": "/company ($0.25) \u00b7 /company-full ($0.65)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 73,
-   "rank": 49
+   "rank": 46
   },
   {
    "source": "github-issue",
@@ -1134,7 +524,7 @@
    "product": "/us-sec ($0.05) \u00b7 /us-sec-full ($0.25)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 72,
-   "rank": 50
+   "rank": 47
   },
   {
    "source": "github-issue",
@@ -1145,7 +535,7 @@
    "product": "/us-sec ($0.05) \u00b7 /us-sec-full ($0.25)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 72,
-   "rank": 51
+   "rank": 48
   },
   {
    "source": "github-issue",
@@ -1156,7 +546,7 @@
    "product": "/us-sec ($0.05) \u00b7 /us-sec-full ($0.25)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 71,
-   "rank": 52
+   "rank": 49
   },
   {
    "source": "github-issue",
@@ -1167,7 +557,7 @@
    "product": "/us-sec ($0.05) \u00b7 /us-sec-full ($0.25)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 70,
-   "rank": 53
+   "rank": 50
   },
   {
    "source": "github-issue",
@@ -1178,29 +568,51 @@
    "product": "/eu-vat ($0.01)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 70,
-   "rank": 54
-  },
-  {
-   "source": "github-repo",
-   "id": "https://github.com/vAPI-Network/vapi-network",
-   "url": "https://github.com/vAPI-Network/vapi-network",
-   "title": "vAPI-Network/vapi-network \u26052295: Buyer-controlled client for x402 API payments in USDC on Base.",
-   "why": "Active (2026-11-06) project matching 'x402 mcp'",
-   "product": "MCP /mcp + any route (x402-native buyer)",
-   "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
-   "score": 70,
-   "rank": 55
+   "rank": 51
   },
   {
    "source": "github-issue",
-   "id": "https://github.com/d-hinders/Haven-AI/issues/4721",
-   "url": "https://github.com/d-hinders/Haven-AI/issues/4721",
-   "title": "d-hinders/Haven-AI: Passport 3/5: the agent reads its own passport reference (agent read, SDK, hosted haven_get_agent, settle relay)",
+   "id": "https://github.com/Conxian/conxian-business/issues/1773",
+   "url": "https://github.com/Conxian/conxian-business/issues/1773",
+   "title": "Conxian/conxian-business: P1: Enable client signups \u2014 phased scope, gates, and customer access path",
+   "why": "Open issue mentioning MCP /mcp + any route (x402-native buyer); 2 comments, updated 2026-11-06",
+   "product": "MCP /mcp + any route (x402-native buyer)",
+   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
+   "score": 70,
+   "rank": 52
+  },
+  {
+   "source": "github-issue",
+   "id": "https://github.com/d-hinders/Haven-AI/issues/4718",
+   "url": "https://github.com/d-hinders/Haven-AI/issues/4718",
+   "title": "d-hinders/Haven-AI: Epic: Agent Passport \u2014 honest availability and one working delivery path (agent \u2192 x402 \u2192 merchant)",
+   "why": "Open issue mentioning MCP /mcp + any route (x402-native buyer); 2 comments, updated 2026-11-06",
+   "product": "MCP /mcp + any route (x402-native buyer)",
+   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
+   "score": 70,
+   "rank": 53
+  },
+  {
+   "source": "github-issue",
+   "id": "https://github.com/d-hinders/Haven-AI/issues/4723",
+   "url": "https://github.com/d-hinders/Haven-AI/issues/4723",
+   "title": "d-hinders/Haven-AI: Passport 5/5: SDK merchant verify helper + demo merchant as first (advisory) consumer",
    "why": "Open issue mentioning MCP /mcp + any route (x402-native buyer); 1 comments, updated 2026-11-06",
    "product": "MCP /mcp + any route (x402-native buyer)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 69,
-   "rank": 56
+   "rank": 54
+  },
+  {
+   "source": "github-issue",
+   "id": "https://github.com/d-hinders/Haven-AI/issues/4722",
+   "url": "https://github.com/d-hinders/Haven-AI/issues/4722",
+   "title": "d-hinders/Haven-AI: Passport 4/5: x402 haven-passport extension on SDK-built and backend erc7710 envelopes",
+   "why": "Open issue mentioning MCP /mcp + any route (x402-native buyer); 1 comments, updated 2026-11-06",
+   "product": "MCP /mcp + any route (x402-native buyer)",
+   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
+   "score": 69,
+   "rank": 55
   },
   {
    "source": "github-issue",
@@ -1211,7 +623,7 @@
    "product": "/uk-company ($0.50) \u00b7 /uk-company-lite ($0.05)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 68,
-   "rank": 57
+   "rank": 56
   },
   {
    "source": "github-issue",
@@ -1222,7 +634,7 @@
    "product": "/uk-company ($0.50) \u00b7 /uk-company-lite ($0.05)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 68,
-   "rank": 58
+   "rank": 57
   },
   {
    "source": "github-issue",
@@ -1233,7 +645,7 @@
    "product": "/us-sec ($0.05) \u00b7 /us-sec-full ($0.25)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 68,
-   "rank": 59
+   "rank": 58
   },
   {
    "source": "github-issue",
@@ -1244,7 +656,7 @@
    "product": "/us-sec ($0.05) \u00b7 /us-sec-full ($0.25)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 68,
-   "rank": 60
+   "rank": 59
   },
   {
    "source": "github-issue",
@@ -1255,7 +667,7 @@
    "product": "/us-sec ($0.05) \u00b7 /us-sec-full ($0.25)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 68,
-   "rank": 61
+   "rank": 60
   },
   {
    "source": "github-issue",
@@ -1266,7 +678,7 @@
    "product": "/us-sec ($0.05) \u00b7 /us-sec-full ($0.25)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 68,
-   "rank": 62
+   "rank": 61
   },
   {
    "source": "github-issue",
@@ -1277,7 +689,7 @@
    "product": "/us-sec ($0.05) \u00b7 /us-sec-full ($0.25)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 68,
-   "rank": 63
+   "rank": 62
   },
   {
    "source": "github-issue",
@@ -1288,7 +700,7 @@
    "product": "/eu-vat ($0.01)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 68,
-   "rank": 64
+   "rank": 63
   },
   {
    "source": "github-issue",
@@ -1299,117 +711,18 @@
    "product": "/eu-vat ($0.01)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 68,
+   "rank": 64
+  },
+  {
+   "source": "github-issue",
+   "id": "https://github.com/ksacheth/dewo/issues/81",
+   "url": "https://github.com/ksacheth/dewo/issues/81",
+   "title": "ksacheth/dewo: Verifier exits at startup when the facilitator or 0G broker times out once",
+   "why": "Open issue mentioning MCP /mcp + any route (x402-native buyer); 0 comments, updated 2026-11-06",
+   "product": "MCP /mcp + any route (x402-native buyer)",
+   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
+   "score": 68,
    "rank": 65
-  },
-  {
-   "source": "github-issue",
-   "id": "https://github.com/marc-aurele-besner/lacrew/issues/164",
-   "url": "https://github.com/marc-aurele-besner/lacrew/issues/164",
-   "title": "marc-aurele-besner/lacrew: Dependency Dashboard",
-   "why": "Open issue mentioning MCP /mcp + any route (x402-native buyer); 0 comments, updated 2026-11-06",
-   "product": "MCP /mcp + any route (x402-native buyer)",
-   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
-   "score": 68,
-   "rank": 66
-  },
-  {
-   "source": "github-issue",
-   "id": "https://github.com/toon-protocol/connector/issues/1662",
-   "url": "https://github.com/toon-protocol/connector/issues/1662",
-   "title": "toon-protocol/connector: Release note for ADR 0086: upgrade every payer first, and the journal upgrade is one-way",
-   "why": "Open issue mentioning MCP /mcp + any route (x402-native buyer); 0 comments, updated 2026-11-06",
-   "product": "MCP /mcp + any route (x402-native buyer)",
-   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
-   "score": 68,
-   "rank": 67
-  },
-  {
-   "source": "github-issue",
-   "id": "https://github.com/leventilo/boltzpay/issues/3",
-   "url": "https://github.com/leventilo/boltzpay/issues/3",
-   "title": "leventilo/boltzpay: Dependency Dashboard",
-   "why": "Open issue mentioning MCP /mcp + any route (x402-native buyer); 0 comments, updated 2026-11-06",
-   "product": "MCP /mcp + any route (x402-native buyer)",
-   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
-   "score": 68,
-   "rank": 68
-  },
-  {
-   "source": "github-issue",
-   "id": "https://github.com/ss251/countersign/issues/39",
-   "url": "https://github.com/ss251/countersign/issues/39",
-   "title": "ss251/countersign: End-to-end suite over every flow, with artifacts",
-   "why": "Open issue mentioning MCP /mcp + any route (x402-native buyer); 0 comments, updated 2026-11-06",
-   "product": "MCP /mcp + any route (x402-native buyer)",
-   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
-   "score": 68,
-   "rank": 69
-  },
-  {
-   "source": "github-issue",
-   "id": "https://github.com/lopushok9/Agent-Layer/issues/38",
-   "url": "https://github.com/lopushok9/Agent-Layer/issues/38",
-   "title": "lopushok9/Agent-Layer: Optional pre-sign check in sendUniswapSwap, before #sendBufferedDefiTransaction (free PR offer)",
-   "why": "Open issue mentioning MCP /mcp + any route (x402-native buyer); 0 comments, updated 2026-11-06",
-   "product": "MCP /mcp + any route (x402-native buyer)",
-   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
-   "score": 68,
-   "rank": 70
-  },
-  {
-   "source": "github-issue",
-   "id": "https://github.com/ChungHungChi/ap2-compliance-rfc/issues/1",
-   "url": "https://github.com/ChungHungChi/ap2-compliance-rfc/issues/1",
-   "title": "ChungHungChi/ap2-compliance-rfc: Decentralized Forensic & Legal Evidence Anchoring for AI Commerce",
-   "why": "Open issue mentioning MCP /mcp + any route (x402-native buyer); 0 comments, updated 2026-11-06",
-   "product": "MCP /mcp + any route (x402-native buyer)",
-   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
-   "score": 68,
-   "rank": 71
-  },
-  {
-   "source": "github-issue",
-   "id": "https://github.com/banshee86vr/lucabertelli.consulting/issues/470",
-   "url": "https://github.com/banshee86vr/lucabertelli.consulting/issues/470",
-   "title": "banshee86vr/lucabertelli.consulting: Dependency Dashboard",
-   "why": "Open issue mentioning MCP /mcp + any route (x402-native buyer); 0 comments, updated 2026-11-06",
-   "product": "MCP /mcp + any route (x402-native buyer)",
-   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
-   "score": 68,
-   "rank": 72
-  },
-  {
-   "source": "github-issue",
-   "id": "https://github.com/jonpulsifer/infra/issues/426",
-   "url": "https://github.com/jonpulsifer/infra/issues/426",
-   "title": "jonpulsifer/infra: Renovate Dashboard",
-   "why": "Open issue mentioning MCP /mcp + any route (x402-native buyer); 0 comments, updated 2026-11-06",
-   "product": "MCP /mcp + any route (x402-native buyer)",
-   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
-   "score": 68,
-   "rank": 73
-  },
-  {
-   "source": "github-issue",
-   "id": "https://github.com/wayanonchain/wayan-x402-celo/issues/1",
-   "url": "https://github.com/wayanonchain/wayan-x402-celo/issues/1",
-   "title": "wayanonchain/wayan-x402-celo: AskBots review: Agents on Open Rails Hackathon feedback",
-   "why": "Open issue mentioning MCP /mcp + any route (x402-native buyer); 0 comments, updated 2026-11-06",
-   "product": "MCP /mcp + any route (x402-native buyer)",
-   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
-   "score": 68,
-   "rank": 74
-  },
-  {
-   "source": "github-issue",
-   "id": "https://github.com/Akanimoh12/Breeja/issues/1",
-   "url": "https://github.com/Akanimoh12/Breeja/issues/1",
-   "title": "Akanimoh12/Breeja: AskBots review: Agents on Open Rails Hackathon feedback",
-   "why": "Open issue mentioning MCP /mcp + any route (x402-native buyer); 0 comments, updated 2026-11-06",
-   "product": "MCP /mcp + any route (x402-native buyer)",
-   "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
-   "score": 68,
-   "rank": 75
   },
   {
    "source": "github-issue",
@@ -1420,7 +733,7 @@
    "product": "/read ($0.002) \u00b7 /convert ($0.03)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 68,
-   "rank": 76
+   "rank": 66
   },
   {
    "source": "github-issue",
@@ -1431,7 +744,7 @@
    "product": "/read ($0.002) \u00b7 /convert ($0.03)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 68,
-   "rank": 77
+   "rank": 67
   },
   {
    "source": "github-issue",
@@ -1442,7 +755,7 @@
    "product": "/read ($0.002) \u00b7 /convert ($0.03)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 68,
-   "rank": 78
+   "rank": 68
   },
   {
    "source": "github-issue",
@@ -1453,7 +766,7 @@
    "product": "/read ($0.002) \u00b7 /convert ($0.03)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 68,
-   "rank": 79
+   "rank": 69
   },
   {
    "source": "github-issue",
@@ -1464,7 +777,7 @@
    "product": "/read ($0.002) \u00b7 /convert ($0.03)",
    "action": "Read the thread; if it asks for exactly this data, reply with a helpful answer (code snippet) disclosing we maintain AgentReader.",
    "score": 68,
-   "rank": 80
+   "rank": 70
   },
   {
    "source": "x",
@@ -1475,7 +788,7 @@
    "product": "/kyb ($2)",
    "action": "Draft a reply/DM for owner review.",
    "score": 61,
-   "rank": 81
+   "rank": 71
   },
   {
    "source": "x",
@@ -1486,7 +799,7 @@
    "product": "/kyb ($2)",
    "action": "Draft a reply/DM for owner review.",
    "score": 61,
-   "rank": 82
+   "rank": 72
   },
   {
    "source": "x",
@@ -1497,7 +810,7 @@
    "product": "/kyb ($2)",
    "action": "Draft a reply/DM for owner review.",
    "score": 61,
-   "rank": 83
+   "rank": 73
   },
   {
    "source": "x",
@@ -1508,7 +821,7 @@
    "product": "/kyb ($2)",
    "action": "Draft a reply/DM for owner review.",
    "score": 61,
-   "rank": 84
+   "rank": 74
   },
   {
    "source": "x",
@@ -1519,7 +832,7 @@
    "product": "/kyb ($2)",
    "action": "Draft a reply/DM for owner review.",
    "score": 61,
-   "rank": 85
+   "rank": 75
   },
   {
    "source": "x",
@@ -1530,7 +843,7 @@
    "product": "/kyb ($2)",
    "action": "Draft a reply/DM for owner review.",
    "score": 61,
-   "rank": 86
+   "rank": 76
   },
   {
    "source": "x",
@@ -1541,7 +854,7 @@
    "product": "/kyb ($2)",
    "action": "Draft a reply/DM for owner review.",
    "score": 61,
-   "rank": 87
+   "rank": 77
   },
   {
    "source": "x",
@@ -1552,7 +865,7 @@
    "product": "/company ($0.25) \u00b7 /company-full ($0.65)",
    "action": "Draft a reply/DM for owner review.",
    "score": 61,
-   "rank": 88
+   "rank": 78
   },
   {
    "source": "x",
@@ -1563,7 +876,7 @@
    "product": "/kyb ($2)",
    "action": "Draft a reply/DM for owner review.",
    "score": 61,
-   "rank": 89
+   "rank": 79
   },
   {
    "source": "x",
@@ -1574,73 +887,7 @@
    "product": "/kyb ($2)",
    "action": "Draft a reply/DM for owner review.",
    "score": 61,
-   "rank": 90
-  },
-  {
-   "source": "github-code",
-   "id": "https://github.com/Dhruv-2003/pipegate",
-   "url": "https://github.com/Dhruv-2003/pipegate/blob/f0ecbaae6159d9cda6caafbe708ad1aa0e588cc7/core/ts/src/client.ts",
-   "title": "Dhruv-2003/pipegate uses x402 client (withPaymentInterceptor)",
-   "why": "Codebase already wires an x402 payment client: technically able to buy from us today",
-   "product": "any route / MCP",
-   "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
-   "score": 55,
-   "rank": 91
-  },
-  {
-   "source": "github-code",
-   "id": "https://github.com/Permissionless-Software-Foundation/bch-js",
-   "url": "https://github.com/Permissionless-Software-Foundation/bch-js/blob/010a6dc23a4aa443b0b0f26e26b7f84231d405d0/src/x402.js",
-   "title": "Permissionless-Software-Foundation/bch-js uses x402 client (withPaymentInterceptor)",
-   "why": "Codebase already wires an x402 payment client: technically able to buy from us today",
-   "product": "any route / MCP",
-   "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
-   "score": 55,
-   "rank": 92
-  },
-  {
-   "source": "github-code",
-   "id": "https://github.com/Klyx-labs/x402-klyx",
-   "url": "https://github.com/Klyx-labs/x402-klyx/blob/302ecac0ce7544e86c9fbf1b18cb80f41b271d4c/src/requester/fetch.ts",
-   "title": "Klyx-labs/x402-klyx uses x402 client (withPaymentInterceptor)",
-   "why": "Codebase already wires an x402 payment client: technically able to buy from us today",
-   "product": "any route / MCP",
-   "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
-   "score": 55,
-   "rank": 93
-  },
-  {
-   "source": "github-code",
-   "id": "https://github.com/nickthelegend/fund402-sdk",
-   "url": "https://github.com/nickthelegend/fund402-sdk/blob/d3f5fb8b3c095d66401265986e39a1ca8a3f6947/src/client.ts",
-   "title": "nickthelegend/fund402-sdk uses x402 client (withPaymentInterceptor)",
-   "why": "Codebase already wires an x402 payment client: technically able to buy from us today",
-   "product": "any route / MCP",
-   "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
-   "score": 55,
-   "rank": 94
-  },
-  {
-   "source": "github-code",
-   "id": "https://github.com/Estrategia-e-innovacion-de-TI/x402",
-   "url": "https://github.com/Estrategia-e-innovacion-de-TI/x402/blob/499738897fe432f691a9abaffa5cdd8643da7f0f/Clients/x402-axios/src/index.ts",
-   "title": "Estrategia-e-innovacion-de-TI/x402 uses x402 client (withPaymentInterceptor)",
-   "why": "Codebase already wires an x402 payment client: technically able to buy from us today",
-   "product": "any route / MCP",
-   "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
-   "score": 55,
-   "rank": 95
-  },
-  {
-   "source": "github-code",
-   "id": "https://github.com/stat/x402",
-   "url": "https://github.com/stat/x402/blob/1182a5384db7fe967cc8b588beb18c16971f758b/packages/typescript/x402/src/axios/index.ts",
-   "title": "stat/x402 uses x402 client (withPaymentInterceptor)",
-   "why": "Codebase already wires an x402 payment client: technically able to buy from us today",
-   "product": "any route / MCP",
-   "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
-   "score": 55,
-   "rank": 96
+   "rank": 80
   },
   {
    "source": "github-code",
@@ -1651,7 +898,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 97
+   "rank": 81
   },
   {
    "source": "github-code",
@@ -1662,7 +909,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 98
+   "rank": 82
   },
   {
    "source": "github-code",
@@ -1673,7 +920,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 99
+   "rank": 83
   },
   {
    "source": "github-code",
@@ -1684,7 +931,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 100
+   "rank": 84
   },
   {
    "source": "github-code",
@@ -1695,7 +942,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 101
+   "rank": 85
   },
   {
    "source": "github-code",
@@ -1706,7 +953,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 102
+   "rank": 86
   },
   {
    "source": "github-code",
@@ -1717,7 +964,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 103
+   "rank": 87
   },
   {
    "source": "github-code",
@@ -1728,7 +975,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 104
+   "rank": 88
   },
   {
    "source": "github-code",
@@ -1739,7 +986,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 105
+   "rank": 89
   },
   {
    "source": "github-code",
@@ -1750,7 +997,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 106
+   "rank": 90
   },
   {
    "source": "github-code",
@@ -1761,7 +1008,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 107
+   "rank": 91
   },
   {
    "source": "github-code",
@@ -1772,7 +1019,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 108
+   "rank": 92
   },
   {
    "source": "github-code",
@@ -1783,7 +1030,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 109
+   "rank": 93
   },
   {
    "source": "github-code",
@@ -1794,7 +1041,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 110
+   "rank": 94
   },
   {
    "source": "github-code",
@@ -1805,7 +1052,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 111
+   "rank": 95
   },
   {
    "source": "github-code",
@@ -1816,7 +1063,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 112
+   "rank": 96
   },
   {
    "source": "github-code",
@@ -1827,7 +1074,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 113
+   "rank": 97
   },
   {
    "source": "github-code",
@@ -1838,7 +1085,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 114
+   "rank": 98
   },
   {
    "source": "github-code",
@@ -1849,7 +1096,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 115
+   "rank": 99
   },
   {
    "source": "github-code",
@@ -1860,7 +1107,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 116
+   "rank": 100
   },
   {
    "source": "github-code",
@@ -1871,7 +1118,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 117
+   "rank": 101
   },
   {
    "source": "github-code",
@@ -1882,7 +1129,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 118
+   "rank": 102
   },
   {
    "source": "github-code",
@@ -1893,7 +1140,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 119
+   "rank": 103
   },
   {
    "source": "github-code",
@@ -1904,7 +1151,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 120
+   "rank": 104
   },
   {
    "source": "github-code",
@@ -1915,7 +1162,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 121
+   "rank": 105
   },
   {
    "source": "github-code",
@@ -1926,7 +1173,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 122
+   "rank": 106
   },
   {
    "source": "github-code",
@@ -1937,7 +1184,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 123
+   "rank": 107
   },
   {
    "source": "github-code",
@@ -1948,7 +1195,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 124
+   "rank": 108
   },
   {
    "source": "github-code",
@@ -1959,7 +1206,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 125
+   "rank": 109
   },
   {
    "source": "github-code",
@@ -1970,7 +1217,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 126
+   "rank": 110
   },
   {
    "source": "github-code",
@@ -1981,7 +1228,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 127
+   "rank": 111
   },
   {
    "source": "github-code",
@@ -1992,7 +1239,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 128
+   "rank": 112
   },
   {
    "source": "github-code",
@@ -2003,7 +1250,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 129
+   "rank": 113
   },
   {
    "source": "github-code",
@@ -2014,7 +1261,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 130
+   "rank": 114
   },
   {
    "source": "github-code",
@@ -2025,7 +1272,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 131
+   "rank": 115
   },
   {
    "source": "github-code",
@@ -2036,7 +1283,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 132
+   "rank": 116
   },
   {
    "source": "github-code",
@@ -2047,7 +1294,7 @@
    "product": "any route / MCP",
    "action": "Look at what the agent does; if it needs company/web/chain data, open a helpful PR or issue only if the repo invites integrations; else draft outreach.",
    "score": 55,
-   "rank": 133
+   "rank": 117
   },
   {
    "source": "hn",
@@ -2058,7 +1305,7 @@
    "product": "/read ($0.002) \u00b7 /convert ($0.03)",
    "action": "Owner may reply on HN (draft provided) if genuinely helpful; disclose affiliation.",
    "score": 53,
-   "rank": 134
+   "rank": 118
   },
   {
    "source": "hn",
@@ -2069,7 +1316,7 @@
    "product": "/read ($0.002) \u00b7 /convert ($0.03)",
    "action": "Owner may reply on HN (draft provided) if genuinely helpful; disclose affiliation.",
    "score": 53,
-   "rank": 135
+   "rank": 119
   },
   {
    "source": "hn",
@@ -2080,7 +1327,7 @@
    "product": "/us-sec ($0.05) \u00b7 /us-sec-full ($0.25)",
    "action": "Owner may reply on HN (draft provided) if genuinely helpful; disclose affiliation.",
    "score": 53,
-   "rank": 136
+   "rank": 120
   },
   {
    "source": "hn",
@@ -2091,7 +1338,7 @@
    "product": "/read ($0.002) \u00b7 /convert ($0.03)",
    "action": "Owner may reply on HN (draft provided) if genuinely helpful; disclose affiliation.",
    "score": 53,
-   "rank": 137
+   "rank": 121
   },
   {
    "source": "hn",
@@ -2102,7 +1349,7 @@
    "product": "/read ($0.002) \u00b7 /convert ($0.03)",
    "action": "Owner may reply on HN (draft provided) if genuinely helpful; disclose affiliation.",
    "score": 53,
-   "rank": 138
+   "rank": 122
   },
   {
    "source": "hn",
@@ -2113,7 +1360,7 @@
    "product": "/convert ($0.03)",
    "action": "Owner may reply on HN (draft provided) if genuinely helpful; disclose affiliation.",
    "score": 53,
-   "rank": 139
+   "rank": 123
   },
   {
    "source": "hn",
@@ -2124,7 +1371,7 @@
    "product": "/read ($0.002) \u00b7 /convert ($0.03)",
    "action": "Owner may reply on HN (draft provided) if genuinely helpful; disclose affiliation.",
    "score": 53,
-   "rank": 140
+   "rank": 124
   },
   {
    "source": "hn",
@@ -2135,7 +1382,7 @@
    "product": "/read ($0.002) \u00b7 /convert ($0.03)",
    "action": "Owner may reply on HN (draft provided) if genuinely helpful; disclose affiliation.",
    "score": 53,
-   "rank": 141
+   "rank": 125
   },
   {
    "source": "hn",
@@ -2146,7 +1393,7 @@
    "product": "/read ($0.002) \u00b7 /convert ($0.03)",
    "action": "Owner may reply on HN (draft provided) if genuinely helpful; disclose affiliation.",
    "score": 53,
-   "rank": 142
+   "rank": 126
   },
   {
    "source": "hn",
@@ -2157,7 +1404,7 @@
    "product": "/read ($0.002) \u00b7 /convert ($0.03)",
    "action": "Owner may reply on HN (draft provided) if genuinely helpful; disclose affiliation.",
    "score": 53,
-   "rank": 143
+   "rank": 127
   },
   {
    "source": "hn",
@@ -2168,7 +1415,7 @@
    "product": "/read ($0.002) \u00b7 /convert ($0.03)",
    "action": "Owner may reply on HN (draft provided) if genuinely helpful; disclose affiliation.",
    "score": 53,
-   "rank": 144
+   "rank": 128
   },
   {
    "source": "x",
@@ -2179,7 +1426,7 @@
    "product": "/kyb ($2)",
    "action": "Draft a reply/DM for owner review.",
    "score": 53,
-   "rank": 145
+   "rank": 129
   },
   {
    "source": "x",
@@ -2190,7 +1437,7 @@
    "product": "/kyb ($2)",
    "action": "Draft a reply/DM for owner review.",
    "score": 53,
-   "rank": 146
+   "rank": 130
   },
   {
    "source": "x",
@@ -2201,7 +1448,7 @@
    "product": "MCP /mcp + any route (x402-native buyer)",
    "action": "Draft a reply/DM for owner review.",
    "score": 53,
-   "rank": 147
+   "rank": 131
   },
   {
    "source": "x",
@@ -2212,7 +1459,7 @@
    "product": "MCP /mcp + any route (x402-native buyer)",
    "action": "Draft a reply/DM for owner review.",
    "score": 53,
-   "rank": 148
+   "rank": 132
   },
   {
    "source": "x",
@@ -2223,7 +1470,7 @@
    "product": "MCP /mcp + any route (x402-native buyer)",
    "action": "Draft a reply/DM for owner review.",
    "score": 53,
-   "rank": 149
+   "rank": 133
   },
   {
    "source": "x",
@@ -2234,7 +1481,7 @@
    "product": "MCP /mcp + any route (x402-native buyer)",
    "action": "Draft a reply/DM for owner review.",
    "score": 53,
-   "rank": 150
+   "rank": 134
   },
   {
    "source": "x",
@@ -2245,7 +1492,7 @@
    "product": "MCP /mcp",
    "action": "Draft a reply/DM for owner review.",
    "score": 53,
-   "rank": 151
+   "rank": 135
   },
   {
    "source": "x",
@@ -2256,7 +1503,7 @@
    "product": "/kyb ($2)",
    "action": "Draft a reply/DM for owner review.",
    "score": 53,
-   "rank": 152
+   "rank": 136
   },
   {
    "source": "x",
@@ -2267,7 +1514,7 @@
    "product": "MCP /mcp",
    "action": "Draft a reply/DM for owner review.",
    "score": 53,
-   "rank": 153
+   "rank": 137
   },
   {
    "source": "github-repo",
@@ -2278,7 +1525,7 @@
    "product": "/kyb ($2)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 50,
-   "rank": 154
+   "rank": 138
   },
   {
    "source": "github-repo",
@@ -2289,29 +1536,7 @@
    "product": "/read ($0.002) \u00b7 /convert ($0.03)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 45,
-   "rank": 155
-  },
-  {
-   "source": "onchain",
-   "id": "0x6f07293af3c6dfc66c01a01bbd962b9d730be2bd",
-   "url": "https://basescan.org/address/0x6f07293af3c6dfc66c01a01bbd962b9d730be2bd",
-   "title": "Active x402 payer: 141 payments, $2.82 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys finance/markets. Services: https://www.ax1.vc/api/dashboard/q-verdict/resource",
-   "product": "/wallet \u00b7 /token-check",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 44,
-   "rank": 156
-  },
-  {
-   "source": "onchain",
-   "id": "0xa0e4eca8a15e0d8e8404897a400db8fa3f67f75a",
-   "url": "https://basescan.org/address/0xa0e4eca8a15e0d8e8404897a400db8fa3f67f75a",
-   "title": "Active x402 payer: 114 payments, $2.28 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys finance/markets. Services: https://www.ax1.vc/api/dashboard/q-verdict/resource",
-   "product": "/wallet \u00b7 /token-check",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 44,
-   "rank": 157
+   "rank": 139
   },
   {
    "source": "github-repo",
@@ -2322,51 +1547,7 @@
    "product": "MCP /mcp",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 44,
-   "rank": 158
-  },
-  {
-   "source": "onchain",
-   "id": "0x14ed5e1edf8ca1976beee46a8be692e51eb91b98",
-   "url": "https://basescan.org/address/0x14ed5e1edf8ca1976beee46a8be692e51eb91b98",
-   "title": "Active x402 payer: 74 payments, $1.48 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys finance/markets. Services: https://www.ax1.vc/api/dashboard/q-verdict/resource",
-   "product": "/wallet \u00b7 /token-check",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 43,
-   "rank": 159
-  },
-  {
-   "source": "onchain",
-   "id": "0xaa4ebffacbc9daeb61ef46dc450485401596fef0",
-   "url": "https://basescan.org/address/0xaa4ebffacbc9daeb61ef46dc450485401596fef0",
-   "title": "Active x402 payer: 75 payments, $1.50 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys finance/markets. Services: https://www.ax1.vc/api/dashboard/q-verdict/resource",
-   "product": "/wallet \u00b7 /token-check",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 43,
-   "rank": 160
-  },
-  {
-   "source": "onchain",
-   "id": "0x8000dce4a82e68053326c1f2853d00081084efeb",
-   "url": "https://basescan.org/address/0x8000dce4a82e68053326c1f2853d00081084efeb",
-   "title": "Active x402 payer: 83 payments, $1.42 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys web/scrape. Services: https://win.oneshotagent.com/v1/tools/web-read",
-   "product": "/read \u00b7 /search",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 43,
-   "rank": 161
-  },
-  {
-   "source": "onchain",
-   "id": "0xf9509eb899615159fa23e5c2dcf13d0e01d90dfc",
-   "url": "https://basescan.org/address/0xf9509eb899615159fa23e5c2dcf13d0e01d90dfc",
-   "title": "Active x402 payer: 54 payments, $0.32 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys web/scrape. Services: https://api.exa.ai/search",
-   "product": "/read \u00b7 /search",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 43,
-   "rank": 162
+   "rank": 140
   },
   {
    "source": "github-repo",
@@ -2377,711 +1558,7 @@
    "product": "/kyb ($2)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 43,
-   "rank": 163
-  },
-  {
-   "source": "onchain",
-   "id": "0x129753a64f7ddb2ed0abb30c13e5f4f04bf45733",
-   "url": "https://basescan.org/address/0x129753a64f7ddb2ed0abb30c13e5f4f04bf45733",
-   "title": "Active x402 payer: 10 payments, $2.09 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys ai/llm. Services: https://blockrun.ai/api/v1/chat/completions",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 164
-  },
-  {
-   "source": "onchain",
-   "id": "0xcc8c44ad3dc2a58d841c3eb26131e49b22665ef8",
-   "url": "https://basescan.org/address/0xcc8c44ad3dc2a58d841c3eb26131e49b22665ef8",
-   "title": "Active x402 payer: 7 payments, $0.01 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys ai/llm. Services: https://blockrun.ai/api/v1/chat/completions",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 165
-  },
-  {
-   "source": "onchain",
-   "id": "0x30a6cb9170bf5dbb9e92614b1bf26a33920a641e",
-   "url": "https://basescan.org/address/0x30a6cb9170bf5dbb9e92614b1bf26a33920a641e",
-   "title": "Active x402 payer: 3 payments, $0.01 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys ai/llm. Services: https://blockrun.ai/api/v1/chat/completions",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 166
-  },
-  {
-   "source": "onchain",
-   "id": "0xafb0c4ef895d4895040cdc6435b96d3ee8350c6e",
-   "url": "https://basescan.org/address/0xafb0c4ef895d4895040cdc6435b96d3ee8350c6e",
-   "title": "Active x402 payer: 3 payments, $0.05 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys ai/llm. Services: https://blockrun.ai/api/v1/chat/completions",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 167
-  },
-  {
-   "source": "onchain",
-   "id": "0xb965b767ce7afc9d1d1f60af293f33fea7b5dde8",
-   "url": "https://basescan.org/address/0xb965b767ce7afc9d1d1f60af293f33fea7b5dde8",
-   "title": "Active x402 payer: 7 payments, $1.04 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys ai/llm. Services: https://blockrun.ai/api/v1/chat/completions",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 168
-  },
-  {
-   "source": "onchain",
-   "id": "0xcebd4a656a75ead200ba5c4c39b97a99d024dd0f",
-   "url": "https://basescan.org/address/0xcebd4a656a75ead200ba5c4c39b97a99d024dd0f",
-   "title": "Active x402 payer: 10 payments, $0.20 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys finance/markets. Services: https://www.ax1.vc/api/dashboard/q-verdict/resource",
-   "product": "/wallet \u00b7 /token-check",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 169
-  },
-  {
-   "source": "onchain",
-   "id": "0x6ffe1c6523ba933d18c88426470e6c0a6d9dd1f4",
-   "url": "https://basescan.org/address/0x6ffe1c6523ba933d18c88426470e6c0a6d9dd1f4",
-   "title": "Active x402 payer: 3 payments, $0.06 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys finance/markets. Services: https://www.ax1.vc/api/dashboard/q-verdict/resource",
-   "product": "/wallet \u00b7 /token-check",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 170
-  },
-  {
-   "source": "onchain",
-   "id": "0x20756fb86f3f0e613109b7ee168a8f25f9fafb6e",
-   "url": "https://basescan.org/address/0x20756fb86f3f0e613109b7ee168a8f25f9fafb6e",
-   "title": "Active x402 payer: 37 payments, $0.74 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys finance/markets. Services: https://www.ax1.vc/api/dashboard/q-verdict/resource",
-   "product": "/wallet \u00b7 /token-check",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 171
-  },
-  {
-   "source": "onchain",
-   "id": "0x34acf7774e1ad67bd364319a9f96e1414a9c22f2",
-   "url": "https://basescan.org/address/0x34acf7774e1ad67bd364319a9f96e1414a9c22f2",
-   "title": "Active x402 payer: 19 payments, $0.37 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys finance/markets. Services: https://www.ax1.vc/api/dashboard/q-verdict/resource",
-   "product": "/wallet \u00b7 /token-check",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 172
-  },
-  {
-   "source": "onchain",
-   "id": "0x49cb9e49c2da68ab7b7ff617e11407288dea1ec3",
-   "url": "https://basescan.org/address/0x49cb9e49c2da68ab7b7ff617e11407288dea1ec3",
-   "title": "Active x402 payer: 19 payments, $0.38 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys finance/markets. Services: https://www.ax1.vc/api/dashboard/q-verdict/resource",
-   "product": "/wallet \u00b7 /token-check",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 173
-  },
-  {
-   "source": "onchain",
-   "id": "0xb984f6f63394aed192e8dbc8072e0a78e271885a",
-   "url": "https://basescan.org/address/0xb984f6f63394aed192e8dbc8072e0a78e271885a",
-   "title": "Active x402 payer: 27 payments, $0.54 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys finance/markets. Services: https://www.ax1.vc/api/dashboard/q-verdict/resource",
-   "product": "/wallet \u00b7 /token-check",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 174
-  },
-  {
-   "source": "onchain",
-   "id": "0xcfe9614ab29055946d5e948f20cd3d816bba7593",
-   "url": "https://basescan.org/address/0xcfe9614ab29055946d5e948f20cd3d816bba7593",
-   "title": "Active x402 payer: 31 payments, $0.62 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys finance/markets. Services: https://www.ax1.vc/api/dashboard/q-verdict/resource",
-   "product": "/wallet \u00b7 /token-check",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 175
-  },
-  {
-   "source": "onchain",
-   "id": "0x99817ddb9c8a9639cebf69e98f8ff0a498d2ba10",
-   "url": "https://basescan.org/address/0x99817ddb9c8a9639cebf69e98f8ff0a498d2ba10",
-   "title": "Active x402 payer: 27 payments, $0.54 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys finance/markets. Services: https://www.ax1.vc/api/dashboard/q-verdict/resource",
-   "product": "/wallet \u00b7 /token-check",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 176
-  },
-  {
-   "source": "onchain",
-   "id": "0x81d878873aa83dcab02a5ed571815826268a566e",
-   "url": "https://basescan.org/address/0x81d878873aa83dcab02a5ed571815826268a566e",
-   "title": "Active x402 payer: 24 payments, $0.48 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys finance/markets. Services: https://www.ax1.vc/api/dashboard/q-verdict/resource",
-   "product": "/wallet \u00b7 /token-check",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 177
-  },
-  {
-   "source": "onchain",
-   "id": "0x8d15587670241317ed748f84289e57503f45d8a2",
-   "url": "https://basescan.org/address/0x8d15587670241317ed748f84289e57503f45d8a2",
-   "title": "Active x402 payer: 29 payments, $0.58 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys finance/markets. Services: https://www.ax1.vc/api/dashboard/q-verdict/resource",
-   "product": "/wallet \u00b7 /token-check",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 178
-  },
-  {
-   "source": "onchain",
-   "id": "0x5af51eda715a4a8d391e14f33b8111b5ff3251be",
-   "url": "https://basescan.org/address/0x5af51eda715a4a8d391e14f33b8111b5ff3251be",
-   "title": "Active x402 payer: 25 payments, $0.50 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys finance/markets. Services: https://www.ax1.vc/api/dashboard/q-verdict/resource",
-   "product": "/wallet \u00b7 /token-check",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 179
-  },
-  {
-   "source": "onchain",
-   "id": "0x5a11fb150a67a0c3eafdcca298220a95509776d4",
-   "url": "https://basescan.org/address/0x5a11fb150a67a0c3eafdcca298220a95509776d4",
-   "title": "Active x402 payer: 19 payments, $0.38 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys finance/markets. Services: https://www.ax1.vc/api/dashboard/q-verdict/resource",
-   "product": "/wallet \u00b7 /token-check",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 180
-  },
-  {
-   "source": "onchain",
-   "id": "0x0cf9b79d153da73fbfa93e030b1737365f2bbd05",
-   "url": "https://basescan.org/address/0x0cf9b79d153da73fbfa93e030b1737365f2bbd05",
-   "title": "Active x402 payer: 11 payments, $0.22 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys finance/markets. Services: https://www.ax1.vc/api/dashboard/q-verdict/resource",
-   "product": "/wallet \u00b7 /token-check",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 181
-  },
-  {
-   "source": "onchain",
-   "id": "0x7b9c760fdfe86cc9d0d56f4c46f863a30817112b",
-   "url": "https://basescan.org/address/0x7b9c760fdfe86cc9d0d56f4c46f863a30817112b",
-   "title": "Active x402 payer: 21 payments, $0.42 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys finance/markets. Services: https://www.ax1.vc/api/dashboard/q-verdict/resource",
-   "product": "/wallet \u00b7 /token-check",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 182
-  },
-  {
-   "source": "onchain",
-   "id": "0x0c0d3a429c7b5745ee5fcba087b4bedf73fc6fbb",
-   "url": "https://basescan.org/address/0x0c0d3a429c7b5745ee5fcba087b4bedf73fc6fbb",
-   "title": "Active x402 payer: 3 payments, $0.09 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys web/scrape. Services: https://stableenrich.dev/api/exa/search",
-   "product": "/read \u00b7 /search",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 183
-  },
-  {
-   "source": "onchain",
-   "id": "0x3a2762c54c270a6e097d9b38970b835e5fe59c0b",
-   "url": "https://basescan.org/address/0x3a2762c54c270a6e097d9b38970b835e5fe59c0b",
-   "title": "Active x402 payer: 5 payments, $0.14 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys web/scrape. Services: https://stableenrich.dev/api/exa/search",
-   "product": "/read \u00b7 /search",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 184
-  },
-  {
-   "source": "onchain",
-   "id": "0xd97c63d0503b506b63cae11128cc09d7c1220093",
-   "url": "https://basescan.org/address/0xd97c63d0503b506b63cae11128cc09d7c1220093",
-   "title": "Active x402 payer: 9 payments, $0.14 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys web/scrape. Services: https://stableenrich.dev/api/exa/search",
-   "product": "/read \u00b7 /search",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 185
-  },
-  {
-   "source": "onchain",
-   "id": "0xb915d66f1d030302f99ff2bab29f6c2445ff431c",
-   "url": "https://basescan.org/address/0xb915d66f1d030302f99ff2bab29f6c2445ff431c",
-   "title": "Active x402 payer: 14 payments, $0.07 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 186
-  },
-  {
-   "source": "onchain",
-   "id": "0xfaf265ef530387862c612539d43704ce3e965c5f",
-   "url": "https://basescan.org/address/0xfaf265ef530387862c612539d43704ce3e965c5f",
-   "title": "Active x402 payer: 4 payments, $0.02 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 187
-  },
-  {
-   "source": "onchain",
-   "id": "0x9bd626851964c57b762c845147e2c0bc7f64f155",
-   "url": "https://basescan.org/address/0x9bd626851964c57b762c845147e2c0bc7f64f155",
-   "title": "Active x402 payer: 5 payments, $0.03 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 188
-  },
-  {
-   "source": "onchain",
-   "id": "0x26d014dda0421919c253fffe12523e1ef898bb0b",
-   "url": "https://basescan.org/address/0x26d014dda0421919c253fffe12523e1ef898bb0b",
-   "title": "Active x402 payer: 6 payments, $0.03 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 189
-  },
-  {
-   "source": "onchain",
-   "id": "0x394165502af6d318ed9c8a3188ad1f25c489a3e7",
-   "url": "https://basescan.org/address/0x394165502af6d318ed9c8a3188ad1f25c489a3e7",
-   "title": "Active x402 payer: 3 payments, $0.01 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 190
-  },
-  {
-   "source": "onchain",
-   "id": "0x3ea5266669ed8623af76e98304b5e7f8222641ec",
-   "url": "https://basescan.org/address/0x3ea5266669ed8623af76e98304b5e7f8222641ec",
-   "title": "Active x402 payer: 6 payments, $0.03 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 191
-  },
-  {
-   "source": "onchain",
-   "id": "0x87f818fc54214522349270dd7b5c37550724d5be",
-   "url": "https://basescan.org/address/0x87f818fc54214522349270dd7b5c37550724d5be",
-   "title": "Active x402 payer: 6 payments, $0.03 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 192
-  },
-  {
-   "source": "onchain",
-   "id": "0x24b47433ad47d6367ffc38dec4cbc808ac1e1289",
-   "url": "https://basescan.org/address/0x24b47433ad47d6367ffc38dec4cbc808ac1e1289",
-   "title": "Active x402 payer: 6 payments, $0.03 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 193
-  },
-  {
-   "source": "onchain",
-   "id": "0xf921b3808b64f7c5d24b2450a50c8bff39e3f610",
-   "url": "https://basescan.org/address/0xf921b3808b64f7c5d24b2450a50c8bff39e3f610",
-   "title": "Active x402 payer: 5 payments, $0.03 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 194
-  },
-  {
-   "source": "onchain",
-   "id": "0x5b6b0db77555ceeb995ce4d1c3e4685fb1a4362f",
-   "url": "https://basescan.org/address/0x5b6b0db77555ceeb995ce4d1c3e4685fb1a4362f",
-   "title": "Active x402 payer: 6 payments, $0.03 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 195
-  },
-  {
-   "source": "onchain",
-   "id": "0xbb3747a5869c6e927ba01d9e8753737dcd48ce56",
-   "url": "https://basescan.org/address/0xbb3747a5869c6e927ba01d9e8753737dcd48ce56",
-   "title": "Active x402 payer: 7 payments, $0.04 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 196
-  },
-  {
-   "source": "onchain",
-   "id": "0x3d63eee2dd58570e3f0bd6642fabd49efd15e524",
-   "url": "https://basescan.org/address/0x3d63eee2dd58570e3f0bd6642fabd49efd15e524",
-   "title": "Active x402 payer: 4 payments, $0.02 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 197
-  },
-  {
-   "source": "onchain",
-   "id": "0xed65aa9439f793e561603ed11e8808fff38fefa2",
-   "url": "https://basescan.org/address/0xed65aa9439f793e561603ed11e8808fff38fefa2",
-   "title": "Active x402 payer: 5 payments, $0.03 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 198
-  },
-  {
-   "source": "onchain",
-   "id": "0x934d126a0c542697b6cff198658cbc39642c811a",
-   "url": "https://basescan.org/address/0x934d126a0c542697b6cff198658cbc39642c811a",
-   "title": "Active x402 payer: 4 payments, $0.02 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 199
-  },
-  {
-   "source": "onchain",
-   "id": "0xc99b1433c99427d33b6989a57a3233e264e81a63",
-   "url": "https://basescan.org/address/0xc99b1433c99427d33b6989a57a3233e264e81a63",
-   "title": "Active x402 payer: 7 payments, $0.04 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 200
-  },
-  {
-   "source": "onchain",
-   "id": "0x93f4d0a4d783c14fa63a3bdf23c880852f236f48",
-   "url": "https://basescan.org/address/0x93f4d0a4d783c14fa63a3bdf23c880852f236f48",
-   "title": "Active x402 payer: 10 payments, $0.05 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 201
-  },
-  {
-   "source": "onchain",
-   "id": "0xe6ba18a053b0f403a10f1ebe7218a87d6031dbd9",
-   "url": "https://basescan.org/address/0xe6ba18a053b0f403a10f1ebe7218a87d6031dbd9",
-   "title": "Active x402 payer: 4 payments, $0.02 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 202
-  },
-  {
-   "source": "onchain",
-   "id": "0x39617305c3ccc1a2670793d16a48609ec6de44e0",
-   "url": "https://basescan.org/address/0x39617305c3ccc1a2670793d16a48609ec6de44e0",
-   "title": "Active x402 payer: 7 payments, $0.04 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 203
-  },
-  {
-   "source": "onchain",
-   "id": "0x08ff47937b787ef6a5060c365b32fcc966e020a4",
-   "url": "https://basescan.org/address/0x08ff47937b787ef6a5060c365b32fcc966e020a4",
-   "title": "Active x402 payer: 6 payments, $0.03 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 204
-  },
-  {
-   "source": "onchain",
-   "id": "0xcfe3a37bdc7e56af6f90634f211b8b6487839a04",
-   "url": "https://basescan.org/address/0xcfe3a37bdc7e56af6f90634f211b8b6487839a04",
-   "title": "Active x402 payer: 7 payments, $0.04 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 205
-  },
-  {
-   "source": "onchain",
-   "id": "0xe92378a12273cc179bed4c23a88a553a021bae8d",
-   "url": "https://basescan.org/address/0xe92378a12273cc179bed4c23a88a553a021bae8d",
-   "title": "Active x402 payer: 6 payments, $0.03 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 206
-  },
-  {
-   "source": "onchain",
-   "id": "0xe2348f8830910722c3281358477cf1a7628b6541",
-   "url": "https://basescan.org/address/0xe2348f8830910722c3281358477cf1a7628b6541",
-   "title": "Active x402 payer: 3 payments, $0.01 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 207
-  },
-  {
-   "source": "onchain",
-   "id": "0x303c9f3da3c33868d1057550acb309b44186e7b9",
-   "url": "https://basescan.org/address/0x303c9f3da3c33868d1057550acb309b44186e7b9",
-   "title": "Active x402 payer: 12 payments, $0.06 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 208
-  },
-  {
-   "source": "onchain",
-   "id": "0x0cbac4ddc807d186949f0603785fb478e3b6fe9a",
-   "url": "https://basescan.org/address/0x0cbac4ddc807d186949f0603785fb478e3b6fe9a",
-   "title": "Active x402 payer: 4 payments, $0.02 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 209
-  },
-  {
-   "source": "onchain",
-   "id": "0xd9e2a2926e980dd8ccb73b19ef07d5e7c559bece",
-   "url": "https://basescan.org/address/0xd9e2a2926e980dd8ccb73b19ef07d5e7c559bece",
-   "title": "Active x402 payer: 3 payments, $0.01 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 210
-  },
-  {
-   "source": "onchain",
-   "id": "0x7fbd092ffbb28bba1ff9f46c273069229b9752b2",
-   "url": "https://basescan.org/address/0x7fbd092ffbb28bba1ff9f46c273069229b9752b2",
-   "title": "Active x402 payer: 4 payments, $0.02 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 211
-  },
-  {
-   "source": "onchain",
-   "id": "0x1defd84df763069b0ab710eae9d7b0e44c8322c0",
-   "url": "https://basescan.org/address/0x1defd84df763069b0ab710eae9d7b0e44c8322c0",
-   "title": "Active x402 payer: 3 payments, $0.01 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 212
-  },
-  {
-   "source": "onchain",
-   "id": "0x800dc0ca43d18455be6f14f82278f61d01403ffb",
-   "url": "https://basescan.org/address/0x800dc0ca43d18455be6f14f82278f61d01403ffb",
-   "title": "Active x402 payer: 4 payments, $0.02 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 213
-  },
-  {
-   "source": "onchain",
-   "id": "0xa0181f549f2c09021d1187fdc1b4143938ca18d4",
-   "url": "https://basescan.org/address/0xa0181f549f2c09021d1187fdc1b4143938ca18d4",
-   "title": "Active x402 payer: 4 payments, $0.02 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 214
-  },
-  {
-   "source": "onchain",
-   "id": "0xc1f7700aea4b5e991bc799ae6144a87ee64614c7",
-   "url": "https://basescan.org/address/0xc1f7700aea4b5e991bc799ae6144a87ee64614c7",
-   "title": "Active x402 payer: 4 payments, $0.02 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 215
-  },
-  {
-   "source": "onchain",
-   "id": "0xe0e4f2a4ea4c2ea186492421820abe4f5bed42ad",
-   "url": "https://basescan.org/address/0xe0e4f2a4ea4c2ea186492421820abe4f5bed42ad",
-   "title": "Active x402 payer: 3 payments, $0.01 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://agent.pocket.network/v1/meadow",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 216
-  },
-  {
-   "source": "onchain",
-   "id": "0xc774eb0ad35b3f3bdc06212859bcaf3d54b11bd7",
-   "url": "https://basescan.org/address/0xc774eb0ad35b3f3bdc06212859bcaf3d54b11bd7",
-   "title": "Active x402 payer: 4 payments, $0.20 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://keyring-agent.blockchhub.link/api/send-native",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 217
-  },
-  {
-   "source": "onchain",
-   "id": "0xc84f07555a93e2bd8972601f80560bfe0a028bbf",
-   "url": "https://basescan.org/address/0xc84f07555a93e2bd8972601f80560bfe0a028bbf",
-   "title": "Active x402 payer: 3 payments, $0.15 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://keyring-agent.blockchhub.link/api/send-native",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 218
-  },
-  {
-   "source": "onchain",
-   "id": "0xcf6ac7315f9529397c47e6853bb3ae4ffcdf82c6",
-   "url": "https://basescan.org/address/0xcf6ac7315f9529397c47e6853bb3ae4ffcdf82c6",
-   "title": "Active x402 payer: 3 payments, $0.15 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://keyring-agent.blockchhub.link/api/send-native",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 219
-  },
-  {
-   "source": "onchain",
-   "id": "0x3adcfcde027b6b79e9c186e2024fe1b4fabfc495",
-   "url": "https://basescan.org/address/0x3adcfcde027b6b79e9c186e2024fe1b4fabfc495",
-   "title": "Active x402 payer: 3 payments, $0.15 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://keyring-agent.blockchhub.link/api/send-native",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 220
-  },
-  {
-   "source": "onchain",
-   "id": "0xae75562df500334be3f64b0f7588624d5536d361",
-   "url": "https://basescan.org/address/0xae75562df500334be3f64b0f7588624d5536d361",
-   "title": "Active x402 payer: 4 payments, $0.20 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://keyring-agent.blockchhub.link/api/send-native",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 221
-  },
-  {
-   "source": "onchain",
-   "id": "0x0d879b43bbf56f3d7c112bffea75dbde1d110edf",
-   "url": "https://basescan.org/address/0x0d879b43bbf56f3d7c112bffea75dbde1d110edf",
-   "title": "Active x402 payer: 3 payments, $0.15 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://keyring-agent.blockchhub.link/api/send-native",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 222
-  },
-  {
-   "source": "onchain",
-   "id": "0x4c1b034a2264863b6c87130793f818f7f5484261",
-   "url": "https://basescan.org/address/0x4c1b034a2264863b6c87130793f818f7f5484261",
-   "title": "Active x402 payer: 14 payments, $0.55 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys web/scrape. Services: https://win.oneshotagent.com/v1/tools/web-read",
-   "product": "/read \u00b7 /search",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 223
-  },
-  {
-   "source": "onchain",
-   "id": "0xa0adf9129c75454f42146193bb330e3c5193857f",
-   "url": "https://basescan.org/address/0xa0adf9129c75454f42146193bb330e3c5193857f",
-   "title": "Active x402 payer: 32 payments, $0.16 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://www.api-xpay.com/x402/ping",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 224
-  },
-  {
-   "source": "onchain",
-   "id": "0xa0ad3e696cd2046982f9c74451b535ef2f1c857f",
-   "url": "https://basescan.org/address/0xa0ad3e696cd2046982f9c74451b535ef2f1c857f",
-   "title": "Active x402 payer: 23 payments, $0.00 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys other. Services: https://www.api-xpay.com/x402/ping",
-   "product": "MCP bundle",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 225
-  },
-  {
-   "source": "onchain",
-   "id": "0x6b6ad675cbf2e0355232ede1868ee01d1d811ff1",
-   "url": "https://basescan.org/address/0x6b6ad675cbf2e0355232ede1868ee01d1d811ff1",
-   "title": "Active x402 payer: 4 payments, $0.02 USDC to 1 Bazaar services in ~11h",
-   "why": "Already pays x402 programmatically; buys web/scrape. Services: https://x402.twit.sh/tweets/search",
-   "product": "/read \u00b7 /search",
-   "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
-   "score": 42,
-   "rank": 226
-  },
-  {
-   "source": "github-repo",
-   "id": "https://github.com/kychee-com/run402",
-   "url": "https://github.com/kychee-com/run402",
-   "title": "kychee-com/run402 \u260524: Full-stack backend infrastructure for AI agents: Postgres, auth, storage, serverless functions and atomic deploys. TypeS",
-   "why": "Active (2026-11-06) project matching 'x402 mcp'",
-   "product": "MCP /mcp + any route (x402-native buyer)",
-   "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
-   "score": 41,
-   "rank": 227
+   "rank": 141
   },
   {
    "source": "github-repo",
@@ -3092,29 +1569,7 @@
    "product": "MCP /mcp",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 41,
-   "rank": 228
-  },
-  {
-   "source": "github-repo",
-   "id": "https://github.com/mikeperry-tor/x402_treazury",
-   "url": "https://github.com/mikeperry-tor/x402_treazury",
-   "title": "mikeperry-tor/x402_treazury \u26051: Privacy-enhanced x402 payments for AI agents.",
-   "why": "Active (2026-11-06) project matching 'x402 agent'",
-   "product": "MCP /mcp + any route (x402-native buyer)",
-   "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
-   "score": 40,
-   "rank": 229
-  },
-  {
-   "source": "github-repo",
-   "id": "https://github.com/kaustubh76/ACR---Arc-Compute-Rate",
-   "url": "https://github.com/kaustubh76/ACR---Arc-Compute-Rate",
-   "title": "kaustubh76/ACR---Arc-Compute-Rate \u26051: A live on-chain reference rate for machine compute on Circle's Arc \u2014 SOFR for the agentic economy. A statistical estimat",
-   "why": "Active (2026-11-06) project matching 'x402 agent'",
-   "product": "MCP /mcp + any route (x402-native buyer)",
-   "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
-   "score": 40,
-   "rank": 230
+   "rank": 142
   },
   {
    "source": "github-repo",
@@ -3125,18 +1580,18 @@
    "product": "MCP /mcp + any route (x402-native buyer)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 231
+   "rank": 143
   },
   {
    "source": "github-repo",
-   "id": "https://github.com/ivcained/0gaze",
-   "url": "https://github.com/ivcained/0gaze",
-   "title": "ivcained/0gaze \u26050: EyesOnly: privacy-preserving AI-agent payments with hardware signing, AR approvals, and ZKP motion presence",
+   "id": "https://github.com/om-malviya/tender",
+   "url": "https://github.com/om-malviya/tender",
+   "title": "om-malviya/tender \u26050: Pay with any token, the merchant gets the exact amount: Uniswap v4 checkout hook + route ranking, USDT invoices & refund",
    "why": "Active (2026-11-06) project matching 'x402 agent'",
-   "product": "MCP /mcp",
+   "product": "MCP /mcp + any route (x402-native buyer)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 232
+   "rank": 144
   },
   {
    "source": "github-repo",
@@ -3147,7 +1602,51 @@
    "product": "MCP /mcp + any route (x402-native buyer)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 233
+   "rank": 145
+  },
+  {
+   "source": "github-repo",
+   "id": "https://github.com/alalanet/alalanet-agent",
+   "url": "https://github.com/alalanet/alalanet-agent",
+   "title": "alalanet/alalanet-agent \u26050: Local signer and MCP server for alalanet.com: agent passports, two-sided receipts, signed releases; the key stays on you",
+   "why": "Active (2026-11-06) project matching 'x402 agent'",
+   "product": "MCP /mcp",
+   "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
+   "score": 40,
+   "rank": 146
+  },
+  {
+   "source": "github-repo",
+   "id": "https://github.com/roshpinacare-sys/dynamis",
+   "url": "https://github.com/roshpinacare-sys/dynamis",
+   "title": "roshpinacare-sys/dynamis \u26050: DYNAMIS \u2014 the work-verified agent economy. A public network protocol that pays agents in verified work (not votes) plus ",
+   "why": "Active (2026-11-06) project matching 'x402 agent'",
+   "product": "MCP /mcp",
+   "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
+   "score": 40,
+   "rank": 147
+  },
+  {
+   "source": "github-repo",
+   "id": "https://github.com/rezearcher/x402-data-api",
+   "url": "https://github.com/rezearcher/x402-data-api",
+   "title": "rezearcher/x402-data-api \u26050: Agent-native x402 pay-per-call data & security APIs on Base (crypto, DeFi, on-chain, Polymarket, MCP security scan)",
+   "why": "Active (2026-11-06) project matching 'x402 agent'",
+   "product": "MCP /mcp + any route (x402-native buyer)",
+   "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
+   "score": 40,
+   "rank": 148
+  },
+  {
+   "source": "github-repo",
+   "id": "https://github.com/calebfbyker-lab/codeximmortal-mcp",
+   "url": "https://github.com/calebfbyker-lab/codeximmortal-mcp",
+   "title": "calebfbyker-lab/codeximmortal-mcp \u26050: Public MCP server and agent-discovery surface for CodexImmortal: catalog tools, attestation verification, x402/AP2 check",
+   "why": "Active (2026-11-06) project matching 'x402 agent'",
+   "product": "MCP /mcp + any route (x402-native buyer)",
+   "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
+   "score": 40,
+   "rank": 149
   },
   {
    "source": "github-repo",
@@ -3158,51 +1657,18 @@
    "product": "MCP /mcp + any route (x402-native buyer)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 234
+   "rank": 150
   },
   {
    "source": "github-repo",
-   "id": "https://github.com/AloysJehwin/ordo_orchestrator",
-   "url": "https://github.com/AloysJehwin/ordo_orchestrator",
-   "title": "AloysJehwin/ordo_orchestrator \u26050: Ordo: manufacturing pipelines with proof of work through 0G Private Computer, machine agents and x402 on Hedera",
+   "id": "https://github.com/mikeperry-tor/x402_treazury",
+   "url": "https://github.com/mikeperry-tor/x402_treazury",
+   "title": "mikeperry-tor/x402_treazury \u26051: Privacy-enhanced x402 payments for AI agents.",
    "why": "Active (2026-11-06) project matching 'x402 agent'",
    "product": "MCP /mcp + any route (x402-native buyer)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 235
-  },
-  {
-   "source": "github-repo",
-   "id": "https://github.com/strale-io/strale",
-   "url": "https://github.com/strale-io/strale",
-   "title": "strale-io/strale \u26055: New tools for your agent. No new accounts. One connection to a growing library of tools agents can pay for per call.",
-   "why": "Active (2026-11-06) project matching 'x402 agent'",
-   "product": "MCP /mcp",
-   "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
-   "score": 40,
-   "rank": 236
-  },
-  {
-   "source": "github-repo",
-   "id": "https://github.com/rmartins1451/losbeto",
-   "url": "https://github.com/rmartins1451/losbeto",
-   "title": "rmartins1451/losbeto \u26050: x402-paid LLM gateway (OpenAI-compatible) + market data for AI agents \u2014 USDC on Base/Solana/Algorand. Public receipts, p",
-   "why": "Active (2026-11-06) project matching 'x402 agent'",
-   "product": "MCP /mcp + any route (x402-native buyer)",
-   "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
-   "score": 40,
-   "rank": 237
-  },
-  {
-   "source": "github-repo",
-   "id": "https://github.com/tangle-network/agent-client",
-   "url": "https://github.com/tangle-network/agent-client",
-   "title": "tangle-network/agent-client \u26050: Consumer SDK for calling Tangle agent apps (OpenAI-compatible, x402/MPP/API-key auth)",
-   "why": "Active (2026-11-06) project matching 'x402 agent'",
-   "product": "MCP /mcp + any route (x402-native buyer)",
-   "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
-   "score": 40,
-   "rank": 238
+   "rank": 151
   },
   {
    "source": "github-repo",
@@ -3213,7 +1679,7 @@
    "product": "MCP /mcp + any route (x402-native buyer)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 239
+   "rank": 152
   },
   {
    "source": "github-repo",
@@ -3224,7 +1690,7 @@
    "product": "MCP /mcp + any route (x402-native buyer)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 240
+   "rank": 153
   },
   {
    "source": "github-repo",
@@ -3235,7 +1701,7 @@
    "product": "MCP /mcp + any route (x402-native buyer)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 241
+   "rank": 154
   },
   {
    "source": "github-repo",
@@ -3246,7 +1712,7 @@
    "product": "MCP /mcp + any route (x402-native buyer)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 242
+   "rank": 155
   },
   {
    "source": "github-repo",
@@ -3257,7 +1723,7 @@
    "product": "MCP /mcp + any route (x402-native buyer)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 243
+   "rank": 156
   },
   {
    "source": "github-repo",
@@ -3268,7 +1734,7 @@
    "product": "MCP /mcp + any route (x402-native buyer)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 244
+   "rank": 157
   },
   {
    "source": "github-repo",
@@ -3279,7 +1745,7 @@
    "product": "MCP /mcp + any route (x402-native buyer)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 245
+   "rank": 158
   },
   {
    "source": "github-repo",
@@ -3290,7 +1756,7 @@
    "product": "MCP /mcp + any route (x402-native buyer)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 246
+   "rank": 159
   },
   {
    "source": "github-repo",
@@ -3301,7 +1767,40 @@
    "product": "MCP /mcp + any route (x402-native buyer)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 247
+   "rank": 160
+  },
+  {
+   "source": "github-repo",
+   "id": "https://github.com/zambodotdev/zambo-mcp",
+   "url": "https://github.com/zambodotdev/zambo-mcp",
+   "title": "zambodotdev/zambo-mcp \u26050: Zambo is the verifiable work layer for AI, created by Brennan Zambo: 153 tools (36 default) behind one MCP endpoint at h",
+   "why": "Active (2026-11-06) project matching 'x402 mcp'",
+   "product": "MCP /mcp",
+   "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
+   "score": 40,
+   "rank": 161
+  },
+  {
+   "source": "github-repo",
+   "id": "https://github.com/ASTRANL/astranl-mcp",
+   "url": "https://github.com/ASTRANL/astranl-mcp",
+   "title": "ASTRANL/astranl-mcp \u26050: AstraNL \u2014 protocol-governed coordination infrastructure for the AI + robot + human economy. Live MCP server, Europe-wide",
+   "why": "Active (2026-11-06) project matching 'x402 mcp'",
+   "product": "MCP /mcp",
+   "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
+   "score": 40,
+   "rank": 162
+  },
+  {
+   "source": "github-repo",
+   "id": "https://github.com/strale-io/strale",
+   "url": "https://github.com/strale-io/strale",
+   "title": "strale-io/strale \u26055: New tools for your agent. No new accounts. One connection to a growing library of tools agents can pay for per call.",
+   "why": "Active (2026-11-06) project matching 'x402 mcp'",
+   "product": "MCP /mcp",
+   "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
+   "score": 40,
+   "rank": 163
   },
   {
    "source": "github-repo",
@@ -3312,62 +1811,7 @@
    "product": "MCP /mcp",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 248
-  },
-  {
-   "source": "github-repo",
-   "id": "https://github.com/SELAT-AI/selat-skills",
-   "url": "https://github.com/SELAT-AI/selat-skills",
-   "title": "SELAT-AI/selat-skills \u26052: ",
-   "why": "Active (2026-11-06) project matching 'x402 mcp'",
-   "product": "MCP /mcp",
-   "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
-   "score": 40,
-   "rank": 249
-  },
-  {
-   "source": "github-repo",
-   "id": "https://github.com/groundtruth-now/groundtruth-mcp",
-   "url": "https://github.com/groundtruth-now/groundtruth-mcp",
-   "title": "groundtruth-now/groundtruth-mcp \u26050: Dev history for Solana (pump.fun) and Robinhood Chain memecoins: what a creator launched and how it ended. Every count w",
-   "why": "Active (2026-11-06) project matching 'x402 mcp'",
-   "product": "MCP /mcp + any route (x402-native buyer)",
-   "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
-   "score": 40,
-   "rank": 250
-  },
-  {
-   "source": "github-repo",
-   "id": "https://github.com/rezearcher/x402-data-api",
-   "url": "https://github.com/rezearcher/x402-data-api",
-   "title": "rezearcher/x402-data-api \u26050: Agent-native x402 pay-per-call data & security APIs on Base (crypto, DeFi, on-chain, Polymarket, MCP security scan)",
-   "why": "Active (2026-11-06) project matching 'x402 mcp'",
-   "product": "MCP /mcp + any route (x402-native buyer)",
-   "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
-   "score": 40,
-   "rank": 251
-  },
-  {
-   "source": "github-repo",
-   "id": "https://github.com/rezearcher/x402-defi-data",
-   "url": "https://github.com/rezearcher/x402-defi-data",
-   "title": "rezearcher/x402-defi-data \u26050: Installable agent skill: decision-tagged DeFi data an agent pays for inline with x402 (USDC on Base) \u2014 yields tagged SUS",
-   "why": "Active (2026-11-06) project matching 'x402 mcp'",
-   "product": "MCP /mcp + any route (x402-native buyer)",
-   "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
-   "score": 40,
-   "rank": 252
-  },
-  {
-   "source": "github-repo",
-   "id": "https://github.com/Hugo0/swarmmemo",
-   "url": "https://github.com/Hugo0/swarmmemo",
-   "title": "Hugo0/swarmmemo \u26053: Talk with agent swarms. Public rooms, private messages, paid tasks and memory for your AI agent. Post from anywhere: MCP",
-   "why": "Active (2026-11-06) project matching 'x402 mcp'",
-   "product": "MCP /mcp",
-   "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
-   "score": 40,
-   "rank": 253
+   "rank": 164
   },
   {
    "source": "github-repo",
@@ -3378,7 +1822,7 @@
    "product": "MCP /mcp + any route (x402-native buyer)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 254
+   "rank": 165
   },
   {
    "source": "github-repo",
@@ -3389,7 +1833,7 @@
    "product": "MCP /mcp",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 255
+   "rank": 166
   },
   {
    "source": "github-repo",
@@ -3400,7 +1844,7 @@
    "product": "MCP /mcp",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 256
+   "rank": 167
   },
   {
    "source": "github-repo",
@@ -3411,7 +1855,7 @@
    "product": "MCP /mcp",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 257
+   "rank": 168
   },
   {
    "source": "github-repo",
@@ -3422,7 +1866,7 @@
    "product": "/kyb ($2)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 258
+   "rank": 169
   },
   {
    "source": "github-repo",
@@ -3433,7 +1877,7 @@
    "product": "/uk-company ($0.50) \u00b7 /uk-company-lite ($0.05)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 259
+   "rank": 170
   },
   {
    "source": "github-repo",
@@ -3444,7 +1888,7 @@
    "product": "/uk-company ($0.50) \u00b7 /uk-company-lite ($0.05)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 260
+   "rank": 171
   },
   {
    "source": "github-repo",
@@ -3455,7 +1899,7 @@
    "product": "/company ($0.25) \u00b7 /company-full ($0.65)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 261
+   "rank": 172
   },
   {
    "source": "github-repo",
@@ -3466,7 +1910,7 @@
    "product": "/uk-company ($0.50) \u00b7 /uk-company-lite ($0.05)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 262
+   "rank": 173
   },
   {
    "source": "github-repo",
@@ -3477,7 +1921,7 @@
    "product": "MCP /mcp",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 263
+   "rank": 174
   },
   {
    "source": "github-repo",
@@ -3488,7 +1932,7 @@
    "product": "/uk-company ($0.50) \u00b7 /uk-company-lite ($0.05)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 264
+   "rank": 175
   },
   {
    "source": "github-repo",
@@ -3499,7 +1943,7 @@
    "product": "MCP /mcp",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 265
+   "rank": 176
   },
   {
    "source": "github-repo",
@@ -3510,7 +1954,7 @@
    "product": "MCP /mcp",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 266
+   "rank": 177
   },
   {
    "source": "github-repo",
@@ -3521,7 +1965,7 @@
    "product": "MCP /mcp",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 267
+   "rank": 178
   },
   {
    "source": "github-repo",
@@ -3532,7 +1976,7 @@
    "product": "/us-sec ($0.05) \u00b7 /us-sec-full ($0.25)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 268
+   "rank": 179
   },
   {
    "source": "github-repo",
@@ -3543,7 +1987,7 @@
    "product": "/us-sec ($0.05) \u00b7 /us-sec-full ($0.25)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 269
+   "rank": 180
   },
   {
    "source": "github-repo",
@@ -3554,7 +1998,7 @@
    "product": "/us-sec ($0.05) \u00b7 /us-sec-full ($0.25)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 270
+   "rank": 181
   },
   {
    "source": "github-repo",
@@ -3565,7 +2009,7 @@
    "product": "/us-sec ($0.05) \u00b7 /us-sec-full ($0.25)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 271
+   "rank": 182
   },
   {
    "source": "github-repo",
@@ -3576,7 +2020,7 @@
    "product": "/us-sec ($0.05) \u00b7 /us-sec-full ($0.25)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 272
+   "rank": 183
   },
   {
    "source": "github-repo",
@@ -3587,7 +2031,7 @@
    "product": "/us-sec ($0.05) \u00b7 /us-sec-full ($0.25)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 273
+   "rank": 184
   },
   {
    "source": "github-repo",
@@ -3598,7 +2042,7 @@
    "product": "/kyb ($2)",
    "action": "Check for a tools/integrations folder or 'awesome' list accepting community entries; PR an AgentReader integration if useful.",
    "score": 40,
-   "rank": 274
+   "rank": 185
   }
  ]
 }
