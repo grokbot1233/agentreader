@@ -1,7 +1,7 @@
 # Axiom Works AgentReader
 
 > Pay-per-call tools for AI agents. No API keys: x402 (HTTP 402) + USDC on Base (eip155:8453), payTo 0x88b1c747c33A5868A34057D8C57318E5602b3ff6.
-> Free truncated samples: https://api.axiomworks.co.uk/samples/{read|company|uk-company|uk-company-lite|convert|uk-charity|uk-charity-full|us-sec|us-sec-full|eu-vat|lei|lei-full|read-batch|uk-leads|uk-leads-lite|kyb|uk-dd|email-check|domain|dns|redirects|meta|headers|au-company|ca-company|uk-officer|uk-property|uk-area|sanctions|sanctions-batch} (8/IP/day). Or add &preview=1 on paid GETs (same limit).
+> Free truncated samples: https://api.axiomworks.co.uk/samples/{read|company|uk-company|uk-company-lite|convert|uk-charity|uk-charity-full|us-sec|us-sec-full|eu-vat|lei|lei-full|read-batch|uk-leads|uk-leads-lite|kyb|uk-dd|uk-watch|email-check|domain|dns|redirects|meta|headers|au-company|ca-company|uk-officer|uk-property|uk-area|sanctions|sanctions-batch} (8/IP/day). Or add &preview=1 on paid GETs (same limit).
 
 ## Big hitters (start here)
 
@@ -9,7 +9,7 @@
 |---|---|---|
 | One-shot agent KYB pack (UK/AU/CA/FR registry + VAT + website + sanctions + LEI) | https://api.axiomworks.co.uk/kyb?number=00445790 | $2.50 |
 | UK due-diligence job (full Companies House pack + sanctions on entity and officers) | https://api.axiomworks.co.uk/uk-dd?number=00445790 | $1.00 |
-| UK company watch (hourly status/officers/filings → webhook) | POST https://api.axiomworks.co.uk/uk-watch | $5.00/30d |
+| UK company watch (hourly status/officers/filings/PSC/charges → webhook) | POST https://api.axiomworks.co.uk/uk-watch | $5.00/30d |
 | UK leads search by SIC/area | https://api.axiomworks.co.uk/uk-leads?sic=62012 | $1.00 |
 | UK leads daily webhook feed | POST https://api.axiomworks.co.uk/uk-leads-feed | $25.00/30d |
 | UK company full report | https://api.axiomworks.co.uk/uk-company?number=00445790 | $0.50 |
@@ -70,7 +70,7 @@ Supporting real-data checks: /uk-company-lite, /uk-charity, /sanctions, /au-comp
 | UK new cos (lite) | https://api.axiomworks.co.uk/uk-leads-lite?sic=&location= | $0.25 | New incorporations 1-7d, no directors |
 | UK new cos + directors | https://api.axiomworks.co.uk/uk-leads?sic=&location= | $1.00 | + active officer names, mass-formation flags |
 | UK leads daily feed | POST https://api.axiomworks.co.uk/uk-leads-feed | $25.00/30d | Daily webhook of new matches |
-| UK company watch | POST https://api.axiomworks.co.uk/uk-watch | $5.00/30d | Hourly CH status/officers/filings → webhook |
+| UK company watch | POST https://api.axiomworks.co.uk/uk-watch | $5.00/30d | Hourly CH status/officers/filings/PSC/charges → webhook |
 | UK DD job | https://api.axiomworks.co.uk/uk-dd?number=00445790 (optional name=/domain=) | $1.00 | Full CH pack + sanctions (entity+officers) + optional RDAP/website → trust flag. Free preview: https://api.axiomworks.co.uk/uk-dd?number=00445790&preview=1 |
 | Agent KYB pack | https://api.axiomworks.co.uk/kyb?number=00445790 (or acn=/ca_number=/siren=/orgnr=/vat=/domain=) | $2.50 | UK/AU/CA/FR/NO + VAT + website + sanctions + director appointments + trust flag. Free preview: https://api.axiomworks.co.uk/kyb?number=00445790&preview=1 (lite UK + entity sanctions; pay for full pack) |
 | French company | https://api.axiomworks.co.uk/fr-company?siren=443061841 (or siret=/name=) | $0.25 | Official Recherche d'entreprises: name, status, NAF, siège, dirigeants, finances. Free preview: https://api.axiomworks.co.uk/fr-company?siren=443061841&preview=1 |
