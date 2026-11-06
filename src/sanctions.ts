@@ -433,6 +433,7 @@ export async function refreshSanctionsIndex(env: EnvKV): Promise<{ ok: boolean; 
     }
   } catch { prev = null; }
   const prevOfac = (prev?.entries || []).filter((e) => e.list === "OFAC-SDN" || e.list === "OFAC-CONS");
+  // UK/UN/EU keep prior rows in their own catch blocks below.
 
   try {
     const [sdn, alt] = await Promise.all([fetchTextFirst(OFAC_SDN), fetchTextFirst(OFAC_ALT)]);
@@ -486,10 +487,16 @@ export async function refreshSanctionsIndex(env: EnvKV): Promise<{ ok: boolean; 
     };
   } catch (e: any) {
     errors.push(`UN-SC: ${e?.message || e}`);
-    sources["UN-SC"] = { url: "https://scsanctions.un.org/resources/xml/en/consolidated.xml", licence: "UN public data", count: 0, error: String(e?.message || e) };
+    const kept = (prev?.entries || []).filter((x) => x.list === "UN-SC");
+    if (kept.length) {
+      all.push(...kept);
+      sources["UN-SC"] = { url: "https://scsanctions.un.org/resources/xml/en/consolidated.xml", licence: "UN public data", count: kept.length, error: `refresh failed, kept prior ${kept.length}: ${String(e?.message || e)}` };
+    } else {
+      sources["UN-SC"] = { url: "https://scsanctions.un.org/resources/xml/en/consolidated.xml", licence: "UN public data", count: 0, error: String(e?.message || e) };
+    }
   }
 
-  try {
+    try {
     const csv = await fetchText("https://sanctionslist.fcdo.gov.uk/docs/UK-Sanctions-List.csv", 180000);
     const { entries, pub } = parseUk(csv);
     all.push(...entries);
@@ -501,10 +508,16 @@ export async function refreshSanctionsIndex(env: EnvKV): Promise<{ ok: boolean; 
     };
   } catch (e: any) {
     errors.push(`UK-FCDO: ${e?.message || e}`);
-    sources["UK-FCDO"] = { url: "https://sanctionslist.fcdo.gov.uk/docs/UK-Sanctions-List.csv", licence: "Open Government Licence v3.0", count: 0, error: String(e?.message || e) };
+    const kept = (prev?.entries || []).filter((x) => x.list === "UK-FCDO");
+    if (kept.length) {
+      all.push(...kept);
+      sources["UK-FCDO"] = { url: "https://sanctionslist.fcdo.gov.uk/docs/UK-Sanctions-List.csv", licence: "Open Government Licence v3.0", count: kept.length, error: `refresh failed, kept prior ${kept.length}: ${String(e?.message || e)}` };
+    } else {
+      sources["UK-FCDO"] = { url: "https://sanctionslist.fcdo.gov.uk/docs/UK-Sanctions-List.csv", licence: "Open Government Licence v3.0", count: 0, error: String(e?.message || e) };
+    }
   }
 
-  try {
+    try {
     const xml = await fetchText(
       "https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw",
       180000,
@@ -519,15 +532,26 @@ export async function refreshSanctionsIndex(env: EnvKV): Promise<{ ok: boolean; 
     };
   } catch (e: any) {
     errors.push(`EU-FSF: ${e?.message || e}`);
-    sources["EU-FSF"] = {
-      url: "https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw",
-      licence: "EU open data (public token download)",
-      count: 0,
-      error: String(e?.message || e),
-    };
+    const kept = (prev?.entries || []).filter((x) => x.list === "EU-FSF");
+    if (kept.length) {
+      all.push(...kept);
+      sources["EU-FSF"] = {
+        url: "https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw",
+        licence: "EU open data (public token download; redistribution of screening results)",
+        count: kept.length,
+        error: `refresh failed, kept prior ${kept.length}: ${String(e?.message || e)}`,
+      };
+    } else {
+      sources["EU-FSF"] = {
+        url: "https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw",
+        licence: "EU open data (public token download)",
+        count: 0,
+        error: String(e?.message || e),
+      };
+    }
   }
 
-  if (all.length < 1000) {
+    if (all.length < 1000) {
     return { ok: false, sources, entries: all.length, error: errors.join("; ") || "too few entries" };
   }
 
