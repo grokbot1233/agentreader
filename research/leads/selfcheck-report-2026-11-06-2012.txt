@@ -1,0 +1,13 @@
+SELF-CHECK REPORT 2026-11-06 ~20:12 Europe/London (GMT)
+
+Live version + deploy id: 1.29.4 / 1f8fe77c-7693-4d35-8cf8-12ccb4f7506e (from 1.29.3 / 470039ec-7fe3-4e5c-a9e9-aad78d4a9389)
+
+Health summary: healthy → improved. Health/OpenAPI/agent/well-known/llms 1.29.4. MCP 72 tools (micros unlisted; big hitters + fr_company present). npm → 1.29.4. Bare paid GET well-formed 402 on big hitters; POST-only /uk-watch + /uk-leads-feed GET 404 / POST 402 expected. Free 400 on bad input OK. Previews with preview=1: kyb/uk-dd/uk-company/company/company-full/sanctions-batch/uk-charity-full/uk-leads/uk-officer → 200 after fix. Soft: /fr-company preview upstream 429; intermittent bare-GET timeouts under probe load; CF KV daily put limit blocks dashboard-meta writes (queued patch).
+
+What was broken/fixed: /uk-leads?preview=1 returned 502 {"error":"KV put() limit exceeded for the day.","preview":true} because uk-leads/uk-officer cachedJson did unguarded LOG.put. Fail-open catch added (same pattern as uk-company/uk-charity).
+
+Improvement: v1.29.4 deploy 1f8fe77c-7693-4d35-8cf8-12ccb4f7506e; docs agent/openapi refreshed; npm publish both packages.
+
+LIAM_ACTIONABLE: no (QUIET)
+
+token/treasury notes: payTo 0x88b1c747… Base. Live RPC treasury ~2.588 USDC / ~0.000399 ETH. Outside revenue $0.004 / 3 paid / 1 payer. Below $20 sweep; no funds moved; no Liam spend. npm token expiry 2027-02-03 — not urgent.

@@ -78,7 +78,10 @@ async function cachedJson(env: EnvKV, key: string, ttl: number, fn: () => Promis
   const hit = await env.LOG.get(CACHE_PREFIX + key, "json");
   if (hit) return hit;
   const data = await fn();
-  await env.LOG.put(CACHE_PREFIX + key, JSON.stringify(data), { expirationTtl: ttl });
+  try {
+    // CF free-tier daily KV put limit: never fail the response just because cache write failed.
+    await env.LOG.put(CACHE_PREFIX + key, JSON.stringify(data), { expirationTtl: ttl });
+  } catch {}
   return data;
 }
 
