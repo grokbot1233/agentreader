@@ -3,7 +3,7 @@ import { CANONICAL } from "./facilitator";
 const PREVIEW_LIMIT = 8; // per IP per UTC day across all preview kinds
 const PREVIEW_PREFIX = "prev:";
 
-export type PreviewKind = "headers" | "iban" | "phone" | "meta" | "redirects" | "dns" | "au-company" | "ca-company" | "domain" | "email-check" | "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "kyb" | "uk-dd" | "sanctions" | "sanctions-batch" | "uk-officer" | "uk-property" | "uk-area" | "uk-postcode" | "siren" | "siret";
+export type PreviewKind = "headers" | "iban" | "phone" | "meta" | "redirects" | "dns" | "au-company" | "ca-company" | "domain" | "email-check" | "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "kyb" | "uk-dd" | "sanctions" | "sanctions-batch" | "uk-officer" | "uk-property" | "uk-area" | "uk-postcode" | "siren" | "siret" | "partita-iva" | "orgnr" | "bn-ca";
 
 const PRICE: Record<PreviewKind, string> = {
   read: "$0.002", links: "$0.001", check: "$0.001",
@@ -14,7 +14,7 @@ const PRICE: Record<PreviewKind, string> = {
   "uk-leads": "$1.00", "uk-leads-lite": "$0.25", kyb: "$2.50", "uk-dd": "$1.00", "email-check": "$0.002", domain: "$0.002", dns: "$0.001", redirects: "$0.001", meta: "$0.001", headers: "$0.001", iban: "$0.001", phone: "$0.001", "au-company": "$0.02", "ca-company": "$0.02",
   sanctions: "$0.05", "sanctions-batch": "$1.00",
   "uk-officer": "$0.15",
-  "uk-property": "$0.01", "uk-area": "$0.005", "uk-postcode": "$0.001", siren: "$0.001", siret: "$0.001",
+  "uk-property": "$0.01", "uk-area": "$0.005", "uk-postcode": "$0.001", siren: "$0.001", siret: "$0.001", "partita-iva": "$0.001", orgnr: "$0.001", "bn-ca": "$0.001",
 };
 
 const PAID_CALL: Record<PreviewKind, string> = {
@@ -43,6 +43,9 @@ const PAID_CALL: Record<PreviewKind, string> = {
   "uk-postcode": `${CANONICAL}/uk-postcode?postcode=SW1A+2AA`,
   siren: `${CANONICAL}/siren?siren=732829320`,
   siret: `${CANONICAL}/siret?siret=73282932000074`,
+  "partita-iva": `${CANONICAL}/partita-iva?vat=00488410010`,
+  orgnr: `${CANONICAL}/orgnr?orgnr=556012-5790`,
+  "bn-ca": `${CANONICAL}/bn-ca?bn=123456789RT0001`,
 };
 
 function dayKey() { return new Date().toISOString().slice(0, 10); }
@@ -274,6 +277,27 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         length_ok: data.length_ok, digits: data.digits, nic: data.nic, parent_siren: data.parent_siren,
         disclaimer: data.disclaimer, omitted: ["upsell detail"],
       };
+    case "partita-iva":
+      return {
+        ...u, product: data.product, vat: data.vat, partita_iva: data.partita_iva, valid: data.valid,
+        checksum_ok: data.checksum_ok, length_ok: data.length_ok, digits: data.digits,
+        province_code: data.province_code, province_ok: data.province_ok,
+        disclaimer: data.disclaimer, omitted: ["upsell detail"],
+      };
+    case "orgnr":
+      return {
+        ...u, product: data.product, orgnr: data.orgnr, orgnr_formatted: data.orgnr_formatted,
+        valid: data.valid, luhn_ok: data.luhn_ok, third_digit_ok: data.third_digit_ok,
+        length_ok: data.length_ok, digits: data.digits,
+        disclaimer: data.disclaimer, omitted: ["upsell detail"],
+      };
+    case "bn-ca":
+      return {
+        ...u, product: data.product, bn: data.bn, bn9: data.bn9, program: data.program,
+        reference: data.reference, program_known: data.program_known, program_name: data.program_name,
+        shape_ok: data.shape_ok, valid: data.valid, form: data.form,
+        disclaimer: data.disclaimer, omitted: ["upsell detail"],
+      };
     case "au-company":
       return {
         ...u, acn: data.acn, name: data.name, status: data.status, status_desc: data.status_desc,
@@ -492,6 +516,29 @@ export const STATIC_SAMPLES: Record<string, any> = {
     product: "uk-postcode", postcode: "SW1A 2AA", postcode_compact: "SW1A2AA", valid: true,
     outward: "SW1A", inward: "2AA", area: "SW", district: "1A", sector: "2", unit: "AA",
     format_ok: true, disclaimer: "Offline Royal Mail postcode format check only.",
+  },
+  siren: {
+    product: "siren", siren: "732829320", valid: true, luhn_ok: true, length_ok: true, digits: 9,
+    disclaimer: "French SIREN structure + Luhn only.",
+  },
+  siret: {
+    product: "siret", siret: "73282932000074", valid: true, luhn_ok: true, length_ok: true, digits: 14,
+    nic: "00074", parent_siren: "732829320", disclaimer: "French SIRET structure + Luhn only.",
+  },
+  "partita-iva": {
+    product: "partita-iva", vat: "00488410010", partita_iva: "00488410010", valid: true,
+    checksum_ok: true, length_ok: true, digits: 11, province_code: "001", province_ok: true,
+    disclaimer: "Italian Partita IVA structure + checksum only.",
+  },
+  orgnr: {
+    product: "orgnr", orgnr: "5560125790", orgnr_formatted: "556012-5790", valid: true,
+    luhn_ok: true, third_digit_ok: true, length_ok: true, digits: 10,
+    disclaimer: "Swedish organisationsnummer structure + Luhn only.",
+  },
+  "bn-ca": {
+    product: "bn-ca", bn: "123456789RT0001", bn9: "123456789", program: "RT", reference: "0001",
+    program_known: true, program_name: "GST/HST", shape_ok: true, valid: true, form: "program_account",
+    disclaimer: "Canadian CRA BN shape only — not proof of issuance.",
   },
   redirects: {
     product: "redirects", url: "https://example.com", final_url: "https://example.com/",

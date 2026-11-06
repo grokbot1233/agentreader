@@ -74,6 +74,29 @@ export const VALIDATE: Record<string, (b: any) => string | null> = {
     if (!x) return "siret must contain digits";
     return x.length === 14 ? null : "siret must be exactly 14 digits";
   },
+  "/partita-iva": (b) => {
+    const raw = s(b.vat) || s(b.partita_iva);
+    if (!raw) return "missing vat";
+    let cleaned = raw.replace(/[\s\-]/g, "").toUpperCase();
+    if (cleaned.startsWith("IT")) cleaned = cleaned.slice(2);
+    const x = cleaned.replace(/\D/g, "");
+    if (!x) return "vat must contain digits";
+    return x.length === 11 ? null : "partita IVA must be exactly 11 digits (optional IT prefix)";
+  },
+  "/orgnr": (b) => {
+    const x = s(b.orgnr).replace(/\D/g, "");
+    if (!s(b.orgnr)) return "missing orgnr";
+    if (!x) return "orgnr must contain digits";
+    if (x.length === 10 || x.length === 12) return null;
+    return "orgnr must be 10 digits (or 12-digit YYYY+orgnr form)";
+  },
+  "/bn-ca": (b) => {
+    const raw = s(b.bn);
+    if (!raw) return "missing bn";
+    const cleaned = raw.replace(/[\s\-]/g, "").toUpperCase();
+    if (/^\d{9}$/.test(cleaned) || /^\d{9}[A-Z]{2}\d{4}$/.test(cleaned)) return null;
+    return "bn must be 9 digits or 15-char program account (BN9 + 2-letter program + 4-digit ref)";
+  },
   "/redirects": (b) => {
     let x = s(b.url); if (!x) return "missing url"; if (!/^https?:\/\//i.test(x)) x = `https://${x}`; return url(x);
   }, "/convert": (b) => first(url(b.url), b.format && !["markdown", "text"].includes(b.format) ? "format must be markdown or text" : null),
@@ -259,4 +282,4 @@ function kyb(b: any) {
 
 export const TOOL_PATH: Record<string, string> = { read_url: "/read", extract_links: "/links", check_domain: "/check", company_research: "/company", uk_company: "/uk-company", uk_company_lite: "/uk-company-lite",
   company_full: "/company-full", convert_document: "/convert", create_monitor: "/monitor", wallet_balances: "/wallet", tx_status: "/tx", token_check: "/token-check", fx_rates: "/fx", au_company: "/au-company", ca_company: "/ca-company", registry_batch: "/registry-batch",
-  ens_lookup: "/ens", token_metadata: "/token", token_allowance: "/allowance", contract_info: "/contract", gas_fees: "/gas", block_lookup: "/block", nft_lookup: "/nft", web_search: "/search", uk_property_prices: "/uk-property", uk_area_profile: "/uk-area", uk_charity: "/uk-charity", uk_charity_full: "/uk-charity-full", us_sec: "/us-sec", us_sec_full: "/us-sec-full", eu_vat: "/eu-vat", lei_lookup: "/lei", lei_full: "/lei-full", read_batch: "/read-batch", uk_leads: "/uk-leads", uk_leads_lite: "/uk-leads-lite", uk_leads_feed: "/uk-leads-feed", uk_watch: "/uk-watch", uk_dd: "/uk-dd", kyb_report: "/kyb", email_check: "/email-check", domain_lookup: "/domain", dns_lookup: "/dns", url_redirects: "/redirects", page_meta: "/meta", http_headers: "/headers", iban_validate: "/iban", phone_check: "/phone", uk_postcode_validate: "/uk-postcode", siren_validate: "/siren", siret_validate: "/siret", sanctions_screen: "/sanctions", sanctions_batch: "/sanctions-batch", uk_officer: "/uk-officer" };
+  ens_lookup: "/ens", token_metadata: "/token", token_allowance: "/allowance", contract_info: "/contract", gas_fees: "/gas", block_lookup: "/block", nft_lookup: "/nft", web_search: "/search", uk_property_prices: "/uk-property", uk_area_profile: "/uk-area", uk_charity: "/uk-charity", uk_charity_full: "/uk-charity-full", us_sec: "/us-sec", us_sec_full: "/us-sec-full", eu_vat: "/eu-vat", lei_lookup: "/lei", lei_full: "/lei-full", read_batch: "/read-batch", uk_leads: "/uk-leads", uk_leads_lite: "/uk-leads-lite", uk_leads_feed: "/uk-leads-feed", uk_watch: "/uk-watch", uk_dd: "/uk-dd", kyb_report: "/kyb", email_check: "/email-check", domain_lookup: "/domain", dns_lookup: "/dns", url_redirects: "/redirects", page_meta: "/meta", http_headers: "/headers", iban_validate: "/iban", phone_check: "/phone", uk_postcode_validate: "/uk-postcode", siren_validate: "/siren", siret_validate: "/siret", partita_iva_validate: "/partita-iva", orgnr_se_validate: "/orgnr", bn_ca_validate: "/bn-ca", sanctions_screen: "/sanctions", sanctions_batch: "/sanctions-batch", uk_officer: "/uk-officer" };

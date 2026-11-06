@@ -153,6 +153,30 @@ export const TOOLS: ToolDef[] = [
     previewable: true,
   },
   {
+    name: "partita_iva_validate",
+    description: "Offline Italian Partita IVA (11-digit checksum; optional IT prefix) validate. Structure only. $0.001 USDC.",
+    price: "$0.001",
+    schema: { vat: z.string() },
+    http: (a) => `${ORIGIN}/partita-iva?vat=${encodeURIComponent(a.vat)}`,
+    previewable: true,
+  },
+  {
+    name: "orgnr_se_validate",
+    description: "Offline Swedish organisationsnummer (10-digit Luhn from left) validate. Structure only. $0.001 USDC.",
+    price: "$0.001",
+    schema: { orgnr: z.string() },
+    http: (a) => `${ORIGIN}/orgnr?orgnr=${encodeURIComponent(a.orgnr)}`,
+    previewable: true,
+  },
+  {
+    name: "bn_ca_validate",
+    description: "Offline Canadian CRA Business Number shape check (9-digit or program account). No check digit. $0.001 USDC.",
+    price: "$0.001",
+    schema: { bn: z.string() },
+    http: (a) => `${ORIGIN}/bn-ca?bn=${encodeURIComponent(a.bn)}`,
+    previewable: true,
+  },
+  {
     name: "company_research",
     description:
       "Website company research (tech, contacts, DNS, RDAP, news) with sources — not UK Companies House. $0.25 USDC.",

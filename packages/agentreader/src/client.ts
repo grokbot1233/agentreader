@@ -181,6 +181,18 @@ export class AgentReaderClient {
   siretValidate(input: { siret: string }, opts?: RequestOpts) {
     return this.get("/siret", input as any, opts);
   }
+  /** Offline Italian Partita IVA checksum validate ($0.001). */
+  partitaIvaValidate(input: { vat: string }, opts?: RequestOpts) {
+    return this.get("/partita-iva", input as any, opts);
+  }
+  /** Offline Swedish organisationsnummer Luhn validate ($0.001). */
+  orgnrValidate(input: { orgnr: string }, opts?: RequestOpts) {
+    return this.get("/orgnr", input as any, opts);
+  }
+  /** Offline Canadian CRA BN shape check ($0.001). No check digit. */
+  bnCaValidate(input: { bn: string }, opts?: RequestOpts) {
+    return this.get("/bn-ca", input as any, opts);
+  }
   companyResearch(input: { domain: string }, opts?: RequestOpts) {
     return this.get("/company", input, opts);
   }

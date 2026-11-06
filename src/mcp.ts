@@ -33,6 +33,9 @@ import { validateIban } from "./iban";
 import { validatePhone } from "./phone";
 import { validateUkPostcode } from "./uk-postcode";
 import { validateSiren, validateSiret } from "./fr-company-id";
+import { validatePartitaIva } from "./it-partita-iva";
+import { validateOrgnr } from "./se-orgnr";
+import { validateBnCa } from "./ca-bn";
 import { kybReport, bindingRegistries } from "./kyb";
 import { ukDdReport } from "./uk-dd";
 import { screenSanctions, screenSanctionsBatch } from "./sanctions";
@@ -40,7 +43,7 @@ import { ukOfficerSearch } from "./uk-officer";
 import { CHAIN_ROUTES } from "./chain";
 import { upsell } from "./upsell";
 for (const r of CHAIN_ROUTES) { TOOL_PATH["chain_" + r.path.slice(7).replace(/-/g, "_")] = r.path; EXAMPLES_CHAIN[r.path] = r.ex; }
-const EXAMPLES: Record<string, any> = { "/read": { url: "https://example.com" }, "/links": { url: "https://example.com" }, "/check": { domain: "example.com" }, "/domain": { domain: "stripe.com" }, "/dns": { name: "example.com" }, "/redirects": { url: "https://example.com" }, "/meta": { url: "https://example.com" }, "/headers": { url: "https://example.com" }, "/iban": { iban: "GB82WEST12345698765432" }, "/phone": { phone: "+447911123456" }, "/uk-postcode": { postcode: "SW1A 2AA" }, "/siren": { siren: "732829320" }, "/siret": { siret: "73282932000074" }, "/company": { domain: "stripe.com" }, "/company-full": { domain: "tesco.com" },
+const EXAMPLES: Record<string, any> = { "/read": { url: "https://example.com" }, "/links": { url: "https://example.com" }, "/check": { domain: "example.com" }, "/domain": { domain: "stripe.com" }, "/dns": { name: "example.com" }, "/redirects": { url: "https://example.com" }, "/meta": { url: "https://example.com" }, "/headers": { url: "https://example.com" }, "/iban": { iban: "GB82WEST12345698765432" }, "/phone": { phone: "+447911123456" }, "/uk-postcode": { postcode: "SW1A 2AA" }, "/siren": { siren: "732829320" }, "/siret": { siret: "73282932000074" }, "/partita-iva": { vat: "00488410010" }, "/orgnr": { orgnr: "556012-5790" }, "/bn-ca": { bn: "123456789RT0001" }, "/company": { domain: "stripe.com" }, "/company-full": { domain: "tesco.com" },
   "/uk-company": { number: "00445790" }, "/uk-company-lite": { number: "00445790" }, "/convert": { url: "https://pdfobject.com/pdf/sample.pdf" }, "/monitor": { url: "https://example.com", webhook: "https://your.app/hook" },
   "/wallet": { address: "0x88b1c747c33A5868A34057D8C57318E5602b3ff6" }, "/tx": { hash: "0x" + "ab".repeat(32) }, "/token-check": { address: "0x940181a94A35A4569E4529A3CDfB74e38FD98631" }, "/token": { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" },
   "/contract": { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" }, "/fx": { base: "GBP", symbols: "USD,EUR" }, "/ens": { name: "vitalik.eth" }, "/allowance": { token: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", owner: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045", spender: "0x000000000022D473030F116dDEE9F6B43aC78BA3" },
@@ -69,7 +72,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       await log({ endpoint: `mcp:${tool}`, payer: settlement?.payer || null, amount: settlement?.amount || String(atomic), network: settlement?.network, tx: settlement?.transaction, success: settlement?.success });
     } },
   } as any);
-  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.25.2" });
+  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.26.0" });
   { const orig = (server as any).tool.bind(server); (server as any).tool = (name: string, desc: any, ...rest: any[]) => orig(name, typeof desc === "string" ? upsell(TOOL_PATH[name] || "", desc) : desc, ...rest); }
   const json = (d: any) => ({ content: [{ type: "text" as const, text: JSON.stringify(d) }] });
   const err = (e: any) => ({ isError: true, content: [{ type: "text" as const, text: String(e?.message || e) }] });
@@ -128,6 +131,18 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
     "Offline French SIRET validate (14-digit Luhn = SIREN+NIC). Structure only. Example: {siret:\"73282932000074\"}. $0.001 USDC.",
     { siret: z.string() },
     (await mk("$0.001", "siret_validate", 1000))(async (a: any) => { try { return json(validateSiret(a)); } catch (e) { return err(e); } }) as any);
+  server.tool("partita_iva_validate",
+    "Offline Italian Partita IVA validate (11-digit checksum; optional IT prefix). Structure only. Example: {vat:\"00488410010\"}. $0.001 USDC.",
+    { vat: z.string() },
+    (await mk("$0.001", "partita_iva_validate", 1000))(async (a: any) => { try { return json(validatePartitaIva(a)); } catch (e) { return err(e); } }) as any);
+  server.tool("orgnr_se_validate",
+    "Offline Swedish organisationsnummer validate (10-digit Luhn from left). Structure only. Example: {orgnr:\"556012-5790\"}. $0.001 USDC.",
+    { orgnr: z.string() },
+    (await mk("$0.001", "orgnr_se_validate", 1000))(async (a: any) => { try { return json(validateOrgnr(a)); } catch (e) { return err(e); } }) as any);
+  server.tool("bn_ca_validate",
+    "Offline Canadian CRA Business Number shape check (9-digit or program account). No check digit. Example: {bn:\"123456789RT0001\"}. $0.001 USDC.",
+    { bn: z.string() },
+    (await mk("$0.001", "bn_ca_validate", 1000))(async (a: any) => { try { return json(validateBnCa(a)); } catch (e) { return err(e); } }) as any);
   server.tool("check_domain",
     "Use this when vetting domain health before outreach: DNS (DoH), DNSSEC, TLS/HTTPS, HSTS, MX/SPF/DMARC, issues + score. Structured JSON beats shell dig/openssl. Example: {domain:\"stripe.com\"}. $0.001 USDC.",
     { domain: z.string() },
@@ -290,6 +305,9 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       uk_postcode_validate: { price: "$0.001", when: "offline UK postcode format validate" },
       siren_validate: { price: "$0.001", when: "offline French SIREN Luhn validate" },
       siret_validate: { price: "$0.001", when: "offline French SIRET Luhn validate" },
+      partita_iva_validate: { price: "$0.001", when: "offline Italian Partita IVA checksum validate" },
+      orgnr_se_validate: { price: "$0.001", when: "offline Swedish organisationsnummer Luhn validate" },
+      bn_ca_validate: { price: "$0.001", when: "offline Canadian CRA BN shape check" },
       company_research: { price: "$0.25", when: "website company research (not UK CH)" },
       uk_company: { price: "$0.50", when: "full UK Companies House DD" },
       uk_company_lite: { price: "$0.05", when: "cheap UK status + flags" },
