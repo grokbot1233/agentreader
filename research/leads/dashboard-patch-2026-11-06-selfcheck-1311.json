@@ -1,0 +1,6 @@
+{
+  "ops_notes_append": "2026-11-06 ~21:11 GMT self-check: fixed POST /hooks/sink 500 under CF KV daily put limit (fail-open stored:false) + logPay put fail-open — v1.31.1 deploy aa85e99b. Dashboard-meta still kv_put_failed. Focus 402 11/11; mcp 73; npm→1.31.1. Treasury ~2.588 USDC / ~0.000399 ETH. Outside rev $0.004/3/1.",
+  "checklist_upsert": [
+    {"item": "CF KV daily put limit", "status": "blocked", "note": "Writes fail until UTC reset; sink/logPay fail-open in 1.31.1; paid creates (uk-watch/leads-feed/monitor) still correctly 503 if persist fails"}
+  ]
+}
