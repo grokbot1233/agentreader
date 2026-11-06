@@ -1,0 +1,19 @@
+{
+  "what_shipped_prepend": {
+    "date": "2026-11-06 ~23:12 UK",
+    "version": "1.32.0",
+    "deploy_id": "c84db3aa-6d35-48dc-9834-e59a0510073e",
+    "commit": "e43ccd0",
+    "items": [
+      "/company-full $0.65 multi-registry soft-attach: FR/NO/AU/CA (+ existing UK CH + charity) when TLD/page signals match",
+      "Free preview fields fr_preview/no_preview/au_preview/ca_preview + registries_attached",
+      "uk-dd monitor upsell copy now mentions PSC+charges",
+      "npm @axiomworks/agentreader(+mcp) 1.32.0"
+    ]
+  },
+  "next_steps": [
+    "Push conversion on live big hitters: /kyb $2.50, /uk-dd $1, /company-full $0.65 (now multi-registry), /uk-leads $1, /uk-watch $5",
+    "No new $0.001–$0.003 micro validators"
+  ],
+  "ops_notes_append": "2026-11-06 ~23:12 GMT: shipped v1.32.0 /company-full multi-registry. No spend. CF KV put may still block dashboard-meta."
+}
