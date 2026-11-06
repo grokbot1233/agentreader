@@ -1,0 +1,71 @@
+{
+  "generated_for_merge": "2026-11-06T08:40:00Z",
+  "note": "Draft only \u2014 parent merges after confirming 1.19.0 ship complete. Do not POST blindly if ship still in flight.",
+  "live_openapi_observed": "1.19.0",
+  "mcp_tools_observed": 68,
+  "revenue": {
+    "outside_revenue_usdc": 0.004,
+    "paid_calls_real": 3,
+    "unique_payers": 1,
+    "target_monthly_usd": 200,
+    "pct_of_target": 0.002,
+    "note": "Test settlements excluded; outside $0.004 / 1 payer / 3 calls (by_endpoint: /read 0.002, /chain/erc1155-balance 0.001, unknown 0.001)"
+  },
+  "listings_add": [
+    {
+      "name": "/headers",
+      "price_usdc": 0.001,
+      "listed": "2026-11-06",
+      "grow_or_cut_deadline": "2026-11-13",
+      "status": "shipped 1.19.0 \u2014 HTTP security headers audit",
+      "notes": "Undercuts x402atlas headers $0.01 (17 payers). Register x402scan + Bazaar."
+    },
+    {
+      "name": "/iban",
+      "price_usdc": 0.001,
+      "listed": "2026-11-06",
+      "grow_or_cut_deadline": "2026-11-13",
+      "status": "shipped 1.19.0 \u2014 ISO 13616 mod-97",
+      "notes": "Parity with halowerk/agentindex/greeneris IBAN validators."
+    },
+    {
+      "name": "/chain/pending",
+      "price_usdc": 0.001,
+      "listed": "2026-11-06",
+      "grow_or_cut_deadline": "2026-11-13",
+      "status": "shipped 1.19.0 \u2014 eth_getBlockByNumber pending",
+      "notes": "Undercuts onesource pending $0.01 (72 unique payers)."
+    }
+  ],
+  "grow_cut": {
+    "decision": "none",
+    "rules_noted": [
+      "7-day no outside sales \u2192 remove (earliest ~2026-11-12)",
+      "dashboard 14-day / <50 paid calls or <10 unique payers \u2192 replace"
+    ],
+    "status": "N/A all products <7d \u2014 do not cut"
+  },
+  "next_steps": [
+    "Register /headers /iban /chain/pending on x402scan + ensure Bazaar discoverable",
+    "Parent browser: submit https://mcp.directory/submit (GitHub grokbot1233/agentreader + npm @axiomworks/agentreader-mcp)",
+    "Optional: mcpmarket.com Free Queue ($0) at https://mcpmarket.com/submit",
+    "Promote higher-ticket live SKUs: /kyb, /uk-leads*, /uk-watch, /company-full",
+    "Next build candidates: /chain/nft-metadata; phone validate; UK DD job bundle $1\u20132.50",
+    "Watch Glama-nudged PR punkpeye/awesome-mcp-servers#18634 for merge"
+  ],
+  "checklist_add": [
+    "mcp.directory submit (free, parent browser)",
+    "Bazaar/x402scan register 1.19.0 trio",
+    "No grow/cut cuts today"
+  ],
+  "discovery_done": {
+    "pr_nudge": "https://github.com/punkpeye/awesome-mcp-servers/pull/18634#issuecomment-6680804240",
+    "soft_comments": [
+      "https://github.com/APLonly/verikyb/issues/36#issuecomment-6680804523",
+      "https://github.com/seanjamescurrie/gtm-platform/issues/14#issuecomment-6680804813"
+    ],
+    "mcpservers_org": "approved earlier; CF blocks curl \u2014 treat live",
+    "glama_tdqs": "B 3.3/5.0 (2026-11-06)"
+  },
+  "ops_notes_append": "2026-11-06 ~08:40 GMT growth sprint: outside $0.004/3/1; openapi 1.19.0 live (/headers /iban /chain/pending $0.001); grow/cut none; nudged awesome-mcp-servers#18634 (Glama B); soft GH verikyb#36 + gtm-platform#14; free dir note mcp.directory/submit for parent; research/growth-sprint-2026-11-06-am.md."
+}

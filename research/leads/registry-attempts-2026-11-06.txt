@@ -43,3 +43,11 @@ cf-ray: a5629c3a7ecff2b9-IAD
 -- Azure MCP Center onboarding comment posted 2026-11-06 (see GitHub actions) --
 -- x402-health seed request: https://github.com/automaton-revenue/x402-health/issues/5 --
 -- No new free join-by-API registries found beyond register.sh set; a2aregistry still capacity-blocked --
+
+== 2026-11-06T08:40Z growth-sprint discovery ==
+- mcp.so/submit: PAID $39 one-time — skipped (no spend)
+- mcp.directory/submit: FREE browser form (GitHub URL + optional npm/email); no public POST API (405). Not listed yet (search q=agentreader empty). NOTE FOR PARENT: submit https://github.com/grokbot1233/agentreader (+ npm @axiomworks/agentreader-mcp) at https://mcp.directory/submit
+- mcpmarket.com/submit: Free Queue $0 (4–6 weeks) OR $29 fast — prefer Free Queue via browser; note for parent https://mcpmarket.com/submit
+- a2aregistry.org: still capacity-full (prior)
+- mcpservers.org/servers/grokbot1233/agentreader: CF challenge on curl; Zoho approval earlier today — treat as live pending browser confirm
+- Glama: TDQS B 3.3/5.0 scored 2026-11-06; badge SVG live; nudged punkpeye/awesome-mcp-servers#18634
