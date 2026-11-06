@@ -1,5 +1,6 @@
 // Free input validation that runs BEFORE x402 payment, so bad input never costs the caller.
 import { PC } from "./ukdata";
+import { isPhoneCountry, PHONE_ISO_CODES } from "./phone";
 const CH = ["base", "ethereum", "arbitrum", "optimism", "polygon"];
 const ADDR = /^0x[0-9a-fA-F]{40}$/, HASH = /^0x[0-9a-fA-F]{64}$/;
 const DOMAIN = /^(?=.{3,253}$)([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/i;
@@ -27,6 +28,7 @@ export const VALIDATE: Record<string, (b: any) => string | null> = {
     const ph = s(b.phone); if (!ph) return "missing phone";
     const c = s(b.country).toUpperCase();
     if (c && !/^[A-Z]{2}$/.test(c)) return "country must be ISO 3166-1 alpha-2";
+    if (c && !isPhoneCountry(c)) return `unsupported country=${c}; use one of ${PHONE_ISO_CODES.join(",")} or pass +E.164 / 00…`;
     const dig = ph.replace(/\D/g, "");
     if (ph.startsWith("+") || ph.startsWith("00")) {
       if (dig.length < 8 || dig.length > 15) return "phone E.164 must be 8-15 digits";

@@ -57,6 +57,9 @@ const CC_INDEX: { cc: string; iso: string[] }[] = (() => {
 })();
 
 const ISO_SET = new Set(Object.keys(BY_ISO));
+/** Supported ISO 3166-1 alpha-2 codes for national-format / country= hints. */
+export const PHONE_ISO_CODES = [...ISO_SET].sort();
+export const isPhoneCountry = (iso: string) => ISO_SET.has((iso || '').trim().toUpperCase());
 
 function digitsOnly(s: string): string {
   return s.replace(/\D/g, "");
