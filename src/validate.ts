@@ -13,6 +13,15 @@ const domainish = (v: any, k = "domain") => { const x = s(v).replace(/^https?:\/
 const first = (...e: (string | null)[]) => e.find(Boolean) || null;
 const ISO = /^[A-Z]{3}$/i;
 
+/** Map common agent aliases onto canonical input keys (mutates b). */
+export function aliasInput(path: string, b: any) {
+  if (!b || typeof b !== "object") return b;
+  if (["/uk-dd", "/uk-company", "/uk-company-lite", "/uk-watch", "/kyb"].includes(path)) {
+    if (!s(b.number) && s(b.company_number)) b.number = s(b.company_number);
+  }
+  return b;
+}
+
 export const VALIDATE: Record<string, (b: any) => string | null> = {
   "/read": (b) => url(b.url), "/links": (b) => url(b.url), "/meta": (b) => url(b.url),
   "/headers": (b) => {
@@ -94,7 +103,7 @@ export const VALIDATE: Record<string, (b: any) => string | null> = {
   "/uk-area": (b) => (!s(b.postcode) ? "missing postcode" : PC.test(s(b.postcode)) ? null : "postcode must be a full UK postcode, e.g. SW1A 2AA"),
   "/uk-leads": (b) => leads(b), "/uk-leads-lite": (b) => leads(b),
   "/uk-leads-feed": (b) => first(leadsFilter(b), url(b.webhook, "webhook"), s(b.webhook) && !s(b.webhook).startsWith("https://") ? "webhook must be https" : null),
-  "/uk-watch": (b) => first(!s(b.number) ? "missing number" : CHNUM.test(s(b.number)) ? null : "number must be a Companies House number", url(b.webhook, "webhook"), s(b.webhook) && !s(b.webhook).startsWith("https://") ? "webhook must be https" : null),
+  "/uk-watch": (b) => { aliasInput("/uk-watch", b); return first(!s(b.number) ? "missing number" : CHNUM.test(s(b.number)) ? null : "number must be a Companies House number", url(b.webhook, "webhook"), s(b.webhook) && !s(b.webhook).startsWith("https://") ? "webhook must be https" : null); },
   "/uk-dd": (b) => ukDd(b),
   "/kyb": (b) => kyb(b),
   "/sanctions": (b) => sanctions(b),
@@ -122,7 +131,7 @@ function vat(b: any) {
   if (!/^[A-Z0-9]{2,12}$/.test(number) || !/\d/.test(number)) return "number must be 2-12 alphanumeric with at least one digit";
   return null;
 }
-function uk(b: any) { const n = s(b.number), m = s(b.name); if (!n && !m) return "missing number or name"; if (n && !CHNUM.test(n)) return "number must be a Companies House number: 8 digits (e.g. 00445790) or 2 letters + 6 digits (e.g. SC123456)"; if (!n && m.length < 2) return "name too short"; return null; }
+function uk(b: any) { aliasInput("/uk-company", b); const n = s(b.number), m = s(b.name); if (!n && !m) return "missing number or name"; if (n && !CHNUM.test(n)) return "number must be a Companies House number: 8 digits (e.g. 00445790) or 2 letters + 6 digits (e.g. SC123456)"; if (!n && m.length < 2) return "name too short"; return null; }
 const CNUM = /^\d{5,8}(?:[-\/]\d{1,2})?$/;
 function charity(b: any) { const n = s(b.number), m = s(b.name); if (!n && !m) return "missing number or name"; if (n && !CNUM.test(n)) return "number must be a Charity Commission registered number, e.g. 1089464 or 1089464/0"; if (s(b.suffix) && !/^\d{1,2}$/.test(s(b.suffix))) return "suffix must be 0-99"; if (!n && m.length < 2) return "name too short"; return null; }
 
@@ -202,6 +211,7 @@ function readBatch(b: any) {
   return null;
 }
 function ukDd(b: any) {
+  aliasInput("/uk-dd", b);
   const number = s(b.number), name = s(b.name), domain = s(b.domain);
   if (!number && !name) return "missing number or name";
   if (number && !CHNUM.test(number)) return "number must be a Companies House number: 8 digits (e.g. 00445790) or 2 letters + 6 digits (e.g. SC123456)";
@@ -210,6 +220,7 @@ function ukDd(b: any) {
   return null;
 }
 function kyb(b: any) {
+  aliasInput("/kyb", b);
   const domain = s(b.domain), number = s(b.number), name = s(b.name), vat = s(b.vat);
   if (!domain && !number && !name && !vat && !s(b.acn) && !s(b.abn) && !s(b.ca_number) && !s(b.bn) && !(s(b.country) && s(b.vat_number)) && !s(b.lei)) return "provide domain and/or UK number/name, AU acn/abn, CA ca_number/bn, EU vat and/or lei";
   if (domain) { const d = domainish(domain); if (d) return d; }

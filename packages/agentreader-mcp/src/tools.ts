@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const ORIGIN = process.env.AGENTREADER_ORIGIN || "https://api.axiomworks.co.uk";
-export const VERSION = "1.21.1";
+export const VERSION = "1.22.2";
 import CHAIN from "./chain-routes.json";
 
 const CH = z.enum(["base", "ethereum", "arbitrum", "optimism", "polygon"]).optional();
@@ -142,7 +142,8 @@ export const TOOLS: ToolDef[] = [
     description:
       "Full UK Companies House due diligence (number or name) + red flags. $0.50 USDC. Prefer uk_company_lite for a cheap snapshot.",
     price: "$0.50",
-    schema: { number: z.string().optional(), name: z.string().optional() },
+    schema: { number: z.string().optional(),
+      company_number: z.string().optional(), name: z.string().optional() },
     http: (a) =>
       a.number
         ? `${ORIGIN}/uk-company?number=${encodeURIComponent(a.number)}`
@@ -181,7 +182,8 @@ export const TOOLS: ToolDef[] = [
     name: "uk_company_lite",
     description: "Cheap UK company snapshot: status, compliance, red flags. $0.05 USDC.",
     price: "$0.05",
-    schema: { number: z.string().optional(), name: z.string().optional() },
+    schema: { number: z.string().optional(),
+      company_number: z.string().optional(), name: z.string().optional() },
     http: (a) =>
       a.number
         ? `${ORIGIN}/uk-company-lite?number=${encodeURIComponent(a.number)}`
@@ -497,7 +499,8 @@ export const TOOLS: ToolDef[] = [
     name: "uk_watch",
     description: "Watch one UK company 30 days: hourly CH poll → webhook on change. $5.00/30d USDC.",
     price: "$5.00",
-    schema: { number: z.string(), webhook: z.string().url() },
+    schema: { number: z.string(),
+      company_number: z.string().optional(), webhook: z.string().url() },
     http: () => `${ORIGIN}/uk-watch`,
     method: "POST",
     body: (a) => a,
@@ -508,6 +511,7 @@ export const TOOLS: ToolDef[] = [
     price: "$1.00",
     schema: {
       number: z.string().optional(),
+      company_number: z.string().optional(),
       name: z.string().optional(),
       domain: z.string().optional(),
     },
@@ -521,6 +525,7 @@ export const TOOLS: ToolDef[] = [
     schema: {
       domain: z.string().optional(),
       number: z.string().optional(),
+      company_number: z.string().optional(),
       name: z.string().optional(),
       vat: z.string().optional(),
       country: z.string().optional(),

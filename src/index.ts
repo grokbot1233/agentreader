@@ -1,4 +1,4 @@
-import { VALIDATE } from "./validate";
+import { VALIDATE, aliasInput } from "./validate";
 import { search } from "./search";
 import { ukProperty, ukArea } from "./ukdata";
 import { ukCharity } from "./uk-charity";
@@ -135,8 +135,9 @@ const companyOut = { type: "object", properties: {
 
 const ukIn = { type: "object", properties: {
   number: { type: "string", description: "UK Companies House number, e.g. 00445790" },
+  company_number: { type: "string", description: "Alias of number (Companies House field name)" },
   name: { type: "string", description: "Registered company name to search" },
-}, anyOf: [{ required: ["number"] }, { required: ["name"] }] };
+}, anyOf: [{ required: ["number"] }, { required: ["company_number"] }, { required: ["name"] }] };
 const ukOut = { type: "object", properties: {
   company_number: { type: "string" }, profile: { type: "object" }, overview: { type: "object" }, officers: { type: "object" },
   persons_with_significant_control: { type: "object" }, filing_history_highlights: { type: "object" }, charges: { type: "object" },
@@ -362,21 +363,24 @@ const leadsFeedOut = { type: "object", properties: {
   id: { type: "string" }, kind: { type: "string" }, sic: {}, location: {}, postcode_area: {}, webhook: { type: "string" },
   created: { type: "string" }, expires: { type: "string" }, status_url: { type: "string" }, price_paid: { type: "string" }, duration_days: { type: "integer" } } };
 const ukWatchIn = { type: "object", properties: {
-  number: { type: "string", description: "UK company number" }, webhook: { type: "string", format: "uri" },
-}, required: ["number", "webhook"] };
+  number: { type: "string", description: "UK company number" },
+  company_number: { type: "string", description: "Alias of number" },
+  webhook: { type: "string", format: "uri" },
+}, anyOf: [{ required: ["number", "webhook"] }, { required: ["company_number", "webhook"] }] };
 const ukWatchOut = { type: "object", properties: {
   id: { type: "string" }, company_number: { type: "string" }, company_name: {}, webhook: { type: "string" },
   created: { type: "string" }, expires: { type: "string" }, snapshot: { type: "object" }, status_url: { type: "string" } } };
 const ukDdIn = { type: "object", properties: {
   number: { type: "string", description: "UK Companies House number, e.g. 00445790" },
+  company_number: { type: "string", description: "Alias of number (Companies House field name)" },
   name: { type: "string", description: "Registered company name to search" },
   domain: { type: "string", description: "Optional website domain for RDAP / light website skim" },
-}, anyOf: [{ required: ["number"] }, { required: ["name"] }] };
+}, anyOf: [{ required: ["number"] }, { required: ["company_number"] }, { required: ["name"] }] };
 const ukDdOut = { type: "object", properties: {
   product: { type: "string" }, disclaimer: { type: "string" }, uk: {}, sanctions: {}, domain: {}, website: {},
   trust: { type: "object", properties: { flag: { type: "string" }, score: { type: "integer" }, reasons: { type: "array" } } } } };
 const kybIn = { type: "object", properties: {
-  domain: { type: "string" }, number: { type: "string" }, name: { type: "string" }, vat: { type: "string" },
+  domain: { type: "string" }, number: { type: "string" }, company_number: { type: "string", description: "Alias of number" }, name: { type: "string" }, vat: { type: "string" },
   country: { type: "string" }, vat_number: { type: "string" }, acn: { type: "string", description: "Australian ACN/ABN" }, ca_number: { type: "string", description: "Canadian corporation number" }, bn: { type: "string", description: "Canadian 9-digit BN" }, lei: { type: "string", description: "Optional 20-char GLEIF LEI (attaches parents)" },
 }, description: "Provide domain and/or UK number/name and/or EU vat and/or lei" };
 const kybOut = { type: "object", properties: {
@@ -472,7 +476,7 @@ function discovery(c: any) {
     contact: CONTACT, ownershipProofs: [] };
 }
 
-app.get("/health", (c) => c.json({ ok: true, version: "1.22.1", ts: new Date().toISOString() }));
+app.get("/health", (c) => c.json({ ok: true, version: "1.22.2", ts: new Date().toISOString() }));
 app.get("/.well-known/x402", (c) => c.json(discovery(c)));
 app.get("/.well-known/x402.json", (c) => c.json(discovery(c)));
 app.get("/.well-known/402index-verify.txt", (c) => c.text("9a944a1ce3c68588c5fb1d104be63981bb5e6b6e302fa0a1bd65b6a3cd5f5372"));
@@ -483,7 +487,7 @@ app.get("/.well-known/agent-card.json", (c) => {
   return c.json({
     protocolVersion: "0.3.0", name: "Axiom Works AgentReader",
     description: "Pay-per-call (x402, USDC on Base) UK Companies House, KYB, SEC EDGAR, EU VAT, web-to-markdown and EVM on-chain lookups for AI agents. HTTP + MCP; no API keys.",
-    url: b, preferredTransport: "HTTP+JSON", version: "1.22.1", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
+    url: b, preferredTransport: "HTTP+JSON", version: "1.22.2", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
     provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk" },
     capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
     defaultInputModes: ["application/json"], defaultOutputModes: ["application/json"],
@@ -496,14 +500,14 @@ app.get("/.well-known/agent.json", (c) => {
   return c.json({
     name: "Axiom Works AgentReader", description: "x402 pay-per-call web reader, email/phone/IBAN validate, company research, UK Companies House + Charity Commission + US SEC EDGAR + EU VIES VAT + OFAC/UK/UN/EU sanctions screening due diligence, document conversion, change monitoring, EVM wallet/tx/token risk checks and ECB FX rates for AI agents.",
     url: b, provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk", email: CONTACT },
-    version: "1.22.1", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
+    version: "1.22.2", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     skills: Object.entries(PRICES).map(([p, price]) => ({ id: p.slice(1), name: p, description: DESC[p], price, endpoint: `${b}${p}` })),
     mcp: `${b}/mcp`, payments: { protocol: "x402", network: NETWORK, asset: USDC, payTo: c.env.PAY_TO },
   });
 });
 app.get("/.well-known/mcp.json", (c) => {
   const b = base(c);
-  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.22.1",
+  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.22.2",
     description: "x402 pay-per-call MCP: web reader, email/phone/IBAN validate, UK/AU/CA registries, SEC, VAT, sanctions, EVM chain data.",
     transport: { type: "streamable-http", url: `${b}/mcp` }, documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     payments: { protocol: "x402", network: NETWORK, asset: USDC } });
@@ -540,7 +544,7 @@ app.get("/openapi.json", (c) => {
     paths[ap] = { get: { summary: `Path alias of ${to} (same price/x402 challenge). ${DESC[to] || ""}`, parameters: [...ks.map((k) => ({ name: k, in: "path", required: true, schema: { type: "string" } })), { name: "chain", in: "query", required: false, schema: { type: "string" } }, { name: "preview", in: "query", required: false, schema: { type: "string", enum: ["1"] } }],
       responses: { "200": { description: "Success", content: { "application/json": { schema: OUT[to] } } }, "402": { description: `Payment required: ${price} USDC on Base (x402)` } }, "x-price": price, "x-alias-of": to } }; }
   paths["/hooks/sink"] = { post: { summary: "Free webhook test sink for /monitor", responses: { "200": { description: "Stored" } }, "x-price": "free" } };
-  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.22.1", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, email-check, domain RDAP, DNS resolve, URL redirects unwrap, page metadata/OG, HTTP security headers, IBAN/phone validate, company research, UK/AU/CA registries, LEI, sanctions, SEC, VIES VAT, document conversion, change monitoring, EVM/FX. Payments: USDC on Base mainnet (eip155:8453)." },
+  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.22.2", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, email-check, domain RDAP, DNS resolve, URL redirects unwrap, page metadata/OG, HTTP security headers, IBAN/phone validate, company research, UK/AU/CA registries, LEI, sanctions, SEC, VIES VAT, document conversion, change monitoring, EVM/FX. Payments: USDC on Base mainnet (eip155:8453)." },
     servers: [{ url: b }], paths });
 });
 const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
@@ -875,6 +879,7 @@ for (const p of Object.keys(PRICES)) app.use(p, async (c, next) => {
   if (c.req.path !== p || ((p === "/monitor" || p === "/uk-leads-feed" || p === "/uk-watch") && c.req.method !== "POST")) return next();
   const v = VALIDATE[p]; if (!v) return next();
   const b = await bodyObj(c);
+  aliasInput(p, b);
   // Non-empty inputs always validate. Empty values for known schema keys also count as an attempt
   // (so ?phone= → free 400, never pay-then-400). Truly bare probes still get the 402 challenge for crawlers.
   const props = (IN[p]?.properties || IN[p] || {}) as Record<string, unknown>;
@@ -1036,7 +1041,7 @@ for (const m of ["get", "post"] as const) {
     return cached(c, `company?domain=${encodeURIComponent(domain)}`, () => companyResearch({ domain }), 600);
   });
   app[m]("/uk-company", async (c) => {
-    const b = await bodyObj(c);
+    const b = await bodyObj(c); aliasInput("/uk-company", b);
     if (!(b.number || b.name)) return c.json({ error: "missing number or name" }, 400);
     const key = b.number ? `number=${b.number}` : `name=${b.name}`;
     if (c.req.query("preview") === "1" && m === "get")
@@ -1044,7 +1049,7 @@ for (const m of ["get", "post"] as const) {
     return cached(c, `uk-company?${encodeURIComponent(key)}`, () => ukCompany(c.env, { number: b.number, name: b.name }), 60);
   });
   app[m]("/uk-company-lite", async (c) => {
-    const b = await bodyObj(c);
+    const b = await bodyObj(c); aliasInput("/uk-company-lite", b);
     if (!(b.number || b.name)) return c.json({ error: "missing number or name" }, 400);
     const key = b.number ? `number=${b.number}` : `name=${b.name}`;
     if (c.req.query("preview") === "1" && m === "get")
@@ -1145,7 +1150,7 @@ for (const m of ["get", "post"] as const) {
   });
 
   app[m]("/uk-dd", async (c) => {
-    const b = await bodyObj(c);
+    const b = await bodyObj(c); aliasInput("/uk-dd", b);
     const key = b.number ? `number=${encodeURIComponent(b.number)}` : b.name ? `name=${encodeURIComponent(b.name)}` : "domain";
     if (!(b.number || b.name)) return c.json({ error: "missing number or name" }, 400);
     if (c.req.query("preview") === "1" && m === "get")
@@ -1154,7 +1159,7 @@ for (const m of ["get", "post"] as const) {
   });
 
   app[m]("/kyb", async (c) => {
-    const b = await bodyObj(c);
+    const b = await bodyObj(c); aliasInput("/kyb", b);
     const key = `domain=${b.domain||""}&number=${b.number||""}&name=${b.name||""}&vat=${b.vat||""}&acn=${b.acn||b.abn||""}&ca_number=${b.ca_number||""}&bn=${b.bn||""}&lei=${b.lei||""}`;
     const KREG = bindingRegistries(c.env);
     if (c.req.query("preview") === "1" && m === "get")
@@ -1257,7 +1262,7 @@ app.post("/uk-leads-feed", async (c) => {
 });
 app.post("/uk-watch", async (c) => {
   try {
-    const b = await bodyObj(c);
+    const b = await bodyObj(c); aliasInput("/uk-watch", b);
     const mon = await createUkWatch(c.env, { number: b.number, webhook: b.webhook });
     return c.json({ ...mon, status_url: `${CANONICAL}/uk-watch/${mon.id}`, price_paid: PRICES["/uk-watch"], duration_days: 30, check_interval: "hourly" });
   } catch (e: any) {
