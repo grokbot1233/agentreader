@@ -2,12 +2,12 @@
  "openapi": "3.1.0",
  "info": {
   "title": "Axiom Works AgentReader",
-  "version": "1.29.4",
+  "version": "1.30.0",
   "contact": {
    "email": "info@axiomworks.co.uk",
    "url": "https://github.com/grokbot1233/agentreader"
   },
-  "description": "x402 pay-per-call APIs for AI agents: KYB packs, UK due diligence, company research, UK/AU/CA/FR registries, LEI, sanctions, SEC EDGAR, VIES VAT, web reading, document conversion, change monitoring, EVM/FX. Big hitters first (/kyb, /uk-dd, /uk-company, /uk-watch, /uk-leads, /company-full, /sanctions-batch). Payments: USDC on Base mainnet (eip155:8453)."
+  "description": "x402 pay-per-call APIs for AI agents: KYB packs, UK due diligence, company research, UK/AU/CA/FR/NO registries, LEI, sanctions, SEC EDGAR, VIES VAT, web reading, document conversion, change monitoring, EVM/FX. Big hitters first (/kyb, /uk-dd, /uk-company, /uk-watch, /uk-leads, /company-full, /sanctions-batch). Payments: USDC on Base mainnet (eip155:8453)."
  },
  "servers": [
   {
@@ -621,9 +621,206 @@
     }
    }
   },
+  "/no-company": {
+   "get": {
+    "summary": "Use this for a Norwegian company lookup from Br\u00f8nn\u00f8ysundregistrene Enhetsregisteret (open data): legal name, orgnr, orgform, status/konkurs/liquidation flags, forretningsadresse, NACE, ansatte, hjemmeside, red flags. Search by orgnr (9 digits) or name. Example: {orgnr:\"923609016\"} (Equinor) or {name:\"Equinor\"}. $0.25.",
+    "parameters": [
+     {
+      "name": "orgnr",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Norwegian organisasjonsnummer (9 digits, spaces/dashes ok)"
+     },
+     {
+      "name": "name",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Company name search"
+     },
+     {
+      "name": "q",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Alias of name"
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Name-search matches (1-10, default 5)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "orgnr": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          },
+          "status": {
+           "type": "string"
+          },
+          "orgform": {
+           "type": "object"
+          },
+          "forretningsadresse": {
+           "type": "object"
+          },
+          "naeringskode": {
+           "type": "object"
+          },
+          "antallAnsatte": {
+           "type": "integer"
+          },
+          "red_flags": {
+           "type": "array"
+          },
+          "source": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.25 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.25",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.25",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "250000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "250000"
+    }
+   },
+   "post": {
+    "summary": "Use this for a Norwegian company lookup from Br\u00f8nn\u00f8ysundregistrene Enhetsregisteret (open data): legal name, orgnr, orgform, status/konkurs/liquidation flags, forretningsadresse, NACE, ansatte, hjemmeside, red flags. Search by orgnr (9 digits) or name. Example: {orgnr:\"923609016\"} (Equinor) or {name:\"Equinor\"}. $0.25.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "orgnr": {
+          "type": "string",
+          "description": "Norwegian organisasjonsnummer (9 digits, spaces/dashes ok)"
+         },
+         "name": {
+          "type": "string",
+          "description": "Company name search"
+         },
+         "q": {
+          "type": "string",
+          "description": "Alias of name"
+         },
+         "limit": {
+          "type": "integer",
+          "description": "Name-search matches (1-10, default 5)"
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "orgnr": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          },
+          "status": {
+           "type": "string"
+          },
+          "orgform": {
+           "type": "object"
+          },
+          "forretningsadresse": {
+           "type": "object"
+          },
+          "naeringskode": {
+           "type": "object"
+          },
+          "antallAnsatte": {
+           "type": "integer"
+          },
+          "red_flags": {
+           "type": "array"
+          },
+          "source": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.25 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.25",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.25",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "250000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "250000"
+    }
+   }
+  },
   "/registry-batch": {
    "get": {
-    "summary": "Use this to verify up to 25 UK (Companies House, max 10), Australian (ASIC, ACN/ABN), Canadian (Corporations Canada, corp number/BN) and French (SIREN via Recherche d'entreprises) companies in one call: name, status, type/act, dates, office, UK compliance/red flags (lite). Not-found IDs reported inline. ~$0.012/company vs $0.02-0.05 single. Example: {uk:\"00445790\", au:\"009661901\", ca:\"8660115\", fr:\"443061841\"}. $0.30.",
+    "summary": "Use this to verify up to 25 UK (Companies House, max 10), Australian (ASIC, ACN/ABN), Canadian (Corporations Canada, corp number/BN), French (SIREN via Recherche d'entreprises) and Norwegian (orgnr via Brreg) companies in one call: name, status, type/act, dates, office, UK compliance/red flags (lite). Not-found IDs reported inline. ~$0.012/company vs $0.02-0.05 single. Example: {uk:\"00445790\", au:\"009661901\", ca:\"8660115\", fr:\"443061841\", no:\"923609016\"}. $0.30.",
     "parameters": [
      {
       "name": "uk",
@@ -660,6 +857,15 @@
        "type": "string"
       },
       "description": "Comma-separated French SIREN (9 digits)"
+     },
+     {
+      "name": "no",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Comma-separated Norwegian organisasjonsnummer (9 digits)"
      }
     ],
     "responses": {
@@ -708,7 +914,7 @@
     }
    },
    "post": {
-    "summary": "Use this to verify up to 25 UK (Companies House, max 10), Australian (ASIC, ACN/ABN), Canadian (Corporations Canada, corp number/BN) and French (SIREN via Recherche d'entreprises) companies in one call: name, status, type/act, dates, office, UK compliance/red flags (lite). Not-found IDs reported inline. ~$0.012/company vs $0.02-0.05 single. Example: {uk:\"00445790\", au:\"009661901\", ca:\"8660115\", fr:\"443061841\"}. $0.30.",
+    "summary": "Use this to verify up to 25 UK (Companies House, max 10), Australian (ASIC, ACN/ABN), Canadian (Corporations Canada, corp number/BN), French (SIREN via Recherche d'entreprises) and Norwegian (orgnr via Brreg) companies in one call: name, status, type/act, dates, office, UK compliance/red flags (lite). Not-found IDs reported inline. ~$0.012/company vs $0.02-0.05 single. Example: {uk:\"00445790\", au:\"009661901\", ca:\"8660115\", fr:\"443061841\", no:\"923609016\"}. $0.30.",
     "requestBody": {
      "content": {
       "application/json": {
@@ -730,6 +936,10 @@
          "fr": {
           "type": "string",
           "description": "Comma-separated French SIREN (9 digits)"
+         },
+         "no": {
+          "type": "string",
+          "description": "Comma-separated Norwegian organisasjonsnummer (9 digits)"
          }
         }
        }
@@ -8780,7 +8990,7 @@
   },
   "/kyb": {
    "get": {
-    "summary": "Use this for a one-shot agent KYB/due-diligence pack: optional website research + UK Companies House DD and/or Australia ASIC (acn/abn) and/or Canada Corporations Canada (ca_number/bn) and/or France Recherche d'entreprises (siren/siret) + EU VIES VAT + optional GLEIF LEI (with ownership parents) + public sanctions screen (entity + directors) + director appointment skim (nominee/formation pattern) \u2192 composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not a regulated determination. Example: {domain:\"tesco.com\",number:\"00445790\"} or {siren:\"443061841\"} or {lei:\"HWUPKR0MPOU8FGXBT394\"}. $2.50.",
+    "summary": "Use this for a one-shot agent KYB/due-diligence pack: optional website research + UK Companies House DD and/or Australia ASIC (acn/abn) and/or Canada Corporations Canada (ca_number/bn) and/or France Recherche d'entreprises (siren/siret) and/or Norway Brreg (orgnr) + EU VIES VAT + optional GLEIF LEI (with ownership parents) + public sanctions screen (entity + directors) + director appointment skim (nominee/formation pattern) \u2192 composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not a regulated determination. Example: {domain:\"tesco.com\",number:\"00445790\"} or {siren:\"443061841\"} or {orgnr:\"923609016\"} or {lei:\"HWUPKR0MPOU8FGXBT394\"}. $2.50.",
     "parameters": [
      {
       "name": "domain",
@@ -8892,6 +9102,15 @@
        "type": "string"
       },
       "description": "French SIRET (14 digits)"
+     },
+     {
+      "name": "orgnr",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Norwegian organisasjonsnummer (9 digits)"
      }
     ],
     "responses": {
@@ -8955,7 +9174,7 @@
     }
    },
    "post": {
-    "summary": "Use this for a one-shot agent KYB/due-diligence pack: optional website research + UK Companies House DD and/or Australia ASIC (acn/abn) and/or Canada Corporations Canada (ca_number/bn) and/or France Recherche d'entreprises (siren/siret) + EU VIES VAT + optional GLEIF LEI (with ownership parents) + public sanctions screen (entity + directors) + director appointment skim (nominee/formation pattern) \u2192 composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not a regulated determination. Example: {domain:\"tesco.com\",number:\"00445790\"} or {siren:\"443061841\"} or {lei:\"HWUPKR0MPOU8FGXBT394\"}. $2.50.",
+    "summary": "Use this for a one-shot agent KYB/due-diligence pack: optional website research + UK Companies House DD and/or Australia ASIC (acn/abn) and/or Canada Corporations Canada (ca_number/bn) and/or France Recherche d'entreprises (siren/siret) and/or Norway Brreg (orgnr) + EU VIES VAT + optional GLEIF LEI (with ownership parents) + public sanctions screen (entity + directors) + director appointment skim (nominee/formation pattern) \u2192 composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not a regulated determination. Example: {domain:\"tesco.com\",number:\"00445790\"} or {siren:\"443061841\"} or {orgnr:\"923609016\"} or {lei:\"HWUPKR0MPOU8FGXBT394\"}. $2.50.",
     "requestBody": {
      "content": {
       "application/json": {
@@ -9007,9 +9226,13 @@
          "siret": {
           "type": "string",
           "description": "French SIRET (14 digits)"
+         },
+         "orgnr": {
+          "type": "string",
+          "description": "Norwegian organisasjonsnummer (9 digits)"
          }
         },
-        "description": "Provide domain and/or UK number/name and/or AU/CA/FR registry ids and/or EU vat and/or lei"
+        "description": "Provide domain and/or UK number/name and/or AU/CA/FR/NO registry ids and/or EU vat and/or lei"
        }
       }
      }
@@ -13595,6 +13818,7 @@
         "au-company",
         "ca-company",
         "fr-company",
+        "no-company",
         "uk-officer",
         "uk-property",
         "uk-area",
@@ -15638,6 +15862,86 @@
     },
     "x-price": "$0.25",
     "x-alias-of": "/fr-company"
+   }
+  },
+  "/no-company/{orgnr}": {
+   "get": {
+    "summary": "Path alias of /no-company (same price/x402 challenge). Use this for a Norwegian company lookup from Br\u00f8nn\u00f8ysundregistrene Enhetsregisteret (open data): legal name, orgnr, orgform, status/konkurs/liquidation flags, forretningsadresse, NACE, ansatte, hjemmeside, red flags. Search by orgnr (9 digits) or name. Example: {orgnr:\"923609016\"} (Equinor) or {name:\"Equinor\"}. $0.25.",
+    "parameters": [
+     {
+      "name": "orgnr",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preview",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "1"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "orgnr": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          },
+          "status": {
+           "type": "string"
+          },
+          "orgform": {
+           "type": "object"
+          },
+          "forretningsadresse": {
+           "type": "object"
+          },
+          "naeringskode": {
+           "type": "object"
+          },
+          "antallAnsatte": {
+           "type": "integer"
+          },
+          "red_flags": {
+           "type": "array"
+          },
+          "source": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "402": {
+      "description": "Payment required: $0.25 USDC on Base (x402)"
+     }
+    },
+    "x-price": "$0.25",
+    "x-alias-of": "/no-company"
    }
   },
   "/hooks/sink": {

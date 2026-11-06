@@ -78,10 +78,42 @@
   ]
  },
  {
+  "name": "no_company",
+  "path": "/no-company",
+  "price": "$0.25",
+  "description": "Use this for a Norwegian company lookup from Br\u00f8nn\u00f8ysundregistrene Enhetsregisteret (open data): legal name, orgnr, orgform, status/konkurs/liquidation flags, forretningsadresse, NACE, ansatte, hjemmeside, red flags. Search by orgnr (9 digits) or name. Example: {orgnr:\"923609016\"} (Equinor) or {name:\"Equinor\"}. $0.25.",
+  "params": [
+   {
+    "name": "orgnr",
+    "required": false,
+    "type": "string",
+    "description": "Norwegian organisasjonsnummer (9 digits, spaces/dashes ok)"
+   },
+   {
+    "name": "name",
+    "required": false,
+    "type": "string",
+    "description": "Company name search"
+   },
+   {
+    "name": "q",
+    "required": false,
+    "type": "string",
+    "description": "Alias of name"
+   },
+   {
+    "name": "limit",
+    "required": false,
+    "type": "string",
+    "description": "Name-search matches (1-10, default 5)"
+   }
+  ]
+ },
+ {
   "name": "registry_batch",
   "path": "/registry-batch",
   "price": "$0.30",
-  "description": "Use this to verify up to 25 UK (Companies House, max 10), Australian (ASIC, ACN/ABN), Canadian (Corporations Canada, corp number/BN) and French (SIREN via Recherche d'entreprises) companies in one call: name, status, type/act, dates, office, UK compliance/red flags (lite). Not-found IDs reported inline. ~$0.012/company vs $0.02-0.05 single. Example: {uk:\"00445790\", au:\"009661901\", ca:\"8660115\", fr:\"443061841\"}. $0.30.",
+  "description": "Use this to verify up to 25 UK (Companies House, max 10), Australian (ASIC, ACN/ABN), Canadian (Corporations Canada, corp number/BN), French (SIREN via Recherche d'entreprises) and Norwegian (orgnr via Brreg) companies in one call: name, status, type/act, dates, office, UK compliance/red flags (lite). Not-found IDs reported inline. ~$0.012/company vs $0.02-0.05 single. Example: {uk:\"00445790\", au:\"009661901\", ca:\"8660115\", fr:\"443061841\", no:\"923609016\"}. $0.30.",
   "params": [
    {
     "name": "uk",
@@ -106,6 +138,12 @@
     "required": false,
     "type": "string",
     "description": "Comma-separated French SIREN (9 digits)"
+   },
+   {
+    "name": "no",
+    "required": false,
+    "type": "string",
+    "description": "Comma-separated Norwegian organisasjonsnummer (9 digits)"
    }
   ]
  },
@@ -1019,7 +1057,7 @@
   "name": "kyb",
   "path": "/kyb",
   "price": "$2.50",
-  "description": "Use this for a one-shot agent KYB/due-diligence pack: optional website research + UK Companies House DD and/or Australia ASIC (acn/abn) and/or Canada Corporations Canada (ca_number/bn) and/or France Recherche d'entreprises (siren/siret) + EU VIES VAT + optional GLEIF LEI (with ownership parents) + public sanctions screen (entity + directors) + director appointment skim (nominee/formation pattern) \u2192 composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not a regulated determination. Example: {domain:\"tesco.com\",number:\"00445790\"} or {siren:\"443061841\"} or {lei:\"HWUPKR0MPOU8FGXBT394\"}. $2.50.",
+  "description": "Use this for a one-shot agent KYB/due-diligence pack: optional website research + UK Companies House DD and/or Australia ASIC (acn/abn) and/or Canada Corporations Canada (ca_number/bn) and/or France Recherche d'entreprises (siren/siret) and/or Norway Brreg (orgnr) + EU VIES VAT + optional GLEIF LEI (with ownership parents) + public sanctions screen (entity + directors) + director appointment skim (nominee/formation pattern) \u2192 composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not a regulated determination. Example: {domain:\"tesco.com\",number:\"00445790\"} or {siren:\"443061841\"} or {orgnr:\"923609016\"} or {lei:\"HWUPKR0MPOU8FGXBT394\"}. $2.50.",
   "params": [
    {
     "name": "domain",
@@ -1098,6 +1136,12 @@
     "required": false,
     "type": "string",
     "description": "French SIRET (14 digits)"
+   },
+   {
+    "name": "orgnr",
+    "required": false,
+    "type": "string",
+    "description": "Norwegian organisasjonsnummer (9 digits)"
    }
   ]
  },
