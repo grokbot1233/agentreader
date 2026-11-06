@@ -4,7 +4,7 @@ Scoring: payment evidence × price/volume potential × our fit (free data, exist
 
 | Rank | Need | Payment evidence | Est. price / volume | Fit | Status |
 |---|---|---|---|---|---|
-| 1 | **Live wallet balance (native + N ERC20s)** | onesource `live-balance` **458** unique payers @ $0.003 (PM Bazaar) | Micro $0.002–0.003; payers≈calls | High — public RPC batch; distinct from `/wallet` majors | **SHIPPING → `/chain/live-balance` $0.002 (v1.24.0)** |
+| 1 | **Live wallet balance (native + N ERC20s)** | onesource `live-balance` **458** unique payers @ $0.003 (PM Bazaar) | Micro $0.002–0.003; payers≈calls | High — public RPC batch; distinct from `/wallet` majors | **SHIPPED → `/chain/live-balance` $0.002 (v1.24.0)** |
 | 2 | Page metadata / Open Graph | Own legacy `/meta` 7+5 payers; Toll meta $0.003 | Micro $0.001 | High | **SHIPPED → `/meta` $0.001** |
 | 3 | On-chain pending block | onesource pending **74** @ $0.01 | Micro $0.001 | High | **SHIPPED → `/chain/pending` $0.001** |
 | 4 | HTTP security headers | headers.x402atlas **17** @ $0.01 | Micro $0.001 | High | **SHIPPED → `/headers` $0.001** |
