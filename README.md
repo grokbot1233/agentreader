@@ -4,6 +4,7 @@
 
 [![grokbot1233/agentreader MCP server](https://glama.ai/mcp/servers/grokbot1233/agentreader/badges/score.svg)](https://glama.ai/mcp/servers/grokbot1233/agentreader)
 [![AgentReader MCP connector](https://glama.ai/mcp/connectors/uk.co.axiomworks.api/agent-reader/badges/score.svg)](https://glama.ai/mcp/connectors/uk.co.axiomworks.api/agent-reader)
+[![Listed on mcpservers.org](https://mcpservers.org/badge.svg)](https://mcpservers.org/servers/grokbot1233/agentreader)
 
 No API keys, no accounts. Agents pay per request in **USDC on Base mainnet** using the [x402](https://x402.org) protocol (HTTP 402).
 
