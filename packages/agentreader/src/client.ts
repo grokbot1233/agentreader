@@ -201,6 +201,18 @@ export class AgentReaderClient {
   fnAtValidate(input: { fn: string }, opts?: RequestOpts) {
     return this.get("/fn-at", input as any, opts);
   }
+  /** offline Dutch KvK number structure validate ($0.001). */
+  kvkNlValidate(input: { kvk: string }, opts?: RequestOpts) {
+    return this.get("/kvk-nl", input as any, opts);
+  }
+  /** offline German HR/HRB number structure validate ($0.001). */
+  hrDeValidate(input: { hr: string }, opts?: RequestOpts) {
+    return this.get("/hr-de", input as any, opts);
+  }
+  /** offline Spanish NIF/NIE/CIF control-character validate ($0.001). */
+  nifEsValidate(input: { nif: string }, opts?: RequestOpts) {
+    return this.get("/nif-es", input as any, opts);
+  }
   /** Offline Indian CIN structural validate ($0.001). No check digit. */
   cinInValidate(input: { cin: string }, opts?: RequestOpts) {
     return this.get("/cin-in", input as any, opts);
