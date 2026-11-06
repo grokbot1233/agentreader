@@ -55,7 +55,7 @@ try {
 | `companyResearch({ domain })` | `/company` | $0.25 |
 | `ukCompany({ number?, name? })` | `/uk-company` | $0.50 |
 | `ukCompanyLite({ number?, name? })` | `/uk-company-lite` | $0.05 |
-| `companyFull({ domain })` | `/company-full` | $0.65 |
+| `companyFull({ domain })` | `/company-full` | $0.65 multi-registry |
 | `ukCharity({ number?, name? })` | `/uk-charity` | $0.05 |
 | `ukCharityFull({ number?, name? })` | `/uk-charity-full` | $0.25 |
 | `convertDocument({ url, format? })` | `/convert` | $0.03 |

@@ -216,7 +216,12 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         company_preview: data.company ? truncateSample("company", data.company, PAID_CALL.company) : null,
         uk_preview: data.uk ? truncateSample("uk-company", data.uk, PAID_CALL["uk-company"]) : { included: false, reason: data.uk_skip_reason || "no UK company detected" },
         charity_preview: data.charity ? { name: data.charity.name, status: data.charity.status, registered_number: data.charity.registered_number } : { included: false, reason: data.charity_skip_reason || "no charity signals" },
-        omitted: ["full company research", "full UK due-diligence pack", "full charity profile"],
+        fr_preview: data.fr ? { siren: data.fr.siren, name: data.fr.name, status: data.fr.status } : { included: false, reason: data.fr_skip_reason || "no FR signals" },
+        no_preview: data.no ? { orgnr: data.no.orgnr, name: data.no.name, status: data.no.status } : { included: false, reason: data.no_skip_reason || "no NO signals" },
+        au_preview: data.au ? { acn: data.au.acn || data.au.ACN, name: data.au.name, status: data.au.status } : { included: false, reason: data.au_skip_reason || "no AU signals" },
+        ca_preview: data.ca ? { corporation_number: data.ca.corporation_number, name: data.ca.name, status: data.ca.status } : { included: false, reason: data.ca_skip_reason || "no CA signals" },
+        registries_attached: data.registries_attached || [],
+        omitted: ["full company research", "full UK/FR/NO/AU/CA registry packs", "full charity profile"],
       };
 
     case "us-sec":
@@ -833,7 +838,15 @@ export const STATIC_SAMPLES: Record<string, any> = {
       red_flags: [{ flag: "outstanding_charges" }], red_flag_names: ["outstanding_charges"],
       mass_formation_office: { matched: false },
     },
+    uk_included: true,
+    charity_included: false,
     charity_skip_reason: "No charity signals (no registered charity number or charity keywords).",
+    fr_included: false, fr_skip_reason: "No French company signals (.fr TLD, SIREN/SIRET, or FR keywords).",
+    no_included: false, no_skip_reason: "No Norwegian company signals (.no TLD, orgnr, or NO keywords).",
+    au_included: false, au_skip_reason: "No Australian company signals (.com.au TLD or ACN/ABN).",
+    ca_included: false, ca_skip_reason: "No Canadian company signals (.ca TLD or corporation number/BN).",
+    registries_attached: ["UK CH"],
+    note: "Includes company research + auto-attached registries: UK CH. Soft-skipped jurisdictions list *_skip_reason.",
   },
   links: {
     url: "https://example.com", count: 1,
