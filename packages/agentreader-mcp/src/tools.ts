@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const ORIGIN = process.env.AGENTREADER_ORIGIN || "https://api.axiomworks.co.uk";
-export const VERSION = "1.25.1";
+export const VERSION = "1.28.0";
 import CHAIN from "./chain-routes.json";
 
 const CH = z.enum(["base", "ethereum", "arbitrum", "optimism", "polygon"]).optional();
@@ -25,7 +25,8 @@ export type ToolDef = {
   previewable?: boolean;
 };
 
-export const TOOLS: ToolDef[] = [
+export const HIDDEN_TOOLS = new Set(["iban_validate","phone_check","uk_postcode_validate","siren_validate","siret_validate","partita_iva_validate","orgnr_se_validate","bn_ca_validate","cvr_dk_validate","fn_at_validate","cin_in_validate","kvk_nl_validate","hr_de_validate","nif_es_validate","cnpj_validate","nip_pl_validate","uid_ch_validate"]);
+const ALL_TOOLS: ToolDef[] = [
   {
     name: "read_url",
     description:
@@ -645,7 +646,7 @@ export const TOOLS: ToolDef[] = [
 
 // Single-fact EVM tools (/chain/*), generated from the server's route table.
 for (const r of CHAIN as any[]) {
-  TOOLS.push({
+  ALL_TOOLS.push({
     name: r.tool,
     description: r.description.replace(/\$0\.00\d\.$/, `${r.price} USDC.`),
     price: r.price,
@@ -654,3 +655,6 @@ for (const r of CHAIN as any[]) {
     previewable: true,
   } as ToolDef);
 }
+
+// 2026-11-06: $0.001 format validators unlisted; HTTP routes still work.
+export const TOOLS: ToolDef[] = ALL_TOOLS.filter((t) => !HIDDEN_TOOLS.has(t.name));
