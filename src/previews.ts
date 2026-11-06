@@ -3,7 +3,7 @@ import { CANONICAL } from "./facilitator";
 const PREVIEW_LIMIT = 8; // per IP per UTC day across all preview kinds
 const PREVIEW_PREFIX = "prev:";
 
-export type PreviewKind = "headers" | "iban" | "phone" | "meta" | "redirects" | "dns" | "au-company" | "ca-company" | "fr-company" | "no-company" | "domain" | "email-check" | "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "kyb" | "uk-dd" | "uk-watch" | "sanctions" | "sanctions-batch" | "uk-officer" | "uk-property" | "uk-area" | "uk-postcode" | "siren" | "siret" | "partita-iva" | "orgnr" | "bn-ca" | "cvr" | "fn-at" | "cin-in" | "kvk-nl" | "hr-de" | "nif-es" | "cnpj" | "nip-pl" | "uid-ch";
+export type PreviewKind = "headers" | "iban" | "phone" | "meta" | "redirects" | "dns" | "au-company" | "ca-company" | "fr-company" | "no-company" | "dk-company" | "domain" | "email-check" | "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "kyb" | "uk-dd" | "uk-watch" | "sanctions" | "sanctions-batch" | "uk-officer" | "uk-property" | "uk-area" | "uk-postcode" | "siren" | "siret" | "partita-iva" | "orgnr" | "bn-ca" | "cvr" | "fn-at" | "cin-in" | "kvk-nl" | "hr-de" | "nif-es" | "cnpj" | "nip-pl" | "uid-ch";
 
 const PRICE: Record<PreviewKind, string> = {
   read: "$0.002", links: "$0.001", check: "$0.001",
@@ -11,7 +11,7 @@ const PRICE: Record<PreviewKind, string> = {
   convert: "$0.03", "company-full": "$0.65",
   "uk-charity": "$0.05", "uk-charity-full": "$0.25",
   "us-sec": "$0.05", "us-sec-full": "$0.25", "eu-vat": "$0.01", "lei": "$0.005", "lei-full": "$0.05", "read-batch": "$0.015",
-  "uk-leads": "$1.00", "uk-leads-lite": "$0.25", kyb: "$2.50", "uk-dd": "$1.00", "uk-watch": "$5.00", "email-check": "$0.002", domain: "$0.002", dns: "$0.001", redirects: "$0.001", meta: "$0.001", headers: "$0.001", iban: "$0.001", phone: "$0.001", "au-company": "$0.02", "ca-company": "$0.02", "fr-company": "$0.25", "no-company": "$0.25",
+  "uk-leads": "$1.00", "uk-leads-lite": "$0.25", kyb: "$2.50", "uk-dd": "$1.00", "uk-watch": "$5.00", "email-check": "$0.002", domain: "$0.002", dns: "$0.001", redirects: "$0.001", meta: "$0.001", headers: "$0.001", iban: "$0.001", phone: "$0.001", "au-company": "$0.02", "ca-company": "$0.02", "fr-company": "$0.25", "no-company": "$0.25", "dk-company": "$0.25",
   sanctions: "$0.05", "sanctions-batch": "$1.00",
   "uk-officer": "$0.15",
   "uk-property": "$0.01", "uk-area": "$0.005", "uk-postcode": "$0.001", siren: "$0.001", siret: "$0.001", "partita-iva": "$0.001", orgnr: "$0.001", "bn-ca": "$0.001", cvr: "$0.001", "fn-at": "$0.001", "cin-in": "$0.001", "kvk-nl": "$0.001", "hr-de": "$0.001", "nif-es": "$0.001", cnpj: "$0.001", "nip-pl": "$0.001", "uid-ch": "$0.001",
@@ -34,7 +34,7 @@ const PAID_CALL: Record<PreviewKind, string> = {
   "lei": `${CANONICAL}/lei?lei=HWUPKR0MPOU8FGXBT394`,
   "lei-full": `${CANONICAL}/lei-full?name=Apple+Inc.`,
   "read-batch": `${CANONICAL}/read-batch?urls=https://example.com,https://example.org`,
-  "uk-leads": `${CANONICAL}/uk-leads?sic=62012`, "uk-leads-lite": `${CANONICAL}/uk-leads-lite?sic=62`, "email-check": `${CANONICAL}/email-check?email=info@stripe.com`, domain: `${CANONICAL}/domain?domain=stripe.com`, dns: `${CANONICAL}/dns?name=example.com`, redirects: `${CANONICAL}/redirects?url=https://example.com`, meta: `${CANONICAL}/meta?url=https://example.com`, headers: `${CANONICAL}/headers?url=https://example.com`, iban: `${CANONICAL}/iban?iban=GB82WEST12345698765432`, phone: `${CANONICAL}/phone?phone=%2B447911123456`, "au-company": `${CANONICAL}/au-company?acn=004028077`, "ca-company": `${CANONICAL}/ca-company?number=8660115`, "fr-company": `${CANONICAL}/fr-company?siren=443061841`, "no-company": `${CANONICAL}/no-company?orgnr=923609016`, kyb: `${CANONICAL}/kyb?domain=tesco.com&number=00445790`,
+  "uk-leads": `${CANONICAL}/uk-leads?sic=62012`, "uk-leads-lite": `${CANONICAL}/uk-leads-lite?sic=62`, "email-check": `${CANONICAL}/email-check?email=info@stripe.com`, domain: `${CANONICAL}/domain?domain=stripe.com`, dns: `${CANONICAL}/dns?name=example.com`, redirects: `${CANONICAL}/redirects?url=https://example.com`, meta: `${CANONICAL}/meta?url=https://example.com`, headers: `${CANONICAL}/headers?url=https://example.com`, iban: `${CANONICAL}/iban?iban=GB82WEST12345698765432`, phone: `${CANONICAL}/phone?phone=%2B447911123456`, "au-company": `${CANONICAL}/au-company?acn=004028077`, "ca-company": `${CANONICAL}/ca-company?number=8660115`, "fr-company": `${CANONICAL}/fr-company?siren=443061841`, "no-company": `${CANONICAL}/no-company?orgnr=923609016`, "dk-company": `${CANONICAL}/dk-company?cvr=24256790`, kyb: `${CANONICAL}/kyb?domain=tesco.com&number=00445790`,
   "uk-dd": `${CANONICAL}/uk-dd?number=00445790`,
   "uk-watch": `POST ${CANONICAL}/uk-watch {number,webhook}`,
   sanctions: `${CANONICAL}/sanctions?name=BANCO+NACIONAL+DE+CUBA`, "sanctions-batch": `${CANONICAL}/sanctions-batch`,
@@ -218,10 +218,11 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         charity_preview: data.charity ? { name: data.charity.name, status: data.charity.status, registered_number: data.charity.registered_number } : { included: false, reason: data.charity_skip_reason || "no charity signals" },
         fr_preview: data.fr ? { siren: data.fr.siren, name: data.fr.name, status: data.fr.status } : { included: false, reason: data.fr_skip_reason || "no FR signals" },
         no_preview: data.no ? { orgnr: data.no.orgnr, name: data.no.name, status: data.no.status } : { included: false, reason: data.no_skip_reason || "no NO signals" },
+        dk_preview: data.dk ? { cvr: data.dk.cvr, name: data.dk.name, status: data.dk.status } : { included: false, reason: data.dk_skip_reason || "no DK signals" },
         au_preview: data.au ? { acn: data.au.acn || data.au.ACN, name: data.au.name, status: data.au.status } : { included: false, reason: data.au_skip_reason || "no AU signals" },
         ca_preview: data.ca ? { corporation_number: data.ca.corporation_number, name: data.ca.name, status: data.ca.status } : { included: false, reason: data.ca_skip_reason || "no CA signals" },
         registries_attached: data.registries_attached || [],
-        omitted: ["full company research", "full UK/FR/NO/AU/CA registry packs", "full charity profile"],
+        omitted: ["full company research", "full UK/FR/NO/DK/AU/CA registry packs", "full charity profile"],
       };
 
     case "us-sec":
@@ -398,6 +399,13 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         antallAnsatte: data.antallAnsatte ?? null, red_flags: (data.red_flags || []).slice(0, 2),
         omitted: data.omitted || ["forretningsadresse detail", "historiskeNavn", "kapital", "matches"],
       };
+    case "dk-company":
+      return {
+        ...u, cvr: data.cvr, name: data.name, status: data.status,
+        city: data.city || null, company_type_short: data.company_type_short || null,
+        employees: data.employees ?? null, red_flags: (data.red_flags || []).slice(0, 2),
+        omitted: data.omitted || ["direktion detail", "ejere", "fuldt_ansvarlige", "matches"],
+      };
     case "uk-dd":
       return {
         ...u,
@@ -419,6 +427,7 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         has_uk: !!data.uk && !data.uk.error,
         has_fr: !!data.fr && !data.fr.error,
         has_no: !!data.no && !data.no.error,
+        has_dk: !!data.dk && !data.dk.error,
         has_eu_vat: !!data.eu_vat && !data.eu_vat.error,
         has_au: !!data.au && !data.au.error,
         has_ca: !!data.ca && !data.ca.error,
@@ -732,6 +741,11 @@ export const STATIC_SAMPLES: Record<string, any> = {
     city: "STAVANGER", orgform: "ASA", antallAnsatte: 21231,
     red_flags: [], omitted: ["forretningsadresse detail", "historiskeNavn", "kapital", "matches"],
   },
+  "dk-company": {
+    cvr: "24256790", name: "NOVO NORDISK A/S", status: "NORMAL",
+    city: "Bagsværd", company_type_short: "A/S", employees: 27151,
+    red_flags: [], omitted: ["direktion detail", "ejere", "fuldt_ansvarlige", "matches"],
+  },
   "uk-officer": {
     product: "uk-officer", query: { name: "Ken Olisa", limit: 10 }, hits_total: 3, returned: 2,
     disclaimer: "Public Companies House register data (OGL). Screening/research aid only - not a credit check.",
@@ -843,6 +857,7 @@ export const STATIC_SAMPLES: Record<string, any> = {
     charity_skip_reason: "No charity signals (no registered charity number or charity keywords).",
     fr_included: false, fr_skip_reason: "No French company signals (.fr TLD, SIREN/SIRET, or FR keywords).",
     no_included: false, no_skip_reason: "No Norwegian company signals (.no TLD, orgnr, or NO keywords).",
+    dk_included: false, dk_skip_reason: "No Danish company signals (.dk TLD, CVR, or DK keywords).",
     au_included: false, au_skip_reason: "No Australian company signals (.com.au TLD or ACN/ABN).",
     ca_included: false, ca_skip_reason: "No Canadian company signals (.ca TLD or corporation number/BN).",
     registries_attached: ["UK CH"],
