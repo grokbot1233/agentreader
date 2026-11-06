@@ -1,0 +1,74 @@
+{
+  "updated": "2026-11-06T17:36:24Z",
+  "ops_notes_append": "Growth sprint 2026-11-06 ~17:35 London: shipped /cvr+/fn-at+/cin-in $0.001 as v1.27.2 (deploy edad0b09\u2026). Preview KV fail-open. Outside rev still $0.004. Grow/cut N/A (<7d). No Liam spend.",
+  "listings_upsert": [
+    {
+      "name": "/cvr $0.001",
+      "status": "live v1.27.2",
+      "url": "https://api.axiomworks.co.uk/cvr",
+      "notes": "DK CVR mod-11 offline; paid-settled + x402scan; Toll peer"
+    },
+    {
+      "name": "/fn-at $0.001",
+      "status": "live v1.27.2",
+      "url": "https://api.axiomworks.co.uk/fn-at",
+      "notes": "AT Firmenbuchnummer check letter offline; paid-settled + x402scan"
+    },
+    {
+      "name": "/cin-in $0.001",
+      "status": "live v1.27.2",
+      "url": "https://api.axiomworks.co.uk/cin-in",
+      "notes": "IN CIN 21-char structure offline; paid-settled + x402scan"
+    },
+    {
+      "name": "npm @axiomworks/agentreader",
+      "status": "1.27.2",
+      "url": "https://www.npmjs.com/package/@axiomworks/agentreader"
+    },
+    {
+      "name": "npm @axiomworks/agentreader-mcp",
+      "status": "1.27.2",
+      "url": "https://www.npmjs.com/package/@axiomworks/agentreader-mcp"
+    },
+    {
+      "name": "Apify agent-kyb-check",
+      "status": "public on Apify Store",
+      "url": "https://apify.com/ultramarine_gusto/agent-kyb-check",
+      "ppe_event": "kyb-check",
+      "ppe_usd": 0.12
+    },
+    {
+      "name": "Apify uk-charity-check",
+      "status": "public on Apify Store",
+      "url": "https://apify.com/ultramarine_gusto/uk-charity-check",
+      "ppe_event": "charity-check",
+      "ppe_usd": 0.03
+    }
+  ],
+  "next_steps": [
+    "Soft distribute /cvr /fn-at /cin-in + /kyb + /chain/live-balance; keep buyer hunt cadence.",
+    "Next free offline validators: NL KvK / DE HR / ES NIF \u2014 or higher-ticket if Bazaar shifts.",
+    "Apify: publish au-company-check / ca-corp-check when daily Store limit allows; Dotfile identity still pending.",
+    "CF KV daily put limit: dashboard meta via patch files until reset; preview fail-open shipped."
+  ],
+  "queue": [
+    "NL KvK / DE Handelsregister / ES NIF offline $0.001 validators",
+    "Apify au-company-check + ca-corp-check free Store publish",
+    "More agent-facing discovery (PulseMCP/mcp.so/cursor.directory/APIs.guru forms)"
+  ],
+  "checklist_upsert": [
+    {
+      "item": "/cvr+/fn-at+/cin-in $0.001 \u2014 DK/AT/IN offline validators",
+      "status": "live",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/cvr?cvr=10403782&preview=1",
+      "detail": "v1.27.2 deploy edad0b09\u2026; paid txs 0x6a3dec55\u2026 / 0x7abc7d29\u2026 / 0x6a87e0bb\u2026; npm+mcp 1.27.2; x402scan; preview KV fail-open"
+    },
+    {
+      "item": "Apify 7 Actors built+tested; 5 public on Store, 2 queued",
+      "done": true,
+      "detail": "agent-kyb-check + uk-charity-check now public (2026-11-06). Identity verification still pending Apify review for payouts."
+    }
+  ],
+  "rule": "14 days after a service is first listed, anything with fewer than 50 paid calls or under 10 unique paying agents gets replaced by the next idea in the ranking; anything gaining traction gets a growth step (new endpoints, price tests, more listings). Sprint also applies 7-day no-outside-sales unlist for brand-new micros."
+}

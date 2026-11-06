@@ -3,7 +3,7 @@ import { CANONICAL } from "./facilitator";
 const PREVIEW_LIMIT = 8; // per IP per UTC day across all preview kinds
 const PREVIEW_PREFIX = "prev:";
 
-export type PreviewKind = "headers" | "iban" | "phone" | "meta" | "redirects" | "dns" | "au-company" | "ca-company" | "domain" | "email-check" | "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "kyb" | "uk-dd" | "sanctions" | "sanctions-batch" | "uk-officer" | "uk-property" | "uk-area" | "uk-postcode" | "siren" | "siret" | "partita-iva" | "orgnr" | "bn-ca";
+export type PreviewKind = "headers" | "iban" | "phone" | "meta" | "redirects" | "dns" | "au-company" | "ca-company" | "domain" | "email-check" | "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "kyb" | "uk-dd" | "sanctions" | "sanctions-batch" | "uk-officer" | "uk-property" | "uk-area" | "uk-postcode" | "siren" | "siret" | "partita-iva" | "orgnr" | "bn-ca" | "cvr" | "fn-at" | "cin-in";
 
 const PRICE: Record<PreviewKind, string> = {
   read: "$0.002", links: "$0.001", check: "$0.001",
@@ -14,7 +14,7 @@ const PRICE: Record<PreviewKind, string> = {
   "uk-leads": "$1.00", "uk-leads-lite": "$0.25", kyb: "$2.50", "uk-dd": "$1.00", "email-check": "$0.002", domain: "$0.002", dns: "$0.001", redirects: "$0.001", meta: "$0.001", headers: "$0.001", iban: "$0.001", phone: "$0.001", "au-company": "$0.02", "ca-company": "$0.02",
   sanctions: "$0.05", "sanctions-batch": "$1.00",
   "uk-officer": "$0.15",
-  "uk-property": "$0.01", "uk-area": "$0.005", "uk-postcode": "$0.001", siren: "$0.001", siret: "$0.001", "partita-iva": "$0.001", orgnr: "$0.001", "bn-ca": "$0.001",
+  "uk-property": "$0.01", "uk-area": "$0.005", "uk-postcode": "$0.001", siren: "$0.001", siret: "$0.001", "partita-iva": "$0.001", orgnr: "$0.001", "bn-ca": "$0.001", cvr: "$0.001", "fn-at": "$0.001", "cin-in": "$0.001",
 };
 
 const PAID_CALL: Record<PreviewKind, string> = {
@@ -46,18 +46,32 @@ const PAID_CALL: Record<PreviewKind, string> = {
   "partita-iva": `${CANONICAL}/partita-iva?vat=00488410010`,
   orgnr: `${CANONICAL}/orgnr?orgnr=556012-5790`,
   "bn-ca": `${CANONICAL}/bn-ca?bn=123456789RT0001`,
+  cvr: `${CANONICAL}/cvr?cvr=10403782`,
+  "fn-at": `${CANONICAL}/fn-at?fn=FN%20575737y`,
+  "cin-in": `${CANONICAL}/cin-in?cin=U72200KA2013PTC097389`,
 };
 
 function dayKey() { return new Date().toISOString().slice(0, 10); }
 
-export async function checkPreviewQuota(env: { LOG: KVNamespace }, ip: string): Promise<{ ok: true; remaining: number } | { ok: false; error: string; reset: string }> {
+export async function checkPreviewQuota(env: { LOG: KVNamespace }, ip: string): Promise<{ ok: true; remaining: number; kv_write?: boolean } | { ok: false; error: string; reset: string }> {
   const key = `${PREVIEW_PREFIX}${dayKey()}:${ip || "unknown"}`;
-  const cur = Number((await env.LOG.get(key)) || "0");
+  let cur = 0;
+  try {
+    cur = Number((await env.LOG.get(key)) || "0");
+  } catch {
+    // KV read failure: fail-open so free previews still work for discovery.
+    return { ok: true, remaining: PREVIEW_LIMIT, kv_write: false };
+  }
   if (cur >= PREVIEW_LIMIT) {
     return { ok: false, error: `preview rate limit (${PREVIEW_LIMIT}/IP/day). Full reports via x402.`, reset: `${dayKey()}T23:59:59Z` };
   }
-  await env.LOG.put(key, String(cur + 1), { expirationTtl: 172800 });
-  return { ok: true, remaining: PREVIEW_LIMIT - cur - 1 };
+  try {
+    await env.LOG.put(key, String(cur + 1), { expirationTtl: 172800 });
+    return { ok: true, remaining: PREVIEW_LIMIT - cur - 1, kv_write: true };
+  } catch {
+    // CF free-tier KV daily put limit (or transient write error): fail-open, do not 500.
+    return { ok: true, remaining: PREVIEW_LIMIT - cur, kv_write: false };
+  }
 }
 
 export function clientIp(c: { req: { header: (n: string) => string | undefined } }): string {
@@ -297,6 +311,26 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         reference: data.reference, program_known: data.program_known, program_name: data.program_name,
         shape_ok: data.shape_ok, valid: data.valid, form: data.form,
         disclaimer: data.disclaimer, omitted: ["upsell detail"],
+      };
+    case "cvr":
+      return {
+        ...u, product: data.product, cvr: data.cvr, valid: data.valid,
+        mod11_ok: data.mod11_ok, no_leading_zero: data.no_leading_zero, length_ok: data.length_ok,
+        digits: data.digits, disclaimer: data.disclaimer, upsell: data.upsell,
+      };
+    case "fn-at":
+      return {
+        ...u, product: data.product, fn: data.fn, fn_formatted: data.fn_formatted,
+        digits: data.digits, check_letter: data.check_letter, expected_check_letter: data.expected_check_letter,
+        branch: data.branch, valid: data.valid, letter_ok: data.letter_ok, disclaimer: data.disclaimer, upsell: data.upsell,
+      };
+    case "cin-in":
+      return {
+        ...u, product: data.product, cin: data.cin, valid: data.valid, shape_ok: data.shape_ok, year_ok: data.year_ok,
+        listing: data.listing, listing_status: data.listing_status, nic_code: data.nic_code, state_code: data.state_code,
+        year_of_incorporation: data.year_of_incorporation, company_type: data.company_type,
+        company_type_known: data.company_type_known, registration_number: data.registration_number,
+        disclaimer: data.disclaimer, upsell: data.upsell,
       };
     case "au-company":
       return {
@@ -539,6 +573,21 @@ export const STATIC_SAMPLES: Record<string, any> = {
     product: "bn-ca", bn: "123456789RT0001", bn9: "123456789", program: "RT", reference: "0001",
     program_known: true, program_name: "GST/HST", shape_ok: true, valid: true, form: "program_account",
     disclaimer: "Canadian CRA BN shape only — not proof of issuance.",
+  },
+  cvr: {
+    product: "cvr", cvr: "10403782", valid: true, mod11_ok: true, no_leading_zero: true, length_ok: true, digits: 8,
+    price: "$0.001", disclaimer: "preview", source: "Danish CVR modulus-11 (offline)",
+  },
+  "fn-at": {
+    product: "fn-at", fn: "575737y", fn_formatted: "FN 575737y", digits: "575737", check_letter: "y",
+    expected_check_letter: "y", branch: null, valid: true, letter_ok: true, letter_in_alphabet: true, length_ok: true,
+    price: "$0.001", disclaimer: "preview", source: "Austrian Firmenbuchnummer check letter (offline; mod-17)",
+  },
+  "cin-in": {
+    product: "cin-in", cin: "U72200KA2013PTC097389", valid: true, shape_ok: true, year_ok: true,
+    listing: "U", listing_status: "unlisted", nic_code: "72200", state_code: "KA", year_of_incorporation: 2013,
+    company_type: "PTC", company_type_known: true, company_type_name: "Private Limited Company",
+    registration_number: "097389", price: "$0.001", disclaimer: "preview", source: "Indian MCA CIN structure (offline; no check digit)",
   },
   redirects: {
     product: "redirects", url: "https://example.com", final_url: "https://example.com/",
