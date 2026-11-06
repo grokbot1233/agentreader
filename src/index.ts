@@ -520,7 +520,7 @@ function discovery(c: any) {
     contact: CONTACT, ownershipProofs: [] };
 }
 
-app.get("/health", (c) => c.json({ ok: true, version: "1.27.3", ts: new Date().toISOString() }));
+app.get("/health", (c) => c.json({ ok: true, version: "1.27.5", ts: new Date().toISOString() }));
 app.get("/.well-known/x402", (c) => c.json(discovery(c)));
 app.get("/.well-known/x402.json", (c) => c.json(discovery(c)));
 app.get("/.well-known/402index-verify.txt", (c) => c.text("9a944a1ce3c68588c5fb1d104be63981bb5e6b6e302fa0a1bd65b6a3cd5f5372"));
@@ -531,7 +531,7 @@ app.get("/.well-known/agent-card.json", (c) => {
   return c.json({
     protocolVersion: "0.3.0", name: "Axiom Works AgentReader",
     description: "Pay-per-call (x402, USDC on Base) UK Companies House, KYB, SEC EDGAR, EU VAT, web-to-markdown and EVM on-chain lookups for AI agents. HTTP + MCP; no API keys.",
-    url: b, preferredTransport: "HTTP+JSON", version: "1.27.3", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
+    url: b, preferredTransport: "HTTP+JSON", version: "1.27.5", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
     provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk" },
     capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
     defaultInputModes: ["application/json"], defaultOutputModes: ["application/json"],
@@ -544,14 +544,14 @@ app.get("/.well-known/agent.json", (c) => {
   return c.json({
     name: "Axiom Works AgentReader", description: "x402 pay-per-call web reader, email/phone/IBAN validate, company research, UK Companies House + Charity Commission + US SEC EDGAR + EU VIES VAT + OFAC/UK/UN/EU sanctions screening due diligence, document conversion, change monitoring, EVM wallet/tx/token risk checks and ECB FX rates for AI agents.",
     url: b, provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk", email: CONTACT },
-    version: "1.27.3", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
+    version: "1.27.5", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     skills: Object.entries(PRICES).map(([p, price]) => ({ id: p.slice(1), name: p, description: DESC[p], price, endpoint: `${b}${p}` })),
     mcp: `${b}/mcp`, payments: { protocol: "x402", network: NETWORK, asset: USDC, payTo: c.env.PAY_TO },
   });
 });
 app.get("/.well-known/mcp.json", (c) => {
   const b = base(c);
-  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.27.3",
+  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.27.5",
     description: "x402 pay-per-call MCP: web reader, email/phone/IBAN validate, UK/AU/CA registries, SEC, VAT, sanctions, EVM chain data.",
     transport: { type: "streamable-http", url: `${b}/mcp` }, documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     payments: { protocol: "x402", network: NETWORK, asset: USDC } });
@@ -588,7 +588,7 @@ app.get("/openapi.json", (c) => {
     paths[ap] = { get: { summary: `Path alias of ${to} (same price/x402 challenge). ${DESC[to] || ""}`, parameters: [...ks.map((k) => ({ name: k, in: "path", required: true, schema: { type: "string" } })), { name: "chain", in: "query", required: false, schema: { type: "string" } }, { name: "preview", in: "query", required: false, schema: { type: "string", enum: ["1"] } }],
       responses: { "200": { description: "Success", content: { "application/json": { schema: OUT[to] } } }, "402": { description: `Payment required: ${price} USDC on Base (x402)` } }, "x-price": price, "x-alias-of": to } }; }
   paths["/hooks/sink"] = { post: { summary: "Free webhook test sink for /monitor", responses: { "200": { description: "Stored" } }, "x-price": "free" } };
-  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.27.3", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, email-check, domain RDAP, DNS resolve, URL redirects unwrap, page metadata/OG, HTTP security headers, IBAN/phone/UK-postcode/SIREN/SIRET/Partita-IVA/SE-orgnr/CA-BN/DK-CVR/AT-FN/IN-CIN validate, company research, UK/AU/CA registries, LEI, sanctions, SEC, VIES VAT, document conversion, change monitoring, EVM/FX. Payments: USDC on Base mainnet (eip155:8453)." },
+  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.27.5", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, email-check, domain RDAP, DNS resolve, URL redirects unwrap, page metadata/OG, HTTP security headers, IBAN/phone/UK-postcode/SIREN/SIRET/Partita-IVA/SE-orgnr/CA-BN/DK-CVR/AT-FN/IN-CIN validate, company research, UK/AU/CA registries, LEI, sanctions, SEC, VIES VAT, document conversion, change monitoring, EVM/FX. Payments: USDC on Base mainnet (eip155:8453)." },
     servers: [{ url: b }], paths });
 });
 const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
@@ -856,8 +856,42 @@ app.post("/admin/dashboard-meta", async (c) => {
   if (!(await keyOk(auth, c.env.DASHBOARD_KEY || ""))) return c.json({ error: "unauthorized" }, 401);
   let body: any; try { body = await c.req.json(); } catch { return c.json({ error: "invalid json" }, 400); }
   const cur: any = (await c.env.LOG.get("meta:dashboard", "json")) || {};
-  const next = { ...cur, ...body, updated: new Date().toISOString() };
-  await c.env.LOG.put("meta:dashboard", JSON.stringify(next)); return c.json({ ok: true, meta: next });
+  const { ops_notes_append, listings_upsert, checklist_upsert, ...rest } = body || {};
+  const next: any = { ...cur, ...rest, updated: new Date().toISOString() };
+  if (typeof ops_notes_append === "string" && ops_notes_append.trim()) {
+    const prev = typeof next.ops_notes === "string" ? next.ops_notes : "";
+    next.ops_notes = prev ? `${ops_notes_append.trim()}\n${prev}` : ops_notes_append.trim();
+  }
+  delete next.ops_notes_append;
+  if (Array.isArray(listings_upsert)) {
+    const list = Array.isArray(next.listings) ? [...next.listings] : [];
+    for (const item of listings_upsert) {
+      if (!item || typeof item !== "object" || !item.name) continue;
+      const i = list.findIndex((x: any) => x && x.name === item.name);
+      if (i >= 0) list[i] = { ...list[i], ...item };
+      else list.unshift(item);
+    }
+    next.listings = list;
+  }
+  delete next.listings_upsert;
+  if (Array.isArray(checklist_upsert)) {
+    const list = Array.isArray(next.checklist) ? [...next.checklist] : [];
+    for (const item of checklist_upsert) {
+      if (!item || typeof item !== "object" || !item.item) continue;
+      const i = list.findIndex((x: any) => x && x.item === item.item);
+      if (i >= 0) list[i] = { ...list[i], ...item };
+      else list.unshift(item);
+    }
+    next.checklist = list;
+  }
+  delete next.checklist_upsert;
+  try {
+    await c.env.LOG.put("meta:dashboard", JSON.stringify(next));
+    return c.json({ ok: true, meta: next });
+  } catch (e: any) {
+    const detail = String(e?.message || e).slice(0, 300);
+    return c.json({ ok: false, error: "kv_put_failed", detail }, 503);
+  }
 });
 app.post("/admin/sanctions-refresh", async (c) => {
   const auth = c.req.header("authorization")?.replace(/^Bearer\s+/i, "") || c.req.query("key") || "";
