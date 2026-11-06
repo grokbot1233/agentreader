@@ -193,6 +193,18 @@ export class AgentReaderClient {
   bnCaValidate(input: { bn: string }, opts?: RequestOpts) {
     return this.get("/bn-ca", input as any, opts);
   }
+  /** Offline Danish CVR modulus-11 validate ($0.001). */
+  cvrValidate(input: { cvr: string }, opts?: RequestOpts) {
+    return this.get("/cvr", input as any, opts);
+  }
+  /** Offline Austrian Firmenbuchnummer (FN) check-letter validate ($0.001). */
+  fnAtValidate(input: { fn: string }, opts?: RequestOpts) {
+    return this.get("/fn-at", input as any, opts);
+  }
+  /** Offline Indian CIN structural validate ($0.001). No check digit. */
+  cinInValidate(input: { cin: string }, opts?: RequestOpts) {
+    return this.get("/cin-in", input as any, opts);
+  }
   companyResearch(input: { domain: string }, opts?: RequestOpts) {
     return this.get("/company", input, opts);
   }

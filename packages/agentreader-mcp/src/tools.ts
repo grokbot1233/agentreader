@@ -177,6 +177,25 @@ export const TOOLS: ToolDef[] = [
     previewable: true,
   },
   {
+    name: "cvr_dk_validate",
+    description: "Offline Danish CVR validate (8-digit modulus-11). $0.001",
+    schema: { cvr: z.string() },
+    http: (a) => `${ORIGIN}/cvr?cvr=${encodeURIComponent(a.cvr)}`,
+  },
+  {
+    name: "fn_at_validate",
+    description: "Offline Austrian Firmenbuchnummer (FN) validate. $0.001",
+    schema: { fn: z.string() },
+    http: (a) => `${ORIGIN}/fn-at?fn=${encodeURIComponent(a.fn)}`,
+  },
+  {
+    name: "cin_in_validate",
+    description: "Offline Indian CIN structural validate (21 chars). $0.001",
+    schema: { cin: z.string() },
+    http: (a) => `${ORIGIN}/cin-in?cin=${encodeURIComponent(a.cin)}`,
+  },
+
+  {
     name: "company_research",
     description:
       "Website company research (tech, contacts, DNS, RDAP, news) with sources — not UK Companies House. $0.25 USDC.",
