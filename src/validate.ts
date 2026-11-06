@@ -95,6 +95,7 @@ export const VALIDATE: Record<string, (b: any) => string | null> = {
   "/uk-leads": (b) => leads(b), "/uk-leads-lite": (b) => leads(b),
   "/uk-leads-feed": (b) => first(leadsFilter(b), url(b.webhook, "webhook"), s(b.webhook) && !s(b.webhook).startsWith("https://") ? "webhook must be https" : null),
   "/uk-watch": (b) => first(!s(b.number) ? "missing number" : CHNUM.test(s(b.number)) ? null : "number must be a Companies House number", url(b.webhook, "webhook"), s(b.webhook) && !s(b.webhook).startsWith("https://") ? "webhook must be https" : null),
+  "/uk-dd": (b) => ukDd(b),
   "/kyb": (b) => kyb(b),
   "/sanctions": (b) => sanctions(b),
   "/sanctions-batch": (b) => sanctionsBatch(b),
@@ -200,6 +201,14 @@ function readBatch(b: any) {
   }
   return null;
 }
+function ukDd(b: any) {
+  const number = s(b.number), name = s(b.name), domain = s(b.domain);
+  if (!number && !name) return "missing number or name";
+  if (number && !CHNUM.test(number)) return "number must be a Companies House number: 8 digits (e.g. 00445790) or 2 letters + 6 digits (e.g. SC123456)";
+  if (!number && name.length < 2) return "name too short";
+  if (domain) { const d = domainish(domain); if (d) return d; }
+  return null;
+}
 function kyb(b: any) {
   const domain = s(b.domain), number = s(b.number), name = s(b.name), vat = s(b.vat);
   if (!domain && !number && !name && !vat && !s(b.acn) && !s(b.abn) && !s(b.ca_number) && !s(b.bn) && !(s(b.country) && s(b.vat_number)) && !s(b.lei)) return "provide domain and/or UK number/name, AU acn/abn, CA ca_number/bn, EU vat and/or lei";
@@ -212,4 +221,4 @@ function kyb(b: any) {
 
 export const TOOL_PATH: Record<string, string> = { read_url: "/read", extract_links: "/links", check_domain: "/check", company_research: "/company", uk_company: "/uk-company", uk_company_lite: "/uk-company-lite",
   company_full: "/company-full", convert_document: "/convert", create_monitor: "/monitor", wallet_balances: "/wallet", tx_status: "/tx", token_check: "/token-check", fx_rates: "/fx", au_company: "/au-company", ca_company: "/ca-company", registry_batch: "/registry-batch",
-  ens_lookup: "/ens", token_metadata: "/token", token_allowance: "/allowance", contract_info: "/contract", gas_fees: "/gas", block_lookup: "/block", nft_lookup: "/nft", web_search: "/search", uk_property_prices: "/uk-property", uk_area_profile: "/uk-area", uk_charity: "/uk-charity", uk_charity_full: "/uk-charity-full", us_sec: "/us-sec", us_sec_full: "/us-sec-full", eu_vat: "/eu-vat", lei_lookup: "/lei", lei_full: "/lei-full", read_batch: "/read-batch", uk_leads: "/uk-leads", uk_leads_lite: "/uk-leads-lite", uk_leads_feed: "/uk-leads-feed", uk_watch: "/uk-watch", kyb_report: "/kyb", email_check: "/email-check", domain_lookup: "/domain", dns_lookup: "/dns", url_redirects: "/redirects", page_meta: "/meta", http_headers: "/headers", iban_validate: "/iban", phone_check: "/phone", sanctions_screen: "/sanctions", sanctions_batch: "/sanctions-batch", uk_officer: "/uk-officer" };
+  ens_lookup: "/ens", token_metadata: "/token", token_allowance: "/allowance", contract_info: "/contract", gas_fees: "/gas", block_lookup: "/block", nft_lookup: "/nft", web_search: "/search", uk_property_prices: "/uk-property", uk_area_profile: "/uk-area", uk_charity: "/uk-charity", uk_charity_full: "/uk-charity-full", us_sec: "/us-sec", us_sec_full: "/us-sec-full", eu_vat: "/eu-vat", lei_lookup: "/lei", lei_full: "/lei-full", read_batch: "/read-batch", uk_leads: "/uk-leads", uk_leads_lite: "/uk-leads-lite", uk_leads_feed: "/uk-leads-feed", uk_watch: "/uk-watch", uk_dd: "/uk-dd", kyb_report: "/kyb", email_check: "/email-check", domain_lookup: "/domain", dns_lookup: "/dns", url_redirects: "/redirects", page_meta: "/meta", http_headers: "/headers", iban_validate: "/iban", phone_check: "/phone", sanctions_screen: "/sanctions", sanctions_batch: "/sanctions-batch", uk_officer: "/uk-officer" };

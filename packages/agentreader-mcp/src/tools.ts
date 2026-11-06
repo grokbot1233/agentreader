@@ -503,6 +503,18 @@ export const TOOLS: ToolDef[] = [
     body: (a) => a,
   },
   {
+    name: "uk_dd",
+    description: "UK-only DD job: full Companies House pack + sanctions (entity+officers) + optional domain RDAP/website skim → trust flag. Screening only. $1.00 USDC.",
+    price: "$1.00",
+    schema: {
+      number: z.string().optional(),
+      name: z.string().optional(),
+      domain: z.string().optional(),
+    },
+    http: (a) => `${ORIGIN}/uk-dd?${qs(a)}`,
+    previewable: true,
+  },
+  {
     name: "kyb_report",
     description: "Agent KYB pack: UK/AU/CA registry + EU VAT + optional GLEIF LEI (parents) + website + sanctions + director appointments → trust flag. Screening only. $2.50 USDC.",
     price: "$2.50",

@@ -1,7 +1,7 @@
 // Concise cross-sell hints appended to 402 descriptions and MCP tool descriptions.
 export const UPSELL: Record<string, string> = {
-  "/uk-company-lite": "Need officers/PSCs/filings? /uk-company $0.50; officer name search /uk-officer $0.15; full KYB /kyb $2.50; sanctions /sanctions $0.05.",
-  "/uk-company": "Officer reverse-search: /uk-officer $0.15; onboarding? /kyb $2.50 bundles this + EU VAT + domain + sanctions + risk; screen names: /sanctions $0.05; /uk-watch $5 alerts.",
+  "/uk-company-lite": "Need officers/PSCs/filings? /uk-company $0.50; UK DD job /uk-dd $1 (CH+sanctions+trust); officer /uk-officer $0.15; full KYB /kyb $2.50; sanctions /sanctions $0.05.",
+  "/uk-company": "UK DD job /uk-dd $1 adds sanctions + trust flag; officer reverse-search /uk-officer $0.15; multi-jurisdiction onboarding /kyb $2.50; screen names /sanctions $0.05; /uk-watch $5 alerts.",
   "/uk-officer": "/uk-company $0.50 for full company DD; /kyb $2.50 pack; /uk-leads $1 new cos.",
   "/company": "Cheap RDAP only: /domain $0.002; UK entity? /company-full $0.65 adds Companies House; /uk-officer $0.15 for officer appointments; /kyb $2.50 for a full KYB report; /sanctions $0.05.",
   "/company-full": "Onboarding: /kyb $2.50 adds VAT + sanctions + risk; name screen only: /sanctions $0.05; officer search: /uk-officer $0.15.",
@@ -29,7 +29,8 @@ export const UPSELL: Record<string, string> = {
   "/tx": "Counterparty wallet profile: /wallet $0.003.",
   "/token": "Risk check (honeypot/owner/liquidity): /token-check $0.01.",
   "/uk-area": "Property prices for the postcode: /uk-property $0.01.",
-  "/kyb": "Validate phones: /phone $0.001; emails: /email-check $0.002; screen extra names: /sanctions $0.05 (OFAC/UK/UN/EU); batch <=50: /sanctions-batch $1; officer appointments: /uk-officer $0.15; GLEIF LEI: /lei $0.005.",
+  "/uk-dd": "Multi-jurisdiction onboarding: /kyb $2.50 (AU/CA/VAT/LEI); monitor: /uk-watch $5/30d; screen extra names: /sanctions $0.05; cheap status: /uk-company-lite $0.05.",
+  "/kyb": "UK-only cheaper: /uk-dd $1; validate phones: /phone $0.001; emails: /email-check $0.002; screen extra names: /sanctions $0.05 (OFAC/UK/UN/EU); batch <=50: /sanctions-batch $1; officer appointments: /uk-officer $0.15; GLEIF LEI: /lei $0.005.",
   "/sanctions": "Full KYB pack (UK+VAT+domain+sanctions): /kyb $2.50; many names: /sanctions-batch $1 (<=50); UK officer appointments: /uk-officer $0.15.",
   "/au-company": "Many companies: /registry-batch $0.30 (<=25 UK+AU+CA ids); sanctions screen: /sanctions $0.05.",
   "/ca-company": "Many companies: /registry-batch $0.30 (<=25 UK+AU+CA ids); sanctions screen: /sanctions $0.05.",

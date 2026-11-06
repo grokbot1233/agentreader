@@ -8,6 +8,7 @@ import { leiLookup, leiFull } from "./lei";
 import { ukLeads, createLeadsFeed, getLeadsFeed, runLeadsFeeds } from "./uk-leads";
 import { createUkWatch, getUkWatch, runUkWatches } from "./uk-watch";
 import { kybReport, bindingRegistries } from "./kyb";
+import { ukDdReport } from "./uk-dd";
 import { ukOfficerSearch } from "./uk-officer";
 import { screenSanctions, screenSanctionsBatch, refreshSanctionsIndex, clearSanctionsCache } from "./sanctions";
 import { Hono } from "hono";
@@ -74,7 +75,7 @@ const PRICES = {
   "/us-sec": "$0.05", "/us-sec-full": "$0.25", "/eu-vat": "$0.01",
   "/lei": "$0.005", "/lei-full": "$0.05", "/read-batch": "$0.015",
   "/uk-leads-lite": "$0.25", "/uk-leads": "$1.00", "/uk-leads-feed": "$25.00",
-  "/uk-watch": "$5.00", "/kyb": "$2.50",
+  "/uk-watch": "$5.00", "/uk-dd": "$1.00", "/kyb": "$2.50",
   "/sanctions": "$0.05", "/sanctions-batch": "$1.00",
   "/uk-officer": "$0.15",
 } as const;
@@ -92,7 +93,7 @@ const ATOMIC: Record<string, number> = {
   "/us-sec": 50000, "/us-sec-full": 250000, "/eu-vat": 10000,
   "/lei": 5000, "/lei-full": 50000, "/read-batch": 15000,
   "/uk-leads-lite": 250000, "/uk-leads": 1000000, "/uk-leads-feed": 25000000,
-  "/uk-watch": 5000000, "/kyb": 2500000,
+  "/uk-watch": 5000000, "/uk-dd": 1000000, "/kyb": 2500000,
   "/sanctions": 50000, "/sanctions-batch": 1000000,
   "/uk-officer": 150000,
 };
@@ -337,6 +338,7 @@ const DESC: Record<string, string> = {
   "/uk-leads": "Use this for UK new-incorporation leads with active director names — filter by SIC/location/postcode_area, 1-7 days, up to 40 companies. Official Companies House data + mass-formation flags. Example: {sic:\"62\",location:\"Manchester\",days:2}. Daily webhook: /uk-leads-feed $25/30d. $1.00.",
   "/uk-leads-feed": "Use this for a 30-day daily webhook of new UK incorporations matching your SIC/location/postcode_area (director-enriched). Deduped. Example POST {sic:\"62012\",webhook:\"https://your.app/hook\"}. Status GET /uk-leads-feed/:id free. $25.00/30d.",
   "/uk-watch": "Use this to watch one UK company for 30 days: hourly Companies House poll of status/officers/filings → webhook on change. Example POST {number:\"00445790\",webhook:\"https://your.app/hook\"}. GET /uk-watch/:id free. $5.00/30d.",
+  "/uk-dd": "Use this for a UK-only due-diligence job: full Companies House pack (profile/officers/PSC/filings/charges/insolvency/red flags) + public sanctions screen (entity + active officers) + optional domain RDAP/website skim → composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not regulated KYC/AML. Between /uk-company ($0.50) and /kyb ($2.50). Path alias /uk-dd/{number}. Example: {number:\"00445790\"} or {name:\"TESCO\",domain:\"tesco.com\"}. $1.00.",
   "/kyb": "Use this for a one-shot agent KYB/due-diligence pack: optional website research + UK Companies House DD and/or Australia ASIC (acn/abn) and/or Canada Corporations Canada (ca_number/bn) + EU VIES VAT + optional GLEIF LEI (with ownership parents) + public sanctions screen (entity + directors) + director appointment skim (nominee/formation pattern) → composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not a regulated determination. Example: {domain:\"tesco.com\",number:\"00445790\"} or {lei:\"HWUPKR0MPOU8FGXBT394\"}. $2.50.",
   "/sanctions": "Screen a person or entity name against public OFAC SDN/CONS, UK FCDO, UN SC and EU financial sanctions lists. Fuzzy scored matches with list/programme/id/aliases/DOB/nationality. Screening aid only - not a regulated AML/KYC determination. Example: {name:\"BANCO NACIONAL DE CUBA\"}. $0.05.",
   "/sanctions-batch": "Screen up to 50 names against OFAC/UK/UN/EU public sanctions lists. Screening aid only. Example: {names:[\"BANCO NACIONAL DE CUBA\",\"Alice Wonderland\"]}. $1.00.",
@@ -365,6 +367,14 @@ const ukWatchIn = { type: "object", properties: {
 const ukWatchOut = { type: "object", properties: {
   id: { type: "string" }, company_number: { type: "string" }, company_name: {}, webhook: { type: "string" },
   created: { type: "string" }, expires: { type: "string" }, snapshot: { type: "object" }, status_url: { type: "string" } } };
+const ukDdIn = { type: "object", properties: {
+  number: { type: "string", description: "UK Companies House number, e.g. 00445790" },
+  name: { type: "string", description: "Registered company name to search" },
+  domain: { type: "string", description: "Optional website domain for RDAP / light website skim" },
+}, anyOf: [{ required: ["number"] }, { required: ["name"] }] };
+const ukDdOut = { type: "object", properties: {
+  product: { type: "string" }, disclaimer: { type: "string" }, uk: {}, sanctions: {}, domain: {}, website: {},
+  trust: { type: "object", properties: { flag: { type: "string" }, score: { type: "integer" }, reasons: { type: "array" } } } } };
 const kybIn = { type: "object", properties: {
   domain: { type: "string" }, number: { type: "string" }, name: { type: "string" }, vat: { type: "string" },
   country: { type: "string" }, vat_number: { type: "string" }, acn: { type: "string", description: "Australian ACN/ABN" }, ca_number: { type: "string", description: "Canadian corporation number" }, bn: { type: "string", description: "Canadian 9-digit BN" }, lei: { type: "string", description: "Optional 20-char GLEIF LEI (attaches parents)" },
@@ -373,8 +383,8 @@ const kybOut = { type: "object", properties: {
   product: { type: "string" }, disclaimer: { type: "string" }, website: {}, uk: {}, eu_vat: {}, lei: {},
   trust: { type: "object", properties: { flag: { type: "string" }, score: { type: "integer" }, reasons: { type: "array" } } } } };
 
-const OUT: any = { "/email-check": emailCheckOut, "/domain": domainOut, "/dns": dnsOut, "/redirects": redirectsOut, "/meta": metaOut, "/headers": headersOut, "/iban": ibanOut, "/phone": phoneOut,  "/registry-batch": rbOut, "/ca-company": caOut, "/au-company": auOut, "/uk-officer": officerOut, "/sanctions": sanctionsOut, "/sanctions-batch": sanctionsBatchOut, "/uk-leads": leadsOut, "/uk-leads-lite": leadsOut, "/uk-leads-feed": leadsFeedOut, "/uk-watch": ukWatchOut, "/kyb": kybOut, "/search": searchOut, "/uk-property": propOut, "/uk-area": areaOut, "/uk-charity": charityOut, "/uk-charity-full": charityFullOut, "/us-sec": secOut, "/us-sec-full": secFullOut, "/eu-vat": vatOut, "/lei": leiOut, "/lei-full": leiFullOut, "/read-batch": readBatchOut, "/ens": ensOut, "/token": tokenMetaOut, "/allowance": allowOut, "/contract": contractOut, "/gas": gasOut, "/block": blockOut, "/nft": nftOut, "/wallet": walletOut, "/tx": txOut, "/token-check": tokenOut, "/fx": fxOut, "/read": readOut, "/links": linksOut, "/check": checkOut, "/company": companyOut, "/uk-company": ukOut, "/uk-company-lite": ukLiteOut, "/company-full": companyFullOut, "/convert": convertOut, "/monitor": monitorOut };
-const EX: any = { "/email-check": { email: "info@stripe.com" }, "/domain": { domain: "stripe.com" }, "/dns": { name: "example.com" }, "/redirects": { url: "https://example.com" }, "/meta": { url: "https://example.com" }, "/headers": { url: "https://example.com" }, "/iban": { iban: "GB82WEST12345698765432" }, "/phone": { phone: "+447911123456" }, "/registry-batch": { uk: "00445790", au: "009661901,004028077", ca: "8660115" }, "/ca-company": { number: "8660115" }, "/au-company": { acn: "009661901" }, "/uk-officer": { name: "Ken Olisa", limit: 10 }, "/sanctions": { name: "BANCO NACIONAL DE CUBA" }, "/sanctions-batch": { names: ["BANCO NACIONAL DE CUBA", "Alice Wonderland"] }, "/uk-leads": { sic: "62012", days: 1, limit: 25 }, "/uk-leads-lite": { sic: "62", location: "London", days: 1 }, "/uk-leads-feed": { sic: "62012", webhook: "https://api.axiomworks.co.uk/hooks/sink" }, "/uk-watch": { number: "00445790", webhook: "https://api.axiomworks.co.uk/hooks/sink" }, "/kyb": { domain: "tesco.com", number: "00445790" }, 
+const OUT: any = { "/email-check": emailCheckOut, "/domain": domainOut, "/dns": dnsOut, "/redirects": redirectsOut, "/meta": metaOut, "/headers": headersOut, "/iban": ibanOut, "/phone": phoneOut,  "/registry-batch": rbOut, "/ca-company": caOut, "/au-company": auOut, "/uk-officer": officerOut, "/sanctions": sanctionsOut, "/sanctions-batch": sanctionsBatchOut, "/uk-leads": leadsOut, "/uk-leads-lite": leadsOut, "/uk-leads-feed": leadsFeedOut, "/uk-watch": ukWatchOut, "/uk-dd": ukDdOut, "/kyb": kybOut, "/search": searchOut, "/uk-property": propOut, "/uk-area": areaOut, "/uk-charity": charityOut, "/uk-charity-full": charityFullOut, "/us-sec": secOut, "/us-sec-full": secFullOut, "/eu-vat": vatOut, "/lei": leiOut, "/lei-full": leiFullOut, "/read-batch": readBatchOut, "/ens": ensOut, "/token": tokenMetaOut, "/allowance": allowOut, "/contract": contractOut, "/gas": gasOut, "/block": blockOut, "/nft": nftOut, "/wallet": walletOut, "/tx": txOut, "/token-check": tokenOut, "/fx": fxOut, "/read": readOut, "/links": linksOut, "/check": checkOut, "/company": companyOut, "/uk-company": ukOut, "/uk-company-lite": ukLiteOut, "/company-full": companyFullOut, "/convert": convertOut, "/monitor": monitorOut };
+const EX: any = { "/email-check": { email: "info@stripe.com" }, "/domain": { domain: "stripe.com" }, "/dns": { name: "example.com" }, "/redirects": { url: "https://example.com" }, "/meta": { url: "https://example.com" }, "/headers": { url: "https://example.com" }, "/iban": { iban: "GB82WEST12345698765432" }, "/phone": { phone: "+447911123456" }, "/registry-batch": { uk: "00445790", au: "009661901,004028077", ca: "8660115" }, "/ca-company": { number: "8660115" }, "/au-company": { acn: "009661901" }, "/uk-officer": { name: "Ken Olisa", limit: 10 }, "/sanctions": { name: "BANCO NACIONAL DE CUBA" }, "/sanctions-batch": { names: ["BANCO NACIONAL DE CUBA", "Alice Wonderland"] }, "/uk-leads": { sic: "62012", days: 1, limit: 25 }, "/uk-leads-lite": { sic: "62", location: "London", days: 1 }, "/uk-leads-feed": { sic: "62012", webhook: "https://api.axiomworks.co.uk/hooks/sink" }, "/uk-watch": { number: "00445790", webhook: "https://api.axiomworks.co.uk/hooks/sink" }, "/uk-dd": { number: "00445790" }, "/kyb": { domain: "tesco.com", number: "00445790" }, 
   "/search": { q: "x402 agent payments" }, "/uk-property": { postcode: "CB1 2AB" }, "/uk-area": { postcode: "SW1A 2AA" },
   "/uk-charity": { number: "1089464" }, "/uk-charity-full": { number: "1089464" },
   "/us-sec": { ticker: "AAPL" }, "/us-sec-full": { ticker: "AAPL" }, "/eu-vat": { vat: "IE6388047V" },
@@ -390,7 +400,7 @@ const EX: any = { "/email-check": { email: "info@stripe.com" }, "/domain": { dom
   "/convert": { url: "https://pdfobject.com/pdf/sample.pdf", format: "markdown" },
   "/monitor": { url: "https://example.com", webhook: "https://api.axiomworks.co.uk/hooks/sink" },
 };
-const IN: any = { "/email-check": emailCheckIn, "/domain": domainIn, "/dns": dnsIn, "/redirects": urlIn, "/meta": urlIn, "/headers": headersIn, "/iban": ibanIn, "/phone": phoneIn,  "/registry-batch": rbIn, "/ca-company": caIn, "/au-company": auIn, "/uk-officer": officerIn, "/sanctions": sanctionsIn, "/sanctions-batch": sanctionsBatchIn, "/uk-leads": leadsIn, "/uk-leads-lite": leadsIn, "/uk-leads-feed": leadsFeedIn, "/uk-watch": ukWatchIn, "/kyb": kybIn, "/search": searchIn, "/uk-property": pcIn, "/uk-area": areaIn, "/uk-charity": charityIn, "/uk-charity-full": charityIn, "/us-sec": secIn, "/us-sec-full": secIn, "/eu-vat": vatIn, "/lei": leiIn, "/lei-full": leiFullIn, "/read-batch": readBatchIn, "/ens": ensIn, "/token": tokenMetaIn, "/allowance": allowIn, "/contract": contractIn, "/gas": gasIn, "/block": blockIn, "/nft": nftIn, "/wallet": walletIn, "/tx": txIn, "/token-check": tokenIn, "/fx": fxIn, "/read": urlIn, "/links": urlIn, "/check": checkIn, "/company": companyIn, "/uk-company": ukIn, "/uk-company-lite": ukLiteIn, "/company-full": companyFullIn, "/convert": convertIn, "/monitor": monitorIn };
+const IN: any = { "/email-check": emailCheckIn, "/domain": domainIn, "/dns": dnsIn, "/redirects": urlIn, "/meta": urlIn, "/headers": headersIn, "/iban": ibanIn, "/phone": phoneIn,  "/registry-batch": rbIn, "/ca-company": caIn, "/au-company": auIn, "/uk-officer": officerIn, "/sanctions": sanctionsIn, "/sanctions-batch": sanctionsBatchIn, "/uk-leads": leadsIn, "/uk-leads-lite": leadsIn, "/uk-leads-feed": leadsFeedIn, "/uk-watch": ukWatchIn, "/uk-dd": ukDdIn, "/kyb": kybIn, "/search": searchIn, "/uk-property": pcIn, "/uk-area": areaIn, "/uk-charity": charityIn, "/uk-charity-full": charityIn, "/us-sec": secIn, "/us-sec-full": secIn, "/eu-vat": vatIn, "/lei": leiIn, "/lei-full": leiFullIn, "/read-batch": readBatchIn, "/ens": ensIn, "/token": tokenMetaIn, "/allowance": allowIn, "/contract": contractIn, "/gas": gasIn, "/block": blockIn, "/nft": nftIn, "/wallet": walletIn, "/tx": txIn, "/token-check": tokenIn, "/fx": fxIn, "/read": urlIn, "/links": urlIn, "/check": checkIn, "/company": companyIn, "/uk-company": ukIn, "/uk-company-lite": ukLiteIn, "/company-full": companyFullIn, "/convert": convertIn, "/monitor": monitorIn };
 const METHODS: Record<string, ("GET" | "POST")[]> = {
   "/read": ["GET", "POST"], "/links": ["GET", "POST"], "/check": ["GET", "POST"], "/email-check": ["GET", "POST"], "/domain": ["GET", "POST"], "/dns": ["GET", "POST"], "/redirects": ["GET", "POST"], "/meta": ["GET", "POST"], "/headers": ["GET", "POST"], "/iban": ["GET", "POST"], "/phone": ["GET", "POST"],
   "/company": ["GET", "POST"], "/uk-company": ["GET", "POST"], "/uk-company-lite": ["GET", "POST"], "/company-full": ["GET", "POST"], "/convert": ["GET", "POST"],
@@ -401,7 +411,7 @@ const METHODS: Record<string, ("GET" | "POST")[]> = {
   "/uk-charity": ["GET", "POST"], "/uk-charity-full": ["GET", "POST"],
   "/us-sec": ["GET", "POST"], "/us-sec-full": ["GET", "POST"], "/eu-vat": ["GET", "POST"],
   "/lei": ["GET", "POST"], "/lei-full": ["GET", "POST"], "/read-batch": ["GET", "POST"],
-  "/uk-leads": ["GET", "POST"], "/uk-leads-lite": ["GET", "POST"], "/uk-leads-feed": ["POST"], "/uk-watch": ["POST"], "/kyb": ["GET", "POST"],
+  "/uk-leads": ["GET", "POST"], "/uk-leads-lite": ["GET", "POST"], "/uk-leads-feed": ["POST"], "/uk-watch": ["POST"], "/uk-dd": ["GET", "POST"], "/kyb": ["GET", "POST"],
   "/sanctions": ["GET", "POST"], "/sanctions-batch": ["GET", "POST"],
   "/uk-officer": ["GET", "POST"],
   "/au-company": ["GET", "POST"],
@@ -462,7 +472,7 @@ function discovery(c: any) {
     contact: CONTACT, ownershipProofs: [] };
 }
 
-app.get("/health", (c) => c.json({ ok: true, version: "1.21.1", ts: new Date().toISOString() }));
+app.get("/health", (c) => c.json({ ok: true, version: "1.22.1", ts: new Date().toISOString() }));
 app.get("/.well-known/x402", (c) => c.json(discovery(c)));
 app.get("/.well-known/x402.json", (c) => c.json(discovery(c)));
 app.get("/.well-known/402index-verify.txt", (c) => c.text("9a944a1ce3c68588c5fb1d104be63981bb5e6b6e302fa0a1bd65b6a3cd5f5372"));
@@ -473,7 +483,7 @@ app.get("/.well-known/agent-card.json", (c) => {
   return c.json({
     protocolVersion: "0.3.0", name: "Axiom Works AgentReader",
     description: "Pay-per-call (x402, USDC on Base) UK Companies House, KYB, SEC EDGAR, EU VAT, web-to-markdown and EVM on-chain lookups for AI agents. HTTP + MCP; no API keys.",
-    url: b, preferredTransport: "HTTP+JSON", version: "1.21.1", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
+    url: b, preferredTransport: "HTTP+JSON", version: "1.22.1", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
     provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk" },
     capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
     defaultInputModes: ["application/json"], defaultOutputModes: ["application/json"],
@@ -486,14 +496,14 @@ app.get("/.well-known/agent.json", (c) => {
   return c.json({
     name: "Axiom Works AgentReader", description: "x402 pay-per-call web reader, email/phone/IBAN validate, company research, UK Companies House + Charity Commission + US SEC EDGAR + EU VIES VAT + OFAC/UK/UN/EU sanctions screening due diligence, document conversion, change monitoring, EVM wallet/tx/token risk checks and ECB FX rates for AI agents.",
     url: b, provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk", email: CONTACT },
-    version: "1.21.1", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
+    version: "1.22.1", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     skills: Object.entries(PRICES).map(([p, price]) => ({ id: p.slice(1), name: p, description: DESC[p], price, endpoint: `${b}${p}` })),
     mcp: `${b}/mcp`, payments: { protocol: "x402", network: NETWORK, asset: USDC, payTo: c.env.PAY_TO },
   });
 });
 app.get("/.well-known/mcp.json", (c) => {
   const b = base(c);
-  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.21.1",
+  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.22.1",
     description: "x402 pay-per-call MCP: web reader, email/phone/IBAN validate, UK/AU/CA registries, SEC, VAT, sanctions, EVM chain data.",
     transport: { type: "streamable-http", url: `${b}/mcp` }, documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     payments: { protocol: "x402", network: NETWORK, asset: USDC } });
@@ -507,7 +517,7 @@ const ALIAS_DOCS: [string, string, string[]][] = [
   ["/tx/{hash}", "/tx", ["hash"]], ["/ens/{name}", "/ens", ["name"]], ["/contract/{address}", "/contract", ["address"]],
   ["/wallet/{address}", "/wallet", ["address"]], ["/address/{address}", "/wallet", ["address"]], ["/token/{address}", "/token", ["address"]],
   ["/token-check/{address}", "/token-check", ["address"]], ["/block/{number}", "/block", ["number"]], ["/nft/{contract}/{token_id}", "/nft", ["contract", "token_id"]],
-  ["/gas/{chain}", "/gas", ["chain"]], ["/check/{domain}", "/check", ["domain"]], ["/domain/{domain}", "/domain", ["domain"]], ["/dns/{name}", "/dns", ["name"]], ["/email-check/{email}", "/email-check", ["email"]], ["/meta/{url}", "/meta", ["url"]], ["/uk-company/{number}", "/uk-company", ["number"]],
+  ["/gas/{chain}", "/gas", ["chain"]], ["/check/{domain}", "/check", ["domain"]], ["/domain/{domain}", "/domain", ["domain"]], ["/dns/{name}", "/dns", ["name"]], ["/email-check/{email}", "/email-check", ["email"]], ["/meta/{url}", "/meta", ["url"]], ["/uk-company/{number}", "/uk-company", ["number"]], ["/uk-dd/{number}", "/uk-dd", ["number"]],
   ["/uk-charity/{number}", "/uk-charity", ["number"]], ["/us-sec/{ticker}", "/us-sec", ["ticker"]], ["/eu-vat/{vat}", "/eu-vat", ["vat"]], ["/lei/{lei}", "/lei", ["lei"]], ["/iban/{iban}", "/iban", ["iban"]], ["/phone/{phone}", "/phone", ["phone"]], ["/au-company/{acn}", "/au-company", ["acn"]], ["/ca-company/{number}", "/ca-company", ["number"]],
 ];
 app.get("/openapi.json", (c) => {
@@ -525,18 +535,18 @@ app.get("/openapi.json", (c) => {
   paths["/uk-leads-feed/{id}"] = { get: { summary: "Free UK leads-feed status (id is the secret)", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { "200": { description: "Feed status" }, "404": { description: "Not found" } }, "x-price": "free" } };
   paths["/uk-watch/{id}"] = { get: { summary: "Free UK company-watch status (id is the secret)", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { "200": { description: "Watch status" }, "404": { description: "Not found" } }, "x-price": "free" } };
   paths["/monitor/{id}"] = { get: { summary: "Free monitor status (id is the secret)", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { "200": { description: "Monitor status" }, "404": { description: "Not found" } }, "x-price": "free" } };
-  paths["/samples/{kind}"] = { get: { summary: "Free truncated sample (rate-limited 8/IP/day) with x402 upsell", parameters: [{ name: "kind", in: "path", required: true, schema: { type: "string", enum: ["read","company","uk-company","uk-company-lite","convert","uk-charity","uk-charity-full","us-sec","us-sec-full","eu-vat","lei","lei-full","read-batch","uk-leads","uk-leads-lite","kyb","email-check","domain","dns","redirects","meta","headers","iban","phone","au-company","ca-company","uk-officer","uk-property","uk-area","sanctions","sanctions-batch"] } }], responses: { "200": { description: "Truncated sample" }, "429": { description: "Preview quota exceeded" } }, "x-price": "free" } };
+  paths["/samples/{kind}"] = { get: { summary: "Free truncated sample (rate-limited 8/IP/day) with x402 upsell", parameters: [{ name: "kind", in: "path", required: true, schema: { type: "string", enum: ["read","company","uk-company","uk-company-lite","convert","uk-charity","uk-charity-full","us-sec","us-sec-full","eu-vat","lei","lei-full","read-batch","uk-leads","uk-leads-lite","kyb","uk-dd","email-check","domain","dns","redirects","meta","headers","iban","phone","au-company","ca-company","uk-officer","uk-property","uk-area","sanctions","sanctions-batch"] } }], responses: { "200": { description: "Truncated sample" }, "429": { description: "Preview quota exceeded" } }, "x-price": "free" } };
   for (const [ap, to, ks] of ALIAS_DOCS) { const price = PRICES[to];
     paths[ap] = { get: { summary: `Path alias of ${to} (same price/x402 challenge). ${DESC[to] || ""}`, parameters: [...ks.map((k) => ({ name: k, in: "path", required: true, schema: { type: "string" } })), { name: "chain", in: "query", required: false, schema: { type: "string" } }, { name: "preview", in: "query", required: false, schema: { type: "string", enum: ["1"] } }],
       responses: { "200": { description: "Success", content: { "application/json": { schema: OUT[to] } } }, "402": { description: `Payment required: ${price} USDC on Base (x402)` } }, "x-price": price, "x-alias-of": to } }; }
   paths["/hooks/sink"] = { post: { summary: "Free webhook test sink for /monitor", responses: { "200": { description: "Stored" } }, "x-price": "free" } };
-  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.21.1", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, email-check, domain RDAP, DNS resolve, URL redirects unwrap, page metadata/OG, HTTP security headers, IBAN/phone validate, company research, UK/AU/CA registries, LEI, sanctions, SEC, VIES VAT, document conversion, change monitoring, EVM/FX. Payments: USDC on Base mainnet (eip155:8453)." },
+  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.22.1", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, email-check, domain RDAP, DNS resolve, URL redirects unwrap, page metadata/OG, HTTP security headers, IBAN/phone validate, company research, UK/AU/CA registries, LEI, sanctions, SEC, VIES VAT, document conversion, change monitoring, EVM/FX. Payments: USDC on Base mainnet (eip155:8453)." },
     servers: [{ url: b }], paths });
 });
 const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
 
 > Pay-per-call tools for AI agents. No API keys: x402 (HTTP 402) + USDC on Base (eip155:8453), payTo ${payTo}.
-> Free truncated samples: ${b}/samples/{read|company|uk-company|uk-company-lite|convert|uk-charity|uk-charity-full|us-sec|us-sec-full|eu-vat|lei|lei-full|read-batch|uk-leads|uk-leads-lite|kyb|email-check|domain|dns|redirects|meta|headers|iban|phone|au-company|ca-company|uk-officer|uk-property|uk-area|sanctions|sanctions-batch} (8/IP/day). Or add &preview=1 on paid GETs (same limit).
+> Free truncated samples: ${b}/samples/{read|company|uk-company|uk-company-lite|convert|uk-charity|uk-charity-full|us-sec|us-sec-full|eu-vat|lei|lei-full|read-batch|uk-leads|uk-leads-lite|kyb|uk-dd|email-check|domain|dns|redirects|meta|headers|iban|phone|au-company|ca-company|uk-officer|uk-property|uk-area|sanctions|sanctions-batch} (8/IP/day). Or add &preview=1 on paid GETs (same limit).
 
 ## When to use which (pick one)
 
@@ -587,6 +597,7 @@ const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
 | UK new cos + directors | ${b}/uk-leads?sic=&location= | $1.00 | + active officer names, mass-formation flags |
 | UK leads daily feed | POST ${b}/uk-leads-feed | $25.00/30d | Daily webhook of new matches |
 | UK company watch | POST ${b}/uk-watch | $5.00/30d | Hourly CH status/officers/filings → webhook |
+| UK DD job | ${b}/uk-dd?number=00445790 (optional name=/domain=) | $1.00 | Full CH pack + sanctions (entity+officers) + optional RDAP/website → trust flag. Free preview: ${b}/uk-dd?number=00445790&preview=1 |
 | Agent KYB pack | ${b}/kyb?number=00445790 (or acn=/ca_number=/vat=/domain=) | $2.50 | UK/AU/CA + VAT + website + sanctions + director appointments + trust flag. Free preview: ${b}/kyb?number=00445790&preview=1 (lite UK + entity sanctions; pay for full pack) |
 | Sanctions screen | ${b}/sanctions?name= | $0.05 | OFAC SDN/CONS + UK FCDO + UN SC + EU FSF fuzzy |
 | Sanctions batch | POST ${b}/sanctions-batch | $1.00 | Up to 50 names |
@@ -757,7 +768,7 @@ app.get("/dashboard/data", async (c) => {
   const mcpTools = [
     ["read_url", "$0.002"], ["extract_links", "$0.001"], ["check_domain", "$0.001"], ["dns_lookup", "$0.001"], ["url_redirects", "$0.001"], ["page_meta", "$0.001"], ["http_headers", "$0.001"], ["iban_validate", "$0.001"], ["phone_check", "$0.001"], ["email_check", "$0.002"], ["domain_lookup", "$0.002"],
     ["company_research", "$0.25"], ["uk_company", "$0.50"], ["uk_company_lite", "$0.05"], ["company_full", "$0.65"], ["convert_document", "$0.03"], ["create_monitor", "$1.00"],
-    ["wallet_balances", "$0.003"], ["tx_status", "$0.003"], ["token_check", "$0.01"], ["fx_rates", "$0.002"], ["ens_lookup", "$0.002"], ["token_metadata", "$0.001"], ["token_allowance", "$0.002"], ["contract_info", "$0.003"], ["gas_fees", "$0.001"], ["block_lookup", "$0.001"], ["nft_lookup", "$0.002"], ["web_search", "$0.003"], ["uk_property_prices", "$0.01"], ["uk_area_profile", "$0.005"], ["uk_charity", "$0.05"], ["uk_charity_full", "$0.25"], ["us_sec", "$0.05"], ["us_sec_full", "$0.25"], ["eu_vat", "$0.01"], ["lei_lookup", "$0.005"], ["lei_full", "$0.05"], ["read_batch", "$0.015"], ["uk_officer", "$0.15"], ["uk_leads_lite", "$0.25"], ["uk_leads", "$1.00"], ["uk_leads_feed", "$25.00"], ["uk_watch", "$5.00"], ["kyb_report", "$2.50"], ["sanctions_screen", "$0.05"], ["sanctions_batch", "$1.00"],
+    ["wallet_balances", "$0.003"], ["tx_status", "$0.003"], ["token_check", "$0.01"], ["fx_rates", "$0.002"], ["ens_lookup", "$0.002"], ["token_metadata", "$0.001"], ["token_allowance", "$0.002"], ["contract_info", "$0.003"], ["gas_fees", "$0.001"], ["block_lookup", "$0.001"], ["nft_lookup", "$0.002"], ["web_search", "$0.003"], ["uk_property_prices", "$0.01"], ["uk_area_profile", "$0.005"], ["uk_charity", "$0.05"], ["uk_charity_full", "$0.25"], ["us_sec", "$0.05"], ["us_sec_full", "$0.25"], ["eu_vat", "$0.01"], ["lei_lookup", "$0.005"], ["lei_full", "$0.05"], ["read_batch", "$0.015"], ["uk_officer", "$0.15"], ["uk_leads_lite", "$0.25"], ["uk_leads", "$1.00"], ["uk_leads_feed", "$25.00"], ["uk_watch", "$5.00"], ["uk_dd", "$1.00"], ["kyb_report", "$2.50"], ["sanctions_screen", "$0.05"], ["sanctions_batch", "$1.00"],
     ...CHAIN_ROUTES.map((r) => ["chain_" + r.path.slice(7).replace(/-/g, "_"), r.price]),
     ["pricing", "free"],
   ];
@@ -815,7 +826,7 @@ app.get("/samples", (c) => c.json({
   samples: Object.keys(STATIC_SAMPLES),
   live_preview: "Add ?preview=1 to paid GET routes (same IP daily quota)",
   limit: "8 previews/IP/UTC day",
-  kinds: ["read","links","check","company","uk-company","uk-company-lite","convert","company-full","uk-charity","uk-charity-full","us-sec","us-sec-full","eu-vat","lei","lei-full","read-batch","uk-leads","uk-leads-lite","kyb","email-check","domain","dns","redirects","meta","headers","iban","phone","au-company","ca-company","sanctions","sanctions-batch","uk-officer","uk-property","uk-area"],
+  kinds: ["read","links","check","company","uk-company","uk-company-lite","convert","company-full","uk-charity","uk-charity-full","us-sec","us-sec-full","eu-vat","lei","lei-full","read-batch","uk-leads","uk-leads-lite","kyb","uk-dd","email-check","domain","dns","redirects","meta","headers","iban","phone","au-company","ca-company","sanctions","sanctions-batch","uk-officer","uk-property","uk-area"],
 }));
 app.get("/samples/:kind", async (c) => {
   const kind = c.req.param("kind") as PreviewKind;
@@ -863,8 +874,14 @@ async function livePreview(c: any, kind: PreviewKind, runner: () => Promise<any>
 for (const p of Object.keys(PRICES)) app.use(p, async (c, next) => {
   if (c.req.path !== p || ((p === "/monitor" || p === "/uk-leads-feed" || p === "/uk-watch") && c.req.method !== "POST")) return next();
   const v = VALIDATE[p]; if (!v) return next();
-  const b = await bodyObj(c); const given = Object.keys(b).filter((k) => k !== "preview" && b[k] !== "" && b[k] != null);
-  if (!given.length && c.req.query("preview") !== "1") return next(); // bare probe (x402scan/Bazaar crawlers): show the 402 challenge with schema + example
+  const b = await bodyObj(c);
+  // Non-empty inputs always validate. Empty values for known schema keys also count as an attempt
+  // (so ?phone= → free 400, never pay-then-400). Truly bare probes still get the 402 challenge for crawlers.
+  const props = (IN[p]?.properties || IN[p] || {}) as Record<string, unknown>;
+  const known = new Set([...Object.keys(props), ...Object.keys(EX[p] || {})]);
+  const given = Object.keys(b).filter((k) => k !== "preview" && b[k] !== "" && b[k] != null);
+  const emptyKnown = Object.keys(b).some((k) => k !== "preview" && known.has(k) && (b[k] === "" || b[k] == null));
+  if (!given.length && !emptyKnown && c.req.query("preview") !== "1") return next(); // bare probe (x402scan/Bazaar crawlers): show the 402 challenge with schema + example
   const e = v(b);
   if (e) return c.json({ error: e, free: true, note: "Input rejected before payment; you were not charged.", example: EX[p], example_call: `${CANONICAL}${p}?${new URLSearchParams(EX[p])}` }, 400);
   return next();
@@ -1126,6 +1143,16 @@ for (const m of ["get", "post"] as const) {
       return livePreview(c, "uk-leads", () => ukLeads(c.env, { ...b, lite: false, limit: Math.min(Number(b.limit)||3, 3) }), `${CANONICAL}/uk-leads?${key}`);
     return cached(c, `uk-leads?${encodeURIComponent(key)}`, () => ukLeads(c.env, { sic: b.sic, location: b.location, postcode_area: b.postcode_area, days: b.days, limit: b.limit, lite: false }), 900);
   });
+
+  app[m]("/uk-dd", async (c) => {
+    const b = await bodyObj(c);
+    const key = b.number ? `number=${encodeURIComponent(b.number)}` : b.name ? `name=${encodeURIComponent(b.name)}` : "domain";
+    if (!(b.number || b.name)) return c.json({ error: "missing number or name" }, 400);
+    if (c.req.query("preview") === "1" && m === "get")
+      return livePreview(c, "uk-dd", () => ukDdReport(c.env, { number: b.number, name: b.name, domain: b.domain, preview: true }), `${CANONICAL}/uk-dd?${key}`);
+    return cached(c, `uk-dd?${encodeURIComponent(key)}&d=${encodeURIComponent(b.domain||"")}`, () => ukDdReport(c.env, { number: b.number, name: b.name, domain: b.domain }), 120);
+  });
+
   app[m]("/kyb", async (c) => {
     const b = await bodyObj(c);
     const key = `domain=${b.domain||""}&number=${b.number||""}&name=${b.name||""}&vat=${b.vat||""}&acn=${b.acn||b.abn||""}&ca_number=${b.ca_number||""}&bn=${b.bn||""}&lei=${b.lei||""}`;
@@ -1270,6 +1297,7 @@ const ALIASES: [RegExp, string, (m: RegExpMatchArray) => Record<string, string>]
   [/^\/iban\/([A-Za-z0-9\s\-]{15,42})$/, "/iban", (m) => ({ iban: decodeURIComponent(m[1]) })],
   [/^\/phone\/(.+)$/, "/phone", (m) => ({ phone: decodeURIComponent(m[1]) })],
   [/^\/uk-company\/([A-Za-z0-9]{8})$/, "/uk-company", (m) => ({ number: m[1].toUpperCase() })],
+  [/^\/uk-dd\/([A-Za-z0-9]{8})$/, "/uk-dd", (m) => ({ number: m[1].toUpperCase() })],
   [/^\/uk-charity\/(\d{6,8}(?:\/\d{1,2})?)$/, "/uk-charity", (m) => ({ number: m[1] })],
   [/^\/us-sec\/(\d{1,10})$/, "/us-sec", (m) => ({ cik: m[1] })],
   [/^\/us-sec\/([A-Za-z][A-Za-z0-9.\-]{0,9})$/, "/us-sec", (m) => ({ ticker: m[1].toUpperCase() })],

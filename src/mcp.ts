@@ -32,6 +32,7 @@ import { headersAudit } from "./headers";
 import { validateIban } from "./iban";
 import { validatePhone } from "./phone";
 import { kybReport, bindingRegistries } from "./kyb";
+import { ukDdReport } from "./uk-dd";
 import { screenSanctions, screenSanctionsBatch } from "./sanctions";
 import { ukOfficerSearch } from "./uk-officer";
 import { CHAIN_ROUTES } from "./chain";
@@ -66,7 +67,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       await log({ endpoint: `mcp:${tool}`, payer: settlement?.payer || null, amount: settlement?.amount || String(atomic), network: settlement?.network, tx: settlement?.transaction, success: settlement?.success });
     } },
   } as any);
-  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.21.1" });
+  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.22.1" });
   { const orig = (server as any).tool.bind(server); (server as any).tool = (name: string, desc: any, ...rest: any[]) => orig(name, typeof desc === "string" ? upsell(TOOL_PATH[name] || "", desc) : desc, ...rest); }
   const json = (d: any) => ({ content: [{ type: "text" as const, text: JSON.stringify(d) }] });
   const err = (e: any) => ({ isError: true, content: [{ type: "text" as const, text: String(e?.message || e) }] });
@@ -300,6 +301,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       sanctions_screen: { price: "$0.05", when: "OFAC/UK/UN/EU name sanctions screen" },
       sanctions_batch: { price: "$1.00", when: "batch <=50 sanctions screens" },
       email_check: { price: "$0.002", when: "validate email before outreach/onboarding" },
+      uk_dd: { price: "$1.00", when: "UK-only DD job: full CH + sanctions + optional domain → trust flag" },
       kyb_report: { price: "$2.50", when: "UK/AU/CA registry+VAT+LEI+website+sanctions+director appointments KYB pack" },
       uk_officer: { price: "$0.15", when: "UK officer name → appointments reverse search" },
       ...Object.fromEntries(CHAIN_ROUTES.map((r) => ["chain_" + r.path.slice(7).replace(/-/g, "_"), { price: r.price, when: r.desc.split(".")[0].slice(0, 90) }])),
@@ -326,6 +328,11 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
     "Use this to watch one UK company 30 days: hourly CH poll of status/officers/filings → webhook on change. $5.00/30d USDC.",
     { number: z.string(), webhook: z.string().url() },
     (await mk("$5.00", "uk_watch", 5000000))(async (a: any) => { try { return json(await createUkWatch(env, a)); } catch (e) { return err(e); } }) as any);
+
+  server.tool("uk_dd",
+    "Use this for a UK-only due-diligence job: full Companies House pack + public sanctions (entity + active officers) + optional domain RDAP/website skim → trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not regulated KYC/AML. Between uk_company ($0.50) and kyb_report ($2.50). Example: {number:\"00445790\"} or {name:\"TESCO\",domain:\"tesco.com\"}. $1.00 USDC.",
+    { number: z.string().optional(), name: z.string().optional(), domain: z.string().optional() },
+    (await mk("$1.00", "uk_dd", 1000000))(async (a: any) => { try { return json(await ukDdReport(env, a)); } catch (e) { return err(e); } }) as any);
 
   server.tool("kyb_report",
     "Use this for one-shot agent KYB: UK Companies House DD and/or Australia ASIC (acn) and/or Canada (ca_number/bn) + EU VIES VAT + optional GLEIF LEI (with ownership parents) + website research + sanctions screen (entity+directors) + director appointment skim → trust flag. Screening only, not a regulated determination. $2.50 USDC.",
