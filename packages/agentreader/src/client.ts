@@ -213,6 +213,18 @@ export class AgentReaderClient {
   nifEsValidate(input: { nif: string }, opts?: RequestOpts) {
     return this.get("/nif-es", input as any, opts);
   }
+  /** offline Brazilian CNPJ check-digit validate ($0.001). */
+  cnpjValidate(input: { cnpj: string }, opts?: RequestOpts) {
+    return this.get("/cnpj", input as any, opts);
+  }
+  /** offline Polish NIP modulus-11 validate ($0.001). */
+  nipPlValidate(input: { nip: string }, opts?: RequestOpts) {
+    return this.get("/nip-pl", input as any, opts);
+  }
+  /** offline Swiss UID (CHE) check-digit validate ($0.001). */
+  uidChValidate(input: { uid: string }, opts?: RequestOpts) {
+    return this.get("/uid-ch", input as any, opts);
+  }
   /** Offline Indian CIN structural validate ($0.001). No check digit. */
   cinInValidate(input: { cin: string }, opts?: RequestOpts) {
     return this.get("/cin-in", input as any, opts);
