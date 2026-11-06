@@ -37,6 +37,9 @@ import { validatePartitaIva } from "./it-partita-iva";
 import { validateOrgnr } from "./se-orgnr";
 import { validateBnCa } from "./ca-bn";
 import { validateCvr } from "./dk-cvr";
+import { validateKvk } from "./nl-kvk";
+import { validateHr } from "./de-hr";
+import { validateNif } from "./es-nif";
 import { validateFn } from "./at-fn";
 import { validateCin } from "./in-cin";
 import { kybReport, bindingRegistries } from "./kyb";
@@ -46,7 +49,7 @@ import { ukOfficerSearch } from "./uk-officer";
 import { CHAIN_ROUTES } from "./chain";
 import { upsell } from "./upsell";
 for (const r of CHAIN_ROUTES) { TOOL_PATH["chain_" + r.path.slice(7).replace(/-/g, "_")] = r.path; EXAMPLES_CHAIN[r.path] = r.ex; }
-const EXAMPLES: Record<string, any> = { "/read": { url: "https://example.com" }, "/links": { url: "https://example.com" }, "/check": { domain: "example.com" }, "/domain": { domain: "stripe.com" }, "/dns": { name: "example.com" }, "/redirects": { url: "https://example.com" }, "/meta": { url: "https://example.com" }, "/headers": { url: "https://example.com" }, "/iban": { iban: "GB82WEST12345698765432" }, "/phone": { phone: "+447911123456" }, "/uk-postcode": { postcode: "SW1A 2AA" }, "/siren": { siren: "732829320" }, "/siret": { siret: "73282932000074" }, "/partita-iva": { vat: "00488410010" }, "/orgnr": { orgnr: "556012-5790" }, "/bn-ca": { bn: "123456789RT0001" }, "/cvr": { cvr: "10403782" }, "/fn-at": { fn: "FN 575737y" }, "/cin-in": { cin: "U72200KA2013PTC097389" }, "/company": { domain: "stripe.com" }, "/company-full": { domain: "tesco.com" },
+const EXAMPLES: Record<string, any> = { "/read": { url: "https://example.com" }, "/links": { url: "https://example.com" }, "/check": { domain: "example.com" }, "/domain": { domain: "stripe.com" }, "/dns": { name: "example.com" }, "/redirects": { url: "https://example.com" }, "/meta": { url: "https://example.com" }, "/headers": { url: "https://example.com" }, "/iban": { iban: "GB82WEST12345698765432" }, "/phone": { phone: "+447911123456" }, "/uk-postcode": { postcode: "SW1A 2AA" }, "/siren": { siren: "732829320" }, "/siret": { siret: "73282932000074" }, "/partita-iva": { vat: "00488410010" }, "/orgnr": { orgnr: "556012-5790" }, "/bn-ca": { bn: "123456789RT0001" }, "/cvr": { cvr: "10403782" }, "/fn-at": { fn: "FN 575737y" }, "/cin-in": { cin: "U72200KA2013PTC097389" }, "/kvk-nl": { kvk: "69599084" }, "/hr-de": { hr: "HRB 6684" }, "/nif-es": { nif: "A28015865" }, "/company": { domain: "stripe.com" }, "/company-full": { domain: "tesco.com" },
   "/uk-company": { number: "00445790" }, "/uk-company-lite": { number: "00445790" }, "/convert": { url: "https://pdfobject.com/pdf/sample.pdf" }, "/monitor": { url: "https://example.com", webhook: "https://your.app/hook" },
   "/wallet": { address: "0x88b1c747c33A5868A34057D8C57318E5602b3ff6" }, "/tx": { hash: "0x" + "ab".repeat(32) }, "/token-check": { address: "0x940181a94A35A4569E4529A3CDfB74e38FD98631" }, "/token": { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" },
   "/contract": { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" }, "/fx": { base: "GBP", symbols: "USD,EUR" }, "/ens": { name: "vitalik.eth" }, "/allowance": { token: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", owner: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045", spender: "0x000000000022D473030F116dDEE9F6B43aC78BA3" },
@@ -158,6 +161,18 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
     "Offline Indian CIN structural validate (21 chars; no check digit). Example: {cin:\"U72200KA2013PTC097389\"}. $0.001 USDC.",
     { cin: z.string() },
     (await mk("$0.001", "cin_in_validate", 1000))(async (a: any) => { try { return json(validateCin(a)); } catch (e) { return err(e); } }) as any);
+  server.tool("kvk_nl_validate",
+    "Offline Dutch KvK (Chamber of Commerce) number validate (8 digits; elfproef informational). Accepts number= as alias of kvk=. Structure only. Example: {kvk:\"69599084\"}. $0.001 USDC.",
+    { kvk: z.string() },
+    (await mk("$0.001", "kvk_nl_validate", 1000))(async (a: any) => { try { return json(validateKvk(a)); } catch (e) { return err(e); } }) as any);
+  server.tool("hr_de_validate",
+    "Offline German Handelsregister number validate (HRA/HRB/GnR/PR/VR/GsR + number; optional court prefix e.g. 'Amtsgericht München HRB 6684'). Accepts number= as alias of hr=. Structure only. Example: {hr:\"HRB 6684\"}. $0.001 USDC.",
+    { hr: z.string() },
+    (await mk("$0.001", "hr_de_validate", 1000))(async (a: any) => { try { return json(validateHr(a)); } catch (e) { return err(e); } }) as any);
+  server.tool("nif_es_validate",
+    "Offline Spanish NIF/NIE/CIF validate (control letter/digit; optional ES prefix). Accepts number=/vat= as aliases of nif=. Structure only. Example: {nif:\"A28015865\"}. $0.001 USDC.",
+    { nif: z.string() },
+    (await mk("$0.001", "nif_es_validate", 1000))(async (a: any) => { try { return json(validateNif(a)); } catch (e) { return err(e); } }) as any);
   server.tool("check_domain",
     "Use this when vetting domain health before outreach: DNS (DoH), DNSSEC, TLS/HTTPS, HSTS, MX/SPF/DMARC, issues + score. Structured JSON beats shell dig/openssl. Example: {domain:\"stripe.com\"}. $0.001 USDC.",
     { domain: z.string() },
@@ -326,6 +341,9 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       cvr_dk_validate: { price: "$0.001", when: "offline Danish CVR modulus-11 validate" },
       fn_at_validate: { price: "$0.001", when: "offline Austrian FN check-letter validate" },
       cin_in_validate: { price: "$0.001", when: "offline Indian CIN structure validate" },
+      kvk_nl_validate: { price: "$0.001", when: "offline Dutch KvK number structure validate" },
+      hr_de_validate: { price: "$0.001", when: "offline German HR/HRB number structure validate" },
+      nif_es_validate: { price: "$0.001", when: "offline Spanish NIF/NIE/CIF control-character validate" },
       company_research: { price: "$0.25", when: "website company research (not UK CH)" },
       uk_company: { price: "$0.50", when: "full UK Companies House DD" },
       uk_company_lite: { price: "$0.05", when: "cheap UK status + flags" },

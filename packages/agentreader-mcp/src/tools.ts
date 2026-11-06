@@ -189,6 +189,24 @@ export const TOOLS: ToolDef[] = [
     http: (a) => `${ORIGIN}/fn-at?fn=${encodeURIComponent(a.fn)}`,
   },
   {
+    name: "kvk_nl_validate",
+    description: "Offline Dutch KvK (Chamber of Commerce) number validate (8 digits; elfproef informational). Accepts number= as alias of kvk=. $0.001",
+    schema: { kvk: z.string() },
+    http: (a) => `${ORIGIN}/kvk-nl?kvk=${encodeURIComponent(a.kvk)}`,
+  },
+  {
+    name: "hr_de_validate",
+    description: "Offline German Handelsregister number validate (HRA/HRB/GnR/PR/VR/GsR + number; optional court prefix e.g. 'Amtsgericht München HRB 6684'). Accepts number= as alias of hr=. $0.001",
+    schema: { hr: z.string() },
+    http: (a) => `${ORIGIN}/hr-de?hr=${encodeURIComponent(a.hr)}`,
+  },
+  {
+    name: "nif_es_validate",
+    description: "Offline Spanish NIF/NIE/CIF validate (control letter/digit; optional ES prefix). Accepts number=/vat= as aliases of nif=. $0.001",
+    schema: { nif: z.string() },
+    http: (a) => `${ORIGIN}/nif-es?nif=${encodeURIComponent(a.nif)}`,
+  },
+  {
     name: "cin_in_validate",
     description: "Offline Indian CIN structural validate (21 chars). $0.001",
     schema: { cin: z.string() },
