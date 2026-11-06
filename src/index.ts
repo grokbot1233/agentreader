@@ -541,7 +541,7 @@ const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
 | UK new cos + directors | ${b}/uk-leads?sic=&location= | $1.00 | + active officer names, mass-formation flags |
 | UK leads daily feed | POST ${b}/uk-leads-feed | $25.00/30d | Daily webhook of new matches |
 | UK company watch | POST ${b}/uk-watch | $5.00/30d | Hourly CH status/officers/filings → webhook |
-| Agent KYB pack | ${b}/kyb?number=00445790 (or acn=009661901 / ca_number=8660115, +domain, +vat) | $2.50 | UK/AU/CA registry + EU VAT + website + sanctions (entity+directors) + director appointments + trust flag (free: &preview=1) |
+| Agent KYB pack | ${b}/kyb?number=00445790 (or acn=/ca_number=/vat=/domain=) | $2.50 | UK/AU/CA + VAT + website + sanctions + director appointments + trust flag. Free preview: ${b}/kyb?number=00445790&preview=1 (lite UK + entity sanctions; pay for full pack) |
 | Sanctions screen | ${b}/sanctions?name= | $0.05 | OFAC SDN/CONS + UK FCDO + UN SC + EU FSF fuzzy |
 | Sanctions batch | POST ${b}/sanctions-batch | $1.00 | Up to 50 names |
 | AU company | GET ${b}/au-company?acn=009661901 | $0.02 | ASIC register, ~4M cos (free: &preview=1) |
@@ -982,7 +982,7 @@ for (const m of ["get", "post"] as const) {
     const key = `domain=${b.domain||""}&number=${b.number||""}&name=${b.name||""}&vat=${b.vat||""}&acn=${b.acn||b.abn||""}&ca_number=${b.ca_number||""}&bn=${b.bn||""}&lei=${b.lei||""}`;
     const KREG = bindingRegistries(c.env);
     if (c.req.query("preview") === "1" && m === "get")
-      return livePreview(c, "kyb", () => kybReport(c.env, b, KREG), `${CANONICAL}/kyb?${key}`);
+      return livePreview(c, "kyb", () => kybReport(c.env, { ...b, preview: true }, KREG), `${CANONICAL}/kyb?${key}`);
     return cached(c, `kyb?${encodeURIComponent(key)}`, () => kybReport(c.env, { domain: b.domain, number: b.number, name: b.name, vat: b.vat, country: b.country, vat_number: b.vat_number, acn: b.acn || b.abn, ca_number: b.ca_number, bn: b.bn, lei: b.lei }, KREG), 120);
   });
 

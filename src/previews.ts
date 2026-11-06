@@ -217,6 +217,7 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         has_sanctions: !!data.sanctions && !data.sanctions.error && !data.sanctions.skipped,
         has_lei: !!data.lei && !data.lei.error,
         omitted: ["full website/uk/eu_vat/sanctions payloads - pay for complete pack"],
+        preview_omitted: data.preview_omitted || undefined,
       };
     case "sanctions":
       return {

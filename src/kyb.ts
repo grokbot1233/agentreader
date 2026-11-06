@@ -27,8 +27,9 @@ function domainish(v: string) {
 /** Composite agent KYB / due-diligence pack. Screening only — not a regulated determination. */
 export async function kybReport(env: Env, input: {
   domain?: string; number?: string; name?: string; vat?: string; country?: string; vat_number?: string;
-  acn?: string; abn?: string; ca_number?: string; bn?: string; lei?: string;
+  acn?: string; abn?: string; ca_number?: string; bn?: string; lei?: string; preview?: boolean;
 }, reg: KybRegistries = {}) {
+  const preview = !!input.preview;
   const acn = s(input.acn) || s(input.abn), caNum = s(input.ca_number), bn = s(input.bn);
   const rawDomain = s(input.domain) || (s(input.name).includes(".") ? s(input.name) : "");
   const domain = domainish(rawDomain);
@@ -73,7 +74,7 @@ export async function kybReport(env: Env, input: {
   if (number || name) {
     tasks.push((async () => {
       try {
-        out.uk = await ukCompany(env, { number: number || undefined, name: name || undefined });
+        out.uk = await ukCompany(env, { number: number || undefined, name: name || undefined, lite: preview });
         out.sources.uk_companies_house = out.uk?.sources || true;
       } catch (e: any) {
         out.uk = { error: String(e?.message || e) };
@@ -85,7 +86,7 @@ export async function kybReport(env: Env, input: {
     if (guess.length >= 3) {
       tasks.push((async () => {
         try {
-          out.uk = await ukCompany(env, { name: guess });
+          out.uk = await ukCompany(env, { name: guess, lite: preview });
           out.uk_guessed_from_domain = guess;
           out.sources.uk_companies_house = out.uk?.sources || true;
         } catch (e: any) {
@@ -147,11 +148,22 @@ export async function kybReport(env: Env, input: {
         if (!role || /director|member/.test(role)) directors.push(String(n));
       }
     }
-    const [sanc, appts] = await Promise.all([
-      kybSanctionsScreen(env, { entityName, directors }),
-      Promise.all(directors.map(async (d) => { try { const r: any = await ukOfficerSearch(env as any, { name: d, limit: 1 }); const o = r?.officers?.[0]; return o ? { director: d, best_match: o.name, active_appointments: o.active_count, appointments_total: o.appointments_total, flags: o.flags || [], note: "best name match on CH officer search; confirm DOB" } : { director: d, found: false }; } catch (e: any) { return { director: d, error: String(e?.message || e) }; } })),
-    ]);
-    out.sanctions = sanc; out.directors_appointments = appts.length ? appts : null;
+    if (preview) {
+      // Free preview must stay under Workers CPU limit: lite UK + entity-only sanctions, no officer appointment fan-out.
+      out.sanctions = entityName
+        ? await kybSanctionsScreen(env, { entityName, directors: [] }).catch((e: any) => ({ error: String(e?.message || e), skipped: true }))
+        : { skipped: true, reason: "preview: no entity name yet" };
+      out.directors_appointments = null;
+      out.preview_omitted = ["director appointment skim", "director sanctions", "full UK officers/PSC/filings/charges"];
+    } else {
+      const dirs = directors.slice(0, 2); // paid: cap to 2 directors to stay under CPU on large PLCs
+      const [sanc, appts] = await Promise.all([
+        kybSanctionsScreen(env, { entityName, directors: dirs }),
+        Promise.all(dirs.map(async (d) => { try { const r: any = await ukOfficerSearch(env as any, { name: d, limit: 1 }); const o = r?.officers?.[0]; return o ? { director: d, best_match: o.name, active_appointments: o.active_count, appointments_total: o.appointments_total, flags: o.flags || [], note: "best name match on CH officer search; confirm DOB" } : { director: d, found: false }; } catch (e: any) { return { director: d, error: String(e?.message || e) }; } })),
+      ]);
+      out.sanctions = sanc; out.directors_appointments = appts.length ? appts : null;
+      if (directors.length > dirs.length) out.notes = [...(out.notes || []), `director skim capped at ${dirs.length} of ${directors.length} active directors (CPU)`];
+    }
     out.sources.sanctions_lists = out.sanctions?.skipped ? false : true;
   } catch (e: any) {
     out.sanctions = { error: String(e?.message || e), disclaimer: "Screening aid only; not a regulated AML/KYC determination." };
