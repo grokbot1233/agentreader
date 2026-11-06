@@ -3,7 +3,7 @@ import { CANONICAL } from "./facilitator";
 const PREVIEW_LIMIT = 8; // per IP per UTC day across all preview kinds
 const PREVIEW_PREFIX = "prev:";
 
-export type PreviewKind = "headers" | "iban" | "phone" | "meta" | "redirects" | "dns" | "au-company" | "ca-company" | "domain" | "email-check" | "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "kyb" | "uk-dd" | "sanctions" | "sanctions-batch" | "uk-officer" | "uk-property" | "uk-area";
+export type PreviewKind = "headers" | "iban" | "phone" | "meta" | "redirects" | "dns" | "au-company" | "ca-company" | "domain" | "email-check" | "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "kyb" | "uk-dd" | "sanctions" | "sanctions-batch" | "uk-officer" | "uk-property" | "uk-area" | "uk-postcode";
 
 const PRICE: Record<PreviewKind, string> = {
   read: "$0.002", links: "$0.001", check: "$0.001",
@@ -14,7 +14,7 @@ const PRICE: Record<PreviewKind, string> = {
   "uk-leads": "$1.00", "uk-leads-lite": "$0.25", kyb: "$2.50", "uk-dd": "$1.00", "email-check": "$0.002", domain: "$0.002", dns: "$0.001", redirects: "$0.001", meta: "$0.001", headers: "$0.001", iban: "$0.001", phone: "$0.001", "au-company": "$0.02", "ca-company": "$0.02",
   sanctions: "$0.05", "sanctions-batch": "$1.00",
   "uk-officer": "$0.15",
-  "uk-property": "$0.01", "uk-area": "$0.005",
+  "uk-property": "$0.01", "uk-area": "$0.005", "uk-postcode": "$0.001",
 };
 
 const PAID_CALL: Record<PreviewKind, string> = {
@@ -40,6 +40,7 @@ const PAID_CALL: Record<PreviewKind, string> = {
   "uk-officer": `${CANONICAL}/uk-officer?name=Ken+Olisa`,
   "uk-property": `${CANONICAL}/uk-property?postcode=CB1+2AB`,
   "uk-area": `${CANONICAL}/uk-area?postcode=SW1A+2AA`,
+  "uk-postcode": `${CANONICAL}/uk-postcode?postcode=SW1A+2AA`,
 };
 
 function dayKey() { return new Date().toISOString().slice(0, 10); }
@@ -252,6 +253,13 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         ...u, product: data.product, phone_e164: data.phone_e164, valid: data.valid, country: data.country,
         calling_code: data.calling_code, length_ok: data.length_ok, type_guess: data.type_guess,
         disclaimer: data.disclaimer, omitted: ["national_number detail", "upsell detail"],
+      };
+    case "uk-postcode":
+      return {
+        ...u, product: data.product, postcode: data.postcode, postcode_compact: data.postcode_compact,
+        valid: data.valid, format_ok: data.format_ok, outward: data.outward, inward: data.inward,
+        area: data.area, district: data.district, sector: data.sector, unit: data.unit,
+        disclaimer: data.disclaimer, omitted: ["upsell detail"],
       };
     case "au-company":
       return {
@@ -466,6 +474,11 @@ export const STATIC_SAMPLES: Record<string, any> = {
     product: "phone", phone_e164: "+447911123456", valid: true, country: "GB",
     calling_code: "44", national_number: "7911123456", length_ok: true, country_known: true,
     type_guess: "mobile", disclaimer: "Structure only — not HLR/carrier/assigned.",
+  },
+  "uk-postcode": {
+    product: "uk-postcode", postcode: "SW1A 2AA", postcode_compact: "SW1A2AA", valid: true,
+    outward: "SW1A", inward: "2AA", area: "SW", district: "1A", sector: "2", unit: "AA",
+    format_ok: true, disclaimer: "Offline Royal Mail postcode format check only.",
   },
   redirects: {
     product: "redirects", url: "https://example.com", final_url: "https://example.com/",

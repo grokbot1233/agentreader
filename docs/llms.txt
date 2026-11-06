@@ -28,6 +28,7 @@
 | NFT owner + metadata | https://api.axiomworks.co.uk/nft?contract=&token_id= | $0.002 | IPFS/Arweave resolved JSON |
 | Open research search | https://api.axiomworks.co.uk/search?q= | $0.003 | Wikipedia+OpenAlex+arXiv+Crossref merged/ranked |
 | UK house prices | https://api.axiomworks.co.uk/uk-property?postcode= | $0.01 | HM Land Registry Price Paid near postcode |
+| UK postcode validate | https://api.axiomworks.co.uk/uk-postcode?postcode=SW1A%202AA | $0.001 | Offline Royal Mail format only (not geocode) |
 | UK postcode profile | https://api.axiomworks.co.uk/uk-area?postcode= | $0.005 | ONS geography + police crime + FSA hygiene |
 | UK charity snapshot | https://api.axiomworks.co.uk/uk-charity?number= | $0.05 | Charity Commission E&W OGL |
 | UK charity full DD | https://api.axiomworks.co.uk/uk-charity-full?number= | $0.25 | Trustees, finances, red flags |

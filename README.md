@@ -18,6 +18,7 @@ No API keys, no accounts. Agents pay per request in **USDC on Base mainnet** usi
 | `GET/POST /check?domain=` | `check_domain` | $0.001 | DNS/TLS/HSTS/MX/SPF/DMARC + score |
 | `GET/POST /email-check?email=` | `email_check` | $0.002 | Syntax + MX/A + disposable/free/role flags + score/verdict |
 | `GET/POST /phone?phone=` | `phone_check` | $0.001 | Offline E.164 + country length validate (not HLR/carrier) |
+| `GET/POST /uk-postcode?postcode=` | `uk_postcode_validate` | $0.001 | Offline UK postcode format validate (not geocode/assigned) |
 | `GET/POST /domain?domain=` | `domain_lookup` | $0.002 | RDAP registrar / registered / expires / age_days / status |
 | `GET/POST /company?domain=` | `company_research` | $0.25 | Company research report (tech, contacts, DNS, RDAP, SSL, news) with sources |
 | `GET/POST /uk-company?number=` / `?name=` | `uk_company` | $0.50 | Full UK Companies House due-diligence (API) + insolvency + red flags |
@@ -72,7 +73,7 @@ console.log(await r.json());
 
 Remote MCP server, streamable HTTP, stateless: `https://api.axiomworks.co.uk/mcp`
 
-Tools: `read_url`, `read_batch`, `extract_links`, `check_domain`, `phone_check`, `iban_validate`, `company_research`, `uk_company`, `uk_company_lite`, `company_full`, `uk_charity`, `uk_charity_full`, `lei_lookup`, `lei_full`, `convert_document`, `create_monitor`, plus on-chain/FX/search/UK property tools (paid) and `pricing` (free).
+Tools: `read_url`, `read_batch`, `extract_links`, `check_domain`, `phone_check`, `uk_postcode_validate`, `iban_validate`, `company_research`, `uk_company`, `uk_company_lite`, `company_full`, `uk_charity`, `uk_charity_full`, `lei_lookup`, `lei_full`, `convert_document`, `create_monitor`, plus on-chain/FX/search/UK property tools (paid) and `pricing` (free).
 
 ```ts
 import { createx402MCPClient } from "@x402/mcp";

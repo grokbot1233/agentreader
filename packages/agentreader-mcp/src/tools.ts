@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const ORIGIN = process.env.AGENTREADER_ORIGIN || "https://api.axiomworks.co.uk";
-export const VERSION = "1.24.1";
+export const VERSION = "1.25.0";
 import CHAIN from "./chain-routes.json";
 
 const CH = z.enum(["base", "ethereum", "arbitrum", "optimism", "polygon"]).optional();
@@ -126,6 +126,14 @@ export const TOOLS: ToolDef[] = [
       if (a.country) q.set("country", a.country);
       return `${ORIGIN}/phone?${q}`;
     },
+    previewable: true,
+  },
+  {
+    name: "uk_postcode_validate",
+    description: "Offline UK postcode structural validate (Royal Mail format only — not assigned/deliverable). $0.001 USDC.",
+    price: "$0.001",
+    schema: { postcode: z.string() },
+    http: (a) => `${ORIGIN}/uk-postcode?postcode=${encodeURIComponent(a.postcode)}`,
     previewable: true,
   },
   {

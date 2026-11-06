@@ -171,6 +171,10 @@ export class AgentReaderClient {
   phoneCheck(input: { phone: string; country?: string }, opts?: RequestOpts) {
     return this.get("/phone", input as any, opts);
   }
+  /** Offline UK postcode format validate ($0.001). */
+  ukPostcodeValidate(input: { postcode: string }, opts?: RequestOpts) {
+    return this.get("/uk-postcode", input as any, opts);
+  }
   companyResearch(input: { domain: string }, opts?: RequestOpts) {
     return this.get("/company", input, opts);
   }

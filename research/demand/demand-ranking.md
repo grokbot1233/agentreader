@@ -19,7 +19,7 @@ Scoring: payment evidence × price/volume potential × our fit (free data, exist
 | 13 | DNS resolve | Own workers.dev `/dns` **13** payers | Micro $0.001 | High | **SHIPPED → `/dns` $0.001** |
 | 14 | URL redirects / unshorten | Toll unwrap $0.001–0.01 | Micro $0.001 | High | **SHIPPED → `/redirects` $0.001** |
 | 15 | Phone E.164 validate | Toll phone tools | Micro $0.001 | High | **SHIPPED → `/phone` $0.001** |
-| 16 | **UK postcode structural validate** | Toll `uk_postcode_validate` $0.001 | Micro $0.001 | High — offline; KYB attach; we already have PC regex | **Next candidate** |
+| 16 | **UK postcode structural validate** | Toll `uk_postcode_validate` $0.001 | Micro $0.001 | High — offline; KYB attach; we already have PC regex | **SHIPPED** `/uk-postcode` v1.25.0 |
 | 17 | FR SIREN / SIRET offline | Toll `$0.001` each | Micro | High — offline Luhn/mod | Next |
 | 18 | IT Partita IVA / SE orgnr / CA BN | Toll `$0.001` | Micro | High — offline | Next |
 | 19 | SSL/cert expiry standalone | macaroon **10**, x402atlas ssl **8** | Micro–$0.01 | Medium — Workers peer-cert hard | Deferred |
@@ -32,7 +32,7 @@ Scoring: payment evidence × price/volume potential × our fit (free data, exist
 ## Next passes (spider-web)
 
 1. Finish ship `/chain/live-balance` + x402scan register + one soft outreach.
-2. Next free build: `/uk-postcode` $0.001 (Toll proof) or FR `siren`/`siret`.
+2. Next free build: FR `siren`/`siret` (UK postcode SHIPPED v1.25.0).
 3. Soft distribute `/kyb`+`/uk-dd`+`/chain/live-balance`.
 4. Re-pull CDP Bazaar next demand run; SSL/IP-geo still deferred.
 5. awesome-langchain: do not re-PR.
