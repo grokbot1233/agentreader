@@ -207,6 +207,24 @@ export const TOOLS: ToolDef[] = [
     http: (a) => `${ORIGIN}/nif-es?nif=${encodeURIComponent(a.nif)}`,
   },
   {
+    name: "cnpj_validate",
+    description: "Offline Brazilian CNPJ validate (14 digits + check digits; punctuation ok). Accepts number= as alias of cnpj=. $0.001",
+    schema: { cnpj: z.string() },
+    http: (a) => `${ORIGIN}/cnpj?cnpj=${encodeURIComponent(a.cnpj)}`,
+  },
+  {
+    name: "nip_pl_validate",
+    description: "Offline Polish NIP validate (10-digit modulus-11; optional PL prefix). Accepts number=/vat= as aliases of nip=. $0.001",
+    schema: { nip: z.string() },
+    http: (a) => `${ORIGIN}/nip-pl?nip=${encodeURIComponent(a.nip)}`,
+  },
+  {
+    name: "uid_ch_validate",
+    description: "Offline Swiss UID (CHE-xxx.xxx.xxx) validate (9 digits + check digit; optional MWST/TVA/IVA suffix). Accepts number=/che= as aliases of uid=. $0.001",
+    schema: { uid: z.string() },
+    http: (a) => `${ORIGIN}/uid-ch?uid=${encodeURIComponent(a.uid)}`,
+  },
+  {
     name: "cin_in_validate",
     description: "Offline Indian CIN structural validate (21 chars). $0.001",
     schema: { cin: z.string() },

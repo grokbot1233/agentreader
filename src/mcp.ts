@@ -40,6 +40,9 @@ import { validateCvr } from "./dk-cvr";
 import { validateKvk } from "./nl-kvk";
 import { validateHr } from "./de-hr";
 import { validateNif } from "./es-nif";
+import { validateCnpj } from "./br-cnpj";
+import { validateNip } from "./pl-nip";
+import { validateUid } from "./ch-uid";
 import { validateFn } from "./at-fn";
 import { validateCin } from "./in-cin";
 import { kybReport, bindingRegistries } from "./kyb";
@@ -49,7 +52,7 @@ import { ukOfficerSearch } from "./uk-officer";
 import { CHAIN_ROUTES } from "./chain";
 import { upsell } from "./upsell";
 for (const r of CHAIN_ROUTES) { TOOL_PATH["chain_" + r.path.slice(7).replace(/-/g, "_")] = r.path; EXAMPLES_CHAIN[r.path] = r.ex; }
-const EXAMPLES: Record<string, any> = { "/read": { url: "https://example.com" }, "/links": { url: "https://example.com" }, "/check": { domain: "example.com" }, "/domain": { domain: "stripe.com" }, "/dns": { name: "example.com" }, "/redirects": { url: "https://example.com" }, "/meta": { url: "https://example.com" }, "/headers": { url: "https://example.com" }, "/iban": { iban: "GB82WEST12345698765432" }, "/phone": { phone: "+447911123456" }, "/uk-postcode": { postcode: "SW1A 2AA" }, "/siren": { siren: "732829320" }, "/siret": { siret: "73282932000074" }, "/partita-iva": { vat: "00488410010" }, "/orgnr": { orgnr: "556012-5790" }, "/bn-ca": { bn: "123456789RT0001" }, "/cvr": { cvr: "10403782" }, "/fn-at": { fn: "FN 575737y" }, "/cin-in": { cin: "U72200KA2013PTC097389" }, "/kvk-nl": { kvk: "69599084" }, "/hr-de": { hr: "HRB 6684" }, "/nif-es": { nif: "A28015865" }, "/company": { domain: "stripe.com" }, "/company-full": { domain: "tesco.com" },
+const EXAMPLES: Record<string, any> = { "/read": { url: "https://example.com" }, "/links": { url: "https://example.com" }, "/check": { domain: "example.com" }, "/domain": { domain: "stripe.com" }, "/dns": { name: "example.com" }, "/redirects": { url: "https://example.com" }, "/meta": { url: "https://example.com" }, "/headers": { url: "https://example.com" }, "/iban": { iban: "GB82WEST12345698765432" }, "/phone": { phone: "+447911123456" }, "/uk-postcode": { postcode: "SW1A 2AA" }, "/siren": { siren: "732829320" }, "/siret": { siret: "73282932000074" }, "/partita-iva": { vat: "00488410010" }, "/orgnr": { orgnr: "556012-5790" }, "/bn-ca": { bn: "123456789RT0001" }, "/cvr": { cvr: "10403782" }, "/fn-at": { fn: "FN 575737y" }, "/cin-in": { cin: "U72200KA2013PTC097389" }, "/kvk-nl": { kvk: "69599084" }, "/hr-de": { hr: "HRB 6684" }, "/nif-es": { nif: "A28015865" }, "/cnpj": { cnpj: "33000167000101" }, "/nip-pl": { nip: "5261040828" }, "/uid-ch": { uid: "CHE-109.322.551" }, "/company": { domain: "stripe.com" }, "/company-full": { domain: "tesco.com" },
   "/uk-company": { number: "00445790" }, "/uk-company-lite": { number: "00445790" }, "/convert": { url: "https://pdfobject.com/pdf/sample.pdf" }, "/monitor": { url: "https://example.com", webhook: "https://your.app/hook" },
   "/wallet": { address: "0x88b1c747c33A5868A34057D8C57318E5602b3ff6" }, "/tx": { hash: "0x" + "ab".repeat(32) }, "/token-check": { address: "0x940181a94A35A4569E4529A3CDfB74e38FD98631" }, "/token": { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" },
   "/contract": { address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" }, "/fx": { base: "GBP", symbols: "USD,EUR" }, "/ens": { name: "vitalik.eth" }, "/allowance": { token: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", owner: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045", spender: "0x000000000022D473030F116dDEE9F6B43aC78BA3" },
@@ -173,6 +176,18 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
     "Offline Spanish NIF/NIE/CIF validate (control letter/digit; optional ES prefix). Accepts number=/vat= as aliases of nif=. Structure only. Example: {nif:\"A28015865\"}. $0.001 USDC.",
     { nif: z.string() },
     (await mk("$0.001", "nif_es_validate", 1000))(async (a: any) => { try { return json(validateNif(a)); } catch (e) { return err(e); } }) as any);
+  server.tool("cnpj_validate",
+    "Offline Brazilian CNPJ validate (14 digits + check digits; punctuation ok). Accepts number= as alias of cnpj=. Structure only. Example: {cnpj:\"33000167000101\"}. $0.001 USDC.",
+    { cnpj: z.string() },
+    (await mk("$0.001", "cnpj_validate", 1000))(async (a: any) => { try { return json(validateCnpj(a)); } catch (e) { return err(e); } }) as any);
+  server.tool("nip_pl_validate",
+    "Offline Polish NIP validate (10-digit modulus-11; optional PL prefix). Accepts number=/vat= as aliases of nip=. Structure only. Example: {nip:\"5261040828\"}. $0.001 USDC.",
+    { nip: z.string() },
+    (await mk("$0.001", "nip_pl_validate", 1000))(async (a: any) => { try { return json(validateNip(a)); } catch (e) { return err(e); } }) as any);
+  server.tool("uid_ch_validate",
+    "Offline Swiss UID (CHE-xxx.xxx.xxx) validate (9 digits + check digit; optional MWST/TVA/IVA suffix). Accepts number=/che= as aliases of uid=. Structure only. Example: {uid:\"CHE-109.322.551\"}. $0.001 USDC.",
+    { uid: z.string() },
+    (await mk("$0.001", "uid_ch_validate", 1000))(async (a: any) => { try { return json(validateUid(a)); } catch (e) { return err(e); } }) as any);
   server.tool("check_domain",
     "Use this when vetting domain health before outreach: DNS (DoH), DNSSEC, TLS/HTTPS, HSTS, MX/SPF/DMARC, issues + score. Structured JSON beats shell dig/openssl. Example: {domain:\"stripe.com\"}. $0.001 USDC.",
     { domain: z.string() },

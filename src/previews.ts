@@ -3,7 +3,7 @@ import { CANONICAL } from "./facilitator";
 const PREVIEW_LIMIT = 8; // per IP per UTC day across all preview kinds
 const PREVIEW_PREFIX = "prev:";
 
-export type PreviewKind = "headers" | "iban" | "phone" | "meta" | "redirects" | "dns" | "au-company" | "ca-company" | "domain" | "email-check" | "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "kyb" | "uk-dd" | "sanctions" | "sanctions-batch" | "uk-officer" | "uk-property" | "uk-area" | "uk-postcode" | "siren" | "siret" | "partita-iva" | "orgnr" | "bn-ca" | "cvr" | "fn-at" | "cin-in" | "kvk-nl" | "hr-de" | "nif-es";
+export type PreviewKind = "headers" | "iban" | "phone" | "meta" | "redirects" | "dns" | "au-company" | "ca-company" | "domain" | "email-check" | "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "kyb" | "uk-dd" | "sanctions" | "sanctions-batch" | "uk-officer" | "uk-property" | "uk-area" | "uk-postcode" | "siren" | "siret" | "partita-iva" | "orgnr" | "bn-ca" | "cvr" | "fn-at" | "cin-in" | "kvk-nl" | "hr-de" | "nif-es" | "cnpj" | "nip-pl" | "uid-ch";
 
 const PRICE: Record<PreviewKind, string> = {
   read: "$0.002", links: "$0.001", check: "$0.001",
@@ -14,7 +14,7 @@ const PRICE: Record<PreviewKind, string> = {
   "uk-leads": "$1.00", "uk-leads-lite": "$0.25", kyb: "$2.50", "uk-dd": "$1.00", "email-check": "$0.002", domain: "$0.002", dns: "$0.001", redirects: "$0.001", meta: "$0.001", headers: "$0.001", iban: "$0.001", phone: "$0.001", "au-company": "$0.02", "ca-company": "$0.02",
   sanctions: "$0.05", "sanctions-batch": "$1.00",
   "uk-officer": "$0.15",
-  "uk-property": "$0.01", "uk-area": "$0.005", "uk-postcode": "$0.001", siren: "$0.001", siret: "$0.001", "partita-iva": "$0.001", orgnr: "$0.001", "bn-ca": "$0.001", cvr: "$0.001", "fn-at": "$0.001", "cin-in": "$0.001", "kvk-nl": "$0.001", "hr-de": "$0.001", "nif-es": "$0.001",
+  "uk-property": "$0.01", "uk-area": "$0.005", "uk-postcode": "$0.001", siren: "$0.001", siret: "$0.001", "partita-iva": "$0.001", orgnr: "$0.001", "bn-ca": "$0.001", cvr: "$0.001", "fn-at": "$0.001", "cin-in": "$0.001", "kvk-nl": "$0.001", "hr-de": "$0.001", "nif-es": "$0.001", cnpj: "$0.001", "nip-pl": "$0.001", "uid-ch": "$0.001",
 };
 
 const PAID_CALL: Record<PreviewKind, string> = {
@@ -51,6 +51,9 @@ const PAID_CALL: Record<PreviewKind, string> = {
   "kvk-nl": `${CANONICAL}/kvk-nl?kvk=69599084`,
   "hr-de": `${CANONICAL}/hr-de?hr=HRB%206684`,
   "nif-es": `${CANONICAL}/nif-es?nif=A28015865`,
+  cnpj: `${CANONICAL}/cnpj?cnpj=33000167000101`,
+  "nip-pl": `${CANONICAL}/nip-pl?nip=5261040828`,
+  "uid-ch": `${CANONICAL}/uid-ch?uid=CHE-109.322.551`,
   "cin-in": `${CANONICAL}/cin-in?cin=U72200KA2013PTC097389`,
 };
 
@@ -353,6 +356,10 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
       return { ...u, ...data, upsell: data.upsell };
     case "nif-es":
       return { ...u, ...data, upsell: data.upsell };
+    case "cnpj":
+    case "nip-pl":
+    case "uid-ch":
+      return { ...u, ...data, upsell: data.upsell };
     case "cin-in":
       return {
         ...u, product: data.product, cin: data.cin, valid: data.valid, shape_ok: data.shape_ok, year_ok: data.year_ok,
@@ -620,6 +627,15 @@ export const STATIC_SAMPLES: Record<string, any> = {
   },
   "nif-es": {
     product: "nif-es", nif: "A28015865", kind: "CIF", control: "5", expected_control: "5", control_ok: true, valid: true, shape_ok: true, price: "$0.001", disclaimer: "preview", source: "offline",
+  },
+  cnpj: {
+    product: "cnpj", cnpj: "33000167000101", cnpj_formatted: "33.000.167/0001-01", valid: true, checksum_ok: true, length_ok: true, not_all_same_digits: true, digits: 14, root: "33000167", branch: "0001", is_head_office: true, price: "$0.001", disclaimer: "preview", source: "offline",
+  },
+  "nip-pl": {
+    product: "nip-pl", nip: "5261040828", valid: true, mod11_ok: true, length_ok: true, digits: 10, price: "$0.001", disclaimer: "preview", source: "offline",
+  },
+  "uid-ch": {
+    product: "uid-ch", uid: "109322551", uid_formatted: "CHE-109.322.551", valid: true, mod11_ok: true, length_ok: true, digits: 9, price: "$0.001", disclaimer: "preview", source: "offline",
   },
   "cin-in": {
     product: "cin-in", cin: "U72200KA2013PTC097389", valid: true, shape_ok: true, year_ok: true,
