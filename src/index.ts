@@ -476,7 +476,7 @@ function discovery(c: any) {
     contact: CONTACT, ownershipProofs: [] };
 }
 
-app.get("/health", (c) => c.json({ ok: true, version: "1.23.0", ts: new Date().toISOString() }));
+app.get("/health", (c) => c.json({ ok: true, version: "1.23.1", ts: new Date().toISOString() }));
 app.get("/.well-known/x402", (c) => c.json(discovery(c)));
 app.get("/.well-known/x402.json", (c) => c.json(discovery(c)));
 app.get("/.well-known/402index-verify.txt", (c) => c.text("9a944a1ce3c68588c5fb1d104be63981bb5e6b6e302fa0a1bd65b6a3cd5f5372"));
@@ -487,7 +487,7 @@ app.get("/.well-known/agent-card.json", (c) => {
   return c.json({
     protocolVersion: "0.3.0", name: "Axiom Works AgentReader",
     description: "Pay-per-call (x402, USDC on Base) UK Companies House, KYB, SEC EDGAR, EU VAT, web-to-markdown and EVM on-chain lookups for AI agents. HTTP + MCP; no API keys.",
-    url: b, preferredTransport: "HTTP+JSON", version: "1.23.0", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
+    url: b, preferredTransport: "HTTP+JSON", version: "1.23.1", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
     provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk" },
     capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
     defaultInputModes: ["application/json"], defaultOutputModes: ["application/json"],
@@ -500,14 +500,14 @@ app.get("/.well-known/agent.json", (c) => {
   return c.json({
     name: "Axiom Works AgentReader", description: "x402 pay-per-call web reader, email/phone/IBAN validate, company research, UK Companies House + Charity Commission + US SEC EDGAR + EU VIES VAT + OFAC/UK/UN/EU sanctions screening due diligence, document conversion, change monitoring, EVM wallet/tx/token risk checks and ECB FX rates for AI agents.",
     url: b, provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk", email: CONTACT },
-    version: "1.23.0", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
+    version: "1.23.1", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     skills: Object.entries(PRICES).map(([p, price]) => ({ id: p.slice(1), name: p, description: DESC[p], price, endpoint: `${b}${p}` })),
     mcp: `${b}/mcp`, payments: { protocol: "x402", network: NETWORK, asset: USDC, payTo: c.env.PAY_TO },
   });
 });
 app.get("/.well-known/mcp.json", (c) => {
   const b = base(c);
-  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.23.0",
+  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.23.1",
     description: "x402 pay-per-call MCP: web reader, email/phone/IBAN validate, UK/AU/CA registries, SEC, VAT, sanctions, EVM chain data.",
     transport: { type: "streamable-http", url: `${b}/mcp` }, documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     payments: { protocol: "x402", network: NETWORK, asset: USDC } });
@@ -544,7 +544,7 @@ app.get("/openapi.json", (c) => {
     paths[ap] = { get: { summary: `Path alias of ${to} (same price/x402 challenge). ${DESC[to] || ""}`, parameters: [...ks.map((k) => ({ name: k, in: "path", required: true, schema: { type: "string" } })), { name: "chain", in: "query", required: false, schema: { type: "string" } }, { name: "preview", in: "query", required: false, schema: { type: "string", enum: ["1"] } }],
       responses: { "200": { description: "Success", content: { "application/json": { schema: OUT[to] } } }, "402": { description: `Payment required: ${price} USDC on Base (x402)` } }, "x-price": price, "x-alias-of": to } }; }
   paths["/hooks/sink"] = { post: { summary: "Free webhook test sink for /monitor", responses: { "200": { description: "Stored" } }, "x-price": "free" } };
-  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.23.0", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, email-check, domain RDAP, DNS resolve, URL redirects unwrap, page metadata/OG, HTTP security headers, IBAN/phone validate, company research, UK/AU/CA registries, LEI, sanctions, SEC, VIES VAT, document conversion, change monitoring, EVM/FX. Payments: USDC on Base mainnet (eip155:8453)." },
+  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.23.1", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, email-check, domain RDAP, DNS resolve, URL redirects unwrap, page metadata/OG, HTTP security headers, IBAN/phone validate, company research, UK/AU/CA registries, LEI, sanctions, SEC, VIES VAT, document conversion, change monitoring, EVM/FX. Payments: USDC on Base mainnet (eip155:8453)." },
     servers: [{ url: b }], paths });
 });
 const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
@@ -740,17 +740,29 @@ app.get("/dashboard", async (c) => {
 /** Read treasury USDC + ETH for dashboard (sweep-gas visibility). Tries multiple public Base RPCs; never throws. */
 async function readTreasuryBalances(payTo: string): Promise<{ treasury_usdc: number | null; treasury_eth: number | null; treasury_err?: string }> {
   const data = "0x70a08231" + payTo.slice(2).toLowerCase().padStart(64, "0");
-  const rpcs = ["https://base-rpc.publicnode.com", "https://mainnet.base.org", "https://base.gateway.tenderly.co"];
+  // Prefer less rate-limited public Base RPCs first; keep prior endpoints as fallbacks.
+  const rpcs = [
+    "https://1rpc.io/base",
+    "https://base.drpc.org",
+    "https://base.publicnode.com",
+    "https://base-mainnet.public.blastapi.io",
+    "https://base-rpc.publicnode.com",
+    "https://mainnet.base.org",
+    "https://base.gateway.tenderly.co",
+  ];
   const errs: string[] = [];
   for (const rpc of rpcs) {
     try {
+      const ac = new AbortController();
+      const t = setTimeout(() => ac.abort(), 6000);
+      const opts = { method: "POST", headers: { "content-type": "application/json" }, signal: ac.signal } as RequestInit;
       const [balRes, usdcRes]: any[] = await Promise.all([
-        fetch(rpc, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_getBalance", params: [payTo, "latest"] }) }).then((r) => r.json()),
-        fetch(rpc, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 2, method: "eth_call", params: [{ to: USDC, data }, "latest"] }) }).then((r) => r.json()),
-      ]);
+        fetch(rpc, { ...opts, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_getBalance", params: [payTo, "latest"] }) }).then((r) => r.json()),
+        fetch(rpc, { ...opts, body: JSON.stringify({ jsonrpc: "2.0", id: 2, method: "eth_call", params: [{ to: USDC, data }, "latest"] }) }).then((r) => r.json()),
+      ]).finally(() => clearTimeout(t));
       const ethHex = balRes?.result, usdcHex = usdcRes?.result;
       if (typeof ethHex !== "string" || typeof usdcHex !== "string") {
-        errs.push(`${rpc}: ${balRes?.error?.message || usdcRes?.error?.message || "missing result"}`);
+        errs.push(`${new URL(rpc).host}: ${balRes?.error?.message || usdcRes?.error?.message || "missing result"}`);
         continue;
       }
       return {
@@ -758,7 +770,7 @@ async function readTreasuryBalances(payTo: string): Promise<{ treasury_usdc: num
         treasury_usdc: Math.round((Number(BigInt(usdcHex)) / 1e6) * 1e6) / 1e6,
       };
     } catch (e: any) {
-      errs.push(`${rpc}: ${String(e?.message || e).slice(0, 80)}`);
+      errs.push(`${new URL(rpc).host}: ${String(e?.message || e).slice(0, 80)}`);
     }
   }
   return { treasury_usdc: null, treasury_eth: null, treasury_err: errs.slice(0, 3).join(" | ").slice(0, 240) };
