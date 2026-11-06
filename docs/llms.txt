@@ -1,18 +1,45 @@
 # Axiom Works AgentReader
 
 > Pay-per-call tools for AI agents. No API keys: x402 (HTTP 402) + USDC on Base (eip155:8453), payTo 0x88b1c747c33A5868A34057D8C57318E5602b3ff6.
-> Free truncated samples: https://api.axiomworks.co.uk/samples/{read|company|uk-company|uk-company-lite|convert|uk-charity|uk-charity-full|us-sec|us-sec-full|eu-vat|uk-leads|uk-leads-lite|kyb} (8/IP/day). Or add &preview=1 on paid GETs (same limit).
+> Free truncated samples: https://api.axiomworks.co.uk/samples/{read|company|uk-company|uk-company-lite|convert|uk-charity|uk-charity-full|us-sec|us-sec-full|eu-vat|lei|lei-full|read-batch|uk-leads|uk-leads-lite|kyb|uk-dd|email-check|domain|dns|redirects|meta|headers|au-company|ca-company|uk-officer|uk-property|uk-area|sanctions|sanctions-batch} (8/IP/day). Or add &preview=1 on paid GETs (same limit).
+
+## Big hitters (start here)
+
+| Need | Endpoint | Price |
+|---|---|---|
+| One-shot agent KYB pack (UK/AU/CA/FR registry + VAT + website + sanctions + LEI) | https://api.axiomworks.co.uk/kyb?number=00445790 | $2.50 |
+| UK due-diligence job (full Companies House pack + sanctions on entity and officers) | https://api.axiomworks.co.uk/uk-dd?number=00445790 | $1.00 |
+| UK company watch (hourly status/officers/filings → webhook) | POST https://api.axiomworks.co.uk/uk-watch | $5.00/30d |
+| UK leads search by SIC/area | https://api.axiomworks.co.uk/uk-leads?sic=62012 | $1.00 |
+| UK leads daily webhook feed | POST https://api.axiomworks.co.uk/uk-leads-feed | $25.00/30d |
+| UK company full report | https://api.axiomworks.co.uk/uk-company?number=00445790 | $0.50 |
+| Company research from a domain | https://api.axiomworks.co.uk/company?domain=stripe.com | $0.25 |
+| Company research + UK pack | https://api.axiomworks.co.uk/company-full?domain=tesco.com | $0.65 |
+| Sanctions batch (OFAC/UK/UN/EU) | POST https://api.axiomworks.co.uk/sanctions-batch | $1.00 |
+| UK charity full (trustees + 5y financials + red flags) | https://api.axiomworks.co.uk/uk-charity-full?number=1089464 | $0.25 |
+| French company (SIREN/SIRET/name → dirigeants + siège + NAF) | https://api.axiomworks.co.uk/fr-company?siren=443061841 | $0.25 |
+| UK+AU+CA+FR registry batch (up to 25) | https://api.axiomworks.co.uk/registry-batch?uk=00445790&au=004028077&ca=8660115&fr=443061841 | $0.30 |
+| UK officer search + appointments | https://api.axiomworks.co.uk/uk-officer?name=Ken+Olisa | $0.15 |
+
+Supporting real-data checks: /uk-company-lite, /uk-charity, /sanctions, /au-company, /ca-company, /us-sec, /lei-full, /eu-vat.
 
 ## When to use which (pick one)
 
 | Need | Endpoint | Price | Why ours |
 |---|---|---|---|
 | Page → Markdown | https://api.axiomworks.co.uk/read?url= | $0.002 | Readability + metadata JSON, not raw HTML |
+| Batch page → Markdown | https://api.axiomworks.co.uk/read-batch?urls= | $0.015 | Up to 8 URLs (~$0.0019/url) |
 | Links only | https://api.axiomworks.co.uk/links?url= | $0.001 | Cheaper than /read |
 | Domain health | https://api.axiomworks.co.uk/check?domain= | $0.001 | DNS/TLS/MX/SPF/DMARC + score |
-| Domain registration (RDAP) | https://api.axiomworks.co.uk/domain?domain=stripe.com | $0.002 | Registrar, registered, expires, age_days, status |
+| Email check | https://api.axiomworks.co.uk/email-check?email=info@stripe.com | $0.002 | Syntax + MX/A + disposable/free/role flags (free: &preview=1) |
+| Domain registration (RDAP) | https://api.axiomworks.co.uk/domain?domain=stripe.com | $0.002 | Registrar, registered, expires, age_days, status (free: &preview=1) |
+| DNS resolve | https://api.axiomworks.co.uk/dns?name=example.com | $0.001 | A/AAAA/MX/TXT/NS/CNAME via Cloudflare DoH (free: &preview=1; optional type=) |
+| Redirects unwrap | https://api.axiomworks.co.uk/redirects?url= | $0.001 | Follow Location hops → final_url + chain (SSRF-safe; free: &preview=1) |
+| Page metadata | https://api.axiomworks.co.uk/meta?url= | $0.001 | Title/description/canonical/OG/Twitter/favicons/JSON-LD types (free: &preview=1) |
+| HTTP security headers | https://api.axiomworks.co.uk/headers?url= | $0.001 | HSTS/CSP/XFO/XCTO/… + score (SSRF-safe; free: &preview=1) |
 | Website company research | https://api.axiomworks.co.uk/company?domain= | $0.25 | Sourced tech/contacts/DNS/RDAP/news (no LLM fiction) |
 | UK CH full DD | https://api.axiomworks.co.uk/uk-company?number=|name= | $0.50 | Official API: officers/PSC/filings/charges/insolvency + red flags |
+| UK officer search | https://api.axiomworks.co.uk/uk-officer?name= | $0.15 | Reverse officer name → appointments + high-appt/mass-formation flags |
 | UK CH cheap snapshot | https://api.axiomworks.co.uk/uk-company-lite?number=|name= | $0.05 | Status + compliance flags; upsell full pack |
 | Website + UK DD bundle | https://api.axiomworks.co.uk/company-full?domain= | $0.65 | $0.10 cheaper than $0.25+$0.50 when UK detected |
 | PDF/DOCX → text | https://api.axiomworks.co.uk/convert?url= | $0.03 | Structured markdown/text for RAG |
@@ -34,15 +61,23 @@
 | US SEC EDGAR snapshot | https://api.axiomworks.co.uk/us-sec?ticker=AAPL | $0.05 | CIK resolve, filings summary, fair-use EDGAR |
 | US SEC full + facts | https://api.axiomworks.co.uk/us-sec-full?ticker=AAPL | $0.25 | us-gaap highlights + red-flag heuristics |
 | EU VAT (VIES) | https://api.axiomworks.co.uk/eu-vat?vat=IE6388047V | $0.01 | Official VIES valid/name/address |
+| GLEIF LEI | https://api.axiomworks.co.uk/lei?lei=HWUPKR0MPOU8FGXBT394 | $0.005 | LEI + parents.direct/ultimate + BIC (CC0) |
+| GLEIF LEI search | https://api.axiomworks.co.uk/lei-full?name=Apple%20Inc. | $0.05 | Up to 10 name matches each with parents |
+| Batch web read | https://api.axiomworks.co.uk/read-batch?urls=https://example.com,https://example.org | $0.015 | Up to 8 URLs Markdown (~$0.0019/url) |
 | FX rates (ECB) | https://api.axiomworks.co.uk/fx?base=GBP&symbols=USD | $0.002 | Official ECB rates, history, conversion |
-| **Single-fact EVM (5 chains, $0.001–0.003)** | https://api.axiomworks.co.uk/chain/{erc20-balance,balance,block-number,nonce,total-supply,erc20-transfers,events,network-info,receipt,code,call,estimate-gas,nft-owner,erc1155-balance,storage,proxy,chain-id} | $0.001–0.003 | One answer per call, Base/Ethereum/Arbitrum/Optimism/Polygon; see /openapi.json |
+| **Single-fact EVM (5 chains, $0.001–0.003)** | https://api.axiomworks.co.uk/chain/{erc20-balance,balance,live-balance,block-number,nonce,total-supply,erc20-transfers,events,network-info,receipt,code,call,estimate-gas,nft-owner,nft-metadata,erc721-tokens,erc1155-balance,storage,proxy,chain-id,pending} | $0.001–0.003 | One answer per call, Base/Ethereum/Arbitrum/Optimism/Polygon; see /openapi.json |
 | UK new cos (lite) | https://api.axiomworks.co.uk/uk-leads-lite?sic=&location= | $0.25 | New incorporations 1-7d, no directors |
 | UK new cos + directors | https://api.axiomworks.co.uk/uk-leads?sic=&location= | $1.00 | + active officer names, mass-formation flags |
 | UK leads daily feed | POST https://api.axiomworks.co.uk/uk-leads-feed | $25.00/30d | Daily webhook of new matches |
 | UK company watch | POST https://api.axiomworks.co.uk/uk-watch | $5.00/30d | Hourly CH status/officers/filings → webhook |
-| Agent KYB pack | https://api.axiomworks.co.uk/kyb?domain=&number=&vat= | $2.00 | Website + UK CH + EU VAT + sanctions + trust flag |
+| UK DD job | https://api.axiomworks.co.uk/uk-dd?number=00445790 (optional name=/domain=) | $1.00 | Full CH pack + sanctions (entity+officers) + optional RDAP/website → trust flag. Free preview: https://api.axiomworks.co.uk/uk-dd?number=00445790&preview=1 |
+| Agent KYB pack | https://api.axiomworks.co.uk/kyb?number=00445790 (or acn=/ca_number=/siren=/vat=/domain=) | $2.50 | UK/AU/CA/FR + VAT + website + sanctions + director appointments + trust flag. Free preview: https://api.axiomworks.co.uk/kyb?number=00445790&preview=1 (lite UK + entity sanctions; pay for full pack) |
+| French company | https://api.axiomworks.co.uk/fr-company?siren=443061841 (or siret=/name=) | $0.25 | Official Recherche d'entreprises: name, status, NAF, siège, dirigeants, finances. Free preview: https://api.axiomworks.co.uk/fr-company?siren=443061841&preview=1 |
 | Sanctions screen | https://api.axiomworks.co.uk/sanctions?name= | $0.05 | OFAC SDN/CONS + UK FCDO + UN SC + EU FSF fuzzy |
 | Sanctions batch | POST https://api.axiomworks.co.uk/sanctions-batch | $1.00 | Up to 50 names |
+| AU company | GET https://api.axiomworks.co.uk/au-company?acn=009661901 | $0.02 | ASIC register, ~4M cos (free: &preview=1) |
+| CA company | GET https://api.axiomworks.co.uk/ca-company?number=8660115 | $0.02 | Corporations Canada, ~697k federal corps (free: &preview=1) |
+| UK+AU+CA+FR batch | GET https://api.axiomworks.co.uk/registry-batch?uk=00445790&au=009661901&ca=8660115&fr=443061841 | $0.30 | Up to 25 company IDs (UK max 10) |
 | Hourly change alerts | POST https://api.axiomworks.co.uk/monitor | $1.00/30d | Webhook on change; GET /monitor/:id free |
 
 ## Free
@@ -68,6 +103,8 @@ HTTP 402 + PAYMENT-REQUIRED header (x402 v2). Retry with PAYMENT-SIGNATURE (@x40
 
 ## Clients
 x402 v2 (PAYMENT-REQUIRED header; @x402/fetch, @x402/axios, Python x402>=2, @x402/mcp) and legacy v1 (402 JSON body + X-PAYMENT; x402-fetch, x402-axios, older AgentKit) both settle. Free ?preview=1 on GET routes.
+
+Explorer-style path aliases (same price + x402 challenge as the canonical route): https://api.axiomworks.co.uk/tx/{hash} (= /tx), https://api.axiomworks.co.uk/ens/{name} (= /ens), https://api.axiomworks.co.uk/contract/{address} (= /contract), https://api.axiomworks.co.uk/wallet/{address} (= /wallet), https://api.axiomworks.co.uk/address/{address} (= /wallet), https://api.axiomworks.co.uk/token/{address} (= /token), https://api.axiomworks.co.uk/token-check/{address} (= /token-check), https://api.axiomworks.co.uk/block/{number} (= /block), https://api.axiomworks.co.uk/nft/{contract}/{token_id} (= /nft), https://api.axiomworks.co.uk/gas/{chain} (= /gas), https://api.axiomworks.co.uk/check/{domain} (= /check), https://api.axiomworks.co.uk/domain/{domain} (= /domain), https://api.axiomworks.co.uk/dns/{name} (= /dns), https://api.axiomworks.co.uk/email-check/{email} (= /email-check), https://api.axiomworks.co.uk/meta/{url} (= /meta), https://api.axiomworks.co.uk/uk-company/{number} (= /uk-company), https://api.axiomworks.co.uk/uk-dd/{number} (= /uk-dd), https://api.axiomworks.co.uk/uk-charity/{number} (= /uk-charity), https://api.axiomworks.co.uk/us-sec/{ticker} (= /us-sec), https://api.axiomworks.co.uk/eu-vat/{vat} (= /eu-vat), https://api.axiomworks.co.uk/lei/{lei} (= /lei), https://api.axiomworks.co.uk/au-company/{acn} (= /au-company), https://api.axiomworks.co.uk/ca-company/{number} (= /ca-company), https://api.axiomworks.co.uk/fr-company/{siren} (= /fr-company). Add ?chain=base|ethereum|... as needed.
 
 ## Contact
 info@axiomworks.co.uk · https://github.com/grokbot1233/agentreader · examples/ in repo

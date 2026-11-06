@@ -2,12 +2,12 @@
  "openapi": "3.1.0",
  "info": {
   "title": "Axiom Works AgentReader",
-  "version": "1.11.0",
+  "version": "1.29.3",
   "contact": {
    "email": "info@axiomworks.co.uk",
    "url": "https://github.com/grokbot1233/agentreader"
   },
-  "description": "x402 pay-per-call APIs for AI agents: web reading, company research, UK due diligence, document conversion, change monitoring. Payments: USDC on Base mainnet (eip155:8453)."
+  "description": "x402 pay-per-call APIs for AI agents: KYB packs, UK due diligence, company research, UK/AU/CA/FR registries, LEI, sanctions, SEC EDGAR, VIES VAT, web reading, document conversion, change monitoring, EVM/FX. Big hitters first (/kyb, /uk-dd, /uk-company, /uk-watch, /uk-leads, /company-full, /sanctions-batch). Payments: USDC on Base mainnet (eip155:8453)."
  },
  "servers": [
   {
@@ -15,6 +15,773 @@
   }
  ],
  "paths": {
+  "/au-company": {
+   "get": {
+    "summary": "Use this for an Australian company lookup from the ASIC register by ACN or ABN: current name, former names, type (proprietary/public\u2026), class, status (registered/deregistered/strike-off/external admin), registration and deregistration dates, ABN. Source: ASIC Company Dataset (data.gov.au, CC BY 3.0 AU), monthly snapshot. Example: {acn:\"009661901\"} (Qantas). $0.02.",
+    "parameters": [
+     {
+      "name": "acn",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "9-digit Australian Company Number"
+     },
+     {
+      "name": "abn",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "11-digit ABN (alternative to acn)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "acn": {
+           "type": "string"
+          },
+          "abn": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          },
+          "former_names": {
+           "type": "array"
+          },
+          "type": {
+           "type": "string"
+          },
+          "type_desc": {
+           "type": "string"
+          },
+          "class": {
+           "type": "string"
+          },
+          "status": {
+           "type": "string"
+          },
+          "status_desc": {
+           "type": "string"
+          },
+          "registered": {
+           "type": "string"
+          },
+          "deregistered": {
+           "type": "string"
+          },
+          "source": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.02 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.02",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.02",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "20000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "20000"
+    }
+   },
+   "post": {
+    "summary": "Use this for an Australian company lookup from the ASIC register by ACN or ABN: current name, former names, type (proprietary/public\u2026), class, status (registered/deregistered/strike-off/external admin), registration and deregistration dates, ABN. Source: ASIC Company Dataset (data.gov.au, CC BY 3.0 AU), monthly snapshot. Example: {acn:\"009661901\"} (Qantas). $0.02.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "acn": {
+          "type": "string",
+          "description": "9-digit Australian Company Number"
+         },
+         "abn": {
+          "type": "string",
+          "description": "11-digit ABN (alternative to acn)"
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "acn": {
+           "type": "string"
+          },
+          "abn": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          },
+          "former_names": {
+           "type": "array"
+          },
+          "type": {
+           "type": "string"
+          },
+          "type_desc": {
+           "type": "string"
+          },
+          "class": {
+           "type": "string"
+          },
+          "status": {
+           "type": "string"
+          },
+          "status_desc": {
+           "type": "string"
+          },
+          "registered": {
+           "type": "string"
+          },
+          "deregistered": {
+           "type": "string"
+          },
+          "source": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.02 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.02",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.02",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "20000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "20000"
+    }
+   }
+  },
+  "/ca-company": {
+   "get": {
+    "summary": "Use this for a Canadian federal corporation lookup (Corporations Canada, CBCA + NFP/coop/BOTA) by corporation number or 9-digit Business Number (BN): legal name (EN/FR), governing act, status, anniversary date, last annual filing year, last AGM, registered office address, min/max directors. Source: Corporations Canada open data (OGL-Canada), ~697k active corporations. Example: {number:\"8660115\"}. $0.02.",
+    "parameters": [
+     {
+      "name": "number",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Corporations Canada corporation number (up to 8 digits)"
+     },
+     {
+      "name": "bn",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "9-digit CRA Business Number (alternative)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "corporation_number": {
+           "type": "string"
+          },
+          "business_number": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          },
+          "name_alt": {
+           "type": "string"
+          },
+          "governing_legislation": {
+           "type": "string"
+          },
+          "status": {
+           "type": "string"
+          },
+          "status_detail": {
+           "type": "string"
+          },
+          "anniversary_date": {
+           "type": "string"
+          },
+          "last_annual_filing_year": {
+           "type": "string"
+          },
+          "last_annual_meeting": {
+           "type": "string"
+          },
+          "registered_office": {
+           "type": "string"
+          },
+          "directors_min": {
+           "type": "number"
+          },
+          "directors_max": {
+           "type": "number"
+          },
+          "matches": {
+           "type": "array"
+          },
+          "source": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.02 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.02",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.02",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "20000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "20000"
+    }
+   },
+   "post": {
+    "summary": "Use this for a Canadian federal corporation lookup (Corporations Canada, CBCA + NFP/coop/BOTA) by corporation number or 9-digit Business Number (BN): legal name (EN/FR), governing act, status, anniversary date, last annual filing year, last AGM, registered office address, min/max directors. Source: Corporations Canada open data (OGL-Canada), ~697k active corporations. Example: {number:\"8660115\"}. $0.02.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "number": {
+          "type": "string",
+          "description": "Corporations Canada corporation number (up to 8 digits)"
+         },
+         "bn": {
+          "type": "string",
+          "description": "9-digit CRA Business Number (alternative)"
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "corporation_number": {
+           "type": "string"
+          },
+          "business_number": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          },
+          "name_alt": {
+           "type": "string"
+          },
+          "governing_legislation": {
+           "type": "string"
+          },
+          "status": {
+           "type": "string"
+          },
+          "status_detail": {
+           "type": "string"
+          },
+          "anniversary_date": {
+           "type": "string"
+          },
+          "last_annual_filing_year": {
+           "type": "string"
+          },
+          "last_annual_meeting": {
+           "type": "string"
+          },
+          "registered_office": {
+           "type": "string"
+          },
+          "directors_min": {
+           "type": "number"
+          },
+          "directors_max": {
+           "type": "number"
+          },
+          "matches": {
+           "type": "array"
+          },
+          "source": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.02 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.02",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.02",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "20000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "20000"
+    }
+   }
+  },
+  "/fr-company": {
+   "get": {
+    "summary": "Use this for a French company lookup from the official API Recherche d'entreprises (INSEE/RNE): legal name, SIREN/SIRET si\u00e8ge, status, NAF activity, dirigeants, employee band, optional finances, red flags. Search by siren, siret, or name. Example: {siren:\"443061841\"} (Google France) or {name:\"AXA\"}. $0.25.",
+    "parameters": [
+     {
+      "name": "siren",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "French SIREN (9 digits)"
+     },
+     {
+      "name": "siret",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "French SIRET (14 digits)"
+     },
+     {
+      "name": "name",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Company name search"
+     },
+     {
+      "name": "q",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Alias of name"
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Name-search matches (1-10, default 5)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "siren": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          },
+          "status": {
+           "type": "string"
+          },
+          "status_label": {
+           "type": "string"
+          },
+          "activity_code": {
+           "type": "string"
+          },
+          "siege": {
+           "type": "object"
+          },
+          "dirigeants": {
+           "type": "array"
+          },
+          "red_flags": {
+           "type": "array"
+          },
+          "source": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.25 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.25",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.25",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "250000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "250000"
+    }
+   },
+   "post": {
+    "summary": "Use this for a French company lookup from the official API Recherche d'entreprises (INSEE/RNE): legal name, SIREN/SIRET si\u00e8ge, status, NAF activity, dirigeants, employee band, optional finances, red flags. Search by siren, siret, or name. Example: {siren:\"443061841\"} (Google France) or {name:\"AXA\"}. $0.25.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "siren": {
+          "type": "string",
+          "description": "French SIREN (9 digits)"
+         },
+         "siret": {
+          "type": "string",
+          "description": "French SIRET (14 digits)"
+         },
+         "name": {
+          "type": "string",
+          "description": "Company name search"
+         },
+         "q": {
+          "type": "string",
+          "description": "Alias of name"
+         },
+         "limit": {
+          "type": "integer",
+          "description": "Name-search matches (1-10, default 5)"
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "siren": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          },
+          "status": {
+           "type": "string"
+          },
+          "status_label": {
+           "type": "string"
+          },
+          "activity_code": {
+           "type": "string"
+          },
+          "siege": {
+           "type": "object"
+          },
+          "dirigeants": {
+           "type": "array"
+          },
+          "red_flags": {
+           "type": "array"
+          },
+          "source": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.25 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.25",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.25",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "250000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "250000"
+    }
+   }
+  },
+  "/registry-batch": {
+   "get": {
+    "summary": "Use this to verify up to 25 UK (Companies House, max 10), Australian (ASIC, ACN/ABN), Canadian (Corporations Canada, corp number/BN) and French (SIREN via Recherche d'entreprises) companies in one call: name, status, type/act, dates, office, UK compliance/red flags (lite). Not-found IDs reported inline. ~$0.012/company vs $0.02-0.05 single. Example: {uk:\"00445790\", au:\"009661901\", ca:\"8660115\", fr:\"443061841\"}. $0.30.",
+    "parameters": [
+     {
+      "name": "uk",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Comma-separated UK company numbers (max 10, e.g. 00445790, SC123456)"
+     },
+     {
+      "name": "au",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Comma-separated ACNs (9) or ABNs (11)"
+     },
+     {
+      "name": "ca",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Comma-separated Canadian corporation numbers or 9-digit BNs"
+     },
+     {
+      "name": "fr",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Comma-separated French SIREN (9 digits)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "count": {
+           "type": "number"
+          },
+          "found": {
+           "type": "number"
+          },
+          "results": {
+           "type": "array"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.30 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.30",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.30",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "300000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "300000"
+    }
+   },
+   "post": {
+    "summary": "Use this to verify up to 25 UK (Companies House, max 10), Australian (ASIC, ACN/ABN), Canadian (Corporations Canada, corp number/BN) and French (SIREN via Recherche d'entreprises) companies in one call: name, status, type/act, dates, office, UK compliance/red flags (lite). Not-found IDs reported inline. ~$0.012/company vs $0.02-0.05 single. Example: {uk:\"00445790\", au:\"009661901\", ca:\"8660115\", fr:\"443061841\"}. $0.30.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "uk": {
+          "type": "string",
+          "description": "Comma-separated UK company numbers (max 10, e.g. 00445790, SC123456)"
+         },
+         "au": {
+          "type": "string",
+          "description": "Comma-separated ACNs (9) or ABNs (11)"
+         },
+         "ca": {
+          "type": "string",
+          "description": "Comma-separated Canadian corporation numbers or 9-digit BNs"
+         },
+         "fr": {
+          "type": "string",
+          "description": "Comma-separated French SIREN (9 digits)"
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "count": {
+           "type": "number"
+          },
+          "found": {
+           "type": "number"
+          },
+          "results": {
+           "type": "array"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.30 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.30",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.30",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "300000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "300000"
+    }
+   }
+  },
   "/read": {
    "get": {
     "summary": "Use this when you need the clean text of a public web page as Markdown + metadata (title, author, date, language, word count, links). Better than raw fetch/HTML: Readability extraction, structured JSON, ~1s. Example in: {url:\"https://example.com\"} \u2192 {title, markdown, word_count, links}. $0.002 USDC.",
@@ -614,6 +1381,1106 @@
     }
    }
   },
+  "/email-check": {
+   "get": {
+    "summary": "Use this to validate an email address before outreach or onboarding: RFC-ish syntax, MX/A via DNS-over-HTTPS, disposable/temp domain heuristics, free-provider and role-account flags, mail-host provider guess, score + verdict. No SMTP probe. Example: {email:\"info@stripe.com\"}. $0.002.",
+    "parameters": [
+     {
+      "name": "email",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Email address to validate"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "email": {
+           "type": "string"
+          },
+          "syntax_ok": {
+           "type": "boolean"
+          },
+          "verdict": {
+           "type": "string"
+          },
+          "score": {
+           "type": "number"
+          },
+          "flags": {
+           "type": "array"
+          },
+          "checks": {
+           "type": "object"
+          },
+          "provider": {
+           "type": "string"
+          },
+          "mx_hosts": {
+           "type": "array"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.002 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.002",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.002",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "2000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "2000"
+    }
+   },
+   "post": {
+    "summary": "Use this to validate an email address before outreach or onboarding: RFC-ish syntax, MX/A via DNS-over-HTTPS, disposable/temp domain heuristics, free-provider and role-account flags, mail-host provider guess, score + verdict. No SMTP probe. Example: {email:\"info@stripe.com\"}. $0.002.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "email": {
+          "type": "string",
+          "description": "Email address to validate"
+         }
+        },
+        "required": [
+         "email"
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "email": {
+           "type": "string"
+          },
+          "syntax_ok": {
+           "type": "boolean"
+          },
+          "verdict": {
+           "type": "string"
+          },
+          "score": {
+           "type": "number"
+          },
+          "flags": {
+           "type": "array"
+          },
+          "checks": {
+           "type": "object"
+          },
+          "provider": {
+           "type": "string"
+          },
+          "mx_hosts": {
+           "type": "array"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.002 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.002",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.002",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "2000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "2000"
+    }
+   }
+  },
+  "/domain": {
+   "get": {
+    "summary": "Standalone RDAP domain registration lookup: registrar, registered, expires, age_days, status flags. Free upstream (rdap.org / Nominet for .uk). Example: {domain:\"stripe.com\"}. $0.002.",
+    "parameters": [
+     {
+      "name": "domain",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Domain name, e.g. stripe.com"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "domain": {
+           "type": "string"
+          },
+          "registrar": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "registered": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "expires": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "age_days": {
+           "type": [
+            "integer",
+            "null"
+           ]
+          },
+          "status": {
+           "type": "array"
+          },
+          "flags": {
+           "type": "array"
+          },
+          "sources": {
+           "type": "object"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.002 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.002",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.002",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "2000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "2000"
+    }
+   },
+   "post": {
+    "summary": "Standalone RDAP domain registration lookup: registrar, registered, expires, age_days, status flags. Free upstream (rdap.org / Nominet for .uk). Example: {domain:\"stripe.com\"}. $0.002.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "domain": {
+          "type": "string",
+          "description": "Domain name, e.g. stripe.com"
+         }
+        },
+        "required": [
+         "domain"
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "domain": {
+           "type": "string"
+          },
+          "registrar": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "registered": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "expires": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "age_days": {
+           "type": [
+            "integer",
+            "null"
+           ]
+          },
+          "status": {
+           "type": "array"
+          },
+          "flags": {
+           "type": "array"
+          },
+          "sources": {
+           "type": "object"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.002 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.002",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.002",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "2000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "2000"
+    }
+   }
+  },
+  "/dns": {
+   "get": {
+    "summary": "DNS resolve via Cloudflare DoH: A/AAAA/MX/TXT/NS/CNAME (or single type=). Public DNS only, not authoritative. Accepts domain= as alias of name=. Example: {name:\"example.com\"} or {domain:\"example.com\",type:\"MX\"}. $0.001.",
+    "parameters": [
+     {
+      "name": "name",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Hostname to resolve, e.g. example.com"
+     },
+     {
+      "name": "domain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Alias for name"
+     },
+     {
+      "name": "type",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Optional DNS type or comma list: A,AAAA,MX,TXT,NS,CNAME (default all of those); also SOA,PTR,CAA"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "name": {
+           "type": "string"
+          },
+          "type": {},
+          "records": {
+           "type": "object"
+          },
+          "flags": {
+           "type": "array"
+          },
+          "sources": {
+           "type": "object"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.001",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "1000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "1000"
+    }
+   },
+   "post": {
+    "summary": "DNS resolve via Cloudflare DoH: A/AAAA/MX/TXT/NS/CNAME (or single type=). Public DNS only, not authoritative. Accepts domain= as alias of name=. Example: {name:\"example.com\"} or {domain:\"example.com\",type:\"MX\"}. $0.001.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "name": {
+          "type": "string",
+          "description": "Hostname to resolve, e.g. example.com"
+         },
+         "domain": {
+          "type": "string",
+          "description": "Alias for name"
+         },
+         "type": {
+          "type": "string",
+          "description": "Optional DNS type or comma list: A,AAAA,MX,TXT,NS,CNAME (default all of those); also SOA,PTR,CAA"
+         }
+        },
+        "required": [
+         "name"
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "name": {
+           "type": "string"
+          },
+          "type": {},
+          "records": {
+           "type": "object"
+          },
+          "flags": {
+           "type": "array"
+          },
+          "sources": {
+           "type": "object"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.001",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "1000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "1000"
+    }
+   }
+  },
+  "/redirects": {
+   "get": {
+    "summary": "Unwrap URL redirects / short links: follow http(s) Location hops with SSRF guards, return final_url + chain (no body download). Not a malware verdict. Example: {url:\"https://bit.ly/...\"} or {url:\"example.com\"}. $0.001.",
+    "parameters": [
+     {
+      "name": "url",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Public http(s) URL to fetch"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "url": {
+           "type": "string"
+          },
+          "final_url": {
+           "type": "string"
+          },
+          "status": {
+           "type": [
+            "integer",
+            "null"
+           ]
+          },
+          "hops": {
+           "type": "integer"
+          },
+          "redirect_count": {
+           "type": "integer"
+          },
+          "chain": {
+           "type": "array",
+           "items": {
+            "type": "object",
+            "properties": {
+             "url": {
+              "type": "string"
+             },
+             "status": {
+              "type": "integer"
+             }
+            }
+           }
+          },
+          "content_type": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "ok": {
+           "type": "boolean"
+          },
+          "truncated_chain": {
+           "type": "boolean"
+          },
+          "disclaimer": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.001",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "1000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "1000"
+    }
+   },
+   "post": {
+    "summary": "Unwrap URL redirects / short links: follow http(s) Location hops with SSRF guards, return final_url + chain (no body download). Not a malware verdict. Example: {url:\"https://bit.ly/...\"} or {url:\"example.com\"}. $0.001.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Public http(s) URL to fetch"
+         }
+        },
+        "required": [
+         "url"
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "url": {
+           "type": "string"
+          },
+          "final_url": {
+           "type": "string"
+          },
+          "status": {
+           "type": [
+            "integer",
+            "null"
+           ]
+          },
+          "hops": {
+           "type": "integer"
+          },
+          "redirect_count": {
+           "type": "integer"
+          },
+          "chain": {
+           "type": "array",
+           "items": {
+            "type": "object",
+            "properties": {
+             "url": {
+              "type": "string"
+             },
+             "status": {
+              "type": "integer"
+             }
+            }
+           }
+          },
+          "content_type": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "ok": {
+           "type": "boolean"
+          },
+          "truncated_chain": {
+           "type": "boolean"
+          },
+          "disclaimer": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.001",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "1000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "1000"
+    }
+   }
+  },
+  "/meta": {
+   "get": {
+    "summary": "Lightweight page metadata for agents: title, description, canonical, Open Graph + Twitter card tags, favicons, JSON-LD @types, h1/h2. Cheaper/faster than /read when you do not need Markdown body. Example: {url:\"https://example.com\"}. $0.001.",
+    "parameters": [
+     {
+      "name": "url",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Public http(s) URL to fetch"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "url": {
+           "type": "string"
+          },
+          "final_url": {
+           "type": "string"
+          },
+          "title": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "description": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "canonical_url": {
+           "type": "string"
+          },
+          "language": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "site_name": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "og": {
+           "type": "object"
+          },
+          "twitter": {
+           "type": "object"
+          },
+          "favicons": {
+           "type": "array",
+           "items": {
+            "type": "string"
+           }
+          },
+          "json_ld_types": {
+           "type": "array",
+           "items": {
+            "type": "string"
+           }
+          },
+          "headings": {
+           "type": "object"
+          },
+          "disclaimer": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.001",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "1000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "1000"
+    }
+   },
+   "post": {
+    "summary": "Lightweight page metadata for agents: title, description, canonical, Open Graph + Twitter card tags, favicons, JSON-LD @types, h1/h2. Cheaper/faster than /read when you do not need Markdown body. Example: {url:\"https://example.com\"}. $0.001.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Public http(s) URL to fetch"
+         }
+        },
+        "required": [
+         "url"
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "url": {
+           "type": "string"
+          },
+          "final_url": {
+           "type": "string"
+          },
+          "title": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "description": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "canonical_url": {
+           "type": "string"
+          },
+          "language": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "site_name": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "og": {
+           "type": "object"
+          },
+          "twitter": {
+           "type": "object"
+          },
+          "favicons": {
+           "type": "array",
+           "items": {
+            "type": "string"
+           }
+          },
+          "json_ld_types": {
+           "type": "array",
+           "items": {
+            "type": "string"
+           }
+          },
+          "headings": {
+           "type": "object"
+          },
+          "disclaimer": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.001",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "1000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "1000"
+    }
+   }
+  },
+  "/headers": {
+   "get": {
+    "summary": "HTTP security headers audit for agents: HSTS/CSP/XFO/XCTO/Referrer/Permissions/COOP/CORP/COEP + score (SSRF-safe HEAD\u2192GET). Not a pen-test. Example: {url:\"https://example.com\"} or {domain:\"example.com\"}. $0.001.",
+    "parameters": [
+     {
+      "name": "url",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Public http(s) URL (or pass domain=)"
+     },
+     {
+      "name": "domain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Hostname, normalized to https://"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "url": {
+           "type": "string"
+          },
+          "final_url": {
+           "type": "string"
+          },
+          "status": {
+           "type": "integer"
+          },
+          "headers": {
+           "type": "object"
+          },
+          "missing_critical": {
+           "type": "array",
+           "items": {
+            "type": "string"
+           }
+          },
+          "ok": {
+           "type": "object"
+          },
+          "score": {
+           "type": "integer"
+          },
+          "disclaimer": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.001",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "1000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "1000"
+    }
+   },
+   "post": {
+    "summary": "HTTP security headers audit for agents: HSTS/CSP/XFO/XCTO/Referrer/Permissions/COOP/CORP/COEP + score (SSRF-safe HEAD\u2192GET). Not a pen-test. Example: {url:\"https://example.com\"} or {domain:\"example.com\"}. $0.001.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "url": {
+          "type": "string",
+          "description": "Public http(s) URL (or pass domain=)"
+         },
+         "domain": {
+          "type": "string",
+          "description": "Hostname, normalized to https://"
+         }
+        },
+        "anyOf": [
+         {
+          "required": [
+           "url"
+          ]
+         },
+         {
+          "required": [
+           "domain"
+          ]
+         }
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "url": {
+           "type": "string"
+          },
+          "final_url": {
+           "type": "string"
+          },
+          "status": {
+           "type": "integer"
+          },
+          "headers": {
+           "type": "object"
+          },
+          "missing_critical": {
+           "type": "array",
+           "items": {
+            "type": "string"
+           }
+          },
+          "ok": {
+           "type": "object"
+          },
+          "score": {
+           "type": "integer"
+          },
+          "disclaimer": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.001",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "1000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "1000"
+    }
+   }
+  },
   "/company": {
    "get": {
     "summary": "Use this when researching any company from its website domain \u2014 not Companies House. Returns sourced tech stack, socials, emails/phones, DNS/MX/SPF/DMARC, RDAP age/registrar, SSL, sitemap, news. No LLM inventing facts. Example: {domain:\"stripe.com\"} \u2192 {homepage, tech_stack, contacts, dns, news, sources}. Prefer /uk-company* for UK filings. $0.25.",
@@ -829,6 +2696,15 @@
       "description": "UK Companies House number, e.g. 00445790"
      },
      {
+      "name": "company_number",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Alias of number (Companies House field name)"
+     },
+     {
       "name": "name",
       "in": "query",
       "required": false,
@@ -919,6 +2795,10 @@
           "type": "string",
           "description": "UK Companies House number, e.g. 00445790"
          },
+         "company_number": {
+          "type": "string",
+          "description": "Alias of number (Companies House field name)"
+         },
          "name": {
           "type": "string",
           "description": "Registered company name to search"
@@ -928,6 +2808,11 @@
          {
           "required": [
            "number"
+          ]
+         },
+         {
+          "required": [
+           "company_number"
           ]
          },
          {
@@ -1022,6 +2907,15 @@
        "type": "string"
       },
       "description": "UK Companies House number, e.g. 00445790"
+     },
+     {
+      "name": "company_number",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Alias of number (Companies House field name)"
      },
      {
       "name": "name",
@@ -1123,6 +3017,10 @@
           "type": "string",
           "description": "UK Companies House number, e.g. 00445790"
          },
+         "company_number": {
+          "type": "string",
+          "description": "Alias of number (Companies House field name)"
+         },
          "name": {
           "type": "string",
           "description": "Registered company name to search"
@@ -1132,6 +3030,11 @@
          {
           "required": [
            "number"
+          ]
+         },
+         {
+          "required": [
+           "company_number"
           ]
          },
          {
@@ -1848,6 +3751,15 @@
       "description": "0x EVM wallet address"
      },
      {
+      "name": "wallet",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Alias for address"
+     },
+     {
       "name": "chain",
       "in": "query",
       "required": false,
@@ -1937,6 +3849,10 @@
          "address": {
           "type": "string",
           "description": "0x EVM wallet address"
+         },
+         "wallet": {
+          "type": "string",
+          "description": "Alias for address"
          },
          "chain": {
           "type": "string",
@@ -2796,6 +4712,15 @@
       "description": "0x ERC20 token contract"
      },
      {
+      "name": "wallet",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Alias for address"
+     },
+     {
       "name": "chain",
       "in": "query",
       "required": false,
@@ -2879,6 +4804,10 @@
          "address": {
           "type": "string",
           "description": "0x ERC20 token contract"
+         },
+         "wallet": {
+          "type": "string",
+          "description": "Alias for address"
          },
          "chain": {
           "type": "string",
@@ -3174,6 +5103,15 @@
       "description": "0x address to inspect"
      },
      {
+      "name": "wallet",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Alias for address"
+     },
+     {
       "name": "chain",
       "in": "query",
       "required": false,
@@ -3260,6 +5198,10 @@
          "address": {
           "type": "string",
           "description": "0x address to inspect"
+         },
+         "wallet": {
+          "type": "string",
+          "description": "Alias for address"
          },
          "chain": {
           "type": "string",
@@ -5371,6 +7313,660 @@
     }
    }
   },
+  "/lei": {
+   "get": {
+    "summary": "Use this for a GLEIF Legal Entity Identifier lookup (CC0, no key): lei / name / registered_as (+ optional country). ALWAYS returns parents.direct + parents.ultimate (null if unreported), BIC/mapped ids, legal/hq address, status, jurisdiction. Soft-cached 24h. Path alias /lei/{lei}. Upsell /lei-full $0.05 for up to 10 name matches each with parents. Example: {lei:\"HWUPKR0MPOU8FGXBT394\"}. $0.005.",
+    "parameters": [
+     {
+      "name": "lei",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "20-char Legal Entity Identifier, e.g. HWUPKR0MPOU8FGXBT394"
+     },
+     {
+      "name": "name",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Legal name search (best match)"
+     },
+     {
+      "name": "registered_as",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "National registration number"
+     },
+     {
+      "name": "country",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Optional ISO2 with name/registered_as"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "lei": {
+           "type": "string"
+          },
+          "legal_name": {},
+          "status": {
+           "type": "object"
+          },
+          "jurisdiction": {},
+          "legal_form": {},
+          "legal_address": {},
+          "hq_address": {},
+          "registered_as": {},
+          "registration_authority": {},
+          "bic": {},
+          "identifiers": {
+           "type": "array"
+          },
+          "parents": {
+           "type": "object",
+           "properties": {
+            "direct": {},
+            "ultimate": {}
+           }
+          },
+          "creation_date": {},
+          "next_renewal": {},
+          "source": {
+           "type": "string"
+          },
+          "fetched_at": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.005 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.005",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.005",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "5000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "5000"
+    }
+   },
+   "post": {
+    "summary": "Use this for a GLEIF Legal Entity Identifier lookup (CC0, no key): lei / name / registered_as (+ optional country). ALWAYS returns parents.direct + parents.ultimate (null if unreported), BIC/mapped ids, legal/hq address, status, jurisdiction. Soft-cached 24h. Path alias /lei/{lei}. Upsell /lei-full $0.05 for up to 10 name matches each with parents. Example: {lei:\"HWUPKR0MPOU8FGXBT394\"}. $0.005.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "lei": {
+          "type": "string",
+          "description": "20-char Legal Entity Identifier, e.g. HWUPKR0MPOU8FGXBT394"
+         },
+         "name": {
+          "type": "string",
+          "description": "Legal name search (best match)"
+         },
+         "registered_as": {
+          "type": "string",
+          "description": "National registration number"
+         },
+         "country": {
+          "type": "string",
+          "description": "Optional ISO2 with name/registered_as"
+         }
+        },
+        "anyOf": [
+         {
+          "required": [
+           "lei"
+          ]
+         },
+         {
+          "required": [
+           "name"
+          ]
+         },
+         {
+          "required": [
+           "registered_as"
+          ]
+         }
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "lei": {
+           "type": "string"
+          },
+          "legal_name": {},
+          "status": {
+           "type": "object"
+          },
+          "jurisdiction": {},
+          "legal_form": {},
+          "legal_address": {},
+          "hq_address": {},
+          "registered_as": {},
+          "registration_authority": {},
+          "bic": {},
+          "identifiers": {
+           "type": "array"
+          },
+          "parents": {
+           "type": "object",
+           "properties": {
+            "direct": {},
+            "ultimate": {}
+           }
+          },
+          "creation_date": {},
+          "next_renewal": {},
+          "source": {
+           "type": "string"
+          },
+          "fetched_at": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.005 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.005",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.005",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "5000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "5000"
+    }
+   }
+  },
+  "/lei-full": {
+   "get": {
+    "summary": "Use this to screen a legal name or national reg number against GLEIF: up to 10 ranked candidates, each with parents.direct + parents.ultimate, BIC/ids, jurisdiction/status. Bulk KYB name screening. Single LEI lookups: prefer cheaper /lei $0.005. Example: {name:\"Apple Inc.\",country:\"US\"}. $0.05.",
+    "parameters": [
+     {
+      "name": "name",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Legal name search (up to 10 matches with parents)"
+     },
+     {
+      "name": "registered_as",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "country",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "lei",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Optional single LEI (prefer /lei)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "product": {
+           "type": "string"
+          },
+          "query": {
+           "type": "object"
+          },
+          "count": {
+           "type": "integer"
+          },
+          "total_available": {
+           "type": "integer"
+          },
+          "results": {
+           "type": "array",
+           "items": {
+            "type": "object",
+            "properties": {
+             "lei": {
+              "type": "string"
+             },
+             "legal_name": {},
+             "status": {
+              "type": "object"
+             },
+             "jurisdiction": {},
+             "legal_form": {},
+             "legal_address": {},
+             "hq_address": {},
+             "registered_as": {},
+             "registration_authority": {},
+             "bic": {},
+             "identifiers": {
+              "type": "array"
+             },
+             "parents": {
+              "type": "object",
+              "properties": {
+               "direct": {},
+               "ultimate": {}
+              }
+             },
+             "creation_date": {},
+             "next_renewal": {},
+             "source": {
+              "type": "string"
+             },
+             "fetched_at": {
+              "type": "string"
+             }
+            }
+           }
+          },
+          "source": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.05 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.05",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.05",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "50000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "50000"
+    }
+   },
+   "post": {
+    "summary": "Use this to screen a legal name or national reg number against GLEIF: up to 10 ranked candidates, each with parents.direct + parents.ultimate, BIC/ids, jurisdiction/status. Bulk KYB name screening. Single LEI lookups: prefer cheaper /lei $0.005. Example: {name:\"Apple Inc.\",country:\"US\"}. $0.05.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "name": {
+          "type": "string",
+          "description": "Legal name search (up to 10 matches with parents)"
+         },
+         "registered_as": {
+          "type": "string"
+         },
+         "country": {
+          "type": "string"
+         },
+         "lei": {
+          "type": "string",
+          "description": "Optional single LEI (prefer /lei)"
+         }
+        },
+        "anyOf": [
+         {
+          "required": [
+           "name"
+          ]
+         },
+         {
+          "required": [
+           "registered_as"
+          ]
+         },
+         {
+          "required": [
+           "lei"
+          ]
+         }
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "product": {
+           "type": "string"
+          },
+          "query": {
+           "type": "object"
+          },
+          "count": {
+           "type": "integer"
+          },
+          "total_available": {
+           "type": "integer"
+          },
+          "results": {
+           "type": "array",
+           "items": {
+            "type": "object",
+            "properties": {
+             "lei": {
+              "type": "string"
+             },
+             "legal_name": {},
+             "status": {
+              "type": "object"
+             },
+             "jurisdiction": {},
+             "legal_form": {},
+             "legal_address": {},
+             "hq_address": {},
+             "registered_as": {},
+             "registration_authority": {},
+             "bic": {},
+             "identifiers": {
+              "type": "array"
+             },
+             "parents": {
+              "type": "object",
+              "properties": {
+               "direct": {},
+               "ultimate": {}
+              }
+             },
+             "creation_date": {},
+             "next_renewal": {},
+             "source": {
+              "type": "string"
+             },
+             "fetched_at": {
+              "type": "string"
+             }
+            }
+           }
+          },
+          "source": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.05 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.05",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.05",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "50000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "50000"
+    }
+   }
+  },
+  "/read-batch": {
+   "get": {
+    "summary": "Use this to read up to 8 public URLs in one call (~$0.0019/url vs $0.002 single): Readability markdown + title/word_count per URL, concurrency 4, ~8s timeout, markdown capped. GET urls=comma-list or POST {urls:[...]}. Preview=1: first 2 URLs. Example: {urls:\"https://example.com,https://example.org\"}. $0.015.",
+    "parameters": [
+     {
+      "name": "urls",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Up to 8 http(s) URLs as comma-separated string or JSON array"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "product": {
+           "type": "string"
+          },
+          "count": {
+           "type": "integer"
+          },
+          "ok_count": {
+           "type": "integer"
+          },
+          "results": {
+           "type": "array",
+           "items": {
+            "type": "object",
+            "properties": {
+             "url": {},
+             "ok": {},
+             "error": {},
+             "title": {},
+             "markdown": {},
+             "word_count": {}
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.015 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.015",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.015",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "15000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "15000"
+    }
+   },
+   "post": {
+    "summary": "Use this to read up to 8 public URLs in one call (~$0.0019/url vs $0.002 single): Readability markdown + title/word_count per URL, concurrency 4, ~8s timeout, markdown capped. GET urls=comma-list or POST {urls:[...]}. Preview=1: first 2 URLs. Example: {urls:\"https://example.com,https://example.org\"}. $0.015.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "urls": {
+          "description": "Up to 8 http(s) URLs as comma-separated string or JSON array",
+          "anyOf": [
+           {
+            "type": "string"
+           },
+           {
+            "type": "array",
+            "items": {
+             "type": "string",
+             "format": "uri"
+            }
+           }
+          ]
+         }
+        },
+        "required": [
+         "urls"
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "product": {
+           "type": "string"
+          },
+          "count": {
+           "type": "integer"
+          },
+          "ok_count": {
+           "type": "integer"
+          },
+          "results": {
+           "type": "array",
+           "items": {
+            "type": "object",
+            "properties": {
+             "url": {},
+             "ok": {},
+             "error": {},
+             "title": {},
+             "markdown": {},
+             "word_count": {}
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.015 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.015",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.015",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "15000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "15000"
+    }
+   }
+  },
   "/uk-leads-lite": {
    "get": {
     "summary": "Use this for cheap UK new-incorporation lead lists filtered by SIC and/or location/postcode area (1-7 day lookback). Returns up to 100 companies: number, name, SIC, office, mass-formation flag. No directors. Example: {sic:\"62012\",days:1}. Upsell /uk-leads for directors. $0.25.",
@@ -5888,14 +8484,28 @@
           "type": "string",
           "description": "UK company number"
          },
+         "company_number": {
+          "type": "string",
+          "description": "Alias of number"
+         },
          "webhook": {
           "type": "string",
           "format": "uri"
          }
         },
-        "required": [
-         "number",
-         "webhook"
+        "anyOf": [
+         {
+          "required": [
+           "number",
+           "webhook"
+          ]
+         },
+         {
+          "required": [
+           "company_number",
+           "webhook"
+          ]
+         }
         ]
        }
       }
@@ -5960,9 +8570,217 @@
     }
    }
   },
+  "/uk-dd": {
+   "get": {
+    "summary": "Use this for a UK-only due-diligence job: full Companies House pack (profile/officers/PSC/filings/charges/insolvency/red flags) + public sanctions screen (entity + active officers) + optional domain RDAP/website skim \u2192 composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not regulated KYC/AML. Between /uk-company ($0.50) and /kyb ($2.50). Path alias /uk-dd/{number}. Example: {number:\"00445790\"} or {name:\"TESCO\",domain:\"tesco.com\"}. $1.00.",
+    "parameters": [
+     {
+      "name": "number",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "UK Companies House number, e.g. 00445790"
+     },
+     {
+      "name": "company_number",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Alias of number (Companies House field name)"
+     },
+     {
+      "name": "name",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Registered company name to search"
+     },
+     {
+      "name": "domain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Optional website domain for RDAP / light website skim"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "product": {
+           "type": "string"
+          },
+          "disclaimer": {
+           "type": "string"
+          },
+          "uk": {},
+          "sanctions": {},
+          "domain": {},
+          "website": {},
+          "trust": {
+           "type": "object",
+           "properties": {
+            "flag": {
+             "type": "string"
+            },
+            "score": {
+             "type": "integer"
+            },
+            "reasons": {
+             "type": "array"
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $1.00 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$1.00",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "1.00",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "1000000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "1000000"
+    }
+   },
+   "post": {
+    "summary": "Use this for a UK-only due-diligence job: full Companies House pack (profile/officers/PSC/filings/charges/insolvency/red flags) + public sanctions screen (entity + active officers) + optional domain RDAP/website skim \u2192 composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not regulated KYC/AML. Between /uk-company ($0.50) and /kyb ($2.50). Path alias /uk-dd/{number}. Example: {number:\"00445790\"} or {name:\"TESCO\",domain:\"tesco.com\"}. $1.00.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "number": {
+          "type": "string",
+          "description": "UK Companies House number, e.g. 00445790"
+         },
+         "company_number": {
+          "type": "string",
+          "description": "Alias of number (Companies House field name)"
+         },
+         "name": {
+          "type": "string",
+          "description": "Registered company name to search"
+         },
+         "domain": {
+          "type": "string",
+          "description": "Optional website domain for RDAP / light website skim"
+         }
+        },
+        "anyOf": [
+         {
+          "required": [
+           "number"
+          ]
+         },
+         {
+          "required": [
+           "company_number"
+          ]
+         },
+         {
+          "required": [
+           "name"
+          ]
+         }
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "product": {
+           "type": "string"
+          },
+          "disclaimer": {
+           "type": "string"
+          },
+          "uk": {},
+          "sanctions": {},
+          "domain": {},
+          "website": {},
+          "trust": {
+           "type": "object",
+           "properties": {
+            "flag": {
+             "type": "string"
+            },
+            "score": {
+             "type": "integer"
+            },
+            "reasons": {
+             "type": "array"
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $1.00 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$1.00",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "1.00",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "1000000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "1000000"
+    }
+   }
+  },
   "/kyb": {
    "get": {
-    "summary": "Use this for a one-shot agent KYB/due-diligence pack: optional website research + UK Companies House DD + EU VIES VAT + public sanctions screen (entity + directors) \u2192 composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not a regulated determination. Example: {domain:\"tesco.com\",number:\"00445790\"} or {vat:\"IE6388047V\"}. $2.00.",
+    "summary": "Use this for a one-shot agent KYB/due-diligence pack: optional website research + UK Companies House DD and/or Australia ASIC (acn/abn) and/or Canada Corporations Canada (ca_number/bn) and/or France Recherche d'entreprises (siren/siret) + EU VIES VAT + optional GLEIF LEI (with ownership parents) + public sanctions screen (entity + directors) + director appointment skim (nominee/formation pattern) \u2192 composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not a regulated determination. Example: {domain:\"tesco.com\",number:\"00445790\"} or {siren:\"443061841\"} or {lei:\"HWUPKR0MPOU8FGXBT394\"}. $2.50.",
     "parameters": [
      {
       "name": "domain",
@@ -5979,6 +8797,15 @@
       "schema": {
        "type": "string"
       }
+     },
+     {
+      "name": "company_number",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Alias of number"
      },
      {
       "name": "name",
@@ -6011,6 +8838,60 @@
       "schema": {
        "type": "string"
       }
+     },
+     {
+      "name": "acn",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Australian ACN/ABN"
+     },
+     {
+      "name": "ca_number",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Canadian corporation number"
+     },
+     {
+      "name": "bn",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Canadian 9-digit BN"
+     },
+     {
+      "name": "lei",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Optional 20-char GLEIF LEI (attaches parents)"
+     },
+     {
+      "name": "siren",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "French SIREN (9 digits)"
+     },
+     {
+      "name": "siret",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "French SIRET (14 digits)"
      }
     ],
     "responses": {
@@ -6030,6 +8911,7 @@
           "website": {},
           "uk": {},
           "eu_vat": {},
+          "lei": {},
           "trust": {
            "type": "object",
            "properties": {
@@ -6053,27 +8935,27 @@
       "description": "Bad input"
      },
      "402": {
-      "description": "Payment required: $2.00 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+      "description": "Payment required: $2.50 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
      }
     },
-    "x-price": "$2.00",
+    "x-price": "$2.50",
     "x-payment-info": {
      "mode": "fixed",
      "currency": "USD",
-     "amount": "2.00",
+     "amount": "2.50",
      "network": "eip155:8453",
      "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
      "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
-     "amountAtomic": "2000000"
+     "amountAtomic": "2500000"
     },
     "x-402": {
      "network": "eip155:8453",
      "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-     "amount": "2000000"
+     "amount": "2500000"
     }
    },
    "post": {
-    "summary": "Use this for a one-shot agent KYB/due-diligence pack: optional website research + UK Companies House DD + EU VIES VAT + public sanctions screen (entity + directors) \u2192 composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not a regulated determination. Example: {domain:\"tesco.com\",number:\"00445790\"} or {vat:\"IE6388047V\"}. $2.00.",
+    "summary": "Use this for a one-shot agent KYB/due-diligence pack: optional website research + UK Companies House DD and/or Australia ASIC (acn/abn) and/or Canada Corporations Canada (ca_number/bn) and/or France Recherche d'entreprises (siren/siret) + EU VIES VAT + optional GLEIF LEI (with ownership parents) + public sanctions screen (entity + directors) + director appointment skim (nominee/formation pattern) \u2192 composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not a regulated determination. Example: {domain:\"tesco.com\",number:\"00445790\"} or {siren:\"443061841\"} or {lei:\"HWUPKR0MPOU8FGXBT394\"}. $2.50.",
     "requestBody": {
      "content": {
       "application/json": {
@@ -6086,6 +8968,10 @@
          "number": {
           "type": "string"
          },
+         "company_number": {
+          "type": "string",
+          "description": "Alias of number"
+         },
          "name": {
           "type": "string"
          },
@@ -6097,9 +8983,33 @@
          },
          "vat_number": {
           "type": "string"
+         },
+         "acn": {
+          "type": "string",
+          "description": "Australian ACN/ABN"
+         },
+         "ca_number": {
+          "type": "string",
+          "description": "Canadian corporation number"
+         },
+         "bn": {
+          "type": "string",
+          "description": "Canadian 9-digit BN"
+         },
+         "lei": {
+          "type": "string",
+          "description": "Optional 20-char GLEIF LEI (attaches parents)"
+         },
+         "siren": {
+          "type": "string",
+          "description": "French SIREN (9 digits)"
+         },
+         "siret": {
+          "type": "string",
+          "description": "French SIRET (14 digits)"
          }
         },
-        "description": "Provide domain and/or UK number/name and/or EU vat"
+        "description": "Provide domain and/or UK number/name and/or AU/CA/FR registry ids and/or EU vat and/or lei"
        }
       }
      }
@@ -6121,6 +9031,7 @@
           "website": {},
           "uk": {},
           "eu_vat": {},
+          "lei": {},
           "trust": {
            "type": "object",
            "properties": {
@@ -6144,23 +9055,23 @@
       "description": "Bad input"
      },
      "402": {
-      "description": "Payment required: $2.00 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+      "description": "Payment required: $2.50 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
      }
     },
-    "x-price": "$2.00",
+    "x-price": "$2.50",
     "x-payment-info": {
      "mode": "fixed",
      "currency": "USD",
-     "amount": "2.00",
+     "amount": "2.50",
      "network": "eip155:8453",
      "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
      "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
-     "amountAtomic": "2000000"
+     "amountAtomic": "2500000"
     },
     "x-402": {
      "network": "eip155:8453",
      "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-     "amount": "2000000"
+     "amount": "2500000"
     }
    }
   },
@@ -6532,6 +9443,180 @@
     }
    }
   },
+  "/uk-officer": {
+   "get": {
+    "summary": "Use this to reverse-search a UK Companies House officer name to their appointments (company_number, role, appointed/resigned, status). Returns matches with address_snippet, appointment_count, DOB month/year, heuristic high-appointment / mass-formation flags. Public register (OGL); screening/research aid only - not a credit check. Example: {name:\"Ken Olisa\",limit:10}. $0.15.",
+    "parameters": [
+     {
+      "name": "name",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Officer name to search (2-100 chars), e.g. Ken Olisa"
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Max officer matches 1-25 (default 10)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "product": {
+           "type": "string"
+          },
+          "disclaimer": {
+           "type": "string"
+          },
+          "query": {
+           "type": "object"
+          },
+          "hits_total": {
+           "type": "integer"
+          },
+          "returned": {
+           "type": "integer"
+          },
+          "officers": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          },
+          "notes": {
+           "type": "array"
+          },
+          "attribution": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.15 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.15",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.15",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "150000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "150000"
+    }
+   },
+   "post": {
+    "summary": "Use this to reverse-search a UK Companies House officer name to their appointments (company_number, role, appointed/resigned, status). Returns matches with address_snippet, appointment_count, DOB month/year, heuristic high-appointment / mass-formation flags. Public register (OGL); screening/research aid only - not a credit check. Example: {name:\"Ken Olisa\",limit:10}. $0.15.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "name": {
+          "type": "string",
+          "description": "Officer name to search (2-100 chars), e.g. Ken Olisa"
+         },
+         "limit": {
+          "type": "integer",
+          "description": "Max officer matches 1-25 (default 10)"
+         }
+        },
+        "required": [
+         "name"
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "product": {
+           "type": "string"
+          },
+          "disclaimer": {
+           "type": "string"
+          },
+          "query": {
+           "type": "object"
+          },
+          "hits_total": {
+           "type": "integer"
+          },
+          "returned": {
+           "type": "integer"
+          },
+          "officers": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          },
+          "notes": {
+           "type": "array"
+          },
+          "attribution": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.15 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.15",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.15",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "150000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "150000"
+    }
+   }
+  },
   "/chain/erc20-balance": {
    "get": {
     "summary": "ERC20 token balance for any wallet on Base/Ethereum/Arbitrum/Optimism/Polygon via balanceOf (eth_call). Returns raw + decimal-formatted balance, symbol, decimals, block. Example: {address:\"0xd8dA\u20266045\", token:\"0x8335\u20262913\", chain:\"base\"}. $0.001.",
@@ -6562,6 +9647,15 @@
        "type": "string"
       },
       "description": "EVM chain (default base)"
+     },
+     {
+      "name": "wallet",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Alias for address (owner wallet)"
      }
     ],
     "responses": {
@@ -6643,6 +9737,10 @@
            "polygon"
           ],
           "description": "EVM chain (default base)"
+         },
+         "wallet": {
+          "type": "string",
+          "description": "Alias for address (owner wallet)"
          }
         },
         "required": [
@@ -6735,6 +9833,15 @@
        "type": "string"
       },
       "description": "Block number or tag (default latest)"
+     },
+     {
+      "name": "wallet",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Alias for address (owner wallet)"
      }
     ],
     "responses": {
@@ -6812,6 +9919,10 @@
          "block": {
           "type": "string",
           "description": "Block number or tag (default latest)"
+         },
+         "wallet": {
+          "type": "string",
+          "description": "Alias for address (owner wallet)"
          }
         },
         "required": [
@@ -6867,6 +9978,197 @@
      "network": "eip155:8453",
      "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
      "amount": "1000"
+    }
+   }
+  },
+  "/chain/live-balance": {
+   "get": {
+    "summary": "Live wallet balance \u2014 native ETH/POL plus up to 20 caller-supplied ERC20 tokens in one RPC batch (balanceOf + decimals + symbol). No hardcoded majors (use /wallet $0.003 for USDC/USDT/DAI/WETH pack). Example: {address:\"0xd8dA\u20266045\", tokens:\"0xdAC1\u20261ec7,0xA0b8\u2026eB48\", chain:\"ethereum\"}. $0.002.",
+    "parameters": [
+     {
+      "name": "address",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Wallet address"
+     },
+     {
+      "name": "tokens",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Comma-separated ERC20 contracts (max 20)"
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "EVM chain (default base)"
+     },
+     {
+      "name": "network",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Alias for chain (onesource-compatible)"
+     },
+     {
+      "name": "wallet",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Alias for address (owner wallet)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "native": {
+           "type": "object"
+          },
+          "tokens": {
+           "type": "array"
+          },
+          "block": {
+           "type": "number"
+          },
+          "tokens_requested": {
+           "type": "number"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.002 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.002",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.002",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "2000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "2000"
+    }
+   },
+   "post": {
+    "summary": "Live wallet balance \u2014 native ETH/POL plus up to 20 caller-supplied ERC20 tokens in one RPC batch (balanceOf + decimals + symbol). No hardcoded majors (use /wallet $0.003 for USDC/USDT/DAI/WETH pack). Example: {address:\"0xd8dA\u20266045\", tokens:\"0xdAC1\u20261ec7,0xA0b8\u2026eB48\", chain:\"ethereum\"}. $0.002.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "address": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{40}$",
+          "description": "Wallet address"
+         },
+         "tokens": {
+          "type": "string",
+          "description": "Comma-separated ERC20 contracts (max 20)"
+         },
+         "chain": {
+          "type": "string",
+          "enum": [
+           "base",
+           "ethereum",
+           "arbitrum",
+           "optimism",
+           "polygon"
+          ],
+          "description": "EVM chain (default base)"
+         },
+         "network": {
+          "type": "string",
+          "description": "Alias for chain (onesource-compatible)"
+         },
+         "wallet": {
+          "type": "string",
+          "description": "Alias for address (owner wallet)"
+         }
+        },
+        "required": [
+         "address"
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "native": {
+           "type": "object"
+          },
+          "tokens": {
+           "type": "array"
+          },
+          "block": {
+           "type": "number"
+          },
+          "tokens_requested": {
+           "type": "number"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.002 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.002",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.002",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "2000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "2000"
     }
    }
   },
@@ -7038,6 +10340,15 @@
        "type": "string"
       },
       "description": "EVM chain (default base)"
+     },
+     {
+      "name": "wallet",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Alias for address (owner wallet)"
      }
     ],
     "responses": {
@@ -7108,6 +10419,10 @@
            "polygon"
           ],
           "description": "EVM chain (default base)"
+         },
+         "wallet": {
+          "type": "string",
+          "description": "Alias for address (owner wallet)"
          }
         },
         "required": [
@@ -7323,7 +10638,7 @@
   },
   "/chain/erc20-transfers": {
    "get": {
-    "summary": "ERC20 Transfer events for a token and/or wallet via eth_getLogs, decoded (from, to, amount with decimals, tx hash, block). Default last 1000 blocks, max 5000. Example: {token:\"0x8335\u20262913\", address:\"0x88b1\u20263ff6\", chain:\"base\"} \u2192 newest first. Use it to confirm incoming payments. $0.003.",
+    "summary": "ERC20 Transfer events for a token and/or wallet via eth_getLogs, decoded (from, to, amount with decimals, tx hash, block). Default last 100 blocks, max 5000. Public RPCs need a contract filter: pass token=; if only wallet address is given, known chain tokens (USDC/WETH/\u2026) are scanned. Example: {token:\"0x8335\u20262913\", address:\"0x88b1\u20263ff6\", chain:\"base\"}. $0.003.",
     "parameters": [
      {
       "name": "token",
@@ -7332,7 +10647,7 @@
       "schema": {
        "type": "string"
       },
-      "description": "ERC20 contract (optional if address given)"
+      "description": "ERC20 contract (recommended; required unless scanning known tokens for a wallet)"
      },
      {
       "name": "address",
@@ -7358,7 +10673,7 @@
       "schema": {
        "type": "string"
       },
-      "description": "Lookback blocks (default 1000, max 5000)"
+      "description": "Lookback blocks (default 100, max 5000)"
      },
      {
       "name": "from_block",
@@ -7393,6 +10708,15 @@
        "type": "string"
       },
       "description": "EVM chain (default base)"
+     },
+     {
+      "name": "wallet",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Alias for address (owner wallet)"
      }
     ],
     "responses": {
@@ -7444,7 +10768,7 @@
     }
    },
    "post": {
-    "summary": "ERC20 Transfer events for a token and/or wallet via eth_getLogs, decoded (from, to, amount with decimals, tx hash, block). Default last 1000 blocks, max 5000. Example: {token:\"0x8335\u20262913\", address:\"0x88b1\u20263ff6\", chain:\"base\"} \u2192 newest first. Use it to confirm incoming payments. $0.003.",
+    "summary": "ERC20 Transfer events for a token and/or wallet via eth_getLogs, decoded (from, to, amount with decimals, tx hash, block). Default last 100 blocks, max 5000. Public RPCs need a contract filter: pass token=; if only wallet address is given, known chain tokens (USDC/WETH/\u2026) are scanned. Example: {token:\"0x8335\u20262913\", address:\"0x88b1\u20263ff6\", chain:\"base\"}. $0.003.",
     "requestBody": {
      "content": {
       "application/json": {
@@ -7454,7 +10778,7 @@
          "token": {
           "type": "string",
           "pattern": "^0x[0-9a-fA-F]{40}$",
-          "description": "ERC20 contract (optional if address given)"
+          "description": "ERC20 contract (recommended; required unless scanning known tokens for a wallet)"
          },
          "address": {
           "type": "string",
@@ -7471,7 +10795,7 @@
          },
          "blocks": {
           "type": "string",
-          "description": "Lookback blocks (default 1000, max 5000)"
+          "description": "Lookback blocks (default 100, max 5000)"
          },
          "from_block": {
           "type": "string"
@@ -7493,6 +10817,10 @@
            "polygon"
           ],
           "description": "EVM chain (default base)"
+         },
+         "wallet": {
+          "type": "string",
+          "description": "Alias for address (owner wallet)"
          }
         }
        }
@@ -7550,7 +10878,7 @@
   },
   "/chain/events": {
    "get": {
-    "summary": "Contract event logs via eth_getLogs filtered by contract and topics (topic0 = event signature hash). Raw logs, newest first; default last 1000 blocks, max 5000. Example: {address:\"0x8335\u20262913\", topic0:\"0xddf2\u2026b3ef\", chain:\"base\", blocks:\"50\"}. $0.003.",
+    "summary": "Contract event logs via eth_getLogs filtered by contract and topics (topic0 = event signature hash). Raw logs, newest first; default last 100 blocks, max 5000 (auto-chunked for public RPC limits). Example: {address:\"0x8335\u20262913\", topic0:\"0xddf2\u2026b3ef\", chain:\"base\", blocks:\"50\"}. $0.003.",
     "parameters": [
      {
       "name": "address",
@@ -7634,6 +10962,15 @@
        "type": "string"
       },
       "description": "EVM chain (default base)"
+     },
+     {
+      "name": "wallet",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Alias for address (owner wallet)"
      }
     ],
     "responses": {
@@ -7679,7 +11016,7 @@
     }
    },
    "post": {
-    "summary": "Contract event logs via eth_getLogs filtered by contract and topics (topic0 = event signature hash). Raw logs, newest first; default last 1000 blocks, max 5000. Example: {address:\"0x8335\u20262913\", topic0:\"0xddf2\u2026b3ef\", chain:\"base\", blocks:\"50\"}. $0.003.",
+    "summary": "Contract event logs via eth_getLogs filtered by contract and topics (topic0 = event signature hash). Raw logs, newest first; default last 100 blocks, max 5000 (auto-chunked for public RPC limits). Example: {address:\"0x8335\u20262913\", topic0:\"0xddf2\u2026b3ef\", chain:\"base\", blocks:\"50\"}. $0.003.",
     "requestBody": {
      "content": {
       "application/json": {
@@ -7726,6 +11063,10 @@
            "polygon"
           ],
           "description": "EVM chain (default base)"
+         },
+         "wallet": {
+          "type": "string",
+          "description": "Alias for address (owner wallet)"
          }
         },
         "required": [
@@ -8096,6 +11437,15 @@
        "type": "string"
       },
       "description": "EVM chain (default base)"
+     },
+     {
+      "name": "wallet",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Alias for address (owner wallet)"
      }
     ],
     "responses": {
@@ -8169,6 +11519,10 @@
            "polygon"
           ],
           "description": "EVM chain (default base)"
+         },
+         "wallet": {
+          "type": "string",
+          "description": "Alias for address (owner wallet)"
          }
         },
         "required": [
@@ -8790,6 +12144,436 @@
     }
    }
   },
+  "/chain/nft-metadata": {
+   "get": {
+    "summary": "ERC721/1155 tokenURI/uri + resolved JSON metadata (IPFS/Arweave/data URI) plus collection name/symbol. Does not require ownerOf \u2014 use when explorers ask for /chain/nft-metadata. Prefer /nft ($0.002) when you also need current owner; /chain/nft-owner ($0.001) for owner only. Example: {contract:\"0xBC4C\u2026f13D\", token_id:\"1\", chain:\"ethereum\"}. $0.002.",
+    "parameters": [
+     {
+      "name": "contract",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "ERC721/1155 contract"
+     },
+     {
+      "name": "token_id",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "EVM chain (default base)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "standard": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "token_uri": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "metadata": {
+           "type": [
+            "object",
+            "null"
+           ]
+          },
+          "metadata_error": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "collection": {
+           "type": "object"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.002 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.002",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.002",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "2000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "2000"
+    }
+   },
+   "post": {
+    "summary": "ERC721/1155 tokenURI/uri + resolved JSON metadata (IPFS/Arweave/data URI) plus collection name/symbol. Does not require ownerOf \u2014 use when explorers ask for /chain/nft-metadata. Prefer /nft ($0.002) when you also need current owner; /chain/nft-owner ($0.001) for owner only. Example: {contract:\"0xBC4C\u2026f13D\", token_id:\"1\", chain:\"ethereum\"}. $0.002.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "contract": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{40}$",
+          "description": "ERC721/1155 contract"
+         },
+         "token_id": {
+          "type": "string"
+         },
+         "chain": {
+          "type": "string",
+          "enum": [
+           "base",
+           "ethereum",
+           "arbitrum",
+           "optimism",
+           "polygon"
+          ],
+          "description": "EVM chain (default base)"
+         }
+        },
+        "required": [
+         "contract",
+         "token_id"
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "standard": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "token_uri": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "metadata": {
+           "type": [
+            "object",
+            "null"
+           ]
+          },
+          "metadata_error": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "collection": {
+           "type": "object"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.002 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.002",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.002",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "2000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "2000"
+    }
+   }
+  },
+  "/chain/erc721-tokens": {
+   "get": {
+    "summary": "List every ERC721 token_id a wallet owns in a collection via balanceOf + tokenOfOwnerByIndex (ERC721Enumerable). Caps at limit (default 50, max 100). If the collection is not enumerable, returns is_enumerable:false with balance. Example: {contract:\"0xBC4C\u2026f13D\", address:\"0x46ef\u20262496\", chain:\"ethereum\"}. $0.002.",
+    "parameters": [
+     {
+      "name": "contract",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "ERC721 collection"
+     },
+     {
+      "name": "address",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Owner wallet"
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "EVM chain (default base)"
+     },
+     {
+      "name": "network",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Alias for chain (onesource-compatible)"
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Max token_ids (default 50, max 100)"
+     },
+     {
+      "name": "wallet",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Alias for address (owner wallet)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "balance": {
+           "type": "string"
+          },
+          "is_enumerable": {
+           "type": "boolean"
+          },
+          "token_ids": {
+           "type": "array",
+           "items": {
+            "type": "string"
+           }
+          },
+          "name": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "symbol": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "truncated": {
+           "type": "boolean"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.002 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.002",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.002",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "2000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "2000"
+    }
+   },
+   "post": {
+    "summary": "List every ERC721 token_id a wallet owns in a collection via balanceOf + tokenOfOwnerByIndex (ERC721Enumerable). Caps at limit (default 50, max 100). If the collection is not enumerable, returns is_enumerable:false with balance. Example: {contract:\"0xBC4C\u2026f13D\", address:\"0x46ef\u20262496\", chain:\"ethereum\"}. $0.002.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "contract": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{40}$",
+          "description": "ERC721 collection"
+         },
+         "address": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{40}$",
+          "description": "Owner wallet"
+         },
+         "chain": {
+          "type": "string",
+          "enum": [
+           "base",
+           "ethereum",
+           "arbitrum",
+           "optimism",
+           "polygon"
+          ],
+          "description": "EVM chain (default base)"
+         },
+         "network": {
+          "type": "string",
+          "description": "Alias for chain (onesource-compatible)"
+         },
+         "limit": {
+          "type": "string",
+          "description": "Max token_ids (default 50, max 100)"
+         },
+         "wallet": {
+          "type": "string",
+          "description": "Alias for address (owner wallet)"
+         }
+        },
+        "required": [
+         "contract",
+         "address"
+        ]
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "balance": {
+           "type": "string"
+          },
+          "is_enumerable": {
+           "type": "boolean"
+          },
+          "token_ids": {
+           "type": "array",
+           "items": {
+            "type": "string"
+           }
+          },
+          "name": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "symbol": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "truncated": {
+           "type": "boolean"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.002 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.002",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.002",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "2000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "2000"
+    }
+   }
+  },
   "/chain/erc1155-balance": {
    "get": {
     "summary": "ERC1155 balance: how many copies of token_id a wallet holds, via balanceOf(address,uint256) (eth_call). Example: {contract:\"0x\u2026\", address:\"0x\u2026\", token_id:\"1\", chain:\"base\"}. $0.001.",
@@ -8828,6 +12612,15 @@
        "type": "string"
       },
       "description": "EVM chain (default base)"
+     },
+     {
+      "name": "wallet",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Alias for address (owner wallet)"
      }
     ],
     "responses": {
@@ -8900,6 +12693,10 @@
            "polygon"
           ],
           "description": "EVM chain (default base)"
+         },
+         "wallet": {
+          "type": "string",
+          "description": "Alias for address (owner wallet)"
          }
         },
         "required": [
@@ -8989,6 +12786,15 @@
        "type": "string"
       },
       "description": "EVM chain (default base)"
+     },
+     {
+      "name": "wallet",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Alias for address (owner wallet)"
      }
     ],
     "responses": {
@@ -9069,6 +12875,10 @@
            "polygon"
           ],
           "description": "EVM chain (default base)"
+         },
+         "wallet": {
+          "type": "string",
+          "description": "Alias for address (owner wallet)"
          }
         },
         "required": [
@@ -9149,6 +12959,15 @@
        "type": "string"
       },
       "description": "EVM chain (default base)"
+     },
+     {
+      "name": "wallet",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "Alias for address (owner wallet)"
      }
     ],
     "responses": {
@@ -9231,6 +13050,10 @@
            "polygon"
           ],
           "description": "EVM chain (default base)"
+         },
+         "wallet": {
+          "type": "string",
+          "description": "Alias for address (owner wallet)"
          }
         },
         "required": [
@@ -9421,6 +13244,231 @@
     }
    }
   },
+  "/chain/pending": {
+   "get": {
+    "summary": "Pending + latest block snapshot via eth_getBlockByNumber: pending number/hash/parentHash/timestamp/gas/baseFee/tx count/miner vs latest head age. Public RPCs may omit pending \u2014 then 502. Example: {chain:\"base\"}. $0.001.",
+    "parameters": [
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      },
+      "description": "EVM chain (default base)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "number": {
+           "type": [
+            "number",
+            "null"
+           ]
+          },
+          "hash": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "parentHash": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "timestamp": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "gasLimit": {
+           "type": [
+            "number",
+            "null"
+           ]
+          },
+          "gasUsed": {
+           "type": [
+            "number",
+            "null"
+           ]
+          },
+          "baseFeePerGas": {
+           "type": [
+            "number",
+            "null"
+           ]
+          },
+          "transactions_count": {
+           "type": [
+            "number",
+            "null"
+           ]
+          },
+          "miner": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "vs_latest": {
+           "type": "object"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.001",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "1000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "1000"
+    }
+   },
+   "post": {
+    "summary": "Pending + latest block snapshot via eth_getBlockByNumber: pending number/hash/parentHash/timestamp/gas/baseFee/tx count/miner vs latest head age. Public RPCs may omit pending \u2014 then 502. Example: {chain:\"base\"}. $0.001.",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "chain": {
+          "type": "string",
+          "enum": [
+           "base",
+           "ethereum",
+           "arbitrum",
+           "optimism",
+           "polygon"
+          ],
+          "description": "EVM chain (default base)"
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "number": {
+           "type": [
+            "number",
+            "null"
+           ]
+          },
+          "hash": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "parentHash": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "timestamp": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "gasLimit": {
+           "type": [
+            "number",
+            "null"
+           ]
+          },
+          "gasUsed": {
+           "type": [
+            "number",
+            "null"
+           ]
+          },
+          "baseFeePerGas": {
+           "type": [
+            "number",
+            "null"
+           ]
+          },
+          "transactions_count": {
+           "type": [
+            "number",
+            "null"
+           ]
+          },
+          "miner": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "vs_latest": {
+           "type": "object"
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad input"
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402 v2, see PAYMENT-REQUIRED header)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-payment-info": {
+     "mode": "fixed",
+     "currency": "USD",
+     "amount": "0.001",
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+     "amountAtomic": "1000"
+    },
+    "x-402": {
+     "network": "eip155:8453",
+     "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+     "amount": "1000"
+    }
+   }
+  },
   "/uk-leads-feed/{id}": {
    "get": {
     "summary": "Free UK leads-feed status (id is the secret)",
@@ -9514,9 +13562,44 @@
         "us-sec",
         "us-sec-full",
         "eu-vat",
+        "lei",
+        "lei-full",
+        "read-batch",
         "uk-leads",
         "uk-leads-lite",
-        "kyb"
+        "kyb",
+        "uk-dd",
+        "email-check",
+        "domain",
+        "dns",
+        "redirects",
+        "meta",
+        "headers",
+        "iban",
+        "phone",
+        "uk-postcode",
+        "siren",
+        "siret",
+        "partita-iva",
+        "orgnr",
+        "bn-ca",
+        "cvr",
+        "fn-at",
+        "cin-in",
+        "kvk-nl",
+        "hr-de",
+        "nif-es",
+        "cnpj",
+        "nip-pl",
+        "uid-ch",
+        "au-company",
+        "ca-company",
+        "fr-company",
+        "uk-officer",
+        "uk-property",
+        "uk-area",
+        "sanctions",
+        "sanctions-batch"
        ]
       }
      }
@@ -9530,6 +13613,2031 @@
      }
     },
     "x-price": "free"
+   }
+  },
+  "/tx/{hash}": {
+   "get": {
+    "summary": "Path alias of /tx (same price/x402 challenge). Use this to confirm a transaction/payment landed: status (success/reverted/pending), block, timestamp, confirmations, from/to, value, fee, decoded ERC20 transfers (USDC amounts). Base/Ethereum/Arbitrum/Optimism/Polygon. Example: {hash:\"0x\u2026\"}. $0.003.",
+    "parameters": [
+     {
+      "name": "hash",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preview",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "1"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "status": {
+           "type": "string"
+          },
+          "block": {
+           "type": [
+            "integer",
+            "null"
+           ]
+          },
+          "timestamp": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "from": {
+           "type": "string"
+          },
+          "to": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "value_native": {
+           "type": "string"
+          },
+          "fee_native": {
+           "type": "string"
+          },
+          "erc20_transfers": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "402": {
+      "description": "Payment required: $0.003 USDC on Base (x402)"
+     }
+    },
+    "x-price": "$0.003",
+    "x-alias-of": "/tx"
+   }
+  },
+  "/ens/{name}": {
+   "get": {
+    "summary": "Path alias of /ens (same price/x402 challenge). Use this to resolve an ENS name to its address plus avatar/url/twitter/github/description records, or reverse-resolve an address to its primary name (forward-verified). Example: {name:\"vitalik.eth\"} or {address:\"0x\u2026\"}. $0.002.",
+    "parameters": [
+     {
+      "name": "name",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preview",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "1"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "direction": {
+           "type": "string"
+          },
+          "name": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "address": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "records": {
+           "type": "object"
+          },
+          "forward_verified": {
+           "type": "boolean"
+          }
+         }
+        }
+       }
+      }
+     },
+     "402": {
+      "description": "Payment required: $0.002 USDC on Base (x402)"
+     }
+    },
+    "x-price": "$0.002",
+    "x-alias-of": "/ens"
+   }
+  },
+  "/contract/{address}": {
+   "get": {
+    "summary": "Path alias of /contract (same price/x402 challenge). Use this to inspect any address: contract vs wallet vs EIP-7702 delegated EOA, bytecode size, EIP-1967 implementation/admin/beacon, EIP-1167 clone target, owner(), ERC20/721/1155 detection and Sourcify verified contract name. Example: {address, chain}. $0.003.",
+    "parameters": [
+     {
+      "name": "address",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preview",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "1"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "is_contract": {
+           "type": "boolean"
+          },
+          "eip7702_delegate": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "bytecode_bytes": {
+           "type": "integer"
+          },
+          "proxy": {
+           "type": "object"
+          },
+          "owner": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "standards": {
+           "type": "array"
+          },
+          "verified": {
+           "type": [
+            "object",
+            "null"
+           ]
+          }
+         }
+        }
+       }
+      }
+     },
+     "402": {
+      "description": "Payment required: $0.003 USDC on Base (x402)"
+     }
+    },
+    "x-price": "$0.003",
+    "x-alias-of": "/contract"
+   }
+  },
+  "/wallet/{address}": {
+   "get": {
+    "summary": "Path alias of /wallet (same price/x402 challenge). Use this when you need an EVM wallet's balances in one call: native ETH/POL + USDC/USDT/DAI/WETH/cbBTC/EURC (plus up to 10 custom ERC20s), nonce, is_contract, block. Base, Ethereum, Arbitrum, Optimism, Polygon. Example: {address:\"0x\u2026\", chain:\"base\"}. $0.003.",
+    "parameters": [
+     {
+      "name": "address",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preview",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "1"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "chain": {
+           "type": "string"
+          },
+          "address": {
+           "type": "string"
+          },
+          "block": {
+           "type": "integer"
+          },
+          "native": {
+           "type": "object"
+          },
+          "nonce": {
+           "type": "integer"
+          },
+          "is_contract": {
+           "type": "boolean"
+          },
+          "tokens": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "402": {
+      "description": "Payment required: $0.003 USDC on Base (x402)"
+     }
+    },
+    "x-price": "$0.003",
+    "x-alias-of": "/wallet"
+   }
+  },
+  "/address/{address}": {
+   "get": {
+    "summary": "Path alias of /wallet (same price/x402 challenge). Use this when you need an EVM wallet's balances in one call: native ETH/POL + USDC/USDT/DAI/WETH/cbBTC/EURC (plus up to 10 custom ERC20s), nonce, is_contract, block. Base, Ethereum, Arbitrum, Optimism, Polygon. Example: {address:\"0x\u2026\", chain:\"base\"}. $0.003.",
+    "parameters": [
+     {
+      "name": "address",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preview",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "1"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "chain": {
+           "type": "string"
+          },
+          "address": {
+           "type": "string"
+          },
+          "block": {
+           "type": "integer"
+          },
+          "native": {
+           "type": "object"
+          },
+          "nonce": {
+           "type": "integer"
+          },
+          "is_contract": {
+           "type": "boolean"
+          },
+          "tokens": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "402": {
+      "description": "Payment required: $0.003 USDC on Base (x402)"
+     }
+    },
+    "x-price": "$0.003",
+    "x-alias-of": "/wallet"
+   }
+  },
+  "/token/{address}": {
+   "get": {
+    "summary": "Path alias of /token (same price/x402 challenge). Use this for just an ERC20's name, symbol, decimals and total supply (formatted + raw) on Base/Ethereum/Arbitrum/Optimism/Polygon \u2014 e.g. before formatting amounts. Cheaper than /token-check. Example: {address:\"0x\u2026\", chain:\"base\"}. $0.001.",
+    "parameters": [
+     {
+      "name": "address",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preview",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "1"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "name": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "symbol": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "decimals": {
+           "type": [
+            "integer",
+            "null"
+           ]
+          },
+          "total_supply": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "is_erc20_like": {
+           "type": "boolean"
+          }
+         }
+        }
+       }
+      }
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-alias-of": "/token"
+   }
+  },
+  "/token-check/{address}": {
+   "get": {
+    "summary": "Path alias of /token-check (same price/x402 challenge). Use this before buying, accepting or listing an ERC20 token: name/symbol/decimals/supply, owner (renounced?), EIP-1967 proxy, DEX price/liquidity/volume/pair age (DexScreener) + rule-based risk flags, score and verdict. Half the price of AI token verdicts. Example: {address:\"0x\u2026\", chain:\"base\"}. $0.01.",
+    "parameters": [
+     {
+      "name": "address",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preview",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "1"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "name": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "symbol": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "decimals": {
+           "type": [
+            "integer",
+            "null"
+           ]
+          },
+          "total_supply": {
+           "type": "string"
+          },
+          "owner": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "proxy": {
+           "type": "object"
+          },
+          "market": {
+           "type": [
+            "object",
+            "null"
+           ]
+          },
+          "risk_flags": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          },
+          "risk_score": {
+           "type": "integer"
+          },
+          "verdict": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "402": {
+      "description": "Payment required: $0.01 USDC on Base (x402)"
+     }
+    },
+    "x-price": "$0.01",
+    "x-alias-of": "/token-check"
+   }
+  },
+  "/block/{number}": {
+   "get": {
+    "summary": "Path alias of /block (same price/x402 challenge). Use this to get a block by number/latest/finalized, or find the block at a date/time (timestamp \u2192 block, for historical balance or event queries). Returns number, hash, time, tx count, base fee. Example: {timestamp:\"2026-01-01T00:00:00Z\", chain:\"base\"}. $0.001.",
+    "parameters": [
+     {
+      "name": "number",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preview",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "1"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "number": {
+           "type": "integer"
+          },
+          "hash": {
+           "type": "string"
+          },
+          "timestamp": {
+           "type": "integer"
+          },
+          "time_iso": {
+           "type": "string"
+          },
+          "tx_count": {
+           "type": [
+            "integer",
+            "null"
+           ]
+          },
+          "base_fee_gwei": {
+           "type": [
+            "number",
+            "null"
+           ]
+          }
+         }
+        }
+       }
+      }
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-alias-of": "/block"
+   }
+  },
+  "/nft/{contract}/{token_id}": {
+   "get": {
+    "summary": "Path alias of /nft (same price/x402 challenge). Use this to look up one NFT: owner (ERC721), tokenURI and fetched JSON metadata (IPFS/Arweave/data URIs handled), collection name/symbol. Multi-chain. Example: {contract:\"0xBC4C\u2026\", token_id:\"1\", chain:\"ethereum\"}. $0.002.",
+    "parameters": [
+     {
+      "name": "contract",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "token_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preview",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "1"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "standard": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "owner": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "token_uri": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "metadata": {
+           "type": [
+            "object",
+            "null"
+           ]
+          },
+          "collection": {
+           "type": "object"
+          }
+         }
+        }
+       }
+      }
+     },
+     "402": {
+      "description": "Payment required: $0.002 USDC on Base (x402)"
+     }
+    },
+    "x-price": "$0.002",
+    "x-alias-of": "/nft"
+   }
+  },
+  "/gas/{chain}": {
+   "get": {
+    "summary": "Path alias of /gas (same price/x402 challenge). Use this before sending a transaction: live base fee, priority-fee percentiles, suggested EIP-1559 maxFee/maxPriority, block utilisation and USD cost of a transfer/ERC20 transfer/swap (Chainlink price). Base/Ethereum/Arbitrum/Optimism/Polygon. Example: {chain:\"base\"}. $0.001.",
+    "parameters": [
+     {
+      "name": "chain",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preview",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "1"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "base_fee_gwei": {
+           "type": "number"
+          },
+          "priority_fee_gwei": {
+           "type": "object"
+          },
+          "suggested_eip1559": {
+           "type": "object"
+          },
+          "native_usd": {
+           "type": [
+            "number",
+            "null"
+           ]
+          },
+          "est_cost": {
+           "type": "object"
+          }
+         }
+        }
+       }
+      }
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-alias-of": "/gas"
+   }
+  },
+  "/check/{domain}": {
+   "get": {
+    "summary": "Path alias of /check (same price/x402 challenge). Use this when vetting a domain's health before outreach or onboarding: DNS (DoH), DNSSEC, TLS/HTTPS, redirects, HSTS, MX/SPF/DMARC + score/issues. Structured JSON beats dig+openssl. Example: {domain:\"stripe.com\"} \u2192 {score, issues, email}. $0.001.",
+    "parameters": [
+     {
+      "name": "domain",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preview",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "1"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "domain": {
+           "type": "string"
+          },
+          "dns": {
+           "type": "object"
+          },
+          "dnssec_validated": {
+           "type": [
+            "boolean",
+            "null"
+           ]
+          },
+          "tls": {
+           "type": "object"
+          },
+          "http": {
+           "type": "object"
+          },
+          "email": {
+           "type": "object",
+           "properties": {
+            "mx": {
+             "type": "array"
+            },
+            "spf": {
+             "type": "array"
+            },
+            "dmarc": {
+             "type": "array"
+            },
+            "dmarc_policy": {
+             "type": [
+              "string",
+              "null"
+             ]
+            }
+           }
+          },
+          "issues": {
+           "type": "array",
+           "items": {
+            "type": "string"
+           }
+          },
+          "score": {
+           "type": "integer"
+          }
+         }
+        }
+       }
+      }
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-alias-of": "/check"
+   }
+  },
+  "/domain/{domain}": {
+   "get": {
+    "summary": "Path alias of /domain (same price/x402 challenge). Standalone RDAP domain registration lookup: registrar, registered, expires, age_days, status flags. Free upstream (rdap.org / Nominet for .uk). Example: {domain:\"stripe.com\"}. $0.002.",
+    "parameters": [
+     {
+      "name": "domain",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preview",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "1"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "domain": {
+           "type": "string"
+          },
+          "registrar": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "registered": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "expires": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "age_days": {
+           "type": [
+            "integer",
+            "null"
+           ]
+          },
+          "status": {
+           "type": "array"
+          },
+          "flags": {
+           "type": "array"
+          },
+          "sources": {
+           "type": "object"
+          }
+         }
+        }
+       }
+      }
+     },
+     "402": {
+      "description": "Payment required: $0.002 USDC on Base (x402)"
+     }
+    },
+    "x-price": "$0.002",
+    "x-alias-of": "/domain"
+   }
+  },
+  "/dns/{name}": {
+   "get": {
+    "summary": "Path alias of /dns (same price/x402 challenge). DNS resolve via Cloudflare DoH: A/AAAA/MX/TXT/NS/CNAME (or single type=). Public DNS only, not authoritative. Accepts domain= as alias of name=. Example: {name:\"example.com\"} or {domain:\"example.com\",type:\"MX\"}. $0.001.",
+    "parameters": [
+     {
+      "name": "name",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preview",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "1"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "name": {
+           "type": "string"
+          },
+          "type": {},
+          "records": {
+           "type": "object"
+          },
+          "flags": {
+           "type": "array"
+          },
+          "sources": {
+           "type": "object"
+          }
+         }
+        }
+       }
+      }
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-alias-of": "/dns"
+   }
+  },
+  "/email-check/{email}": {
+   "get": {
+    "summary": "Path alias of /email-check (same price/x402 challenge). Use this to validate an email address before outreach or onboarding: RFC-ish syntax, MX/A via DNS-over-HTTPS, disposable/temp domain heuristics, free-provider and role-account flags, mail-host provider guess, score + verdict. No SMTP probe. Example: {email:\"info@stripe.com\"}. $0.002.",
+    "parameters": [
+     {
+      "name": "email",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preview",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "1"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "email": {
+           "type": "string"
+          },
+          "syntax_ok": {
+           "type": "boolean"
+          },
+          "verdict": {
+           "type": "string"
+          },
+          "score": {
+           "type": "number"
+          },
+          "flags": {
+           "type": "array"
+          },
+          "checks": {
+           "type": "object"
+          },
+          "provider": {
+           "type": "string"
+          },
+          "mx_hosts": {
+           "type": "array"
+          }
+         }
+        }
+       }
+      }
+     },
+     "402": {
+      "description": "Payment required: $0.002 USDC on Base (x402)"
+     }
+    },
+    "x-price": "$0.002",
+    "x-alias-of": "/email-check"
+   }
+  },
+  "/meta/{url}": {
+   "get": {
+    "summary": "Path alias of /meta (same price/x402 challenge). Lightweight page metadata for agents: title, description, canonical, Open Graph + Twitter card tags, favicons, JSON-LD @types, h1/h2. Cheaper/faster than /read when you do not need Markdown body. Example: {url:\"https://example.com\"}. $0.001.",
+    "parameters": [
+     {
+      "name": "url",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preview",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "1"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "url": {
+           "type": "string"
+          },
+          "final_url": {
+           "type": "string"
+          },
+          "title": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "description": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "canonical_url": {
+           "type": "string"
+          },
+          "language": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "site_name": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "og": {
+           "type": "object"
+          },
+          "twitter": {
+           "type": "object"
+          },
+          "favicons": {
+           "type": "array",
+           "items": {
+            "type": "string"
+           }
+          },
+          "json_ld_types": {
+           "type": "array",
+           "items": {
+            "type": "string"
+           }
+          },
+          "headings": {
+           "type": "object"
+          },
+          "disclaimer": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "402": {
+      "description": "Payment required: $0.001 USDC on Base (x402)"
+     }
+    },
+    "x-price": "$0.001",
+    "x-alias-of": "/meta"
+   }
+  },
+  "/uk-company/{number}": {
+   "get": {
+    "summary": "Path alias of /uk-company (same price/x402 challenge). Use this for UK due diligence on a Companies House number or name: official API profile, officers, PSCs, filings, charges, insolvency + rule-based red flags (overdue, dissolved, churn, mass-formation office). Sourced JSON. Example: {number:\"00445790\"} or {name:\"TESCO\"}. Prefer /uk-company-lite ($0.05) for status/flags only. $0.50.",
+    "parameters": [
+     {
+      "name": "number",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preview",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "1"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "company_number": {
+           "type": "string"
+          },
+          "profile": {
+           "type": "object"
+          },
+          "overview": {
+           "type": "object"
+          },
+          "officers": {
+           "type": "object"
+          },
+          "persons_with_significant_control": {
+           "type": "object"
+          },
+          "filing_history_highlights": {
+           "type": "object"
+          },
+          "charges": {
+           "type": "object"
+          },
+          "compliance": {
+           "type": "object"
+          },
+          "red_flags": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          },
+          "sources": {
+           "type": "object"
+          }
+         }
+        }
+       }
+      }
+     },
+     "402": {
+      "description": "Payment required: $0.50 USDC on Base (x402)"
+     }
+    },
+    "x-price": "$0.50",
+    "x-alias-of": "/uk-company"
+   }
+  },
+  "/uk-dd/{number}": {
+   "get": {
+    "summary": "Path alias of /uk-dd (same price/x402 challenge). Use this for a UK-only due-diligence job: full Companies House pack (profile/officers/PSC/filings/charges/insolvency/red flags) + public sanctions screen (entity + active officers) + optional domain RDAP/website skim \u2192 composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not regulated KYC/AML. Between /uk-company ($0.50) and /kyb ($2.50). Path alias /uk-dd/{number}. Example: {number:\"00445790\"} or {name:\"TESCO\",domain:\"tesco.com\"}. $1.00.",
+    "parameters": [
+     {
+      "name": "number",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preview",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "1"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "product": {
+           "type": "string"
+          },
+          "disclaimer": {
+           "type": "string"
+          },
+          "uk": {},
+          "sanctions": {},
+          "domain": {},
+          "website": {},
+          "trust": {
+           "type": "object",
+           "properties": {
+            "flag": {
+             "type": "string"
+            },
+            "score": {
+             "type": "integer"
+            },
+            "reasons": {
+             "type": "array"
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "402": {
+      "description": "Payment required: $1.00 USDC on Base (x402)"
+     }
+    },
+    "x-price": "$1.00",
+    "x-alias-of": "/uk-dd"
+   }
+  },
+  "/uk-charity/{number}": {
+   "get": {
+    "summary": "Path alias of /uk-charity (same price/x402 challenge). Use this for a cheap UK charity snapshot from the Charity Commission register (England & Wales): status, registration/removal dates, income/spending, trustees count, website, activities. Lookup by registered number or name. OGL v3. Example: {number:\"1089464\"} or {name:\"Cancer Research UK\"}. Upsell /uk-charity-full. $0.05.",
+    "parameters": [
+     {
+      "name": "number",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preview",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "1"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "registered_number": {},
+          "name": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "status": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "income": {},
+          "spending": {},
+          "trustees_count": {},
+          "contact": {
+           "type": "object"
+          },
+          "activities": {},
+          "source": {
+           "type": "string"
+          },
+          "licence": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "402": {
+      "description": "Payment required: $0.05 USDC on Base (x402)"
+     }
+    },
+    "x-price": "$0.05",
+    "x-alias-of": "/uk-charity"
+   }
+  },
+  "/us-sec/{ticker}": {
+   "get": {
+    "summary": "Path alias of /us-sec (same price/x402 challenge). Use this for a cheap US SEC EDGAR company snapshot by ticker or CIK: name, tickers/exchanges, SIC, EIN, addresses, phone, former names, last ~15 filings (form/filed/accession/primaryDocument/reportDate), website. Fair-use EDGAR. Example: {ticker:\"AAPL\"} or {cik:\"320193\"}. Upsell /us-sec-full. $0.05.",
+    "parameters": [
+     {
+      "name": "ticker",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preview",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "1"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "cik": {
+           "type": "string"
+          },
+          "name": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "tickers": {
+           "type": "array"
+          },
+          "exchanges": {
+           "type": "array"
+          },
+          "sic": {},
+          "sicDescription": {},
+          "ein": {},
+          "addresses": {
+           "type": "object"
+          },
+          "phone": {},
+          "formerNames": {
+           "type": "array"
+          },
+          "recent_filings": {
+           "type": "array",
+           "items": {
+            "type": "object"
+           }
+          },
+          "website": {},
+          "source": {
+           "type": "string"
+          },
+          "fair_use": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "402": {
+      "description": "Payment required: $0.05 USDC on Base (x402)"
+     }
+    },
+    "x-price": "$0.05",
+    "x-alias-of": "/us-sec"
+   }
+  },
+  "/eu-vat/{vat}": {
+   "get": {
+    "summary": "Path alias of /eu-vat (same price/x402 challenge). Use this to validate an EU VAT number via official VIES: valid flag, registered name/address when available, requestDate. Input vat like DE123456789 or IE6388047V (or country+number; use EL for Greece). Cached 24h when valid. Example: {vat:\"IE6388047V\"}. $0.01.",
+    "parameters": [
+     {
+      "name": "vat",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preview",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "1"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "valid": {
+           "type": "boolean"
+          },
+          "countryCode": {
+           "type": "string"
+          },
+          "vatNumber": {
+           "type": "string"
+          },
+          "vat": {
+           "type": "string"
+          },
+          "name": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "address": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "requestDate": {},
+          "source": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "402": {
+      "description": "Payment required: $0.01 USDC on Base (x402)"
+     }
+    },
+    "x-price": "$0.01",
+    "x-alias-of": "/eu-vat"
+   }
+  },
+  "/lei/{lei}": {
+   "get": {
+    "summary": "Path alias of /lei (same price/x402 challenge). Use this for a GLEIF Legal Entity Identifier lookup (CC0, no key): lei / name / registered_as (+ optional country). ALWAYS returns parents.direct + parents.ultimate (null if unreported), BIC/mapped ids, legal/hq address, status, jurisdiction. Soft-cached 24h. Path alias /lei/{lei}. Upsell /lei-full $0.05 for up to 10 name matches each with parents. Example: {lei:\"HWUPKR0MPOU8FGXBT394\"}. $0.005.",
+    "parameters": [
+     {
+      "name": "lei",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preview",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "1"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "lei": {
+           "type": "string"
+          },
+          "legal_name": {},
+          "status": {
+           "type": "object"
+          },
+          "jurisdiction": {},
+          "legal_form": {},
+          "legal_address": {},
+          "hq_address": {},
+          "registered_as": {},
+          "registration_authority": {},
+          "bic": {},
+          "identifiers": {
+           "type": "array"
+          },
+          "parents": {
+           "type": "object",
+           "properties": {
+            "direct": {},
+            "ultimate": {}
+           }
+          },
+          "creation_date": {},
+          "next_renewal": {},
+          "source": {
+           "type": "string"
+          },
+          "fetched_at": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "402": {
+      "description": "Payment required: $0.005 USDC on Base (x402)"
+     }
+    },
+    "x-price": "$0.005",
+    "x-alias-of": "/lei"
+   }
+  },
+  "/au-company/{acn}": {
+   "get": {
+    "summary": "Path alias of /au-company (same price/x402 challenge). Use this for an Australian company lookup from the ASIC register by ACN or ABN: current name, former names, type (proprietary/public\u2026), class, status (registered/deregistered/strike-off/external admin), registration and deregistration dates, ABN. Source: ASIC Company Dataset (data.gov.au, CC BY 3.0 AU), monthly snapshot. Example: {acn:\"009661901\"} (Qantas). $0.02.",
+    "parameters": [
+     {
+      "name": "acn",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preview",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "1"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "acn": {
+           "type": "string"
+          },
+          "abn": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          },
+          "former_names": {
+           "type": "array"
+          },
+          "type": {
+           "type": "string"
+          },
+          "type_desc": {
+           "type": "string"
+          },
+          "class": {
+           "type": "string"
+          },
+          "status": {
+           "type": "string"
+          },
+          "status_desc": {
+           "type": "string"
+          },
+          "registered": {
+           "type": "string"
+          },
+          "deregistered": {
+           "type": "string"
+          },
+          "source": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "402": {
+      "description": "Payment required: $0.02 USDC on Base (x402)"
+     }
+    },
+    "x-price": "$0.02",
+    "x-alias-of": "/au-company"
+   }
+  },
+  "/ca-company/{number}": {
+   "get": {
+    "summary": "Path alias of /ca-company (same price/x402 challenge). Use this for a Canadian federal corporation lookup (Corporations Canada, CBCA + NFP/coop/BOTA) by corporation number or 9-digit Business Number (BN): legal name (EN/FR), governing act, status, anniversary date, last annual filing year, last AGM, registered office address, min/max directors. Source: Corporations Canada open data (OGL-Canada), ~697k active corporations. Example: {number:\"8660115\"}. $0.02.",
+    "parameters": [
+     {
+      "name": "number",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preview",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "1"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "corporation_number": {
+           "type": "string"
+          },
+          "business_number": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          },
+          "name_alt": {
+           "type": "string"
+          },
+          "governing_legislation": {
+           "type": "string"
+          },
+          "status": {
+           "type": "string"
+          },
+          "status_detail": {
+           "type": "string"
+          },
+          "anniversary_date": {
+           "type": "string"
+          },
+          "last_annual_filing_year": {
+           "type": "string"
+          },
+          "last_annual_meeting": {
+           "type": "string"
+          },
+          "registered_office": {
+           "type": "string"
+          },
+          "directors_min": {
+           "type": "number"
+          },
+          "directors_max": {
+           "type": "number"
+          },
+          "matches": {
+           "type": "array"
+          },
+          "source": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "402": {
+      "description": "Payment required: $0.02 USDC on Base (x402)"
+     }
+    },
+    "x-price": "$0.02",
+    "x-alias-of": "/ca-company"
+   }
+  },
+  "/fr-company/{siren}": {
+   "get": {
+    "summary": "Path alias of /fr-company (same price/x402 challenge). Use this for a French company lookup from the official API Recherche d'entreprises (INSEE/RNE): legal name, SIREN/SIRET si\u00e8ge, status, NAF activity, dirigeants, employee band, optional finances, red flags. Search by siren, siret, or name. Example: {siren:\"443061841\"} (Google France) or {name:\"AXA\"}. $0.25.",
+    "parameters": [
+     {
+      "name": "siren",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "chain",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "preview",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "1"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Success",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "siren": {
+           "type": "string"
+          },
+          "name": {
+           "type": "string"
+          },
+          "status": {
+           "type": "string"
+          },
+          "status_label": {
+           "type": "string"
+          },
+          "activity_code": {
+           "type": "string"
+          },
+          "siege": {
+           "type": "object"
+          },
+          "dirigeants": {
+           "type": "array"
+          },
+          "red_flags": {
+           "type": "array"
+          },
+          "source": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      }
+     },
+     "402": {
+      "description": "Payment required: $0.25 USDC on Base (x402)"
+     }
+    },
+    "x-price": "$0.25",
+    "x-alias-of": "/fr-company"
    }
   },
   "/hooks/sink": {

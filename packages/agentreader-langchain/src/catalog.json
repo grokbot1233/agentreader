@@ -1,5 +1,115 @@
 [
  {
+  "name": "au_company",
+  "path": "/au-company",
+  "price": "$0.02",
+  "description": "Use this for an Australian company lookup from the ASIC register by ACN or ABN: current name, former names, type (proprietary/public\u2026), class, status (registered/deregistered/strike-off/external admin), registration and deregistration dates, ABN. Source: ASIC Company Dataset (data.gov.au, CC BY 3.0 AU), monthly snapshot. Example: {acn:\"009661901\"} (Qantas). $0.02.",
+  "params": [
+   {
+    "name": "acn",
+    "required": false,
+    "type": "string",
+    "description": "9-digit Australian Company Number"
+   },
+   {
+    "name": "abn",
+    "required": false,
+    "type": "string",
+    "description": "11-digit ABN (alternative to acn)"
+   }
+  ]
+ },
+ {
+  "name": "ca_company",
+  "path": "/ca-company",
+  "price": "$0.02",
+  "description": "Use this for a Canadian federal corporation lookup (Corporations Canada, CBCA + NFP/coop/BOTA) by corporation number or 9-digit Business Number (BN): legal name (EN/FR), governing act, status, anniversary date, last annual filing year, last AGM, registered office address, min/max directors. Source: Corporations Canada open data (OGL-Canada), ~697k active corporations. Example: {number:\"8660115\"}. $0.02.",
+  "params": [
+   {
+    "name": "number",
+    "required": false,
+    "type": "string",
+    "description": "Corporations Canada corporation number (up to 8 digits)"
+   },
+   {
+    "name": "bn",
+    "required": false,
+    "type": "string",
+    "description": "9-digit CRA Business Number (alternative)"
+   }
+  ]
+ },
+ {
+  "name": "fr_company",
+  "path": "/fr-company",
+  "price": "$0.25",
+  "description": "Use this for a French company lookup from the official API Recherche d'entreprises (INSEE/RNE): legal name, SIREN/SIRET si\u00e8ge, status, NAF activity, dirigeants, employee band, optional finances, red flags. Search by siren, siret, or name. Example: {siren:\"443061841\"} (Google France) or {name:\"AXA\"}. $0.25.",
+  "params": [
+   {
+    "name": "siren",
+    "required": false,
+    "type": "string",
+    "description": "French SIREN (9 digits)"
+   },
+   {
+    "name": "siret",
+    "required": false,
+    "type": "string",
+    "description": "French SIRET (14 digits)"
+   },
+   {
+    "name": "name",
+    "required": false,
+    "type": "string",
+    "description": "Company name search"
+   },
+   {
+    "name": "q",
+    "required": false,
+    "type": "string",
+    "description": "Alias of name"
+   },
+   {
+    "name": "limit",
+    "required": false,
+    "type": "string",
+    "description": "Name-search matches (1-10, default 5)"
+   }
+  ]
+ },
+ {
+  "name": "registry_batch",
+  "path": "/registry-batch",
+  "price": "$0.30",
+  "description": "Use this to verify up to 25 UK (Companies House, max 10), Australian (ASIC, ACN/ABN), Canadian (Corporations Canada, corp number/BN) and French (SIREN via Recherche d'entreprises) companies in one call: name, status, type/act, dates, office, UK compliance/red flags (lite). Not-found IDs reported inline. ~$0.012/company vs $0.02-0.05 single. Example: {uk:\"00445790\", au:\"009661901\", ca:\"8660115\", fr:\"443061841\"}. $0.30.",
+  "params": [
+   {
+    "name": "uk",
+    "required": false,
+    "type": "string",
+    "description": "Comma-separated UK company numbers (max 10, e.g. 00445790, SC123456)"
+   },
+   {
+    "name": "au",
+    "required": false,
+    "type": "string",
+    "description": "Comma-separated ACNs (9) or ABNs (11)"
+   },
+   {
+    "name": "ca",
+    "required": false,
+    "type": "string",
+    "description": "Comma-separated Canadian corporation numbers or 9-digit BNs"
+   },
+   {
+    "name": "fr",
+    "required": false,
+    "type": "string",
+    "description": "Comma-separated French SIREN (9 digits)"
+   }
+  ]
+ },
+ {
   "name": "read",
   "path": "/read",
   "price": "$0.002",
@@ -42,6 +152,108 @@
   ]
  },
  {
+  "name": "email_check",
+  "path": "/email-check",
+  "price": "$0.002",
+  "description": "Use this to validate an email address before outreach or onboarding: RFC-ish syntax, MX/A via DNS-over-HTTPS, disposable/temp domain heuristics, free-provider and role-account flags, mail-host provider guess, score + verdict. No SMTP probe. Example: {email:\"info@stripe.com\"}. $0.002.",
+  "params": [
+   {
+    "name": "email",
+    "required": true,
+    "type": "string",
+    "description": "Email address to validate"
+   }
+  ]
+ },
+ {
+  "name": "domain",
+  "path": "/domain",
+  "price": "$0.002",
+  "description": "Standalone RDAP domain registration lookup: registrar, registered, expires, age_days, status flags. Free upstream (rdap.org / Nominet for .uk). Example: {domain:\"stripe.com\"}. $0.002.",
+  "params": [
+   {
+    "name": "domain",
+    "required": true,
+    "type": "string",
+    "description": "Domain name, e.g. stripe.com"
+   }
+  ]
+ },
+ {
+  "name": "dns",
+  "path": "/dns",
+  "price": "$0.001",
+  "description": "DNS resolve via Cloudflare DoH: A/AAAA/MX/TXT/NS/CNAME (or single type=). Public DNS only, not authoritative. Accepts domain= as alias of name=. Example: {name:\"example.com\"} or {domain:\"example.com\",type:\"MX\"}. $0.001.",
+  "params": [
+   {
+    "name": "name",
+    "required": true,
+    "type": "string",
+    "description": "Hostname to resolve, e.g. example.com"
+   },
+   {
+    "name": "domain",
+    "required": false,
+    "type": "string",
+    "description": "Alias for name"
+   },
+   {
+    "name": "type",
+    "required": false,
+    "type": "string",
+    "description": "Optional DNS type or comma list: A,AAAA,MX,TXT,NS,CNAME (default all of those); also SOA,PTR,CAA"
+   }
+  ]
+ },
+ {
+  "name": "redirects",
+  "path": "/redirects",
+  "price": "$0.001",
+  "description": "Unwrap URL redirects / short links: follow http(s) Location hops with SSRF guards, return final_url + chain (no body download). Not a malware verdict. Example: {url:\"https://bit.ly/...\"} or {url:\"example.com\"}. $0.001.",
+  "params": [
+   {
+    "name": "url",
+    "required": true,
+    "type": "string",
+    "description": "Public http(s) URL to fetch"
+   }
+  ]
+ },
+ {
+  "name": "meta",
+  "path": "/meta",
+  "price": "$0.001",
+  "description": "Lightweight page metadata for agents: title, description, canonical, Open Graph + Twitter card tags, favicons, JSON-LD @types, h1/h2. Cheaper/faster than /read when you do not need Markdown body. Example: {url:\"https://example.com\"}. $0.001.",
+  "params": [
+   {
+    "name": "url",
+    "required": true,
+    "type": "string",
+    "description": "Public http(s) URL to fetch"
+   }
+  ]
+ },
+ {
+  "name": "headers",
+  "path": "/headers",
+  "price": "$0.001",
+  "description": "HTTP security headers audit for agents: HSTS/CSP/XFO/XCTO/Referrer/Permissions/COOP/CORP/COEP + score (SSRF-safe HEAD\u2192GET). Not a pen-test. Example: {url:\"https://example.com\"} or {domain:\"example.com\"}. $0.001.",
+  "params": [
+   {
+    "name": "url",
+    "required": false,
+    "type": "string",
+    "description": "Public http(s) URL (or pass domain=)"
+   },
+   {
+    "name": "domain",
+    "required": false,
+    "type": "string",
+    "description": "Hostname, normalized to https://"
+   }
+  ]
+ },
+ {
   "name": "company",
   "path": "/company",
   "price": "$0.25",
@@ -74,6 +286,12 @@
     "description": "UK Companies House number, e.g. 00445790"
    },
    {
+    "name": "company_number",
+    "required": false,
+    "type": "string",
+    "description": "Alias of number (Companies House field name)"
+   },
+   {
     "name": "name",
     "required": false,
     "type": "string",
@@ -92,6 +310,12 @@
     "required": false,
     "type": "string",
     "description": "UK Companies House number, e.g. 00445790"
+   },
+   {
+    "name": "company_number",
+    "required": false,
+    "type": "string",
+    "description": "Alias of number (Companies House field name)"
    },
    {
     "name": "name",
@@ -152,6 +376,12 @@
     "required": true,
     "type": "string",
     "description": "0x EVM wallet address"
+   },
+   {
+    "name": "wallet",
+    "required": false,
+    "type": "string",
+    "description": "Alias for address"
    },
    {
     "name": "chain",
@@ -272,6 +502,12 @@
     "description": "0x ERC20 token contract"
    },
    {
+    "name": "wallet",
+    "required": false,
+    "type": "string",
+    "description": "Alias for address"
+   },
+   {
     "name": "chain",
     "required": false,
     "type": "string",
@@ -322,6 +558,12 @@
     "required": true,
     "type": "string",
     "description": "0x address to inspect"
+   },
+   {
+    "name": "wallet",
+    "required": false,
+    "type": "string",
+    "description": "Alias for address"
    },
    {
     "name": "chain",
@@ -588,6 +830,84 @@
   ]
  },
  {
+  "name": "lei",
+  "path": "/lei",
+  "price": "$0.005",
+  "description": "Use this for a GLEIF Legal Entity Identifier lookup (CC0, no key): lei / name / registered_as (+ optional country). ALWAYS returns parents.direct + parents.ultimate (null if unreported), BIC/mapped ids, legal/hq address, status, jurisdiction. Soft-cached 24h. Path alias /lei/{lei}. Upsell /lei-full $0.05 for up to 10 name matches each with parents. Example: {lei:\"HWUPKR0MPOU8FGXBT394\"}. $0.005.",
+  "params": [
+   {
+    "name": "lei",
+    "required": false,
+    "type": "string",
+    "description": "20-char Legal Entity Identifier, e.g. HWUPKR0MPOU8FGXBT394"
+   },
+   {
+    "name": "name",
+    "required": false,
+    "type": "string",
+    "description": "Legal name search (best match)"
+   },
+   {
+    "name": "registered_as",
+    "required": false,
+    "type": "string",
+    "description": "National registration number"
+   },
+   {
+    "name": "country",
+    "required": false,
+    "type": "string",
+    "description": "Optional ISO2 with name/registered_as"
+   }
+  ]
+ },
+ {
+  "name": "lei_full",
+  "path": "/lei-full",
+  "price": "$0.05",
+  "description": "Use this to screen a legal name or national reg number against GLEIF: up to 10 ranked candidates, each with parents.direct + parents.ultimate, BIC/ids, jurisdiction/status. Bulk KYB name screening. Single LEI lookups: prefer cheaper /lei $0.005. Example: {name:\"Apple Inc.\",country:\"US\"}. $0.05.",
+  "params": [
+   {
+    "name": "name",
+    "required": false,
+    "type": "string",
+    "description": "Legal name search (up to 10 matches with parents)"
+   },
+   {
+    "name": "registered_as",
+    "required": false,
+    "type": "string",
+    "description": ""
+   },
+   {
+    "name": "country",
+    "required": false,
+    "type": "string",
+    "description": ""
+   },
+   {
+    "name": "lei",
+    "required": false,
+    "type": "string",
+    "description": "Optional single LEI (prefer /lei)"
+   }
+  ]
+ },
+ {
+  "name": "read_batch",
+  "path": "/read-batch",
+  "price": "$0.015",
+  "description": "Use this to read up to 8 public URLs in one call (~$0.0019/url vs $0.002 single): Readability markdown + title/word_count per URL, concurrency 4, ~8s timeout, markdown capped. GET urls=comma-list or POST {urls:[...]}. Preview=1: first 2 URLs. Example: {urls:\"https://example.com,https://example.org\"}. $0.015.",
+  "params": [
+   {
+    "name": "urls",
+    "required": true,
+    "type": "string",
+    "description": "Up to 8 http(s) URLs as comma-separated string or JSON array"
+   }
+  ]
+ },
+ {
   "name": "uk_leads_lite",
   "path": "/uk-leads-lite",
   "price": "$0.25",
@@ -664,10 +984,42 @@
   ]
  },
  {
+  "name": "uk_dd",
+  "path": "/uk-dd",
+  "price": "$1.00",
+  "description": "Use this for a UK-only due-diligence job: full Companies House pack (profile/officers/PSC/filings/charges/insolvency/red flags) + public sanctions screen (entity + active officers) + optional domain RDAP/website skim \u2192 composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not regulated KYC/AML. Between /uk-company ($0.50) and /kyb ($2.50). Path alias /uk-dd/{number}. Example: {number:\"00445790\"} or {name:\"TESCO\",domain:\"tesco.com\"}. $1.00.",
+  "params": [
+   {
+    "name": "number",
+    "required": false,
+    "type": "string",
+    "description": "UK Companies House number, e.g. 00445790"
+   },
+   {
+    "name": "company_number",
+    "required": false,
+    "type": "string",
+    "description": "Alias of number (Companies House field name)"
+   },
+   {
+    "name": "name",
+    "required": false,
+    "type": "string",
+    "description": "Registered company name to search"
+   },
+   {
+    "name": "domain",
+    "required": false,
+    "type": "string",
+    "description": "Optional website domain for RDAP / light website skim"
+   }
+  ]
+ },
+ {
   "name": "kyb",
   "path": "/kyb",
-  "price": "$2.00",
-  "description": "Use this for a one-shot agent KYB/due-diligence pack: optional website research + UK Companies House DD + EU VIES VAT + public sanctions screen (entity + directors) \u2192 composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not a regulated determination. Example: {domain:\"tesco.com\",number:\"00445790\"} or {vat:\"IE6388047V\"}. $2.00.",
+  "price": "$2.50",
+  "description": "Use this for a one-shot agent KYB/due-diligence pack: optional website research + UK Companies House DD and/or Australia ASIC (acn/abn) and/or Canada Corporations Canada (ca_number/bn) and/or France Recherche d'entreprises (siren/siret) + EU VIES VAT + optional GLEIF LEI (with ownership parents) + public sanctions screen (entity + directors) + director appointment skim (nominee/formation pattern) \u2192 composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not a regulated determination. Example: {domain:\"tesco.com\",number:\"00445790\"} or {siren:\"443061841\"} or {lei:\"HWUPKR0MPOU8FGXBT394\"}. $2.50.",
   "params": [
    {
     "name": "domain",
@@ -680,6 +1032,12 @@
     "required": false,
     "type": "string",
     "description": ""
+   },
+   {
+    "name": "company_number",
+    "required": false,
+    "type": "string",
+    "description": "Alias of number"
    },
    {
     "name": "name",
@@ -704,6 +1062,42 @@
     "required": false,
     "type": "string",
     "description": ""
+   },
+   {
+    "name": "acn",
+    "required": false,
+    "type": "string",
+    "description": "Australian ACN/ABN"
+   },
+   {
+    "name": "ca_number",
+    "required": false,
+    "type": "string",
+    "description": "Canadian corporation number"
+   },
+   {
+    "name": "bn",
+    "required": false,
+    "type": "string",
+    "description": "Canadian 9-digit BN"
+   },
+   {
+    "name": "lei",
+    "required": false,
+    "type": "string",
+    "description": "Optional 20-char GLEIF LEI (attaches parents)"
+   },
+   {
+    "name": "siren",
+    "required": false,
+    "type": "string",
+    "description": "French SIREN (9 digits)"
+   },
+   {
+    "name": "siret",
+    "required": false,
+    "type": "string",
+    "description": "French SIRET (14 digits)"
    }
   ]
  },
@@ -760,6 +1154,26 @@
   ]
  },
  {
+  "name": "uk_officer",
+  "path": "/uk-officer",
+  "price": "$0.15",
+  "description": "Use this to reverse-search a UK Companies House officer name to their appointments (company_number, role, appointed/resigned, status). Returns matches with address_snippet, appointment_count, DOB month/year, heuristic high-appointment / mass-formation flags. Public register (OGL); screening/research aid only - not a credit check. Example: {name:\"Ken Olisa\",limit:10}. $0.15.",
+  "params": [
+   {
+    "name": "name",
+    "required": true,
+    "type": "string",
+    "description": "Officer name to search (2-100 chars), e.g. Ken Olisa"
+   },
+   {
+    "name": "limit",
+    "required": false,
+    "type": "string",
+    "description": "Max officer matches 1-25 (default 10)"
+   }
+  ]
+ },
+ {
   "name": "chain_erc20_balance",
   "path": "/chain/erc20-balance",
   "price": "$0.001",
@@ -782,6 +1196,12 @@
     "required": false,
     "type": "string",
     "description": "EVM chain (default base)"
+   },
+   {
+    "name": "wallet",
+    "required": false,
+    "type": "string",
+    "description": "Alias for address (owner wallet)"
    }
   ]
  },
@@ -808,6 +1228,50 @@
     "required": false,
     "type": "string",
     "description": "Block number or tag (default latest)"
+   },
+   {
+    "name": "wallet",
+    "required": false,
+    "type": "string",
+    "description": "Alias for address (owner wallet)"
+   }
+  ]
+ },
+ {
+  "name": "chain_live_balance",
+  "path": "/chain/live-balance",
+  "price": "$0.002",
+  "description": "Live wallet balance \u2014 native ETH/POL plus up to 20 caller-supplied ERC20 tokens in one RPC batch (balanceOf + decimals + symbol). No hardcoded majors (use /wallet $0.003 for USDC/USDT/DAI/WETH pack). Example: {address:\"0xd8dA\u20266045\", tokens:\"0xdAC1\u20261ec7,0xA0b8\u2026eB48\", chain:\"ethereum\"}. $0.002.",
+  "params": [
+   {
+    "name": "address",
+    "required": true,
+    "type": "string",
+    "description": "Wallet address"
+   },
+   {
+    "name": "tokens",
+    "required": false,
+    "type": "string",
+    "description": "Comma-separated ERC20 contracts (max 20)"
+   },
+   {
+    "name": "chain",
+    "required": false,
+    "type": "string",
+    "description": "EVM chain (default base)"
+   },
+   {
+    "name": "network",
+    "required": false,
+    "type": "string",
+    "description": "Alias for chain (onesource-compatible)"
+   },
+   {
+    "name": "wallet",
+    "required": false,
+    "type": "string",
+    "description": "Alias for address (owner wallet)"
    }
   ]
  },
@@ -842,6 +1306,12 @@
     "required": false,
     "type": "string",
     "description": "EVM chain (default base)"
+   },
+   {
+    "name": "wallet",
+    "required": false,
+    "type": "string",
+    "description": "Alias for address (owner wallet)"
    }
   ]
  },
@@ -869,13 +1339,13 @@
   "name": "chain_erc20_transfers",
   "path": "/chain/erc20-transfers",
   "price": "$0.003",
-  "description": "ERC20 Transfer events for a token and/or wallet via eth_getLogs, decoded (from, to, amount with decimals, tx hash, block). Default last 1000 blocks, max 5000. Example: {token:\"0x8335\u20262913\", address:\"0x88b1\u20263ff6\", chain:\"base\"} \u2192 newest first. Use it to confirm incoming payments. $0.003.",
+  "description": "ERC20 Transfer events for a token and/or wallet via eth_getLogs, decoded (from, to, amount with decimals, tx hash, block). Default last 100 blocks, max 5000. Public RPCs need a contract filter: pass token=; if only wallet address is given, known chain tokens (USDC/WETH/\u2026) are scanned. Example: {token:\"0x8335\u20262913\", address:\"0x88b1\u20263ff6\", chain:\"base\"}. $0.003.",
   "params": [
    {
     "name": "token",
     "required": false,
     "type": "string",
-    "description": "ERC20 contract (optional if address given)"
+    "description": "ERC20 contract (recommended; required unless scanning known tokens for a wallet)"
    },
    {
     "name": "address",
@@ -893,7 +1363,7 @@
     "name": "blocks",
     "required": false,
     "type": "string",
-    "description": "Lookback blocks (default 1000, max 5000)"
+    "description": "Lookback blocks (default 100, max 5000)"
    },
    {
     "name": "from_block",
@@ -918,6 +1388,12 @@
     "required": false,
     "type": "string",
     "description": "EVM chain (default base)"
+   },
+   {
+    "name": "wallet",
+    "required": false,
+    "type": "string",
+    "description": "Alias for address (owner wallet)"
    }
   ]
  },
@@ -925,7 +1401,7 @@
   "name": "chain_events",
   "path": "/chain/events",
   "price": "$0.003",
-  "description": "Contract event logs via eth_getLogs filtered by contract and topics (topic0 = event signature hash). Raw logs, newest first; default last 1000 blocks, max 5000. Example: {address:\"0x8335\u20262913\", topic0:\"0xddf2\u2026b3ef\", chain:\"base\", blocks:\"50\"}. $0.003.",
+  "description": "Contract event logs via eth_getLogs filtered by contract and topics (topic0 = event signature hash). Raw logs, newest first; default last 100 blocks, max 5000 (auto-chunked for public RPC limits). Example: {address:\"0x8335\u20262913\", topic0:\"0xddf2\u2026b3ef\", chain:\"base\", blocks:\"50\"}. $0.003.",
   "params": [
    {
     "name": "address",
@@ -986,6 +1462,12 @@
     "required": false,
     "type": "string",
     "description": "EVM chain (default base)"
+   },
+   {
+    "name": "wallet",
+    "required": false,
+    "type": "string",
+    "description": "Alias for address (owner wallet)"
    }
   ]
  },
@@ -1040,6 +1522,12 @@
     "required": false,
     "type": "string",
     "description": "EVM chain (default base)"
+   },
+   {
+    "name": "wallet",
+    "required": false,
+    "type": "string",
+    "description": "Alias for address (owner wallet)"
    }
   ]
  },
@@ -1146,6 +1634,76 @@
   ]
  },
  {
+  "name": "chain_nft_metadata",
+  "path": "/chain/nft-metadata",
+  "price": "$0.002",
+  "description": "ERC721/1155 tokenURI/uri + resolved JSON metadata (IPFS/Arweave/data URI) plus collection name/symbol. Does not require ownerOf \u2014 use when explorers ask for /chain/nft-metadata. Prefer /nft ($0.002) when you also need current owner; /chain/nft-owner ($0.001) for owner only. Example: {contract:\"0xBC4C\u2026f13D\", token_id:\"1\", chain:\"ethereum\"}. $0.002.",
+  "params": [
+   {
+    "name": "contract",
+    "required": true,
+    "type": "string",
+    "description": "ERC721/1155 contract"
+   },
+   {
+    "name": "token_id",
+    "required": true,
+    "type": "string",
+    "description": ""
+   },
+   {
+    "name": "chain",
+    "required": false,
+    "type": "string",
+    "description": "EVM chain (default base)"
+   }
+  ]
+ },
+ {
+  "name": "chain_erc721_tokens",
+  "path": "/chain/erc721-tokens",
+  "price": "$0.002",
+  "description": "List every ERC721 token_id a wallet owns in a collection via balanceOf + tokenOfOwnerByIndex (ERC721Enumerable). Caps at limit (default 50, max 100). If the collection is not enumerable, returns is_enumerable:false with balance. Example: {contract:\"0xBC4C\u2026f13D\", address:\"0x46ef\u20262496\", chain:\"ethereum\"}. $0.002.",
+  "params": [
+   {
+    "name": "contract",
+    "required": true,
+    "type": "string",
+    "description": "ERC721 collection"
+   },
+   {
+    "name": "address",
+    "required": true,
+    "type": "string",
+    "description": "Owner wallet"
+   },
+   {
+    "name": "chain",
+    "required": false,
+    "type": "string",
+    "description": "EVM chain (default base)"
+   },
+   {
+    "name": "network",
+    "required": false,
+    "type": "string",
+    "description": "Alias for chain (onesource-compatible)"
+   },
+   {
+    "name": "limit",
+    "required": false,
+    "type": "string",
+    "description": "Max token_ids (default 50, max 100)"
+   },
+   {
+    "name": "wallet",
+    "required": false,
+    "type": "string",
+    "description": "Alias for address (owner wallet)"
+   }
+  ]
+ },
+ {
   "name": "chain_erc1155_balance",
   "path": "/chain/erc1155-balance",
   "price": "$0.001",
@@ -1174,6 +1732,12 @@
     "required": false,
     "type": "string",
     "description": "EVM chain (default base)"
+   },
+   {
+    "name": "wallet",
+    "required": false,
+    "type": "string",
+    "description": "Alias for address (owner wallet)"
    }
   ]
  },
@@ -1206,6 +1770,12 @@
     "required": false,
     "type": "string",
     "description": "EVM chain (default base)"
+   },
+   {
+    "name": "wallet",
+    "required": false,
+    "type": "string",
+    "description": "Alias for address (owner wallet)"
    }
   ]
  },
@@ -1226,6 +1796,12 @@
     "required": false,
     "type": "string",
     "description": "EVM chain (default base)"
+   },
+   {
+    "name": "wallet",
+    "required": false,
+    "type": "string",
+    "description": "Alias for address (owner wallet)"
    }
   ]
  },
@@ -1234,6 +1810,20 @@
   "path": "/chain/chain-id",
   "price": "$0.001",
   "description": "EIP-155 chain ID straight from the RPC (eth_chainId + net_version) \u2014 confirm which network you are about to sign on. Example: {chain:\"base\"} \u2192 {chain_id:8453}. $0.001.",
+  "params": [
+   {
+    "name": "chain",
+    "required": false,
+    "type": "string",
+    "description": "EVM chain (default base)"
+   }
+  ]
+ },
+ {
+  "name": "chain_pending",
+  "path": "/chain/pending",
+  "price": "$0.001",
+  "description": "Pending + latest block snapshot via eth_getBlockByNumber: pending number/hash/parentHash/timestamp/gas/baseFee/tx count/miner vs latest head age. Public RPCs may omit pending \u2014 then 502. Example: {chain:\"base\"}. $0.001.",
   "params": [
    {
     "name": "chain",
