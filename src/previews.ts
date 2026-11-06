@@ -3,7 +3,7 @@ import { CANONICAL } from "./facilitator";
 const PREVIEW_LIMIT = 8; // per IP per UTC day across all preview kinds
 const PREVIEW_PREFIX = "prev:";
 
-export type PreviewKind = "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "kyb" | "sanctions" | "sanctions-batch" | "uk-officer";
+export type PreviewKind = "email-check" | "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "kyb" | "sanctions" | "sanctions-batch" | "uk-officer";
 
 const PRICE: Record<PreviewKind, string> = {
   read: "$0.002", links: "$0.001", check: "$0.001",
@@ -11,7 +11,7 @@ const PRICE: Record<PreviewKind, string> = {
   convert: "$0.03", "company-full": "$0.65",
   "uk-charity": "$0.05", "uk-charity-full": "$0.25",
   "us-sec": "$0.05", "us-sec-full": "$0.25", "eu-vat": "$0.01", "lei": "$0.005", "lei-full": "$0.05", "read-batch": "$0.015",
-  "uk-leads": "$1.00", "uk-leads-lite": "$0.25", kyb: "$2.50",
+  "uk-leads": "$1.00", "uk-leads-lite": "$0.25", kyb: "$2.50", "email-check": "$0.002",
   sanctions: "$0.05", "sanctions-batch": "$1.00",
   "uk-officer": "$0.15",
 };
@@ -33,7 +33,7 @@ const PAID_CALL: Record<PreviewKind, string> = {
   "lei": `${CANONICAL}/lei?lei=HWUPKR0MPOU8FGXBT394`,
   "lei-full": `${CANONICAL}/lei-full?name=Apple+Inc.`,
   "read-batch": `${CANONICAL}/read-batch?urls=https://example.com,https://example.org`,
-  "uk-leads": `${CANONICAL}/uk-leads?sic=62012`, "uk-leads-lite": `${CANONICAL}/uk-leads-lite?sic=62`, kyb: `${CANONICAL}/kyb?domain=tesco.com&number=00445790`,
+  "uk-leads": `${CANONICAL}/uk-leads?sic=62012`, "uk-leads-lite": `${CANONICAL}/uk-leads-lite?sic=62`, "email-check": `${CANONICAL}/email-check?email=info@stripe.com`, kyb: `${CANONICAL}/kyb?domain=tesco.com&number=00445790`,
   sanctions: `${CANONICAL}/sanctions?name=BANCO+NACIONAL+DE+CUBA`, "sanctions-batch": `${CANONICAL}/sanctions-batch`,
   "uk-officer": `${CANONICAL}/uk-officer?name=Ken+Olisa`,
 };
@@ -204,6 +204,8 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         omitted: ["full company list", "full director lists"],
         attribution: data.attribution,
       };
+    case "email-check":
+      return { ...u, product: data.product, email: data.email, verdict: data.verdict, score: data.score, flags: data.flags, checks: data.checks, provider: data.provider, omitted: ["mx_hosts full", "upsell detail"] };
     case "kyb":
       return {
         ...u,

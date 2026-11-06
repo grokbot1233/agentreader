@@ -15,6 +15,7 @@ import { paymentMiddleware, x402ResourceServer } from "@x402/hono";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
 import { bazaarResourceServerExtension, declareDiscoveryExtension } from "@x402/extensions/bazaar";
 import { readUrl, linksFor, checkDomain, readBatch, UserError } from "./core";
+import { emailCheck } from "./email-check";
 import { companyResearch } from "./company";
 import { ukCompany } from "./uk-company";
 import { companyFull } from "./company-full";
@@ -42,6 +43,7 @@ const PRICES = {
   "/read": "$0.002",
   "/links": "$0.001",
   "/check": "$0.001",
+  "/email-check": "$0.002",
   "/company": "$0.25",
   "/uk-company": "$0.50",
   "/uk-company-lite": "$0.05",
@@ -66,7 +68,7 @@ const ATOMIC: Record<string, number> = {
   "/au-company": 20000,
   "/ca-company": 20000,
   "/registry-batch": 300000,
-  "/read": 2000, "/links": 1000, "/check": 1000,
+  "/read": 2000, "/links": 1000, "/check": 1000, "/email-check": 2000,
   "/company": 250000, "/uk-company": 500000, "/uk-company-lite": 50000, "/company-full": 650000,
   "/convert": 30000, "/monitor": 1000000,
   "/wallet": 3000, "/tx": 3000, "/token-check": 10000, "/fx": 2000,
@@ -88,6 +90,8 @@ const readOut = { type: "object", properties: {
   canonical_url: { type: "string" }, author: { type: ["string", "null"] }, published: { type: ["string", "null"] }, language: { type: ["string", "null"] },
   word_count: { type: "integer" }, markdown: { type: "string" }, links_count: { type: "integer" }, links: { type: "array", items: linkSchema } } };
 const linksOut = { type: "object", properties: { url: { type: "string" }, final_url: { type: "string" }, count: { type: "integer" }, links: { type: "array", items: linkSchema } } };
+const emailCheckIn = { type: "object", properties: { email: { type: "string", description: "Email address to validate" } }, required: ["email"] };
+const emailCheckOut = { type: "object", properties: { email: { type: "string" }, syntax_ok: { type: "boolean" }, verdict: { type: "string" }, score: { type: "number" }, flags: { type: "array" }, checks: { type: "object" }, provider: { type: "string" }, mx_hosts: { type: "array" } } };
 const checkIn = { type: "object", properties: { domain: { type: "string", description: "Domain name, e.g. example.com" } }, required: ["domain"] };
 const checkOut = { type: "object", properties: { domain: { type: "string" }, dns: { type: "object" }, dnssec_validated: { type: ["boolean", "null"] },
   tls: { type: "object" }, http: { type: "object" }, email: { type: "object", properties: { mx: { type: "array" }, spf: { type: "array" }, dmarc: { type: "array" }, dmarc_policy: { type: ["string", "null"] } } },
@@ -288,6 +292,7 @@ const DESC: Record<string, string> = {
   "/fx": "Use this for official ECB foreign-exchange reference rates (≈30 fiat currencies incl GBP/EUR/USD/JPY), latest or historical date, with optional amount conversion. Example: {base:\"GBP\", symbols:\"USD,EUR\", amount:\"100\"}. $0.002.",
   "/read": "Use this when you need the clean text of a public web page as Markdown + metadata (title, author, date, language, word count, links). Better than raw fetch/HTML: Readability extraction, structured JSON, ~1s. Example in: {url:\"https://example.com\"} → {title, markdown, word_count, links}. $0.002 USDC.",
   "/links": "Use this when you only need every absolute link on a page (crawl maps, sitemaps-lite). Faster/cheaper than /read. Example: {url} → {count, links:[{url,text,internal}]}. $0.001.",
+  "/email-check": "Use this to validate an email address before outreach or onboarding: RFC-ish syntax, MX/A via DNS-over-HTTPS, disposable/temp domain heuristics, free-provider and role-account flags, mail-host provider guess, score + verdict. No SMTP probe. Example: {email:\"info@stripe.com\"}. $0.002.",
   "/check": "Use this when vetting a domain's health before outreach or onboarding: DNS (DoH), DNSSEC, TLS/HTTPS, redirects, HSTS, MX/SPF/DMARC + score/issues. Structured JSON beats dig+openssl. Example: {domain:\"stripe.com\"} → {score, issues, email}. $0.001.",
   "/company": "Use this when researching any company from its website domain — not Companies House. Returns sourced tech stack, socials, emails/phones, DNS/MX/SPF/DMARC, RDAP age/registrar, SSL, sitemap, news. No LLM inventing facts. Example: {domain:\"stripe.com\"} → {homepage, tech_stack, contacts, dns, news, sources}. Prefer /uk-company* for UK filings. $0.25.",
   "/uk-company": "Use this for UK due diligence on a Companies House number or name: official API profile, officers, PSCs, filings, charges, insolvency + rule-based red flags (overdue, dissolved, churn, mass-formation office). Sourced JSON. Example: {number:\"00445790\"} or {name:\"TESCO\"}. Prefer /uk-company-lite ($0.05) for status/flags only. $0.50.",
@@ -335,8 +340,8 @@ const kybOut = { type: "object", properties: {
   product: { type: "string" }, disclaimer: { type: "string" }, website: {}, uk: {}, eu_vat: {}, lei: {},
   trust: { type: "object", properties: { flag: { type: "string" }, score: { type: "integer" }, reasons: { type: "array" } } } } };
 
-const OUT: any = { "/registry-batch": rbOut, "/ca-company": caOut, "/au-company": auOut, "/uk-officer": officerOut, "/sanctions": sanctionsOut, "/sanctions-batch": sanctionsBatchOut, "/uk-leads": leadsOut, "/uk-leads-lite": leadsOut, "/uk-leads-feed": leadsFeedOut, "/uk-watch": ukWatchOut, "/kyb": kybOut, "/search": searchOut, "/uk-property": propOut, "/uk-area": areaOut, "/uk-charity": charityOut, "/uk-charity-full": charityFullOut, "/us-sec": secOut, "/us-sec-full": secFullOut, "/eu-vat": vatOut, "/lei": leiOut, "/lei-full": leiFullOut, "/read-batch": readBatchOut, "/ens": ensOut, "/token": tokenMetaOut, "/allowance": allowOut, "/contract": contractOut, "/gas": gasOut, "/block": blockOut, "/nft": nftOut, "/wallet": walletOut, "/tx": txOut, "/token-check": tokenOut, "/fx": fxOut, "/read": readOut, "/links": linksOut, "/check": checkOut, "/company": companyOut, "/uk-company": ukOut, "/uk-company-lite": ukLiteOut, "/company-full": companyFullOut, "/convert": convertOut, "/monitor": monitorOut };
-const EX: any = { "/registry-batch": { uk: "00445790", au: "009661901,004028077", ca: "8660115" }, "/ca-company": { number: "8660115" }, "/au-company": { acn: "009661901" }, "/uk-officer": { name: "Ken Olisa", limit: 10 }, "/sanctions": { name: "BANCO NACIONAL DE CUBA" }, "/sanctions-batch": { names: ["BANCO NACIONAL DE CUBA", "Alice Wonderland"] }, "/uk-leads": { sic: "62012", days: 1, limit: 25 }, "/uk-leads-lite": { sic: "62", location: "London", days: 1 }, "/uk-leads-feed": { sic: "62012", webhook: "https://api.axiomworks.co.uk/hooks/sink" }, "/uk-watch": { number: "00445790", webhook: "https://api.axiomworks.co.uk/hooks/sink" }, "/kyb": { domain: "tesco.com", number: "00445790" }, 
+const OUT: any = { "/email-check": emailCheckOut,  "/registry-batch": rbOut, "/ca-company": caOut, "/au-company": auOut, "/uk-officer": officerOut, "/sanctions": sanctionsOut, "/sanctions-batch": sanctionsBatchOut, "/uk-leads": leadsOut, "/uk-leads-lite": leadsOut, "/uk-leads-feed": leadsFeedOut, "/uk-watch": ukWatchOut, "/kyb": kybOut, "/search": searchOut, "/uk-property": propOut, "/uk-area": areaOut, "/uk-charity": charityOut, "/uk-charity-full": charityFullOut, "/us-sec": secOut, "/us-sec-full": secFullOut, "/eu-vat": vatOut, "/lei": leiOut, "/lei-full": leiFullOut, "/read-batch": readBatchOut, "/ens": ensOut, "/token": tokenMetaOut, "/allowance": allowOut, "/contract": contractOut, "/gas": gasOut, "/block": blockOut, "/nft": nftOut, "/wallet": walletOut, "/tx": txOut, "/token-check": tokenOut, "/fx": fxOut, "/read": readOut, "/links": linksOut, "/check": checkOut, "/company": companyOut, "/uk-company": ukOut, "/uk-company-lite": ukLiteOut, "/company-full": companyFullOut, "/convert": convertOut, "/monitor": monitorOut };
+const EX: any = { "/email-check": { email: "info@stripe.com" }, "/registry-batch": { uk: "00445790", au: "009661901,004028077", ca: "8660115" }, "/ca-company": { number: "8660115" }, "/au-company": { acn: "009661901" }, "/uk-officer": { name: "Ken Olisa", limit: 10 }, "/sanctions": { name: "BANCO NACIONAL DE CUBA" }, "/sanctions-batch": { names: ["BANCO NACIONAL DE CUBA", "Alice Wonderland"] }, "/uk-leads": { sic: "62012", days: 1, limit: 25 }, "/uk-leads-lite": { sic: "62", location: "London", days: 1 }, "/uk-leads-feed": { sic: "62012", webhook: "https://api.axiomworks.co.uk/hooks/sink" }, "/uk-watch": { number: "00445790", webhook: "https://api.axiomworks.co.uk/hooks/sink" }, "/kyb": { domain: "tesco.com", number: "00445790" }, 
   "/search": { q: "x402 agent payments" }, "/uk-property": { postcode: "CB1 2AB" }, "/uk-area": { postcode: "SW1A 2AA" },
   "/uk-charity": { number: "1089464" }, "/uk-charity-full": { number: "1089464" },
   "/us-sec": { ticker: "AAPL" }, "/us-sec-full": { ticker: "AAPL" }, "/eu-vat": { vat: "IE6388047V" },
@@ -352,9 +357,9 @@ const EX: any = { "/registry-batch": { uk: "00445790", au: "009661901,004028077"
   "/convert": { url: "https://pdfobject.com/pdf/sample.pdf", format: "markdown" },
   "/monitor": { url: "https://example.com", webhook: "https://api.axiomworks.co.uk/hooks/sink" },
 };
-const IN: any = { "/registry-batch": rbIn, "/ca-company": caIn, "/au-company": auIn, "/uk-officer": officerIn, "/sanctions": sanctionsIn, "/sanctions-batch": sanctionsBatchIn, "/uk-leads": leadsIn, "/uk-leads-lite": leadsIn, "/uk-leads-feed": leadsFeedIn, "/uk-watch": ukWatchIn, "/kyb": kybIn, "/search": searchIn, "/uk-property": pcIn, "/uk-area": areaIn, "/uk-charity": charityIn, "/uk-charity-full": charityIn, "/us-sec": secIn, "/us-sec-full": secIn, "/eu-vat": vatIn, "/lei": leiIn, "/lei-full": leiFullIn, "/read-batch": readBatchIn, "/ens": ensIn, "/token": tokenMetaIn, "/allowance": allowIn, "/contract": contractIn, "/gas": gasIn, "/block": blockIn, "/nft": nftIn, "/wallet": walletIn, "/tx": txIn, "/token-check": tokenIn, "/fx": fxIn, "/read": urlIn, "/links": urlIn, "/check": checkIn, "/company": companyIn, "/uk-company": ukIn, "/uk-company-lite": ukLiteIn, "/company-full": companyFullIn, "/convert": convertIn, "/monitor": monitorIn };
+const IN: any = { "/email-check": emailCheckIn,  "/registry-batch": rbIn, "/ca-company": caIn, "/au-company": auIn, "/uk-officer": officerIn, "/sanctions": sanctionsIn, "/sanctions-batch": sanctionsBatchIn, "/uk-leads": leadsIn, "/uk-leads-lite": leadsIn, "/uk-leads-feed": leadsFeedIn, "/uk-watch": ukWatchIn, "/kyb": kybIn, "/search": searchIn, "/uk-property": pcIn, "/uk-area": areaIn, "/uk-charity": charityIn, "/uk-charity-full": charityIn, "/us-sec": secIn, "/us-sec-full": secIn, "/eu-vat": vatIn, "/lei": leiIn, "/lei-full": leiFullIn, "/read-batch": readBatchIn, "/ens": ensIn, "/token": tokenMetaIn, "/allowance": allowIn, "/contract": contractIn, "/gas": gasIn, "/block": blockIn, "/nft": nftIn, "/wallet": walletIn, "/tx": txIn, "/token-check": tokenIn, "/fx": fxIn, "/read": urlIn, "/links": urlIn, "/check": checkIn, "/company": companyIn, "/uk-company": ukIn, "/uk-company-lite": ukLiteIn, "/company-full": companyFullIn, "/convert": convertIn, "/monitor": monitorIn };
 const METHODS: Record<string, ("GET" | "POST")[]> = {
-  "/read": ["GET", "POST"], "/links": ["GET", "POST"], "/check": ["GET", "POST"],
+  "/read": ["GET", "POST"], "/links": ["GET", "POST"], "/check": ["GET", "POST"], "/email-check": ["GET", "POST"],
   "/company": ["GET", "POST"], "/uk-company": ["GET", "POST"], "/uk-company-lite": ["GET", "POST"], "/company-full": ["GET", "POST"], "/convert": ["GET", "POST"],
   "/monitor": ["POST"],
   "/wallet": ["GET", "POST"], "/tx": ["GET", "POST"], "/token-check": ["GET", "POST"], "/fx": ["GET", "POST"],
@@ -469,7 +474,7 @@ const ALIAS_DOCS: [string, string, string[]][] = [
   ["/tx/{hash}", "/tx", ["hash"]], ["/ens/{name}", "/ens", ["name"]], ["/contract/{address}", "/contract", ["address"]],
   ["/wallet/{address}", "/wallet", ["address"]], ["/address/{address}", "/wallet", ["address"]], ["/token/{address}", "/token", ["address"]],
   ["/token-check/{address}", "/token-check", ["address"]], ["/block/{number}", "/block", ["number"]], ["/nft/{contract}/{token_id}", "/nft", ["contract", "token_id"]],
-  ["/gas/{chain}", "/gas", ["chain"]], ["/check/{domain}", "/check", ["domain"]], ["/uk-company/{number}", "/uk-company", ["number"]],
+  ["/gas/{chain}", "/gas", ["chain"]], ["/check/{domain}", "/check", ["domain"]], ["/email-check/{email}", "/email-check", ["email"]], ["/uk-company/{number}", "/uk-company", ["number"]],
   ["/uk-charity/{number}", "/uk-charity", ["number"]], ["/us-sec/{ticker}", "/us-sec", ["ticker"]], ["/eu-vat/{vat}", "/eu-vat", ["vat"]], ["/lei/{lei}", "/lei", ["lei"]], ["/au-company/{acn}", "/au-company", ["acn"]], ["/ca-company/{number}", "/ca-company", ["number"]],
 ];
 app.get("/openapi.json", (c) => {
@@ -487,7 +492,7 @@ app.get("/openapi.json", (c) => {
   paths["/uk-leads-feed/{id}"] = { get: { summary: "Free UK leads-feed status (id is the secret)", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { "200": { description: "Feed status" }, "404": { description: "Not found" } }, "x-price": "free" } };
   paths["/uk-watch/{id}"] = { get: { summary: "Free UK company-watch status (id is the secret)", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { "200": { description: "Watch status" }, "404": { description: "Not found" } }, "x-price": "free" } };
   paths["/monitor/{id}"] = { get: { summary: "Free monitor status (id is the secret)", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { "200": { description: "Monitor status" }, "404": { description: "Not found" } }, "x-price": "free" } };
-  paths["/samples/{kind}"] = { get: { summary: "Free truncated sample (rate-limited 8/IP/day) with x402 upsell", parameters: [{ name: "kind", in: "path", required: true, schema: { type: "string", enum: ["read","company","uk-company","uk-company-lite","convert","uk-charity","uk-charity-full","us-sec","us-sec-full","eu-vat","lei","lei-full","read-batch","uk-leads","uk-leads-lite","kyb","uk-officer"] } }], responses: { "200": { description: "Truncated sample" }, "429": { description: "Preview quota exceeded" } }, "x-price": "free" } };
+  paths["/samples/{kind}"] = { get: { summary: "Free truncated sample (rate-limited 8/IP/day) with x402 upsell", parameters: [{ name: "kind", in: "path", required: true, schema: { type: "string", enum: ["read","company","uk-company","uk-company-lite","convert","uk-charity","uk-charity-full","us-sec","us-sec-full","eu-vat","lei","lei-full","read-batch","uk-leads","uk-leads-lite","kyb","email-check","uk-officer"] } }], responses: { "200": { description: "Truncated sample" }, "429": { description: "Preview quota exceeded" } }, "x-price": "free" } };
   for (const [ap, to, ks] of ALIAS_DOCS) { const price = PRICES[to];
     paths[ap] = { get: { summary: `Path alias of ${to} (same price/x402 challenge). ${DESC[to] || ""}`, parameters: [...ks.map((k) => ({ name: k, in: "path", required: true, schema: { type: "string" } })), { name: "chain", in: "query", required: false, schema: { type: "string" } }, { name: "preview", in: "query", required: false, schema: { type: "string", enum: ["1"] } }],
       responses: { "200": { description: "Success", content: { "application/json": { schema: OUT[to] } } }, "402": { description: `Payment required: ${price} USDC on Base (x402)` } }, "x-price": price, "x-alias-of": to } }; }
@@ -508,6 +513,7 @@ const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
 | Batch page → Markdown | ${b}/read-batch?urls= | $0.015 | Up to 8 URLs (~$0.0019/url) |
 | Links only | ${b}/links?url= | $0.001 | Cheaper than /read |
 | Domain health | ${b}/check?domain= | $0.001 | DNS/TLS/MX/SPF/DMARC + score |
+| Email check | ${b}/email-check?email=info@stripe.com | $0.002 | Syntax + MX/A + disposable/free/role flags (free: &preview=1) |
 | Website company research | ${b}/company?domain= | $0.25 | Sourced tech/contacts/DNS/RDAP/news (no LLM fiction) |
 | UK CH full DD | ${b}/uk-company?number=\|name= | $0.50 | Official API: officers/PSC/filings/charges/insolvency + red flags |
 | UK officer search | ${b}/uk-officer?name= | $0.15 | Reverse officer name → appointments + high-appt/mass-formation flags |
@@ -733,7 +739,7 @@ app.get("/samples", (c) => c.json({
   samples: Object.keys(STATIC_SAMPLES),
   live_preview: "Add ?preview=1 to paid GET routes (same IP daily quota)",
   limit: "8 previews/IP/UTC day",
-  kinds: ["read","links","check","company","uk-company","uk-company-lite","convert","company-full","uk-charity","uk-charity-full","us-sec","us-sec-full","eu-vat","lei","lei-full","read-batch","uk-leads","uk-leads-lite","kyb","sanctions","sanctions-batch","uk-officer"],
+  kinds: ["read","links","check","company","uk-company","uk-company-lite","convert","company-full","uk-charity","uk-charity-full","us-sec","us-sec-full","eu-vat","lei","lei-full","read-batch","uk-leads","uk-leads-lite","kyb","email-check","sanctions","sanctions-batch","uk-officer"],
 }));
 app.get("/samples/:kind", async (c) => {
   const kind = c.req.param("kind") as PreviewKind;
@@ -860,6 +866,13 @@ for (const m of ["get", "post"] as const) {
     if (c.req.query("preview") === "1" && m === "get")
       return livePreview(c, "check", () => checkDomain(domain), `${CANONICAL}/check?domain=${encodeURIComponent(domain)}`);
     return cached(c, `check?domain=${encodeURIComponent(domain)}`, () => checkDomain(domain));
+  });
+  app[m]("/email-check", async (c) => {
+    const b = await bodyObj(c);
+    const email = (b.email || "").trim(); if (!email) return c.json({ error: "missing email", example: { email: "info@stripe.com" } }, 400);
+    if (c.req.query("preview") === "1" && m === "get")
+      return livePreview(c, "email-check", () => emailCheck({ email }), `${CANONICAL}/email-check?email=${encodeURIComponent(email)}`);
+    return cached(c, `email-check?email=${encodeURIComponent(email.toLowerCase())}`, () => emailCheck({ email }), 3600);
   });
   app[m]("/company", async (c) => {
     const b = await bodyObj(c);
@@ -1114,6 +1127,7 @@ const ALIASES: [RegExp, string, (m: RegExpMatchArray) => Record<string, string>]
   [/^\/nft\/(0x[0-9a-fA-F]{40})\/(\d{1,78})$/, "/nft", (m) => ({ contract: m[1], token_id: m[2] })],
   [/^\/gas\/([a-z]+)$/, "/gas", (m) => ({ chain: m[1] })],
   [/^\/(?:check|domain)\/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/, "/check", (m) => ({ domain: m[1] })],
+  [/^\/email-check\/([^/?#]+)$/, "/email-check", (m) => ({ email: decodeURIComponent(m[1]) })],
   [/^\/uk-company\/([A-Za-z0-9]{8})$/, "/uk-company", (m) => ({ number: m[1].toUpperCase() })],
   [/^\/uk-charity\/(\d{6,8}(?:\/\d{1,2})?)$/, "/uk-charity", (m) => ({ number: m[1] })],
   [/^\/us-sec\/(\d{1,10})$/, "/us-sec", (m) => ({ cik: m[1] })],

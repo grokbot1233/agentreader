@@ -23,6 +23,7 @@ import { euVat } from "./eu-vat";
 import { leiLookup, leiFull } from "./lei";
 import { ukLeads, createLeadsFeed } from "./uk-leads";
 import { createUkWatch } from "./uk-watch";
+import { emailCheck } from "./email-check";
 import { kybReport, bindingRegistries } from "./kyb";
 import { screenSanctions, screenSanctionsBatch } from "./sanctions";
 import { ukOfficerSearch } from "./uk-officer";
@@ -73,6 +74,10 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
     { url: z.string().url() },
     (await mk("$0.001", "extract_links", 1000))(async (a: any) => { try { return json(await linksFor(a.url)); } catch (e) { return err(e); } }) as any);
 
+  server.tool("email_check",
+    "Validate an email: syntax, MX/A DNS, disposable/free/role flags, provider guess, score+verdict. No SMTP probe. $0.002 USDC.",
+    { email: z.string() },
+    (await mk("$0.002", "email_check", 2000))(async (a: any) => { try { return json(await emailCheck(a)); } catch (e) { return err(e); } }) as any);
   server.tool("check_domain",
     "Use this when vetting domain health before outreach: DNS (DoH), DNSSEC, TLS/HTTPS, HSTS, MX/SPF/DMARC, issues + score. Structured JSON beats shell dig/openssl. Example: {domain:\"stripe.com\"}. $0.001 USDC.",
     { domain: z.string() },
@@ -253,6 +258,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       read_batch: { price: "$0.015", when: "batch web read up to 8 URLs" },
       sanctions_screen: { price: "$0.05", when: "OFAC/UK/UN/EU name sanctions screen" },
       sanctions_batch: { price: "$1.00", when: "batch <=50 sanctions screens" },
+      email_check: { price: "$0.002", when: "validate email before outreach/onboarding" },
       kyb_report: { price: "$2.50", when: "UK/AU/CA registry+VAT+LEI+website+sanctions+director appointments KYB pack" },
       uk_officer: { price: "$0.15", when: "UK officer name → appointments reverse search" },
       ...Object.fromEntries(CHAIN_ROUTES.map((r) => ["chain_" + r.path.slice(7).replace(/-/g, "_"), { price: r.price, when: r.desc.split(".")[0].slice(0, 90) }])),
