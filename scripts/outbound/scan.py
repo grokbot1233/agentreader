@@ -76,6 +76,8 @@ def categorize(desc, url):
     return "other"
 
 def onchain(blocks=20000, top_services=25):
+    if isinstance(blocks, bool) or not isinstance(blocks, int) or blocks <= 0:
+        raise ValueError("blocks must be a positive integer")
     items = bazaar()
     svcs = []
     for it in items:
@@ -91,20 +93,41 @@ def onchain(blocks=20000, top_services=25):
     chosen = [s for s in by_pay.values() if s["payTo"] != OUR_PAYTO][:top_services]
     head = int(rpc("eth_blockNumber", []), 16)
     payers = collections.defaultdict(lambda: {"tx": 0, "usdc": 0.0, "services": set(), "cats": set()})
+    coverage_by_pay = {}
     for s in chosen:
         topic = "0x" + "0" * 24 + s["payTo"][2:]
-        start = head - blocks
-        while start < head:
+        window_start = max(0, head - blocks + 1)
+        coverage = {
+            "from_block": window_start,
+            "to_block": head,
+            "complete": True,
+            "completed_ranges": [],
+            "failed_ranges": [],
+        }
+        recipient_logs = []
+        start = window_start
+        while start <= head:
             end = min(start + 9999, head)
             try:
                 logs = rpc("eth_getLogs", [{"fromBlock": hex(start), "toBlock": hex(end), "address": USDC, "topics": [TRANSFER, None, topic]}])
             except Exception as e:
-                print("logs err", s["payTo"], e, file=sys.stderr); logs = []
-            for lg in logs:
-                frm = "0x" + lg["topics"][1][-40:]
-                p = payers[frm]; p["tx"] += 1; p["usdc"] += int(lg["data"], 16) / 1e6
-                p["services"].add(s["resource"]); p["cats"].add(categorize(s["desc"], s["resource"] or ""))
-            start = end + 1; time.sleep(0.2)
+                print("logs err", s["payTo"], e, file=sys.stderr)
+                coverage["complete"] = False
+                coverage["failed_ranges"].append({
+                    "from_block": start, "to_block": end, "error": str(e),
+                })
+            else:
+                recipient_logs.extend(logs)
+                coverage["completed_ranges"].append({"from_block": start, "to_block": end})
+            start = end + 1
+            if start <= head: time.sleep(0.2)
+        coverage_by_pay[s["payTo"]] = coverage
+        if not coverage["complete"]:
+            continue
+        for lg in recipient_logs:
+            frm = "0x" + lg["topics"][1][-40:]
+            p = payers[frm]; p["tx"] += 1; p["usdc"] += int(lg["data"], 16) / 1e6
+            p["services"].add(s["resource"]); p["cats"].add(categorize(s["desc"], s["resource"] or ""))
     leads = []
     for w, p in payers.items():
         if p["tx"] < 3: continue  # ignore one-off testers
@@ -115,7 +138,7 @@ def onchain(blocks=20000, top_services=25):
                       "why": f"Already pays x402 programmatically; buys {', '.join(cats)}. Services: {', '.join(list(p['services'])[:3])}",
                       "product": fit, "action": "No direct contact possible (wallet only). Ensure our Bazaar listing ranks for its categories; check ENS/x402scan for an owner identity.",
                       "score": min(90, 30 + 12 * len(p["services"]) + min(20, p["tx"] // 50))})
-    market = [{"resource": s["resource"], "payTo": s["payTo"], "calls30": s["calls30"], "payers30": s["payers30"], "category": categorize(s["desc"], s["resource"] or "")} for s in chosen]
+    market = [{"resource": s["resource"], "payTo": s["payTo"], "calls30": s["calls30"], "payers30": s["payers30"], "category": categorize(s["desc"], s["resource"] or ""), "coverage": coverage_by_pay[s["payTo"]]} for s in chosen]
     return leads, market
 
 # ---------------- (b) GitHub ----------------
