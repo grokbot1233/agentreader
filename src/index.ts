@@ -520,7 +520,7 @@ function discovery(c: any) {
     contact: CONTACT, ownershipProofs: [] };
 }
 
-app.get("/health", (c) => c.json({ ok: true, version: "1.27.2", ts: new Date().toISOString() }));
+app.get("/health", (c) => c.json({ ok: true, version: "1.27.3", ts: new Date().toISOString() }));
 app.get("/.well-known/x402", (c) => c.json(discovery(c)));
 app.get("/.well-known/x402.json", (c) => c.json(discovery(c)));
 app.get("/.well-known/402index-verify.txt", (c) => c.text("9a944a1ce3c68588c5fb1d104be63981bb5e6b6e302fa0a1bd65b6a3cd5f5372"));
@@ -531,7 +531,7 @@ app.get("/.well-known/agent-card.json", (c) => {
   return c.json({
     protocolVersion: "0.3.0", name: "Axiom Works AgentReader",
     description: "Pay-per-call (x402, USDC on Base) UK Companies House, KYB, SEC EDGAR, EU VAT, web-to-markdown and EVM on-chain lookups for AI agents. HTTP + MCP; no API keys.",
-    url: b, preferredTransport: "HTTP+JSON", version: "1.27.2", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
+    url: b, preferredTransport: "HTTP+JSON", version: "1.27.3", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
     provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk" },
     capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
     defaultInputModes: ["application/json"], defaultOutputModes: ["application/json"],
@@ -544,14 +544,14 @@ app.get("/.well-known/agent.json", (c) => {
   return c.json({
     name: "Axiom Works AgentReader", description: "x402 pay-per-call web reader, email/phone/IBAN validate, company research, UK Companies House + Charity Commission + US SEC EDGAR + EU VIES VAT + OFAC/UK/UN/EU sanctions screening due diligence, document conversion, change monitoring, EVM wallet/tx/token risk checks and ECB FX rates for AI agents.",
     url: b, provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk", email: CONTACT },
-    version: "1.27.2", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
+    version: "1.27.3", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     skills: Object.entries(PRICES).map(([p, price]) => ({ id: p.slice(1), name: p, description: DESC[p], price, endpoint: `${b}${p}` })),
     mcp: `${b}/mcp`, payments: { protocol: "x402", network: NETWORK, asset: USDC, payTo: c.env.PAY_TO },
   });
 });
 app.get("/.well-known/mcp.json", (c) => {
   const b = base(c);
-  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.27.2",
+  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.27.3",
     description: "x402 pay-per-call MCP: web reader, email/phone/IBAN validate, UK/AU/CA registries, SEC, VAT, sanctions, EVM chain data.",
     transport: { type: "streamable-http", url: `${b}/mcp` }, documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     payments: { protocol: "x402", network: NETWORK, asset: USDC } });
@@ -588,7 +588,7 @@ app.get("/openapi.json", (c) => {
     paths[ap] = { get: { summary: `Path alias of ${to} (same price/x402 challenge). ${DESC[to] || ""}`, parameters: [...ks.map((k) => ({ name: k, in: "path", required: true, schema: { type: "string" } })), { name: "chain", in: "query", required: false, schema: { type: "string" } }, { name: "preview", in: "query", required: false, schema: { type: "string", enum: ["1"] } }],
       responses: { "200": { description: "Success", content: { "application/json": { schema: OUT[to] } } }, "402": { description: `Payment required: ${price} USDC on Base (x402)` } }, "x-price": price, "x-alias-of": to } }; }
   paths["/hooks/sink"] = { post: { summary: "Free webhook test sink for /monitor", responses: { "200": { description: "Stored" } }, "x-price": "free" } };
-  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.27.2", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, email-check, domain RDAP, DNS resolve, URL redirects unwrap, page metadata/OG, HTTP security headers, IBAN/phone/UK-postcode/SIREN/SIRET/Partita-IVA/SE-orgnr/CA-BN/DK-CVR/AT-FN/IN-CIN validate, company research, UK/AU/CA registries, LEI, sanctions, SEC, VIES VAT, document conversion, change monitoring, EVM/FX. Payments: USDC on Base mainnet (eip155:8453)." },
+  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.27.3", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, email-check, domain RDAP, DNS resolve, URL redirects unwrap, page metadata/OG, HTTP security headers, IBAN/phone/UK-postcode/SIREN/SIRET/Partita-IVA/SE-orgnr/CA-BN/DK-CVR/AT-FN/IN-CIN validate, company research, UK/AU/CA registries, LEI, sanctions, SEC, VIES VAT, document conversion, change monitoring, EVM/FX. Payments: USDC on Base mainnet (eip155:8453)." },
     servers: [{ url: b }], paths });
 });
 const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
