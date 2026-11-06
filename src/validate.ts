@@ -19,6 +19,7 @@ export function aliasInput(path: string, b: any) {
   if (["/uk-dd", "/uk-company", "/uk-company-lite", "/uk-watch", "/kyb"].includes(path)) {
     if (!s(b.number) && s(b.company_number)) b.number = s(b.company_number);
   }
+  if ((path.startsWith("/chain/") || path === "/nft") && !s(b.chain) && s(b.network)) b.chain = s(b.network);
   return b;
 }
 

@@ -267,6 +267,28 @@
   }
  },
  {
+  "path": "/chain/erc721-tokens",
+  "tool": "chain_erc721_tokens",
+  "price": "$0.002",
+  "description": "List every ERC721 token_id a wallet owns in a collection via balanceOf + tokenOfOwnerByIndex (ERC721Enumerable). Caps at limit (default 50, max 100). If the collection is not enumerable, returns is_enumerable:false with balance. Example: {contract:\"0xBC4C…f13D\", address:\"0x46ef…2496\", chain:\"ethereum\"}. $0.002.",
+  "params": {
+   "contract": "ERC721 collection",
+   "address": "Owner wallet",
+   "chain": "EVM chain (default base)",
+   "network": "Alias for chain (onesource-compatible)",
+   "limit": "Max token_ids (default 50, max 100)"
+  },
+  "required": [
+   "contract",
+   "address"
+  ],
+  "example": {
+   "contract": "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D",
+   "address": "0x46efbaedc92067e6d60e84ed6395099723252496",
+   "chain": "ethereum"
+  }
+ },
+ {
   "path": "/chain/erc1155-balance",
   "tool": "chain_erc1155_balance",
   "price": "$0.001",

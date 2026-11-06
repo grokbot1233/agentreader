@@ -214,6 +214,49 @@ add({ path: "/chain/nft-metadata", price: "$0.002", atomic: 2000, ttl: 120, keys
     return { ...meta(name, ch), contract: b.contract, token_id: b.token_id, standard, token_uri: uri || null, metadata, metadata_error: metaErr, collection: { name: decStr(nm), symbol: decStr(sym) }, source: "eth_call tokenURI/uri + IPFS/Arweave/HTTP gateway" };
   } });
 
+add({ path: "/chain/erc721-tokens", price: "$0.002", atomic: 2000, ttl: 45, keys: ["contract", "address", "chain", "limit", "network"],
+  desc: "List every ERC721 token_id a wallet owns in a collection via balanceOf + tokenOfOwnerByIndex (ERC721Enumerable). Caps at limit (default 50, max 100). If the collection is not enumerable, returns is_enumerable:false with balance. Example: {contract:\"0xBC4C…f13D\", address:\"0x46ef…2496\", chain:\"ethereum\"}. $0.002.",
+  in: { type: "object", properties: { contract: addrP("ERC721 collection"), address: addrP("Owner wallet"), chain: chainP, network: { type: "string", description: "Alias for chain (onesource-compatible)" }, limit: { type: "string", description: "Max token_ids (default 50, max 100)" } }, required: ["contract", "address"] },
+  out: { type: "object", properties: { balance: { type: "string" }, is_enumerable: { type: "boolean" }, token_ids: { type: "array", items: { type: "string" } }, name: { type: ["string", "null"] }, symbol: { type: ["string", "null"] }, truncated: { type: "boolean" } } },
+  ex: { contract: "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D", address: "0x46efbaedc92067e6d60e84ed6395099723252496", chain: "ethereum" },
+  validate: (b) => {
+    if (!S(b.chain) && S(b.network)) b.chain = S(b.network);
+    const lim = S(b.limit);
+    return first(addrErr(b.contract, "contract"), addrErr(b.address, "address"), chainErr(b), lim && !(Number(lim) >= 1 && Number(lim) <= 100) ? "limit must be 1-100" : null);
+  },
+  fn: async (b) => {
+    if (!S(b.chain) && S(b.network)) b.chain = S(b.network);
+    const [name, ch] = chainOf(b.chain);
+    const lim = Math.min(Math.max(Number(S(b.limit) || 50) || 50, 1), 100);
+    const [balR, nm, sym] = await rpcBatch(ch.rpc, [call(b.contract, "0x70a08231" + pad(b.address)), call(b.contract, "0x06fdde03"), call(b.contract, "0x95d89b41")]);
+    if (balR == null || balR === "0x") throw new UserError(`balanceOf reverted — is ${b.contract} an ERC721 on ${name}?`, 422);
+    const balance = big(balR);
+    const balStr = balance.toString();
+    const base = { ...meta(name, ch), contract: b.contract, address: b.address, balance: balStr, name: decStr(nm), symbol: decStr(sym) };
+    if (balance === 0n) return { ...base, is_enumerable: true, token_ids: [], truncated: false, source: "eth_call balanceOf + tokenOfOwnerByIndex" };
+    const n = Number(balance > BigInt(lim) ? BigInt(lim) : balance);
+    const idxs: [string, any[]][] = [];
+    for (let i = 0; i < n; i++) idxs.push(call(b.contract, "0x2f745c59" + pad(b.address) + BigInt(i).toString(16).padStart(64, "0")));
+    // Chunk eth_calls — public RPCs often cap batch size ~20–40
+    const CHUNK = 25;
+    const results: any[] = [];
+    for (let i = 0; i < idxs.length; i += CHUNK) {
+      const part = await rpcBatch(ch.rpc, idxs.slice(i, i + CHUNK));
+      results.push(...part);
+    }
+    // If first index reverts → not enumerable (still a useful paid signal)
+    if (results[0] == null || results[0] === "0x") {
+      return { ...base, is_enumerable: false, token_ids: [], truncated: false, note: "collection not ERC721Enumerable", source: "eth_call balanceOf (tokenOfOwnerByIndex reverted)" };
+    }
+    const token_ids: string[] = [];
+    for (const r of results) {
+      if (r == null || r === "0x") break;
+      token_ids.push(big(r).toString());
+    }
+    return { ...base, is_enumerable: true, token_ids, truncated: balance > BigInt(token_ids.length), source: "eth_call balanceOf + tokenOfOwnerByIndex" };
+  } });
+
+
 add({ path: "/chain/erc1155-balance", price: "$0.001", atomic: 1000, ttl: 15, keys: ["contract", "address", "token_id", "chain"],
   desc: "ERC1155 balance: how many copies of token_id a wallet holds, via balanceOf(address,uint256) (eth_call). Example: {contract:\"0x…\", address:\"0x…\", token_id:\"1\", chain:\"base\"}. $0.001.",
   in: { type: "object", properties: { contract: addrP("ERC1155 contract"), address: addrP("Holder"), token_id: { type: "string" }, chain: chainP }, required: ["contract", "address", "token_id"] }, out: { type: "object", properties: { balance: { type: "string" } } },
