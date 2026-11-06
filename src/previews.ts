@@ -51,9 +51,29 @@ const PAID_CALL: Record<PreviewKind, string> = {
   "cin-in": `${CANONICAL}/cin-in?cin=U72200KA2013PTC097389`,
 };
 
+// Temporary partner allowlist (SwarmMemo, github.com/Hugo0/swarmmemo/issues/49).
+// Exempt from the shared preview cap ONLY until expiry; normal limits apply after.
+const PREVIEW_ALLOWLIST_EXPIRES = Date.parse("2026-11-13T23:59:59Z");
+const PREVIEW_ALLOWLIST = new Set(["2.28.121.78", "2a01:04f8:1c1e:cbe0:0000:0000:0000:0001"]);
+
+function normIp(ip: string): string {
+  ip = (ip || "").trim().toLowerCase();
+  if (!ip.includes(":")) return ip;
+  const [h, t] = ip.split("::");
+  const head = h ? h.split(":") : [];
+  const tail = t !== undefined && t ? t.split(":") : [];
+  const fill = ip.includes("::") ? Array(8 - head.length - tail.length).fill("0") : [];
+  return [...head, ...fill, ...tail].map((x) => x.padStart(4, "0")).join(":");
+}
+
+export function isPreviewAllowlisted(ip: string, now = Date.now()): boolean {
+  return now <= PREVIEW_ALLOWLIST_EXPIRES && PREVIEW_ALLOWLIST.has(normIp(ip));
+}
+
 function dayKey() { return new Date().toISOString().slice(0, 10); }
 
 export async function checkPreviewQuota(env: { LOG: KVNamespace }, ip: string): Promise<{ ok: true; remaining: number; kv_write?: boolean } | { ok: false; error: string; reset: string }> {
+  if (isPreviewAllowlisted(ip)) return { ok: true, remaining: PREVIEW_LIMIT, kv_write: false };
   const key = `${PREVIEW_PREFIX}${dayKey()}:${ip || "unknown"}`;
   let cur = 0;
   try {

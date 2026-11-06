@@ -199,3 +199,7 @@ All support `?preview=1` (free, truncated, 8/IP/day). Edge-cached per input (10 
 
 ### Path aliases
 Explorer-style paths map to the same paid routes/prices: `/tx/:hash`, `/ens/:name|:address`, `/contract/:address`, `/wallet/:address` (`/address/`, `/balance/`), `/token/:address`, `/token-check/:address`, `/block/:number`, `/nft/:contract/:id`, `/gas/:chain`, `/check/:domain`, `/domain/:domain`, `/email-check/:email`, `/uk-company/:number`, `/uk-charity/:number`, `/us-sec/:ticker|:cik`, `/eu-vat/:vat`, `/lei/:lei`. Add `?chain=` / `?preview=1` as usual.
+
+## Operator note
+
+Companies House lists a dissolved AXIOMWORKS LTD (company number 06990365). That company is not the operator of api.axiomworks.co.uk or Axiom Works AgentReader.
