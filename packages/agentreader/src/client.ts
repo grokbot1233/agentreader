@@ -167,6 +167,10 @@ export class AgentReaderClient {
   ibanValidate(input: { iban: string }, opts?: RequestOpts) {
     return this.get("/iban", input, opts);
   }
+  /** Offline E.164 phone structure validate ($0.001). */
+  phoneCheck(input: { phone: string; country?: string }, opts?: RequestOpts) {
+    return this.get("/phone", input as any, opts);
+  }
   companyResearch(input: { domain: string }, opts?: RequestOpts) {
     return this.get("/company", input, opts);
   }

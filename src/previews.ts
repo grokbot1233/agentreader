@@ -3,7 +3,7 @@ import { CANONICAL } from "./facilitator";
 const PREVIEW_LIMIT = 8; // per IP per UTC day across all preview kinds
 const PREVIEW_PREFIX = "prev:";
 
-export type PreviewKind = "headers" | "iban" | "meta" | "redirects" | "dns" | "au-company" | "ca-company" | "domain" | "email-check" | "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "kyb" | "sanctions" | "sanctions-batch" | "uk-officer" | "uk-property" | "uk-area";
+export type PreviewKind = "headers" | "iban" | "phone" | "meta" | "redirects" | "dns" | "au-company" | "ca-company" | "domain" | "email-check" | "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "kyb" | "sanctions" | "sanctions-batch" | "uk-officer" | "uk-property" | "uk-area";
 
 const PRICE: Record<PreviewKind, string> = {
   read: "$0.002", links: "$0.001", check: "$0.001",
@@ -11,7 +11,7 @@ const PRICE: Record<PreviewKind, string> = {
   convert: "$0.03", "company-full": "$0.65",
   "uk-charity": "$0.05", "uk-charity-full": "$0.25",
   "us-sec": "$0.05", "us-sec-full": "$0.25", "eu-vat": "$0.01", "lei": "$0.005", "lei-full": "$0.05", "read-batch": "$0.015",
-  "uk-leads": "$1.00", "uk-leads-lite": "$0.25", kyb: "$2.50", "email-check": "$0.002", domain: "$0.002", dns: "$0.001", redirects: "$0.001", meta: "$0.001", headers: "$0.001", iban: "$0.001", "au-company": "$0.02", "ca-company": "$0.02",
+  "uk-leads": "$1.00", "uk-leads-lite": "$0.25", kyb: "$2.50", "email-check": "$0.002", domain: "$0.002", dns: "$0.001", redirects: "$0.001", meta: "$0.001", headers: "$0.001", iban: "$0.001", phone: "$0.001", "au-company": "$0.02", "ca-company": "$0.02",
   sanctions: "$0.05", "sanctions-batch": "$1.00",
   "uk-officer": "$0.15",
   "uk-property": "$0.01", "uk-area": "$0.005",
@@ -34,7 +34,7 @@ const PAID_CALL: Record<PreviewKind, string> = {
   "lei": `${CANONICAL}/lei?lei=HWUPKR0MPOU8FGXBT394`,
   "lei-full": `${CANONICAL}/lei-full?name=Apple+Inc.`,
   "read-batch": `${CANONICAL}/read-batch?urls=https://example.com,https://example.org`,
-  "uk-leads": `${CANONICAL}/uk-leads?sic=62012`, "uk-leads-lite": `${CANONICAL}/uk-leads-lite?sic=62`, "email-check": `${CANONICAL}/email-check?email=info@stripe.com`, domain: `${CANONICAL}/domain?domain=stripe.com`, dns: `${CANONICAL}/dns?name=example.com`, redirects: `${CANONICAL}/redirects?url=https://example.com`, meta: `${CANONICAL}/meta?url=https://example.com`, headers: `${CANONICAL}/headers?url=https://example.com`, iban: `${CANONICAL}/iban?iban=GB82WEST12345698765432`, "au-company": `${CANONICAL}/au-company?acn=004028077`, "ca-company": `${CANONICAL}/ca-company?number=8660115`, kyb: `${CANONICAL}/kyb?domain=tesco.com&number=00445790`,
+  "uk-leads": `${CANONICAL}/uk-leads?sic=62012`, "uk-leads-lite": `${CANONICAL}/uk-leads-lite?sic=62`, "email-check": `${CANONICAL}/email-check?email=info@stripe.com`, domain: `${CANONICAL}/domain?domain=stripe.com`, dns: `${CANONICAL}/dns?name=example.com`, redirects: `${CANONICAL}/redirects?url=https://example.com`, meta: `${CANONICAL}/meta?url=https://example.com`, headers: `${CANONICAL}/headers?url=https://example.com`, iban: `${CANONICAL}/iban?iban=GB82WEST12345698765432`, phone: `${CANONICAL}/phone?phone=%2B447911123456`, "au-company": `${CANONICAL}/au-company?acn=004028077`, "ca-company": `${CANONICAL}/ca-company?number=8660115`, kyb: `${CANONICAL}/kyb?domain=tesco.com&number=00445790`,
   sanctions: `${CANONICAL}/sanctions?name=BANCO+NACIONAL+DE+CUBA`, "sanctions-batch": `${CANONICAL}/sanctions-batch`,
   "uk-officer": `${CANONICAL}/uk-officer?name=Ken+Olisa`,
   "uk-property": `${CANONICAL}/uk-property?postcode=CB1+2AB`,
@@ -246,6 +246,12 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         length_ok: data.length_ok, mod97_ok: data.mod97_ok, disclaimer: data.disclaimer,
         omitted: ["bban detail", "upsell detail"],
       };
+    case "phone":
+      return {
+        ...u, product: data.product, phone_e164: data.phone_e164, valid: data.valid, country: data.country,
+        calling_code: data.calling_code, length_ok: data.length_ok, type_guess: data.type_guess,
+        disclaimer: data.disclaimer, omitted: ["national_number detail", "upsell detail"],
+      };
     case "au-company":
       return {
         ...u, acn: data.acn, name: data.name, status: data.status, status_desc: data.status_desc,
@@ -437,6 +443,11 @@ export const STATIC_SAMPLES: Record<string, any> = {
     product: "iban", iban: "GB82WEST12345698765432", valid: true, country: "GB",
     check_digits: "82", length: 22, length_ok: true, mod97_ok: true,
     disclaimer: "Checksum only — not proof account exists.",
+  },
+  phone: {
+    product: "phone", phone_e164: "+447911123456", valid: true, country: "GB",
+    calling_code: "44", national_number: "7911123456", length_ok: true, country_known: true,
+    type_guess: "mobile", disclaimer: "Structure only — not HLR/carrier/assigned.",
   },
   redirects: {
     product: "redirects", url: "https://example.com", final_url: "https://example.com/",

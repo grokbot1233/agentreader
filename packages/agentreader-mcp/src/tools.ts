@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const ORIGIN = process.env.AGENTREADER_ORIGIN || "https://api.axiomworks.co.uk";
-export const VERSION = "1.20.0";
+export const VERSION = "1.21.0";
 import CHAIN from "./chain-routes.json";
 
 const CH = z.enum(["base", "ethereum", "arbitrum", "optimism", "polygon"]).optional();
@@ -114,6 +114,18 @@ export const TOOLS: ToolDef[] = [
     price: "$0.001",
     schema: { iban: z.string() },
     http: (a) => `${ORIGIN}/iban?iban=${encodeURIComponent(a.iban)}`,
+    previewable: true,
+  },
+  {
+    name: "phone_check",
+    description: "Offline phone validate (E.164 + country length). Structure only — not HLR/carrier. $0.001 USDC.",
+    price: "$0.001",
+    schema: { phone: z.string(), country: z.string().optional() },
+    http: (a) => {
+      const q = new URLSearchParams({ phone: a.phone });
+      if (a.country) q.set("country", a.country);
+      return `${ORIGIN}/phone?${q}`;
+    },
     previewable: true,
   },
   {
