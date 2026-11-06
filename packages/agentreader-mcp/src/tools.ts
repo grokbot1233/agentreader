@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const ORIGIN = process.env.AGENTREADER_ORIGIN || "https://api.axiomworks.co.uk";
-export const VERSION = "1.14.0";
+export const VERSION = "1.15.0";
 import CHAIN from "./chain-routes.json";
 
 const CH = z.enum(["base", "ethereum", "arbitrum", "optimism", "polygon"]).optional();
@@ -57,6 +57,14 @@ export const TOOLS: ToolDef[] = [
     price: "$0.002",
     schema: { email: z.string() },
     http: (a) => `${ORIGIN}/email-check?email=${encodeURIComponent(a.email)}`,
+    previewable: true,
+  },
+  {
+    name: "domain_lookup",
+    description: "RDAP domain registration lookup: registrar, registered, expires, age_days, status. $0.002 USDC.",
+    price: "$0.002",
+    schema: { domain: z.string() },
+    http: (a) => `${ORIGIN}/domain?domain=${encodeURIComponent(a.domain)}`,
     previewable: true,
   },
   {

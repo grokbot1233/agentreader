@@ -16,6 +16,7 @@ No API keys, no accounts. Agents pay per request in **USDC on Base mainnet** usi
 | `GET/POST /links?url=` | `extract_links` | $0.001 | De-duplicated absolute links |
 | `GET/POST /check?domain=` | `check_domain` | $0.001 | DNS/TLS/HSTS/MX/SPF/DMARC + score |
 | `GET/POST /email-check?email=` | `email_check` | $0.002 | Syntax + MX/A + disposable/free/role flags + score/verdict |
+| `GET/POST /domain?domain=` | `domain_lookup` | $0.002 | RDAP registrar / registered / expires / age_days / status |
 | `GET/POST /company?domain=` | `company_research` | $0.25 | Company research report (tech, contacts, DNS, RDAP, SSL, news) with sources |
 | `GET/POST /uk-company?number=` / `?name=` | `uk_company` | $0.50 | Full UK Companies House due-diligence (API) + insolvency + red flags |
 | `GET/POST /uk-company-lite?number=` / `?name=` | `uk_company_lite` | $0.05 | UK company snapshot: profile, status, compliance + red flags |
@@ -191,4 +192,4 @@ MIT licensed.
 All support `?preview=1` (free, truncated, 8/IP/day). Edge-cached per input (10 s gas … 1 h token metadata) with multi-provider RPC fallback.
 
 ### Path aliases
-Explorer-style paths map to the same paid routes/prices: `/tx/:hash`, `/ens/:name|:address`, `/contract/:address`, `/wallet/:address` (`/address/`, `/balance/`), `/token/:address`, `/token-check/:address`, `/block/:number`, `/nft/:contract/:id`, `/gas/:chain`, `/check/:domain`, `/email-check/:email`, `/uk-company/:number`, `/uk-charity/:number`, `/us-sec/:ticker|:cik`, `/eu-vat/:vat`, `/lei/:lei`. Add `?chain=` / `?preview=1` as usual.
+Explorer-style paths map to the same paid routes/prices: `/tx/:hash`, `/ens/:name|:address`, `/contract/:address`, `/wallet/:address` (`/address/`, `/balance/`), `/token/:address`, `/token-check/:address`, `/block/:number`, `/nft/:contract/:id`, `/gas/:chain`, `/check/:domain`, `/domain/:domain`, `/email-check/:email`, `/uk-company/:number`, `/uk-charity/:number`, `/us-sec/:ticker|:cik`, `/eu-vat/:vat`, `/lei/:lei`. Add `?chain=` / `?preview=1` as usual.

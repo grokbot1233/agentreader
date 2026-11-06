@@ -10,6 +10,7 @@
 | Page → Markdown | https://api.axiomworks.co.uk/read?url= | $0.002 | Readability + metadata JSON, not raw HTML |
 | Links only | https://api.axiomworks.co.uk/links?url= | $0.001 | Cheaper than /read |
 | Domain health | https://api.axiomworks.co.uk/check?domain= | $0.001 | DNS/TLS/MX/SPF/DMARC + score |
+| Domain registration (RDAP) | https://api.axiomworks.co.uk/domain?domain=stripe.com | $0.002 | Registrar, registered, expires, age_days, status |
 | Website company research | https://api.axiomworks.co.uk/company?domain= | $0.25 | Sourced tech/contacts/DNS/RDAP/news (no LLM fiction) |
 | UK CH full DD | https://api.axiomworks.co.uk/uk-company?number=|name= | $0.50 | Official API: officers/PSC/filings/charges/insolvency + red flags |
 | UK CH cheap snapshot | https://api.axiomworks.co.uk/uk-company-lite?number=|name= | $0.05 | Status + compliance flags; upsell full pack |

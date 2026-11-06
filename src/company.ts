@@ -142,16 +142,50 @@ function emailProvider(mx: string[]): string | null {
   return mx[0] ? "other" : null;
 }
 
-async function rdap(domain: string) {
+/** Shared RDAP lookup used by /company and /domain. Tries TLD registries then rdap.org. */
+export async function rdap(domain: string) {
+  const headers = { accept: "application/rdap+json" };
+  const getJson = async (url: string) => {
+    const r = await fetch(url, { signal: AbortSignal.timeout(8000), headers, redirect: "follow" as RequestRedirect });
+    if (!r.ok) throw new Error(`rdap http ${r.status}`);
+    return r.json();
+  };
   const sources: { url: string; try: () => Promise<any> }[] = [];
-  const tld = domain.split(".").pop()!;
-  if (tld === "uk" || domain.endsWith(".co.uk") || domain.endsWith(".org.uk") || domain.endsWith(".uk"))
-    sources.push({ url: `https://rdap.nominet.uk/uk/domain/${domain}`, try: async () => (await fetch(`https://rdap.nominet.uk/uk/domain/${domain}`, { signal: AbortSignal.timeout(8000), headers: { accept: "application/rdap+json" } })).json() });
-  sources.push({ url: `https://rdap.org/domain/${domain}`, try: async () => (await fetch(`https://rdap.org/domain/${domain}`, { signal: AbortSignal.timeout(8000), headers: { accept: "application/rdap+json" } })).json() });
+  const tld = domain.split(".").pop()!.toLowerCase();
+  const labels = domain.toLowerCase().split(".");
+  const sld = labels.length >= 2 ? labels.slice(-2).join(".") : tld;
+
+  // UK / Nominet
+  if (tld === "uk" || sld === "co.uk" || sld === "org.uk" || sld === "me.uk" || sld === "net.uk" || sld === "ltd.uk" || sld === "plc.uk")
+    sources.push({ url: `https://rdap.nominet.uk/uk/domain/${domain}`, try: () => getJson(`https://rdap.nominet.uk/uk/domain/${domain}`) });
+
+  // Common gTLD registries (rdap.org often 403s from some egress IPs; hit registries directly)
+  const TLD_RDAP: Record<string, string> = {
+    com: `https://rdap.verisign.com/com/v1/domain/${domain}`,
+    net: `https://rdap.verisign.com/net/v1/domain/${domain}`,
+    org: `https://rdap.publicinterestregistry.org/rdap/domain/${domain}`,
+    info: `https://rdap.afilias.info/rdap/domain/${domain}`,
+    biz: `https://rdap.nic.biz/domain/${domain}`,
+    io: `https://rdap.nic.io/domain/${domain}`,
+    ai: `https://rdap.nic.ai/domain/${domain}`,
+    app: `https://rdap.nic.google/domain/${domain}`,
+    dev: `https://rdap.nic.google/domain/${domain}`,
+    page: `https://rdap.nic.google/domain/${domain}`,
+    xyz: `https://rdap.centralnic.com/xyz/rdap/domain/${domain}`,
+    co: `https://rdap.nic.co/domain/${domain}`,
+    me: `https://rdap.nic.me/domain/${domain}`,
+    cc: `https://rdap.nic.cc/domain/${domain}`,
+    tv: `https://rdap.nic.tv/domain/${domain}`,
+  };
+  if (TLD_RDAP[tld]) sources.push({ url: TLD_RDAP[tld], try: () => getJson(TLD_RDAP[tld]) });
+
+  // Bootstrap / redirect helper (may 403 from some networks)
+  sources.push({ url: `https://rdap.org/domain/${domain}`, try: () => getJson(`https://rdap.org/domain/${domain}`) });
+
   for (const s of sources) {
     try {
       const j = await s.try();
-      if (!j || j.errorCode || j.title === "Error") continue;
+      if (!j || j.errorCode || j.title === "Error" || j.objectClassName === "error") continue;
       const reg = (j.entities || []).find((e: any) => (e.roles || []).includes("registrar"));
       let registrar: string | null = null;
       if (reg?.vcardArray?.[1]) {
