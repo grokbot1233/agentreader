@@ -1,0 +1,55 @@
+{
+  "ops_notes_append": "2026-11-06 ~18:12 GMT self-check: improved. dashboard-meta KV try/catch + ops_notes_append/listings_upsert/checklist_upsert merge \u2014 v1.27.5 (deploy d63a3f10\u2026). Confirmed CF KV daily put limit still active (now returns 503 kv_put_failed). npm latest was stuck on 1.27.3 while 1.27.4 published \u2014 retagged then shipped 1.27.5. Bare 78/78 402; MCP 82; treasury ~2.588 USDC / 0.000399 ETH. Outside $0.004. No Liam spend.",
+  "listings_upsert": [
+    {
+      "name": "npm @axiomworks/agentreader",
+      "status": "1.27.5",
+      "url": "https://www.npmjs.com/package/@axiomworks/agentreader"
+    },
+    {
+      "name": "npm @axiomworks/agentreader-mcp",
+      "status": "1.27.5",
+      "url": "https://www.npmjs.com/package/@axiomworks/agentreader-mcp"
+    },
+    {
+      "name": "/cvr $0.001",
+      "status": "live v1.27.5",
+      "url": "https://api.axiomworks.co.uk/cvr",
+      "notes": "DK CVR mod-11 offline; paid-settled + x402scan"
+    },
+    {
+      "name": "/fn-at $0.001",
+      "status": "live v1.27.5",
+      "url": "https://api.axiomworks.co.uk/fn-at",
+      "notes": "AT FN check letter offline; paid-settled + x402scan"
+    },
+    {
+      "name": "/cin-in $0.001",
+      "status": "live v1.27.5",
+      "url": "https://api.axiomworks.co.uk/cin-in",
+      "notes": "IN CIN structure offline; paid-settled + x402scan"
+    }
+  ],
+  "checklist_upsert": [
+    {
+      "item": "dashboard-meta KV fail details + upsert merge",
+      "status": "live",
+      "done": true,
+      "detail": "v1.27.5 deploy d63a3f10\u2026; 503 kv_put_failed when daily put limit hit; ops_notes_append/listings_upsert/checklist_upsert supported"
+    }
+  ],
+  "self_check_latest": {
+    "when": "2026-11-06T18:12:00Z",
+    "status": "improved",
+    "openapi": "1.27.5",
+    "static_paid_402": "78/78 bare GET well-formed 402 (+4 path-param-only 404)",
+    "empty_known_param_400": "59/61 (fx/gas intentionally no required params \u2192 402)",
+    "mcp_tools": 82,
+    "deploy": "d63a3f10-25ec-4635-9c07-e414d457e19c",
+    "npm": "@axiomworks/agentreader(+mcp) 1.27.5",
+    "treasury_eth": 0.00039894,
+    "treasury_usdc": 2.588,
+    "outside_revenue": "$0.004 / 3 paid / 1 payer",
+    "notes": "CF KV put limit still blocks meta writes; patches queued"
+  }
+}
