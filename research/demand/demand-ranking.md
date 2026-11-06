@@ -1,41 +1,36 @@
-# Demand ranking — 2026-11-06 (PM refresh)
+# Demand ranking — 2026-11-06 (evening refresh)
 
-Scoring: payment evidence × price/volume potential × our fit (free data, existing code) × unbuilt. Status as of 2026-11-06 ~15:25 Europe/London.
+Scoring: payment evidence × price/volume potential × our fit (free data, existing code) × unbuilt. **High-ticket first.** Status as of 2026-11-06 ~19:40 Europe/London. Live: **v1.29.0**.
+
+**Directive (Liam 2026-11-06):** do not ship $0.001–$0.003 offline format validators. Micros stay HTTP-callable but unlisted from MCP/llms/discovery (since v1.28.0). Focus big hitters + expansions.
 
 | Rank | Need | Payment evidence | Est. price / volume | Fit | Status |
 |---|---|---|---|---|---|
-| 1 | **Live wallet balance (native + N ERC20s)** | onesource `live-balance` **458** unique payers @ $0.003 (PM Bazaar) | Micro $0.002–0.003; payers≈calls | High — public RPC batch; distinct from `/wallet` majors | **SHIPPED → `/chain/live-balance` $0.002 (v1.24.0)** |
-| 2 | Page metadata / Open Graph | Own legacy `/meta` 7+5 payers; Toll meta $0.003 | Micro $0.001 | High | **SHIPPED → `/meta` $0.001** |
-| 3 | On-chain pending block | onesource pending **74** @ $0.01 | Micro $0.001 | High | **SHIPPED → `/chain/pending` $0.001** |
-| 4 | HTTP security headers | headers.x402atlas **17** @ $0.01 | Micro $0.001 | High | **SHIPPED → `/headers` $0.001** |
-| 5 | IBAN mod-97 | halowerk/agentindex/greeneris 5–8; Toll $0.001 | Micro $0.001 | High | **SHIPPED → `/iban` $0.001** |
-| 6 | NFT metadata | onesource ~233 @ $0.008 | Micro $0.002 | High | **SHIPPED → `/chain/nft-metadata` $0.002** |
-| 7 | ERC721 token list for wallet | onesource ~230 @ $0.008 | Micro $0.002 | High | **SHIPPED → `/chain/erc721-tokens` $0.002** |
-| 8 | On-chain one-fact breadth (other) | onesource 100–559 payers/resource | High payer, low ARPU | High | Live `/chain/*` + `/wallet`/`tx`/`ens` |
-| 9 | KYB / multi-registry packs | Brazilayer/Lion/Apify ~$0.03–0.05 | Higher ticket | High | Live `/kyb` `$2.50`, `/uk-dd` `$1` |
-| 10 | Web read / search | Exa / ScrapeGraphAI; hist. high volume | High volume | High | Live `/read`, `/search`, `/read-batch` |
-| 11 | Email address verification | Toll `verify_email` $0.001 | Micro | High | **SHIPPED → `/email-check` $0.002** |
-| 12 | Standalone RDAP/domain age | Partial hist. in `/company` | Micro | High | **SHIPPED → `/domain` $0.002** |
-| 13 | DNS resolve | Own workers.dev `/dns` **13** payers | Micro $0.001 | High | **SHIPPED → `/dns` $0.001** |
-| 14 | URL redirects / unshorten | Toll unwrap $0.001–0.01 | Micro $0.001 | High | **SHIPPED → `/redirects` $0.001** |
-| 15 | Phone E.164 validate | Toll phone tools | Micro $0.001 | High | **SHIPPED → `/phone` $0.001** |
-| 16 | **UK postcode structural validate** | Toll `uk_postcode_validate` $0.001 | Micro $0.001 | High — offline; KYB attach; we already have PC regex | **SHIPPED** `/uk-postcode` v1.25.0 |
-| 17 | FR SIREN / SIRET offline | Toll `$0.001` each | Micro | High — offline Luhn/mod | **SHIPPED → `/siren` + `/siret` $0.001 (v1.25.0)** |
-| 18 | IT Partita IVA / SE orgnr / CA BN | Toll `$0.001` | Micro | High — offline | **SHIPPED** v1.26.x |
-| 19 | DK CVR / AT FN / IN CIN offline | Toll `$0.001` peers | Micro | High — offline | **SHIPPED → `/cvr`+`/fn-at`+`/cin-in` $0.001 (v1.27.2)** |
-| 20 | SSL/cert expiry standalone | macaroon **10**, x402atlas ssl **8** | Micro–$0.01 | Medium — Workers peer-cert hard | Deferred |
-| 20 | IP geolocation | Multiple geo ~10–13 payers; Toll `$0.002` | Micro | Medium — free geo ToS/rate | Deferred (ToS) |
-| 21 | People enrichment | Stableenrich $0.15 / PDL | High $ | Low — legal/ToS | **Skip** |
-| 22 | LLM inference | blockrun 89k calls | High volume | Low — COGS | **Skip** |
-| 23 | NZ company registry | Open data after approval | Medium | Medium — portal blocked | Blocked |
-| 24 | onesource deepstate/standard Protocol | 50–299 payers @ $0.005–0.05 | Medium | Low — proprietary product APIs | Skip |
+| 1 | **FR company registry (live Sirene/RNE)** | Toll FR peers historically $0.002–0.01; RapidAPI FR KYB seats; Apify EU KYB router lists FR; GH KYB threads want multi-registry | **$0.25**; attaches to `/kyb` | High — free `recherche-entreprises.api.gouv.fr` | **SHIPPED → `/fr-company` $0.25 + `/kyb` siren/siret + `/registry-batch` fr= (v1.29.0)** |
+| 2 | KYB / multi-registry packs | Brazilayer/Lion/Apify ~$0.03–0.05; our pack priced premium | Higher ticket $2.50 | High | Live `/kyb` **$2.50** (now UK/AU/CA/**FR**) |
+| 3 | UK DD / watch / leads | NewcoSignal £49–149/mo; Apify CH feed | $1–$25 | High | Live `/uk-dd` `$1`, `/uk-watch` `$5`, `/uk-leads` `$1`, `/uk-leads-feed` `$25` |
+| 4 | Company research / full | Own `/company` band; BuiltWith $0.05 | $0.25–$0.65 | High | Live `/company` `$0.25`, `/company-full` `$0.65` |
+| 5 | Sanctions batch / screening | Toll OFAC ~$0.02–0.023; compliapi/oceanalt mid | $0.05–$1 | High | Live `/sanctions` `$0.05`, `/sanctions-batch` `$1` |
+| 6 | UK company / charity / officer | CH demand on GH | $0.15–$0.50 | High | Live `/uk-company` `$0.50`, `/uk-charity-full` `$0.25`, `/uk-officer` `$0.15` |
+| 7 | Registry batch multi-country | Batch DX for agents | $0.30 | High | Live `/registry-batch` `$0.30` (**+FR**) |
+| 8 | Live wallet balance (native + N ERC20s) | onesource 458–466p @ $0.003 | Micro | High | **SHIPPED** `/chain/live-balance` $0.002 — keep, no new micros |
+| 9 | On-chain one-fact breadth | onesource 100–574p | Micro ARPU | High | Live `/chain/*` — **do not expand for payer-count alone** |
+| 10 | Web read / search | Exa / ScrapeGraphAI | High volume | High | Live `/read`, `/search`, `/read-batch` |
+| 11 | Email / DNS / meta / headers / redirects | Toll + own | Micro | High | **SHIPPED** micros — unlisted |
+| 12 | Offline ID validators (phone, IBAN, postcode, SIREN… CNPJ/NIP/UID…) | Toll $0.001 peers; high explorer payers | Micro | High offline | **SHIPPED / SKIP further** under directive (HTTP kept, discovery unlisted) |
+| 13 | BR CNPJ **full** KYB (Receita) | Brazilayer $0.0575 | Mid $0.25+ possible | Medium — rate/ToS | **Deferred** (probe 200; not free-clear for production volume) |
+| 14 | SG ACRA company search | Toll listing | Mid | Medium — free API unclear | Deferred |
+| 15 | SSL/cert expiry standalone | macaroon/x402atlas ~8–10p | Micro–$0.01 | Medium — Workers peer-cert hard | Deferred |
+| 16 | IP geolocation | Toll $0.002 | Micro | Medium — ToS | Deferred |
+| 17 | People enrichment | stableenrich $0.15–0.28 | High $ | Low — legal/ToS | **Skip** |
+| 18 | LLM inference | blockrun 89k calls | High volume | Low — COGS | **Skip** |
+| 19 | NZ company registry | Open data after approval | Medium | Medium — portal blocked | Blocked (needs Liam) |
+| 20 | onesource deepstate/standard Protocol | 50–299p @ $0.005–0.05 | Medium | Low — proprietary | Skip |
 
 ## Next passes (spider-web)
 
-**Directive 2026-11-06 (Liam):** stop shipping $0.001 offline format validators — earnings too small to justify usage. Existing validators stay callable over HTTP but are unlisted from MCP/llms/discovery (v1.28.0). Focus only on big hitters and expand/sell those.
-
-1. Grow big hitters: /kyb $2.50, /uk-dd $1, /uk-company $0.50, /uk-watch $5/30d, /uk-leads $1, /uk-leads-feed $25/30d, /company $0.25, /company-full $0.65, /sanctions-batch $1, /uk-charity-full $0.25, /registry-batch $0.30, /uk-officer $0.15.
-2. Expand along those lines (deeper KYB coverage, more registries inside /kyb and /registry-batch, subscription feeds) rather than new micro SKUs.
-3. Outreach: pitch KYB/UK DD/watch/leads-feed to agent builders and partners (SwarmMemo et al.).
-4. Re-pull CDP Bazaar demand next run, filtered to >= $0.15 SKUs; SSL/IP-geo still deferred.
+1. Grow/sell big hitters: `/kyb` (now +FR), `/uk-dd`, `/uk-company`, `/uk-watch`, `/uk-leads(+feed)`, `/company(+full)`, `/sanctions-batch`, `/uk-charity-full`, `/registry-batch`, `/uk-officer`, **`/fr-company`**.
+2. Deeper expansions: BR Receita (if ToS OK), more free EU registries inside `/kyb`/`/registry-batch`, sanctions list freshness, UK PSC/filings depth already in `/uk-company`.
+3. Outreach: pitch FR+KYB to agent builders (Groundwork#22 et al.); SwarmMemo partnership already warm.
+4. Re-pull CDP Bazaar filtered to ≥$0.15 **non-LLM / non-people** SKUs each run.
 5. awesome-langchain: do not re-PR.
