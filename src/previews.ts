@@ -23,7 +23,7 @@ const PAID_CALL: Record<PreviewKind, string> = {
   company: `${CANONICAL}/company?domain=DOMAIN`,
   "uk-company": `${CANONICAL}/uk-company?number=NUM` ,
   "uk-company-lite": `${CANONICAL}/uk-company-lite?number=NUM`,
-  convert: `${CANONICAL}/convert?url=URL`,
+  convert: `${CANONICAL}/convert?url=https://pdfobject.com/pdf/sample.pdf`,
   "company-full": `${CANONICAL}/company-full?domain=DOMAIN`,
   "uk-charity": `${CANONICAL}/uk-charity?number=NUM`,
   "uk-charity-full": `${CANONICAL}/uk-charity-full?number=NUM`,
@@ -366,9 +366,9 @@ export const STATIC_SAMPLES: Record<string, any> = {
     red_flag_names: ["outstanding_charges"], accounts_overdue: false,
   },
   convert: {
-    url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-    detected_format: "pdf", title: null, pages: 1, word_count: 1,
-    text_preview: "Dummy PDF file…",
+    url: "https://pdfobject.com/pdf/sample.pdf",
+    detected_format: "pdf", title: null, pages: 1, word_count: 416,
+    text_preview: "Sample PDF\nThis is a simple PDF file. Fun fun fun.\nLorem ipsum dolor sit amet…",
   },
   "us-sec": {
     cik: "0000320193", name: "Apple Inc.", tickers: ["AAPL"], sic: "3571",

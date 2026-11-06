@@ -5,7 +5,7 @@ import { convertDocument } from "../src/convert.ts";
 async function main() {
   const t0 = Date.now();
   console.log("=== convert PDF ===");
-  const conv = await convertDocument("https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf");
+  const conv = await convertDocument("https://pdfobject.com/pdf/sample.pdf");
   console.log({ detected: conv.detected_format, words: conv.word_count, pages: (conv as any).pages, text: ((conv as any).text || (conv as any).markdown || "").slice(0, 80) });
 
   console.log("=== company example.com ===");

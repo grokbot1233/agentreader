@@ -8,7 +8,7 @@ from x402.clients.requests import x402_requests  # type: ignore
 account = Account.from_key(os.environ["PRIVATE_KEY"])
 session = x402_requests(account)
 r = session.get("https://api.axiomworks.co.uk/convert", params={
-    "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+    "url": "https://pdfobject.com/pdf/sample.pdf",
     "format": "markdown",
 })
 print(r.status_code, r.json().keys())

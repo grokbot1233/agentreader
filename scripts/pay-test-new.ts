@@ -33,7 +33,7 @@ async function settle(label: string, url: string) {
 }
 
 const results: any = {};
-results.convert = await settle("convert", "https://api.axiomworks.co.uk/convert?url=https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf&format=markdown");
+results.convert = await settle("convert", "https://api.axiomworks.co.uk/convert?url=https://pdfobject.com/pdf/sample.pdf&format=markdown");
 results.company = await settle("company", "https://api.axiomworks.co.uk/company?domain=example.com");
 console.log("\nDONE", JSON.stringify({
   convert_tx: results.convert.settlement?.transaction || results.convert.settlement,
