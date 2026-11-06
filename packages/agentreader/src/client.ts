@@ -335,7 +335,7 @@ export class AgentReaderClient {
   }
 }
 
-export type ChainRouteName = "erc20-balance" | "balance" | "block-number" | "nonce" | "total-supply" | "erc20-transfers" | "events" | "network-info" | "receipt" | "code" | "call" | "estimate-gas" | "nft-owner" | "nft-metadata" | "erc721-tokens" | "erc1155-balance" | "storage" | "proxy" | "chain-id" | "pending";
+export type ChainRouteName = "erc20-balance" | "balance" | "live-balance" | "block-number" | "nonce" | "total-supply" | "erc20-transfers" | "events" | "network-info" | "receipt" | "code" | "call" | "estimate-gas" | "nft-owner" | "nft-metadata" | "erc721-tokens" | "erc1155-balance" | "storage" | "proxy" | "chain-id" | "pending";
 export { default as chainRoutes } from "./chain-routes.json";
 
 /** Create a typed AgentReader client. Pass privateKey (or set AGENTREADER_PRIVATE_KEY) to auto-pay. */

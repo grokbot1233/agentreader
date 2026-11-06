@@ -40,6 +40,54 @@ add({ path: "/chain/balance", price: "$0.001", atomic: 1000, ttl: 15, keys: ["ad
   fn: async (b) => { const [name, ch] = chainOf(b.chain); const tag = blockTag(b.block); const [bal, blk] = await rpcBatch(ch.rpc, [["eth_getBalance", [b.address, tag]], ["eth_blockNumber", []]]);
     return { ...meta(name, ch), address: b.address, symbol: ch.native, balance: fmt(big(bal), 18), balance_wei: big(bal).toString(), block: tag === "latest" ? Number(big(blk)) : tag, source: "eth_getBalance" }; } });
 
+add({ path: "/chain/live-balance", price: "$0.002", atomic: 2000, ttl: 15, keys: ["address", "tokens", "chain", "network"],
+  desc: "Live wallet balance — native ETH/POL plus up to 20 caller-supplied ERC20 tokens in one RPC batch (balanceOf + decimals + symbol). No hardcoded majors (use /wallet $0.003 for USDC/USDT/DAI/WETH pack). Example: {address:\"0xd8dA…6045\", tokens:\"0xdAC1…1ec7,0xA0b8…eB48\", chain:\"ethereum\"}. $0.002.",
+  in: { type: "object", properties: { address: addrP("Wallet address"), tokens: { type: "string", description: "Comma-separated ERC20 contracts (max 20)" }, chain: chainP, network: { type: "string", description: "Alias for chain (onesource-compatible)" } }, required: ["address"] },
+  out: { type: "object", properties: { native: { type: "object" }, tokens: { type: "array" }, block: { type: "number" }, tokens_requested: { type: "number" } } },
+  ex: { address: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045", tokens: "0xdAC17F958D2ee523a2206206994597C13D831ec7,0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", chain: "ethereum" },
+  validate: (b) => {
+    if (!S(b.chain) && S(b.network)) b.chain = S(b.network);
+    const toks = S(b.tokens) ? S(b.tokens).split(",").map((t) => t.trim()).filter(Boolean) : [];
+    return first(addrErr(b.address, "address"), chainErr(b), toks.length > 20 ? "max 20 tokens" : null, toks.some((t) => !ADDR.test(t)) ? "tokens must be comma-separated 0x addresses" : null);
+  },
+  fn: async (b) => {
+    if (!S(b.chain) && S(b.network)) b.chain = S(b.network);
+    const [name, ch] = chainOf(b.chain);
+    const toks = S(b.tokens) ? [...new Set(S(b.tokens).split(",").map((t) => t.trim()).filter((t) => ADDR.test(t)))].slice(0, 20) : [];
+    const calls: [string, any[]][] = [["eth_getBalance", [b.address, "latest"]], ["eth_blockNumber", []]];
+    for (const t of toks) {
+      calls.push(call(t, "0x70a08231" + pad(b.address)));
+      calls.push(call(t, "0x313ce567"));
+      calls.push(call(t, "0x95d89b41"));
+    }
+    // Chunk — public RPCs often cap batch size
+    const CHUNK = 40;
+    const res: any[] = [];
+    for (let i = 0; i < calls.length; i += CHUNK) res.push(...await rpcBatch(ch.rpc, calls.slice(i, i + CHUNK)));
+    const nativeWei = big(res[0]);
+    const block = Number(big(res[1]));
+    const tokens: any[] = [];
+    let i = 2;
+    for (const t of toks) {
+      const bal = res[i++], decR = res[i++], symR = res[i++];
+      if (bal == null || bal === "0x") {
+        tokens.push({ contract: t, balance: null, balance_raw: null, decimals: null, symbol: null, error: "balanceOf reverted" });
+        continue;
+      }
+      const dec = decR && decR !== "0x" ? Number(big(decR)) : 18;
+      tokens.push({ contract: t, symbol: decStr(symR) || null, decimals: Number.isFinite(dec) ? dec : 18, balance: fmt(big(bal), Number.isFinite(dec) ? dec : 18), balance_raw: big(bal).toString() });
+    }
+    return {
+      ...meta(name, ch),
+      address: b.address,
+      block,
+      native: { symbol: ch.native, balance: fmt(nativeWei, 18), balance_wei: nativeWei.toString() },
+      tokens,
+      tokens_requested: toks.length,
+      source: "eth_getBalance + eth_call balanceOf/decimals/symbol (batched)",
+    };
+  } });
+
 add({ path: "/chain/block-number", price: "$0.001", atomic: 1000, ttl: 2, keys: ["chain"],
   desc: "Latest block height (chain tip) plus safe/finalized heights and head age in seconds, via eth_blockNumber/eth_getBlockByNumber. Base/Ethereum/Arbitrum/Optimism/Polygon. Example: {chain:\"base\"}. $0.001.",
   in: { type: "object", properties: { chain: chainP } }, out: { type: "object", properties: { block: { type: "number" }, safe: { type: ["number", "null"] }, finalized: { type: ["number", "null"] }, head_age_s: { type: "number" } } },

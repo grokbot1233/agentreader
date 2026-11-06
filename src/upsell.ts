@@ -26,6 +26,8 @@ export const UPSELL: Record<string, string> = {
   "/uk-leads-lite": "Full lead details: /uk-leads $1; daily webhook feed: /uk-leads-feed $25.",
   "/uk-leads": "Get these daily by webhook: /uk-leads-feed $25; reverse officer search: /uk-officer $0.15.",
   "/wallet": "Vet a token before transfer: /token-check $0.01.",
+  "/chain/live-balance": "Native + majors pack: /wallet $0.003; single ERC20: /chain/erc20-balance $0.001; native only: /chain/balance $0.001.",
+  "/chain/balance": "Live native+custom ERC20s: /chain/live-balance $0.002; majors pack: /wallet $0.003.",
   "/tx": "Counterparty wallet profile: /wallet $0.003.",
   "/token": "Risk check (honeypot/owner/liquidity): /token-check $0.01.",
   "/uk-area": "Property prices for the postcode: /uk-property $0.01.",

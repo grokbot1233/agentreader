@@ -38,6 +38,26 @@
   }
  },
  {
+  "path": "/chain/live-balance",
+  "tool": "chain_live_balance",
+  "price": "$0.002",
+  "description": "Live wallet balance — native ETH/POL plus up to 20 caller-supplied ERC20 tokens in one RPC batch (balanceOf + decimals + symbol). No hardcoded majors (use /wallet $0.003 for USDC/USDT/DAI/WETH pack). Example: {address:\"0xd8dA…6045\", tokens:\"0xdAC1…1ec7,0xA0b8…eB48\", chain:\"ethereum\"}. $0.002.",
+  "params": {
+   "address": "Wallet address",
+   "tokens": "Comma-separated ERC20 contracts (max 20)",
+   "chain": "EVM chain (default base)",
+   "network": "Alias for chain (onesource-compatible)"
+  },
+  "required": [
+   "address"
+  ],
+  "example": {
+   "address": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+   "tokens": "0xdAC17F958D2ee523a2206206994597C13D831ec7,0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+   "chain": "ethereum"
+  }
+ },
+ {
   "path": "/chain/block-number",
   "tool": "chain_block_number",
   "price": "$0.001",
