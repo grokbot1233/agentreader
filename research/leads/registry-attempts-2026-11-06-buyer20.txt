@@ -1,0 +1,28 @@
+== 402index.io (routes not already aggregated from Bazaar)
+/kyb: 201 {"message":"Service registered and live (domain verified).","service":{"id":"e8e8dcd9-c425-4e58-bc0a-9b313831bd9b","name":"Axiom Works AgentReader /kyb","description":"KYB report: UK Companies House +
+/uk-leads: 201 {"message":"Service registered and live (domain verified).","service":{"id":"0ccda457-c36c-4e94-b765-d7f1bfda60d1","name":"Axiom Works AgentReader /uk-leads","description":"New UK company leads by SIC
+/uk-leads-feed: 201 {"message":"Service registered and live (domain verified).","service":{"id":"1a14e0fa-7492-4e1e-90ef-c1ad001272c9","name":"Axiom Works AgentReader /uk-leads-feed","description":"Daily webhook feed of 
+/uk-watch: 201 {"message":"Service registered and live (domain verified).","service":{"id":"a56d480a-c269-4833-9d3f-9f892bc36e23","name":"Axiom Works AgentReader /uk-watch","description":"Watch a UK company for fili
+== a2a-registry.org
+{"success":true,"data":{"id":"b6fdf1bb-8cd2-4af4-99cb-310d083ce0b4","package_name":"uk.co.axiomworks.axiom_works_agentreader","status":"updated","refreshed":true,"message":"Unclaimed agent refreshed with the latest manifest."},"status":200}
+== a2aregistry.org
+{"detail":"The registry has reached its review capacity for now, so it is not accepting submissions. Retry after the time in the Retry-After header."}
+
+== extra free registry probes 2026-11-06T20:16:35Z
+-- agentscan retry a2aregistry (already capacity)
+body: {"detail":"The registry has reached its review capacity for now, so it is not accepting submissions. Retry after the time in the Retry-After header."}
+retry-after: retry-after: 13404
+-- agentregistry.org / agents.json common guesses
+https://api.agentregistry.org/v1/agents -> 000err 
+https://agentregistry.org/api/register -> 000err 
+https://registry.a2a.protocol.org/agents -> 000err 
+https://www.agentslist.ai/api/register -> 404 <!DOCTYPE html> <html lang="en"> <head>   <meta charset="UTF-8" />   <meta name="viewport" content="width=device-width, 
+https://api.glama.ai/mcp/v1/servers -> 000err <!DOCTYPE html> <html lang="en"> <head>   <meta charset="UTF-8" />   <meta name="viewport" content="width=device-width, 
+https://mcp.so/api/servers -> 404 <!DOCTYPE html><html lang="en" data-theme="ocean"><head><meta charSet="utf-8"/><meta name="viewport" content="width=devi
+https://api.smithery.ai/servers -> 404 404 Not Found
+https://x402scan.com/api/register -> 307 Redirecting... 
+https://www.x402scan.com/api/v1/resources -> 404 <!DOCTYPE html><!--HVyVQYwR43Uvu8sZ2q4jJ--><html lang="en"><head><meta charSet="utf-8"/><meta name="viewport" content="w
+https://bazaar.payai.network/api/register -> 000err <!DOCTYPE html><!--HVyVQYwR43Uvu8sZ2q4jJ--><html lang="en"><head><meta charSet="utf-8"/><meta name="viewport" content="w
+-- GET discovery (document only)
+GET https://402index.io/api/v1/services?q=agentreader -> 200 {"services":[{"id":"e8e8dcd9-c425-4e58-bc0a-9b313831bd9b","name":"Axiom Works AgentReader /kyb","description":"KYB report: UK Companies Hous
+GET https://api.a2a-registry.org/public/agents/uk.co.axiomworks.axiom_works_agentreader -> 200 {"success":true,"agent":{"id":"b6fdf1bb-8cd2-4af4-99cb-310d083ce0b4","packageName":"uk.co.axiomworks.axiom_works_agentreader","displayName":
