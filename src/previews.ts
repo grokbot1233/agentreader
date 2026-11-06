@@ -814,6 +814,37 @@ export const STATIC_SAMPLES: Record<string, any> = {
     valid: true, countryCode: "IE", vatNumber: "6388047V", name: "GOOGLE IRELAND LIMITED",
     address: "3RD FLOOR, GORDON HOUSE, BARROW STREET, DUBLIN 4",
   },
+  "company-full": {
+    domain: "tesco.com",
+    company: {
+      domain: "tesco.com",
+      homepage: { title: "Tesco", description: "Tesco grocery and general merchandise retailer." },
+      tech_stack: { detected: ["Cloudflare"] },
+      social_links: { twitter: "https://twitter.com/Tesco" },
+      contacts: { emails: ["help@tesco.com"], phones: [] },
+      dns: { mx: ["tesco-com.mail.protection.outlook.com"], spf: true, dmarc: { policy: "reject" } },
+      whois: { registrar: "Example Registrar", created: "1996-01-01" },
+      news: [],
+    },
+    uk: {
+      company_number: "00445790", name: "TESCO PLC", status: "active", sic_codes: ["47110"],
+      officers: [{ name: "Example Director" }], officers_count: 74,
+      charges: [{ status: "outstanding" }], charges_outstanding: 2,
+      red_flags: [{ flag: "outstanding_charges" }], red_flag_names: ["outstanding_charges"],
+      mass_formation_office: { matched: false },
+    },
+    charity_skip_reason: "No charity signals (no registered charity number or charity keywords).",
+  },
+  links: {
+    url: "https://example.com", count: 1,
+    links: [{ url: "https://www.iana.org/domains/example", text: "More information...", internal: false }],
+  },
+  check: {
+    domain: "example.com", score: 92,
+    issues: [{ code: "info", message: "No critical issues in sample" }],
+    tls: { ok: true, reachable: true },
+    email: { mx: ["mail.example.com"] },
+  },
   read: {
     url: "https://example.com", title: "Example Domain", word_count: 16, language: "en",
     markdown_preview: "Example Domain\n\nThis domain is for use in illustrative examples…",
