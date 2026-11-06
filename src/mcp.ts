@@ -33,6 +33,7 @@ import { validateIban } from "./iban";
 import { validatePhone } from "./phone";
 import { validateUkPostcode } from "./uk-postcode";
 import { validateSiren, validateSiret } from "./fr-company-id";
+import { frCompany } from "./fr-company";
 import { validatePartitaIva } from "./it-partita-iva";
 import { validateOrgnr } from "./se-orgnr";
 import { validateBnCa } from "./ca-bn";
@@ -81,7 +82,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       await log({ endpoint: `mcp:${tool}`, payer: settlement?.payer || null, amount: settlement?.amount || String(atomic), network: settlement?.network, tx: settlement?.transaction, success: settlement?.success });
     } },
   } as any);
-  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.28.0" }, { instructions: "Start with the big hitters: kyb ($2.50 one-shot KYB pack), uk_dd ($1 UK due diligence), uk_company ($0.50), uk_watch ($5/30d), uk_leads ($1), uk_leads_feed ($25/30d), company_research ($0.25), company_full ($0.65), sanctions_batch ($1), uk_charity_full ($0.25), registry_batch ($0.30), uk_officer ($0.15). Call pricing for the full list." });
+  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.29.0" }, { instructions: "Start with the big hitters: kyb ($2.50 one-shot KYB pack), uk_dd ($1 UK due diligence), uk_company ($0.50), uk_watch ($5/30d), uk_leads ($1), uk_leads_feed ($25/30d), company_research ($0.25), company_full ($0.65), sanctions_batch ($1), uk_charity_full ($0.25), fr_company ($0.25), registry_batch ($0.30), uk_officer ($0.15). Call pricing for the full list." });
   const HIDDEN_TOOLS = new Set(["iban_validate","phone_check","uk_postcode_validate","siren_validate","siret_validate","partita_iva_validate","orgnr_se_validate","bn_ca_validate","cvr_dk_validate","fn_at_validate","cin_in_validate","kvk_nl_validate","hr_de_validate","nif_es_validate","cnpj_validate","nip_pl_validate","uid_ch_validate"]);
   { const _tool = server.tool.bind(server); (server as any).tool = (n: string, ...r: any[]) => HIDDEN_TOOLS.has(n) ? undefined : (_tool as any)(n, ...r); }
   { const orig = (server as any).tool.bind(server); (server as any).tool = (name: string, desc: any, ...rest: any[]) => orig(name, typeof desc === "string" ? upsell(TOOL_PATH[name] || "", desc) : desc, ...rest); }
@@ -292,6 +293,10 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       if (!/^\d{9}$/.test(acn)) throw new Error("acn must be 9 digits (or abn 11 digits)");
       const r = await env.AU.fetch(`https://au.internal/internal/au?acn=${acn}`, { headers: { "x-internal-key": env.AU_INTERNAL_KEY || "" } });
       return json(await r.json()); } catch (e) { return err(e); } }) as any);
+  server.tool("fr_company",
+    "French company lookup via API Recherche d'entreprises (INSEE/RNE): name, SIREN, status, NAF, siège, dirigeants, finances, red flags. Search by siren, siret, or name. Example: {siren:\"443061841\"}. $0.25 USDC.",
+    { siren: z.string().optional(), siret: z.string().optional(), name: z.string().optional(), q: z.string().optional(), limit: z.union([z.string(), z.number()]).optional() },
+    (await mk("$0.25", "fr_company", 250000))(async (a: any) => { try { return json(await frCompany(a)); } catch (e) { return err(e); } }) as any);
   server.tool("ca_company",
     "Use this for a Canadian federal corporation lookup (Corporations Canada) by corporation number or 9-digit Business Number: legal name, governing act, status, annual filing, registered office, directors min/max. OGL-Canada. $0.02 USDC.",
     { number: z.string().optional(), bn: z.string().optional() },
@@ -301,15 +306,16 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       const r = await env.AU.fetch(`https://au.internal/internal/ca?${q}`, { headers: { "x-internal-key": env.AU_INTERNAL_KEY || "" } });
       return json(await r.json()); } catch (e) { return err(e); } }) as any);
   server.tool("registry_batch",
-    "Use this to verify up to 25 UK (Companies House, max 10), Australian (ACN/ABN) and Canadian (corp number/BN) companies in one call: name, status, type, dates, UK red flags. Comma-separated ids. $0.30 USDC.",
-    { uk: z.string().optional(), au: z.string().optional(), ca: z.string().optional() },
+    "Use this to verify up to 25 UK (Companies House, max 10), Australian (ACN/ABN), Canadian (corp number/BN) and French (SIREN) companies in one call: name, status, type, dates, UK red flags. Comma-separated ids. $0.30 USDC.",
+    { uk: z.string().optional(), au: z.string().optional(), ca: z.string().optional(), fr: z.string().optional() },
     (await mk("$0.30", "registry_batch", 300000))(async (a: any) => { try {
       const sp = (v: any) => String(v || "").split(/[\s,;]+/).map((x) => x.replace(/\D/g, "")).filter(Boolean);
-      const au = sp(a.au), ca = sp(a.ca), uk = String(a.uk || "").split(/[\s,;]+/).map((x) => x.toUpperCase().replace(/[^A-Z0-9]/g, "")).filter(Boolean); if (!au.length && !ca.length && !uk.length) throw new Error("uk, au or ca ids required"); if (uk.length > 10 || au.length + ca.length + uk.length > 25) throw new Error("max 25 ids (uk max 10)");
+      const au = sp(a.au), ca = sp(a.ca), fr = sp(a.fr).filter((x: string) => x.length === 9), uk = String(a.uk || "").split(/[\s,;]+/).map((x) => x.toUpperCase().replace(/[^A-Z0-9]/g, "")).filter(Boolean); if (!au.length && !ca.length && !uk.length && !fr.length) throw new Error("uk, au, ca or fr ids required"); if (uk.length > 10 || au.length + ca.length + uk.length + fr.length > 25) throw new Error("max 25 ids (uk max 10)");
       const h = { headers: { "x-internal-key": env.AU_INTERNAL_KEY || "" } };
       const one = async (c: string, id: string) => { const q = c === "AU" ? `au?acn=${id.length === 11 ? id.slice(2) : id}` : `ca?${id.length === 9 ? "bn" : "number"}=${id}`; const r = await env.AU.fetch(`https://au.internal/internal/${q}`, h); return { country: c, id, found: r.ok, data: r.ok ? await r.json() : null }; };
       const ukOne = async (id: string) => { try { return { country: "UK", id, found: true, data: await ukCompany(env, { number: id.padStart(8, "0"), lite: true }) }; } catch (e: any) { return { country: "UK", id, found: false, error: e?.message }; } };
-      const results = await Promise.all([...uk.map(ukOne), ...au.map((i) => one("AU", i)), ...ca.map((i) => one("CA", i))]);
+      const frOne = async (id: string) => { try { return { country: "FR", id, found: true, data: await frCompany({ siren: id, lite: true }) }; } catch (e: any) { return { country: "FR", id, found: false, error: e?.message }; } };
+      const results = await Promise.all([...uk.map(ukOne), ...au.map((i) => one("AU", i)), ...ca.map((i) => one("CA", i)), ...fr.map(frOne)]);
       return json({ count: results.length, found: results.filter((r) => r.found).length, results }); } catch (e) { return err(e); } }) as any);
   server.tool("fx_rates",
     "Use this for official ECB currency exchange rates (~30 fiat incl GBP/EUR/USD/JPY), latest or a historical date (YYYY-MM-DD), with optional amount conversion. $0.002 USDC.",
@@ -358,7 +364,8 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       token_check: { price: "$0.01", when: "ERC20 token risk/liquidity" },
       fx_rates: { price: "$0.002", when: "ECB fiat FX rates" },
       au_company: { price: "$0.02", when: "Australian ASIC company lookup by ACN/ABN" },
-      registry_batch: { price: "$0.30", when: "Batch up to 25 UK+AU+CA company ids" },
+      fr_company: { price: "$0.25", when: "French company lookup by SIREN/SIRET/name (Recherche d'entreprises)" },
+      registry_batch: { price: "$0.30", when: "Batch up to 25 UK+AU+CA+FR company ids" },
       ca_company: { price: "$0.02", when: "Canadian federal corporation lookup by number/BN" },
       ens_lookup: { price: "$0.002", when: "ENS name <-> address" }, token_metadata: { price: "$0.001", when: "ERC20 name/symbol/decimals/supply" },
       token_allowance: { price: "$0.002", when: "ERC20 approval check" }, contract_info: { price: "$0.003", when: "proxy/clone/standards/verified name" },
@@ -376,7 +383,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       sanctions_batch: { price: "$1.00", when: "batch <=50 sanctions screens" },
       email_check: { price: "$0.002", when: "validate email before outreach/onboarding" },
       uk_dd: { price: "$1.00", when: "UK-only DD job: full CH + sanctions + optional domain → trust flag" },
-      kyb_report: { price: "$2.50", when: "UK/AU/CA registry+VAT+LEI+website+sanctions+director appointments KYB pack" },
+      kyb_report: { price: "$2.50", when: "UK/AU/CA/FR registry+VAT+LEI+website+sanctions+director appointments KYB pack" },
       uk_officer: { price: "$0.15", when: "UK officer name → appointments reverse search" },
       ...Object.fromEntries(CHAIN_ROUTES.map((r) => ["chain_" + r.path.slice(7).replace(/-/g, "_"), { price: r.price, when: r.desc.split(".")[0].slice(0, 90) }])),
       pricing: { price: "free" },
@@ -409,8 +416,8 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
     (await mk("$1.00", "uk_dd", 1000000))(async (a: any) => { try { return json(await ukDdReport(env, a)); } catch (e) { return err(e); } }) as any);
 
   server.tool("kyb_report",
-    "Use this for one-shot agent KYB: UK Companies House DD and/or Australia ASIC (acn) and/or Canada (ca_number/bn) + EU VIES VAT + optional GLEIF LEI (with ownership parents) + website research + sanctions screen (entity+directors) + director appointment skim → trust flag. Screening only, not a regulated determination. $2.50 USDC.",
-    { domain: z.string().optional(), number: z.string().optional(), name: z.string().optional(), vat: z.string().optional(), country: z.string().optional(), vat_number: z.string().optional(), acn: z.string().optional(), ca_number: z.string().optional(), bn: z.string().optional(), lei: z.string().optional() },
+    "Use this for one-shot agent KYB: UK Companies House DD and/or Australia ASIC (acn) and/or Canada (ca_number/bn) and/or France (siren/siret) + EU VIES VAT + optional GLEIF LEI (with ownership parents) + website research + sanctions screen (entity+directors) + director appointment skim → trust flag. Screening only, not a regulated determination. $2.50 USDC.",
+    { domain: z.string().optional(), number: z.string().optional(), name: z.string().optional(), vat: z.string().optional(), country: z.string().optional(), vat_number: z.string().optional(), acn: z.string().optional(), ca_number: z.string().optional(), bn: z.string().optional(), lei: z.string().optional(), siren: z.string().optional(), siret: z.string().optional() },
     (await mk("$2.50", "kyb_report", 2500000))(async (a: any) => { try { return json(await kybReport(env, a, bindingRegistries(env))); } catch (e) { return err(e); } }) as any);
 
 
