@@ -4,7 +4,7 @@ import { privateKeyToAccount } from "viem/accounts";
 import type { Chain, ClientOptions, RequestOpts } from "./types.js";
 
 const DEFAULT_ORIGIN = "https://api.axiomworks.co.uk";
-const VERSION = "1.13.0";
+const VERSION = "1.14.0";
 
 function normalizeKey(raw?: string): `0x${string}` | undefined {
   if (!raw) return undefined;
@@ -138,6 +138,10 @@ export class AgentReaderClient {
   }
   checkDomain(input: { domain: string }, opts?: RequestOpts) {
     return this.get("/check", input, opts);
+  }
+  /** Validate an email: syntax, MX/A, disposable/free/role flags ($0.002). */
+  emailCheck(input: { email: string }, opts?: RequestOpts) {
+    return this.get("/email-check", input, opts);
   }
   companyResearch(input: { domain: string }, opts?: RequestOpts) {
     return this.get("/company", input, opts);

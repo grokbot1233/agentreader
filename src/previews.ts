@@ -317,6 +317,12 @@ export const STATIC_SAMPLES: Record<string, any> = {
     product: "kyb", trust: { flag: "CLEAR", score: 85, reasons: ["UK company status active", "website research completed"] },
     disclaimer: "Screening over public registries and public sanctions lists only. Not a regulated KYC/KYB/AML determination.",
   },
+  "email-check": {
+    product: "email-check", email: "info@stripe.com", syntax_ok: true, verdict: "risky", score: 90,
+    flags: ["role_account"], checks: { mx: true, a: true, disposable: false, free_provider: false, role_account: true },
+    provider: "Google Workspace / Gmail",
+    disclaimer: "Heuristics over public DNS only. Not a guarantee of deliverability.",
+  },
   "uk-officer": {
     product: "uk-officer", query: { name: "Ken Olisa", limit: 10 }, hits_total: 3, returned: 2,
     disclaimer: "Public Companies House register data (OGL). Screening/research aid only - not a credit check.",
