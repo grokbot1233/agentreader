@@ -136,11 +136,11 @@ const sirenIn = { type: "object", properties: { siren: { type: "string", descrip
 const sirenOut = { type: "object", properties: { siren: { type: "string" }, valid: { type: "boolean" }, luhn_ok: { type: "boolean" }, length_ok: { type: "boolean" }, digits: { type: "integer" }, disclaimer: { type: "string" } } };
 const siretIn = { type: "object", properties: { siret: { type: "string", description: "French SIRET (14 digits = SIREN + NIC, spaces ok)" } }, required: ["siret"] };
 const siretOut = { type: "object", properties: { siret: { type: "string" }, valid: { type: "boolean" }, luhn_ok: { type: "boolean" }, length_ok: { type: "boolean" }, digits: { type: "integer" }, nic: { type: "string" }, parent_siren: { type: "string" }, disclaimer: { type: "string" } } };
-const partitaIvaIn = { type: "object", properties: { vat: { type: "string", description: "Italian Partita IVA (11 digits, optional IT prefix, spaces/dashes ok)" } }, required: ["vat"] };
+const partitaIvaIn = { type: "object", properties: { vat: { type: "string", description: "Italian Partita IVA (11 digits, optional IT prefix, spaces/dashes ok)" }, number: { type: "string", description: "Alias for vat" }, partita_iva: { type: "string", description: "Alias for vat" }, partita: { type: "string", description: "Alias for vat" } }, required: ["vat"] };
 const partitaIvaOut = { type: "object", properties: { vat: { type: "string" }, partita_iva: { type: "string" }, valid: { type: "boolean" }, checksum_ok: { type: "boolean" }, length_ok: { type: "boolean" }, digits: { type: "integer" }, province_code: { type: "string" }, province_ok: { type: "boolean" }, disclaimer: { type: "string" } } };
-const orgnrIn = { type: "object", properties: { orgnr: { type: "string", description: "Swedish organisationsnummer (10 digits or 12-digit YYYY+orgnr; spaces/dashes ok)" } }, required: ["orgnr"] };
+const orgnrIn = { type: "object", properties: { orgnr: { type: "string", description: "Swedish organisationsnummer (10 digits or 12-digit YYYY+orgnr; spaces/dashes ok)" }, number: { type: "string", description: "Alias for orgnr" } }, required: ["orgnr"] };
 const orgnrOut = { type: "object", properties: { orgnr: { type: "string" }, orgnr_formatted: { type: "string" }, valid: { type: "boolean" }, luhn_ok: { type: "boolean" }, third_digit_ok: { type: "boolean" }, length_ok: { type: "boolean" }, digits: { type: "integer" }, disclaimer: { type: "string" } } };
-const bnCaIn = { type: "object", properties: { bn: { type: "string", description: "Canadian CRA Business Number (9 digits) or program account (BN9 + 2-letter program + 4-digit ref)" } }, required: ["bn"] };
+const bnCaIn = { type: "object", properties: { bn: { type: "string", description: "Canadian CRA Business Number (9 digits) or program account (BN9 + 2-letter program + 4-digit ref)" }, number: { type: "string", description: "Alias for bn" }, business_number: { type: "string", description: "Alias for bn" } }, required: ["bn"] };
 const bnCaOut = { type: "object", properties: { bn: { type: "string" }, bn9: { type: "string" }, program: { type: ["string", "null"] }, reference: { type: ["string", "null"] }, program_known: { type: ["boolean", "null"] }, program_name: { type: ["string", "null"] }, shape_ok: { type: "boolean" }, valid: { type: "boolean" }, form: { type: "string" }, disclaimer: { type: "string" } } };
 const checkIn = { type: "object", properties: { domain: { type: "string", description: "Domain name, e.g. example.com" } }, required: ["domain"] };
 const checkOut = { type: "object", properties: { domain: { type: "string" }, dns: { type: "object" }, dnssec_validated: { type: ["boolean", "null"] },
@@ -351,9 +351,9 @@ const DESC: Record<string, string> = {
   "/uk-postcode": "Offline UK postcode structural validate (Royal Mail format only — not assigned/deliverable/geocode). Distinct from /uk-area and /uk-property. Path alias /uk-postcode/{postcode}. Example: {postcode:\"SW1A 2AA\"}. $0.001.",
   "/siren": "Offline French SIREN validate (9 digits + Luhn; La Poste 356000000 exception). Not proof assigned. Path alias /siren/{siren}. Example: {siren:\"732829320\"}. $0.001.",
   "/siret": "Offline French SIRET validate (14 digits = SIREN+NIC, Luhn on all 14). Path alias /siret/{siret}. Example: {siret:\"73282932000074\"}. $0.001.",
-  "/partita-iva": "Offline Italian Partita IVA validate (11 digits + checksum; optional IT prefix). Soft province_ok. Path alias /partita-iva/{vat}. Example: {vat:\"00488410010\"}. $0.001.",
-  "/orgnr": "Offline Swedish organisationsnummer validate (10-digit Luhn from left; 12-digit YYYY form ok). Path alias /orgnr/{orgnr}. Example: {orgnr:\"556012-5790\"}. $0.001.",
-  "/bn-ca": "Offline Canadian CRA Business Number shape check (9-digit BN or 15-char program account). No check digit. Path alias /bn-ca/{bn}. Example: {bn:\"123456789RT0001\"}. $0.001.",
+  "/partita-iva": "Offline Italian Partita IVA validate (11 digits + checksum; optional IT prefix). Soft province_ok. Accepts number=/partita_iva=/partita= as aliases of vat=. Path alias /partita-iva/{vat}. Example: {vat:\"00488410010\"} or {number:\"00488410010\"}. $0.001.",
+  "/orgnr": "Offline Swedish organisationsnummer validate (10-digit Luhn from left; 12-digit YYYY form ok). Accepts number= as alias of orgnr=. Path alias /orgnr/{orgnr}. Example: {orgnr:\"556012-5790\"} or {number:\"5560125790\"}. $0.001.",
+  "/bn-ca": "Offline Canadian CRA Business Number shape check (9-digit BN or 15-char program account). No check digit. Accepts number=/business_number= as aliases of bn=. Path alias /bn-ca/{bn}. Example: {bn:\"123456789RT0001\"} or {number:\"123456789\"}. $0.001.",
   "/meta": "Lightweight page metadata for agents: title, description, canonical, Open Graph + Twitter card tags, favicons, JSON-LD @types, h1/h2. Cheaper/faster than /read when you do not need Markdown body. Example: {url:\"https://example.com\"}. $0.001.",
   "/redirects": "Unwrap URL redirects / short links: follow http(s) Location hops with SSRF guards, return final_url + chain (no body download). Not a malware verdict. Example: {url:\"https://bit.ly/...\"} or {url:\"example.com\"}. $0.001.",
   "/dns": "DNS resolve via Cloudflare DoH: A/AAAA/MX/TXT/NS/CNAME (or single type=). Public DNS only, not authoritative. Accepts domain= as alias of name=. Example: {name:\"example.com\"} or {domain:\"example.com\",type:\"MX\"}. $0.001.",
@@ -505,7 +505,7 @@ function discovery(c: any) {
     contact: CONTACT, ownershipProofs: [] };
 }
 
-app.get("/health", (c) => c.json({ ok: true, version: "1.26.0", ts: new Date().toISOString() }));
+app.get("/health", (c) => c.json({ ok: true, version: "1.26.1", ts: new Date().toISOString() }));
 app.get("/.well-known/x402", (c) => c.json(discovery(c)));
 app.get("/.well-known/x402.json", (c) => c.json(discovery(c)));
 app.get("/.well-known/402index-verify.txt", (c) => c.text("9a944a1ce3c68588c5fb1d104be63981bb5e6b6e302fa0a1bd65b6a3cd5f5372"));
@@ -516,7 +516,7 @@ app.get("/.well-known/agent-card.json", (c) => {
   return c.json({
     protocolVersion: "0.3.0", name: "Axiom Works AgentReader",
     description: "Pay-per-call (x402, USDC on Base) UK Companies House, KYB, SEC EDGAR, EU VAT, web-to-markdown and EVM on-chain lookups for AI agents. HTTP + MCP; no API keys.",
-    url: b, preferredTransport: "HTTP+JSON", version: "1.26.0", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
+    url: b, preferredTransport: "HTTP+JSON", version: "1.26.1", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
     provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk" },
     capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
     defaultInputModes: ["application/json"], defaultOutputModes: ["application/json"],
@@ -529,14 +529,14 @@ app.get("/.well-known/agent.json", (c) => {
   return c.json({
     name: "Axiom Works AgentReader", description: "x402 pay-per-call web reader, email/phone/IBAN validate, company research, UK Companies House + Charity Commission + US SEC EDGAR + EU VIES VAT + OFAC/UK/UN/EU sanctions screening due diligence, document conversion, change monitoring, EVM wallet/tx/token risk checks and ECB FX rates for AI agents.",
     url: b, provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk", email: CONTACT },
-    version: "1.26.0", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
+    version: "1.26.1", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     skills: Object.entries(PRICES).map(([p, price]) => ({ id: p.slice(1), name: p, description: DESC[p], price, endpoint: `${b}${p}` })),
     mcp: `${b}/mcp`, payments: { protocol: "x402", network: NETWORK, asset: USDC, payTo: c.env.PAY_TO },
   });
 });
 app.get("/.well-known/mcp.json", (c) => {
   const b = base(c);
-  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.26.0",
+  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.26.1",
     description: "x402 pay-per-call MCP: web reader, email/phone/IBAN validate, UK/AU/CA registries, SEC, VAT, sanctions, EVM chain data.",
     transport: { type: "streamable-http", url: `${b}/mcp` }, documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     payments: { protocol: "x402", network: NETWORK, asset: USDC } });
@@ -573,7 +573,7 @@ app.get("/openapi.json", (c) => {
     paths[ap] = { get: { summary: `Path alias of ${to} (same price/x402 challenge). ${DESC[to] || ""}`, parameters: [...ks.map((k) => ({ name: k, in: "path", required: true, schema: { type: "string" } })), { name: "chain", in: "query", required: false, schema: { type: "string" } }, { name: "preview", in: "query", required: false, schema: { type: "string", enum: ["1"] } }],
       responses: { "200": { description: "Success", content: { "application/json": { schema: OUT[to] } } }, "402": { description: `Payment required: ${price} USDC on Base (x402)` } }, "x-price": price, "x-alias-of": to } }; }
   paths["/hooks/sink"] = { post: { summary: "Free webhook test sink for /monitor", responses: { "200": { description: "Stored" } }, "x-price": "free" } };
-  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.26.0", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, email-check, domain RDAP, DNS resolve, URL redirects unwrap, page metadata/OG, HTTP security headers, IBAN/phone/UK-postcode/SIREN/SIRET/Partita-IVA/SE-orgnr/CA-BN validate, company research, UK/AU/CA registries, LEI, sanctions, SEC, VIES VAT, document conversion, change monitoring, EVM/FX. Payments: USDC on Base mainnet (eip155:8453)." },
+  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.26.1", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, email-check, domain RDAP, DNS resolve, URL redirects unwrap, page metadata/OG, HTTP security headers, IBAN/phone/UK-postcode/SIREN/SIRET/Partita-IVA/SE-orgnr/CA-BN validate, company research, UK/AU/CA registries, LEI, sanctions, SEC, VIES VAT, document conversion, change monitoring, EVM/FX. Payments: USDC on Base mainnet (eip155:8453)." },
     servers: [{ url: b }], paths });
 });
 const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
@@ -1107,8 +1107,8 @@ for (const m of ["get", "post"] as const) {
     return cached(c, cacheKey, () => Promise.resolve(validateSiret({ siret })), 3600);
   });
   app[m]("/partita-iva", async (c) => {
-    const b = await bodyObj(c);
-    const vat = String(b.vat || b.partita_iva || "").trim(); if (!vat) return c.json({ error: "missing vat" }, 400);
+    const b = await bodyObj(c); aliasInput("/partita-iva", b);
+    const vat = String(b.vat || b.partita_iva || "").trim(); if (!vat) return c.json({ error: "missing vat", example: { vat: "00488410010" } }, 400);
     const cacheKey = `partita-iva?vat=${encodeURIComponent(vat)}`;
     const paidUrl = `${CANONICAL}/partita-iva?vat=${encodeURIComponent(vat)}`;
     if (c.req.query("preview") === "1" && m === "get")
@@ -1116,8 +1116,8 @@ for (const m of ["get", "post"] as const) {
     return cached(c, cacheKey, () => Promise.resolve(validatePartitaIva({ vat })), 3600);
   });
   app[m]("/orgnr", async (c) => {
-    const b = await bodyObj(c);
-    const orgnr = String(b.orgnr || "").trim(); if (!orgnr) return c.json({ error: "missing orgnr" }, 400);
+    const b = await bodyObj(c); aliasInput("/orgnr", b);
+    const orgnr = String(b.orgnr || "").trim(); if (!orgnr) return c.json({ error: "missing orgnr", example: { orgnr: "556012-5790" } }, 400);
     const cacheKey = `orgnr?orgnr=${encodeURIComponent(orgnr)}`;
     const paidUrl = `${CANONICAL}/orgnr?orgnr=${encodeURIComponent(orgnr)}`;
     if (c.req.query("preview") === "1" && m === "get")
@@ -1125,8 +1125,8 @@ for (const m of ["get", "post"] as const) {
     return cached(c, cacheKey, () => Promise.resolve(validateOrgnr({ orgnr })), 3600);
   });
   app[m]("/bn-ca", async (c) => {
-    const b = await bodyObj(c);
-    const bn = String(b.bn || "").trim(); if (!bn) return c.json({ error: "missing bn" }, 400);
+    const b = await bodyObj(c); aliasInput("/bn-ca", b);
+    const bn = String(b.bn || "").trim(); if (!bn) return c.json({ error: "missing bn", example: { bn: "123456789RT0001" } }, 400);
     const cacheKey = `bn-ca?bn=${encodeURIComponent(bn)}`;
     const paidUrl = `${CANONICAL}/bn-ca?bn=${encodeURIComponent(bn)}`;
     if (c.req.query("preview") === "1" && m === "get")

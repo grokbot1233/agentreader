@@ -29,6 +29,18 @@ export function aliasInput(path: string, b: any) {
   if (path === "/dns") {
     if (!s(b.name) && Object.prototype.hasOwnProperty.call(b, "domain")) b.name = s(b.domain);
   }
+  // Agents often send number= for registry-style IDs; map even when empty so ?number= is free 400.
+  if (path === "/partita-iva") {
+    if (!s(b.vat) && !s(b.partita_iva) && Object.prototype.hasOwnProperty.call(b, "number")) b.vat = s(b.number);
+    if (!s(b.vat) && Object.prototype.hasOwnProperty.call(b, "partita")) b.vat = s(b.partita);
+  }
+  if (path === "/orgnr") {
+    if (!s(b.orgnr) && Object.prototype.hasOwnProperty.call(b, "number")) b.orgnr = s(b.number);
+  }
+  if (path === "/bn-ca") {
+    if (!s(b.bn) && Object.prototype.hasOwnProperty.call(b, "number")) b.bn = s(b.number);
+    if (!s(b.bn) && Object.prototype.hasOwnProperty.call(b, "business_number")) b.bn = s(b.business_number);
+  }
   return b;
 }
 
@@ -75,7 +87,7 @@ export const VALIDATE: Record<string, (b: any) => string | null> = {
     return x.length === 14 ? null : "siret must be exactly 14 digits";
   },
   "/partita-iva": (b) => {
-    const raw = s(b.vat) || s(b.partita_iva);
+    const raw = s(b.vat) || s(b.partita_iva) || s(b.number) || s(b.partita);
     if (!raw) return "missing vat";
     let cleaned = raw.replace(/[\s\-]/g, "").toUpperCase();
     if (cleaned.startsWith("IT")) cleaned = cleaned.slice(2);
@@ -84,14 +96,15 @@ export const VALIDATE: Record<string, (b: any) => string | null> = {
     return x.length === 11 ? null : "partita IVA must be exactly 11 digits (optional IT prefix)";
   },
   "/orgnr": (b) => {
-    const x = s(b.orgnr).replace(/\D/g, "");
-    if (!s(b.orgnr)) return "missing orgnr";
+    const raw = s(b.orgnr) || s(b.number);
+    const x = raw.replace(/\D/g, "");
+    if (!raw) return "missing orgnr";
     if (!x) return "orgnr must contain digits";
     if (x.length === 10 || x.length === 12) return null;
     return "orgnr must be 10 digits (or 12-digit YYYY+orgnr form)";
   },
   "/bn-ca": (b) => {
-    const raw = s(b.bn);
+    const raw = s(b.bn) || s(b.number) || s(b.business_number);
     if (!raw) return "missing bn";
     const cleaned = raw.replace(/[\s\-]/g, "").toUpperCase();
     if (/^\d{9}$/.test(cleaned) || /^\d{9}[A-Z]{2}\d{4}$/.test(cleaned)) return null;
