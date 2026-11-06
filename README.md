@@ -8,6 +8,27 @@
 
 No API keys, no accounts. Agents pay per request in **USDC on Base mainnet** using the [x402](https://x402.org) protocol (HTTP 402).
 
+## Big hitters
+
+| Product | Price | What you get |
+|---|---|---|
+| `/kyb` | $2.50 | One-shot KYB pack: UK/AU/CA registry + VAT + website + sanctions + LEI → trust flag |
+| `/uk-dd` | $1.00 | UK due-diligence job: full Companies House + sanctions on entity and officers |
+| `/uk-company` | $0.50 | Full Companies House report + insolvency + red flags |
+| `/uk-watch` | $5.00 / 30d | Hourly status/officer/filing changes → webhook |
+| `/uk-leads` | $1.00 | New UK incorporations + directors + mass-formation flags |
+| `/uk-leads-feed` | $25.00 / 30d | Daily webhook of new UK leads for your filter |
+| `/company` | $0.25 | Company research from a domain, with sources |
+| `/company-full` | $0.65 | Website research + UK DD bundle |
+| `/sanctions-batch` | $1.00 | Up to 50 names vs OFAC/UK/UN/EU |
+| `/uk-charity-full` | $0.25 | Charity trustees, 5y finances, red flags |
+| `/registry-batch` | $0.30 | Up to 25 UK/AU/CA companies in one call |
+| `/uk-officer` | $0.15 | UK officer search + appointments + flags |
+
+Supporting real-data checks: `/uk-company-lite`, `/uk-charity`, `/sanctions`, `/au-company`, `/ca-company`, `/us-sec`, `/lei-full`, `/eu-vat`.
+
+## All endpoints
+
 | Endpoint | MCP tool | Price | Returns |
 |---|---|---|---|
 | `GET/POST /read?url=` | `read_url` | $0.002 | Clean Markdown + metadata |
@@ -17,10 +38,6 @@ No API keys, no accounts. Agents pay per request in **USDC on Base mainnet** usi
 | `GET/POST /links?url=` | `extract_links` | $0.001 | De-duplicated absolute links |
 | `GET/POST /check?domain=` | `check_domain` | $0.001 | DNS/TLS/HSTS/MX/SPF/DMARC + score |
 | `GET/POST /email-check?email=` | `email_check` | $0.002 | Syntax + MX/A + disposable/free/role flags + score/verdict |
-| `GET/POST /phone?phone=` | `phone_check` | $0.001 | Offline E.164 + country length validate (not HLR/carrier) |
-| `GET/POST /uk-postcode?postcode=` | `uk_postcode_validate` | $0.001 | Offline UK postcode format validate (not geocode/assigned) |
-| `GET/POST /siren?siren=` | `siren_validate` | $0.001 | Offline French SIREN 9-digit Luhn |
-| `GET/POST /siret?siret=` | `siret_validate` | $0.001 | Offline French SIRET 14-digit Luhn |
 | `GET/POST /domain?domain=` | `domain_lookup` | $0.002 | RDAP registrar / registered / expires / age_days / status |
 | `GET/POST /company?domain=` | `company_research` | $0.25 | Company research report (tech, contacts, DNS, RDAP, SSL, news) with sources |
 | `GET/POST /uk-company?number=` / `?name=` | `uk_company` | $0.50 | Full UK Companies House due-diligence (API) + insolvency + red flags |
@@ -35,7 +52,7 @@ No API keys, no accounts. Agents pay per request in **USDC on Base mainnet** usi
 | `GET/POST /uk-leads?sic=` | `uk_leads` | $1.00 | New cos + active director names + mass-formation flags |
 | `POST /uk-leads-feed` | `uk_leads_feed` | $25.00 / 30d | Daily webhook of new matches for your filter |
 | `POST /uk-watch` | `uk_watch` | $5.00 / 30d | Hourly Companies House status/officers/filings → webhook |
-| `GET/POST /kyb` | `kyb_report` | $2.00 | Website + UK CH + EU VAT → trust flag (screening only) |
+| `GET/POST /kyb` | `kyb_report` | $2.50 | Website + UK CH + EU VAT → trust flag (screening only) |
 | `POST /monitor` | `create_monitor` | $1.00 / 30d | Hourly change monitor → webhook |
 | `GET /monitor/:id` | — | free | Monitor status (id is the secret) |
 
@@ -75,7 +92,7 @@ console.log(await r.json());
 
 Remote MCP server, streamable HTTP, stateless: `https://api.axiomworks.co.uk/mcp`
 
-Tools: `read_url`, `read_batch`, `extract_links`, `check_domain`, `phone_check`, `uk_postcode_validate`, `iban_validate`, `company_research`, `uk_company`, `uk_company_lite`, `company_full`, `uk_charity`, `uk_charity_full`, `lei_lookup`, `lei_full`, `convert_document`, `create_monitor`, plus on-chain/FX/search/UK property tools (paid) and `pricing` (free).
+Tools: `read_url`, `read_batch`, `extract_links`, `check_domain`, `company_research`, `uk_company`, `uk_company_lite`, `company_full`, `uk_charity`, `uk_charity_full`, `lei_lookup`, `lei_full`, `convert_document`, `create_monitor`, plus on-chain/FX/search/UK property tools (paid) and `pricing` (free).
 
 ```ts
 import { createx402MCPClient } from "@x402/mcp";

@@ -32,8 +32,10 @@ Scoring: payment evidence × price/volume potential × our fit (free data, exist
 
 ## Next passes (spider-web)
 
-1. Finish ship `/chain/live-balance` + x402scan register + one soft outreach.
-2. Next free build: IT Partita IVA / SE orgnr / CA BN / DK CVR (Toll $0.001).
-3. Soft distribute `/kyb`+`/uk-dd`+`/chain/live-balance`.
-4. Re-pull CDP Bazaar next demand run; SSL/IP-geo still deferred.
+**Directive 2026-11-06 (Liam):** stop shipping $0.001 offline format validators — earnings too small to justify usage. Existing validators stay callable over HTTP but are unlisted from MCP/llms/discovery (v1.28.0). Focus only on big hitters and expand/sell those.
+
+1. Grow big hitters: /kyb $2.50, /uk-dd $1, /uk-company $0.50, /uk-watch $5/30d, /uk-leads $1, /uk-leads-feed $25/30d, /company $0.25, /company-full $0.65, /sanctions-batch $1, /uk-charity-full $0.25, /registry-batch $0.30, /uk-officer $0.15.
+2. Expand along those lines (deeper KYB coverage, more registries inside /kyb and /registry-batch, subscription feeds) rather than new micro SKUs.
+3. Outreach: pitch KYB/UK DD/watch/leads-feed to agent builders and partners (SwarmMemo et al.).
+4. Re-pull CDP Bazaar demand next run, filtered to >= $0.15 SKUs; SSL/IP-geo still deferred.
 5. awesome-langchain: do not re-PR.

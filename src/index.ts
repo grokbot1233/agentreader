@@ -539,18 +539,21 @@ app.use("*", async (c, next) => { currentEnv = c.env; await next(); c.header("ac
   c.header("access-control-expose-headers", "PAYMENT-REQUIRED, PAYMENT-RESPONSE, X-PAYMENT-RESPONSE"); });
 app.options("*", (c) => c.body(null, 204, { "access-control-allow-origin": "*", "access-control-allow-headers": "*", "access-control-allow-methods": "GET, POST, OPTIONS" }));
 
+// 2026-11-06 directive: $0.001 offline format validators stay callable over HTTP but are unlisted from discovery/MCP.
+export const UNLISTED = new Set(["/phone","/uk-postcode","/iban","/siren","/siret","/partita-iva","/orgnr","/bn-ca","/cvr","/fn-at","/cin-in","/kvk-nl","/hr-de","/nif-es","/cnpj","/nip-pl","/uid-ch"]);
+const LISTED_PRICES = () => Object.entries(PRICES).filter(([p]) => !UNLISTED.has(p));
 function base(_c: any) { return CANONICAL; }
 function discovery(c: any) {
   const b = base(c);
-  return { x402Version: 2, name: "Axiom Works AgentReader", description: "Pay-per-call web reading, email/phone/IBAN validate, company research, UK company/charity + US SEC EDGAR + EU VAT (VIES) + sanctions screening due diligence, document conversion, change monitoring, EVM wallet/tx/token checks and FX rates for AI agents. USDC on Base via x402.",
-    resources: Object.keys(PRICES).map((p) => `${b}${p}`),
-    items: Object.entries(PRICES).map(([p, price]) => ({ resource: `${b}${p}`, methods: METHODS[p], description: DESC[p], mimeType: "application/json",
+  return { x402Version: 2, name: "Axiom Works AgentReader", description: "Pay-per-call web reading, KYB packs, UK due diligence, company research, UK company/charity + US SEC EDGAR + EU VAT (VIES) + sanctions screening due diligence, document conversion, change monitoring, EVM wallet/tx/token checks and FX rates for AI agents. USDC on Base via x402.",
+    resources: LISTED_PRICES().map(([p]) => p).map((p) => `${b}${p}`),
+    items: LISTED_PRICES().map(([p, price]) => ({ resource: `${b}${p}`, methods: METHODS[p], description: DESC[p], mimeType: "application/json",
       accepts: [{ scheme: "exact", network: NETWORK, amount: String(ATOMIC[p]), price, asset: USDC, payTo: c.env.PAY_TO, maxTimeoutSeconds: 120, extra: { name: "USD Coin", version: "2" } }],
       input: { type: "http", method: METHODS[p][0], queryParams: IN[p] }, output: OUT[p] })),
     contact: CONTACT, ownershipProofs: [] };
 }
 
-app.get("/health", (c) => c.json({ ok: true, version: "1.27.8", ts: new Date().toISOString() }));
+app.get("/health", (c) => c.json({ ok: true, version: "1.28.0", ts: new Date().toISOString() }));
 app.get("/.well-known/x402", (c) => c.json(discovery(c)));
 app.get("/.well-known/x402.json", (c) => c.json(discovery(c)));
 app.get("/.well-known/402index-verify.txt", (c) => c.text("9a944a1ce3c68588c5fb1d104be63981bb5e6b6e302fa0a1bd65b6a3cd5f5372"));
@@ -561,34 +564,34 @@ app.get("/.well-known/agent-card.json", (c) => {
   return c.json({
     protocolVersion: "0.3.0", name: "Axiom Works AgentReader",
     description: "Pay-per-call (x402, USDC on Base) UK Companies House, KYB, SEC EDGAR, EU VAT, web-to-markdown and EVM on-chain lookups for AI agents. HTTP + MCP; no API keys.",
-    url: b, preferredTransport: "HTTP+JSON", version: "1.27.8", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
+    url: b, preferredTransport: "HTTP+JSON", version: "1.28.0", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
     provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk" },
     capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
     defaultInputModes: ["application/json"], defaultOutputModes: ["application/json"],
-    skills: Object.entries(PRICES).map(([p, price]) => ({ id: p.slice(1), name: p, description: `${DESC[p]} Price ${price} USDC via x402 at ${b}${p}.`, tags: tags(p), inputModes: ["application/json"], outputModes: ["application/json"], examples: [JSON.stringify(EX[p] || {})] })),
+    skills: LISTED_PRICES().map(([p, price]) => ({ id: p.slice(1), name: p, description: `${DESC[p]} Price ${price} USDC via x402 at ${b}${p}.`, tags: tags(p), inputModes: ["application/json"], outputModes: ["application/json"], examples: [JSON.stringify(EX[p] || {})] })),
     metadata: { mcp: `${b}/mcp`, openapi: `${b}/openapi.json`, x402: `${b}/.well-known/x402`, payments: { protocol: "x402", network: NETWORK, asset: USDC, payTo: c.env.PAY_TO }, github: "https://github.com/grokbot1233/agentreader" },
   });
 });
 app.get("/.well-known/agent.json", (c) => {
   const b = base(c);
   return c.json({
-    name: "Axiom Works AgentReader", description: "x402 pay-per-call web reader, email/phone/IBAN validate, company research, UK Companies House + Charity Commission + US SEC EDGAR + EU VIES VAT + OFAC/UK/UN/EU sanctions screening due diligence, document conversion, change monitoring, EVM wallet/tx/token risk checks and ECB FX rates for AI agents.",
+    name: "Axiom Works AgentReader", description: "x402 pay-per-call web reader, KYB packs, UK due diligence, company research, UK Companies House + Charity Commission + US SEC EDGAR + EU VIES VAT + OFAC/UK/UN/EU sanctions screening due diligence, document conversion, change monitoring, EVM wallet/tx/token risk checks and ECB FX rates for AI agents.",
     url: b, provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk", email: CONTACT },
-    version: "1.27.8", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
-    skills: Object.entries(PRICES).map(([p, price]) => ({ id: p.slice(1), name: p, description: DESC[p], price, endpoint: `${b}${p}` })),
+    version: "1.28.0", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
+    skills: LISTED_PRICES().map(([p, price]) => ({ id: p.slice(1), name: p, description: DESC[p], price, endpoint: `${b}${p}` })),
     mcp: `${b}/mcp`, payments: { protocol: "x402", network: NETWORK, asset: USDC, payTo: c.env.PAY_TO },
   });
 });
 app.get("/.well-known/mcp.json", (c) => {
   const b = base(c);
-  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.27.8",
-    description: "x402 pay-per-call MCP: web reader, email/phone/IBAN validate, UK/AU/CA registries, SEC, VAT, sanctions, EVM chain data.",
+  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.28.0",
+    description: "x402 pay-per-call MCP: KYB, UK due diligence, UK/AU/CA registries, web reader, SEC, VAT, sanctions, EVM chain data.",
     transport: { type: "streamable-http", url: `${b}/mcp` }, documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     payments: { protocol: "x402", network: NETWORK, asset: USDC } });
 });
 app.get("/sitemap.xml", (c) => {
   const b = base(c);
-  const urls = ["/", "/llms.txt", "/openapi.json", "/.well-known/x402", "/.well-known/agent.json", "/.well-known/mcp.json", ...Object.keys(PRICES)];
+  const urls = ["/", "/llms.txt", "/openapi.json", "/.well-known/x402", "/.well-known/agent.json", "/.well-known/mcp.json", ...LISTED_PRICES().map(([p]) => p)];
   return c.body(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map((u) => `<url><loc>${b}${u}</loc></url>`).join("")}</urlset>`, 200, { "content-type": "application/xml" });
 });
 const ALIAS_DOCS: [string, string, string[]][] = [
@@ -596,11 +599,11 @@ const ALIAS_DOCS: [string, string, string[]][] = [
   ["/wallet/{address}", "/wallet", ["address"]], ["/address/{address}", "/wallet", ["address"]], ["/token/{address}", "/token", ["address"]],
   ["/token-check/{address}", "/token-check", ["address"]], ["/block/{number}", "/block", ["number"]], ["/nft/{contract}/{token_id}", "/nft", ["contract", "token_id"]],
   ["/gas/{chain}", "/gas", ["chain"]], ["/check/{domain}", "/check", ["domain"]], ["/domain/{domain}", "/domain", ["domain"]], ["/dns/{name}", "/dns", ["name"]], ["/email-check/{email}", "/email-check", ["email"]], ["/meta/{url}", "/meta", ["url"]], ["/uk-company/{number}", "/uk-company", ["number"]], ["/uk-dd/{number}", "/uk-dd", ["number"]],
-  ["/uk-charity/{number}", "/uk-charity", ["number"]], ["/us-sec/{ticker}", "/us-sec", ["ticker"]], ["/eu-vat/{vat}", "/eu-vat", ["vat"]], ["/lei/{lei}", "/lei", ["lei"]], ["/iban/{iban}", "/iban", ["iban"]], ["/phone/{phone}", "/phone", ["phone"]], ["/uk-postcode/{postcode}", "/uk-postcode", ["postcode"]], ["/siren/{siren}", "/siren", ["siren"]], ["/siret/{siret}", "/siret", ["siret"]], ["/partita-iva/{vat}", "/partita-iva", ["vat"]], ["/orgnr/{orgnr}", "/orgnr", ["orgnr"]], ["/bn-ca/{bn}", "/bn-ca", ["bn"]], ["/cvr/{cvr}", "/cvr", ["cvr"]], ["/fn-at/{fn}", "/fn-at", ["fn"]], ["/cin-in/{cin}", "/cin-in", ["cin"]], ["/kvk-nl/{kvk}", "/kvk-nl", ["kvk"]], ["/hr-de/{hr}", "/hr-de", ["hr"]], ["/nif-es/{nif}", "/nif-es", ["nif"]], ["/cnpj/{cnpj}", "/cnpj", ["cnpj"]], ["/nip-pl/{nip}", "/nip-pl", ["nip"]], ["/uid-ch/{uid}", "/uid-ch", ["uid"]], ["/au-company/{acn}", "/au-company", ["acn"]], ["/ca-company/{number}", "/ca-company", ["number"]],
+  ["/uk-charity/{number}", "/uk-charity", ["number"]], ["/us-sec/{ticker}", "/us-sec", ["ticker"]], ["/eu-vat/{vat}", "/eu-vat", ["vat"]], ["/lei/{lei}", "/lei", ["lei"]], ["/au-company/{acn}", "/au-company", ["acn"]], ["/ca-company/{number}", "/ca-company", ["number"]],
 ];
 app.get("/openapi.json", (c) => {
   const b = base(c); const paths: any = {};
-  for (const [p, price] of Object.entries(PRICES)) {
+  for (const [p, price] of LISTED_PRICES()) {
     const params = Object.entries(IN[p].properties || {}).map(([k, v]: any) => ({
       name: k, in: "query", required: (IN[p].required || []).includes(k), schema: { type: "string" }, description: v.description,
     }));
@@ -618,13 +621,32 @@ app.get("/openapi.json", (c) => {
     paths[ap] = { get: { summary: `Path alias of ${to} (same price/x402 challenge). ${DESC[to] || ""}`, parameters: [...ks.map((k) => ({ name: k, in: "path", required: true, schema: { type: "string" } })), { name: "chain", in: "query", required: false, schema: { type: "string" } }, { name: "preview", in: "query", required: false, schema: { type: "string", enum: ["1"] } }],
       responses: { "200": { description: "Success", content: { "application/json": { schema: OUT[to] } } }, "402": { description: `Payment required: ${price} USDC on Base (x402)` } }, "x-price": price, "x-alias-of": to } }; }
   paths["/hooks/sink"] = { post: { summary: "Free webhook test sink for /monitor", responses: { "200": { description: "Stored" } }, "x-price": "free" } };
-  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.27.8", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, email-check, domain RDAP, DNS resolve, URL redirects unwrap, page metadata/OG, HTTP security headers, IBAN/phone/UK-postcode/SIREN/SIRET/Partita-IVA/SE-orgnr/CA-BN/DK-CVR/AT-FN/IN-CIN/NL-KvK/DE-HR/ES-NIF/BR-CNPJ/PL-NIP/CH-UID validate, company research, UK/AU/CA registries, LEI, sanctions, SEC, VIES VAT, document conversion, change monitoring, EVM/FX. Payments: USDC on Base mainnet (eip155:8453)." },
+  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.28.0", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, email-check, domain RDAP, DNS resolve, URL redirects unwrap, page metadata/OG, HTTP security headers, IBAN/phone/UK-postcode/SIREN/SIRET/Partita-IVA/SE-orgnr/CA-BN/DK-CVR/AT-FN/IN-CIN/NL-KvK/DE-HR/ES-NIF/BR-CNPJ/PL-NIP/CH-UID validate, company research, UK/AU/CA registries, LEI, sanctions, SEC, VIES VAT, document conversion, change monitoring, EVM/FX. Payments: USDC on Base mainnet (eip155:8453)." },
     servers: [{ url: b }], paths });
 });
 const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
 
 > Pay-per-call tools for AI agents. No API keys: x402 (HTTP 402) + USDC on Base (eip155:8453), payTo ${payTo}.
-> Free truncated samples: ${b}/samples/{read|company|uk-company|uk-company-lite|convert|uk-charity|uk-charity-full|us-sec|us-sec-full|eu-vat|lei|lei-full|read-batch|uk-leads|uk-leads-lite|kyb|uk-dd|email-check|domain|dns|redirects|meta|headers|iban|phone|uk-postcode|siren|siret|partita-iva|orgnr|bn-ca|cvr|fn-at|cin-in|kvk-nl|hr-de|nif-es|cnpj|nip-pl|uid-ch|au-company|ca-company|uk-officer|uk-property|uk-area|sanctions|sanctions-batch} (8/IP/day). Or add &preview=1 on paid GETs (same limit).
+> Free truncated samples: ${b}/samples/{read|company|uk-company|uk-company-lite|convert|uk-charity|uk-charity-full|us-sec|us-sec-full|eu-vat|lei|lei-full|read-batch|uk-leads|uk-leads-lite|kyb|uk-dd|email-check|domain|dns|redirects|meta|headers|au-company|ca-company|uk-officer|uk-property|uk-area|sanctions|sanctions-batch} (8/IP/day). Or add &preview=1 on paid GETs (same limit).
+
+## Big hitters (start here)
+
+| Need | Endpoint | Price |
+|---|---|---|
+| One-shot agent KYB pack (UK/AU/CA registry + VAT + website + sanctions + LEI) | ${b}/kyb?number=00445790 | $2.50 |
+| UK due-diligence job (full Companies House pack + sanctions on entity and officers) | ${b}/uk-dd?number=00445790 | $1.00 |
+| UK company watch (hourly status/officers/filings → webhook) | POST ${b}/uk-watch | $5.00/30d |
+| UK leads search by SIC/area | ${b}/uk-leads?sic=62012 | $1.00 |
+| UK leads daily webhook feed | POST ${b}/uk-leads-feed | $25.00/30d |
+| UK company full report | ${b}/uk-company?number=00445790 | $0.50 |
+| Company research from a domain | ${b}/company?domain=stripe.com | $0.25 |
+| Company research + UK pack | ${b}/company-full?domain=tesco.com | $0.65 |
+| Sanctions batch (OFAC/UK/UN/EU) | POST ${b}/sanctions-batch | $1.00 |
+| UK charity full (trustees + 5y financials + red flags) | ${b}/uk-charity-full?number=1089464 | $0.25 |
+| UK+AU+CA registry batch (up to 25) | ${b}/registry-batch?uk=00445790&au=004028077&ca=8660115 | $0.30 |
+| UK officer search + appointments | ${b}/uk-officer?name=Ken+Olisa | $0.15 |
+
+Supporting real-data checks: /uk-company-lite, /uk-charity, /sanctions, /au-company, /ca-company, /us-sec, /lei-full, /eu-vat.
 
 ## When to use which (pick one)
 
@@ -640,23 +662,6 @@ const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
 | Redirects unwrap | ${b}/redirects?url= | $0.001 | Follow Location hops → final_url + chain (SSRF-safe; free: &preview=1) |
 | Page metadata | ${b}/meta?url= | $0.001 | Title/description/canonical/OG/Twitter/favicons/JSON-LD types (free: &preview=1) |
 | HTTP security headers | ${b}/headers?url= | $0.001 | HSTS/CSP/XFO/XCTO/… + score (SSRF-safe; free: &preview=1) |
-| IBAN validate | ${b}/iban?iban=GB82WEST… | $0.001 | ISO 13616 mod-97 + country length (offline; free: &preview=1) |
-| Phone validate | ${b}/phone?phone=%2B447911123456 | $0.001 | E.164 + country length tables (offline; free: &preview=1) |
-| UK postcode validate | ${b}/uk-postcode?postcode=SW1A%202AA | $0.001 | Offline Royal Mail format only (not geocode; free: &preview=1) |
-| SIREN validate | ${b}/siren?siren=732829320 | $0.001 | FR 9-digit Luhn (offline; free: &preview=1) |
-| SIRET validate | ${b}/siret?siret=73282932000074 | $0.001 | FR 14-digit Luhn SIREN+NIC (offline; free: &preview=1) |
-| Partita IVA validate | ${b}/partita-iva?vat=00488410010 | $0.001 | IT 11-digit checksum (offline; free: &preview=1) |
-| SE orgnr validate | ${b}/orgnr?orgnr=556012-5790 | $0.001 | Swedish organisationsnummer Luhn (offline; free: &preview=1) |
-| CA BN shape | ${b}/bn-ca?bn=123456789RT0001 | $0.001 | CRA BN / program account shape only (offline; free: &preview=1) |
-| DK CVR validate | ${b}/cvr?cvr=10403782 | $0.001 | Danish CVR modulus-11 (offline; free: &preview=1) |
-| AT FN validate | ${b}/fn-at?fn=FN%20575737y | $0.001 | Austrian Firmenbuchnummer check letter (offline; free: &preview=1) |
-| IN CIN validate | ${b}/cin-in?cin=U72200KA2013PTC097389 | $0.001 | Indian MCA CIN structure (offline; free: &preview=1) |
-| NL KvK validate | ${b}/kvk-nl?kvk=69599084 | $0.001 | offline Dutch KvK number structure validate (free: &preview=1) |
-| DE Handelsregister validate | ${b}/hr-de?hr=HRB%206684 | $0.001 | offline German HR/HRB number structure validate (free: &preview=1) |
-| ES NIF validate | ${b}/nif-es?nif=A28015865 | $0.001 | offline Spanish NIF/NIE/CIF control-character validate (free: &preview=1) |
-| BR CNPJ validate | ${b}/cnpj?cnpj=33000167000101 | $0.001 | offline Brazilian CNPJ check-digit validate (free: &preview=1) |
-| PL NIP validate | ${b}/nip-pl?nip=5261040828 | $0.001 | offline Polish NIP modulus-11 validate (free: &preview=1) |
-| CH UID validate | ${b}/uid-ch?uid=CHE-109.322.551 | $0.001 | offline Swiss UID (CHE) check-digit validate (free: &preview=1) |
 | Website company research | ${b}/company?domain= | $0.25 | Sourced tech/contacts/DNS/RDAP/news (no LLM fiction) |
 | UK CH full DD | ${b}/uk-company?number=\|name= | $0.50 | Official API: officers/PSC/filings/charges/insolvency + red flags |
 | UK officer search | ${b}/uk-officer?name= | $0.15 | Reverse officer name → appointments + high-appt/mass-formation flags |
