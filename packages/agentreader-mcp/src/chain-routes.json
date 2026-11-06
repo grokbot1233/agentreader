@@ -7,7 +7,8 @@
   "params": {
    "address": "Wallet address",
    "token": "ERC20 contract",
-   "chain": "EVM chain (default base)"
+   "chain": "EVM chain (default base)",
+   "wallet": "Alias for address (owner wallet)"
   },
   "required": [
    "address",
@@ -27,7 +28,8 @@
   "params": {
    "address": "Address",
    "chain": "EVM chain (default base)",
-   "block": "Block number or tag (default latest)"
+   "block": "Block number or tag (default latest)",
+   "wallet": "Alias for address (owner wallet)"
   },
   "required": [
    "address"
@@ -46,7 +48,8 @@
    "address": "Wallet address",
    "tokens": "Comma-separated ERC20 contracts (max 20)",
    "chain": "EVM chain (default base)",
-   "network": "Alias for chain (onesource-compatible)"
+   "network": "Alias for chain (onesource-compatible)",
+   "wallet": "Alias for address (owner wallet)"
   },
   "required": [
    "address"
@@ -77,7 +80,8 @@
   "description": "Next transaction nonce for any address (latest and pending) via eth_getTransactionCount — how many txs it has sent, and whether one is stuck in the mempool. Example: {address:\"0xd8dA…6045\", chain:\"base\"}. $0.001.",
   "params": {
    "address": "Address",
-   "chain": "EVM chain (default base)"
+   "chain": "EVM chain (default base)",
+   "wallet": "Alias for address (owner wallet)"
   },
   "required": [
    "address"
@@ -117,7 +121,8 @@
    "from_block": "from_block",
    "to_block": "to_block",
    "limit": "Max items (default 50, max 200)",
-   "chain": "EVM chain (default base)"
+   "chain": "EVM chain (default base)",
+   "wallet": "Alias for address (owner wallet)"
   },
   "required": [],
   "example": {
@@ -142,7 +147,8 @@
    "from_block": "from_block",
    "to_block": "to_block",
    "limit": "limit",
-   "chain": "EVM chain (default base)"
+   "chain": "EVM chain (default base)",
+   "wallet": "Alias for address (owner wallet)"
   },
   "required": [
    "address"
@@ -192,7 +198,8 @@
   "description": "Is this address a contract or a wallet (EOA)? eth_getCode → is_contract, bytecode size and prefix, EIP-7702 delegation detection. Example: {address:\"0x8335…2913\", chain:\"base\"}. Use /contract ($0.003) for proxy/owner/token detail. $0.001.",
   "params": {
    "address": "Address",
-   "chain": "EVM chain (default base)"
+   "chain": "EVM chain (default base)",
+   "wallet": "Alias for address (owner wallet)"
   },
   "required": [
    "address"
@@ -296,7 +303,8 @@
    "address": "Owner wallet",
    "chain": "EVM chain (default base)",
    "network": "Alias for chain (onesource-compatible)",
-   "limit": "Max token_ids (default 50, max 100)"
+   "limit": "Max token_ids (default 50, max 100)",
+   "wallet": "Alias for address (owner wallet)"
   },
   "required": [
    "contract",
@@ -317,7 +325,8 @@
    "contract": "ERC1155 contract",
    "address": "Holder",
    "token_id": "token_id",
-   "chain": "EVM chain (default base)"
+   "chain": "EVM chain (default base)",
+   "wallet": "Alias for address (owner wallet)"
   },
   "required": [
    "contract",
@@ -340,7 +349,8 @@
    "address": "Contract",
    "slot": "Slot (decimal or 0x hex)",
    "block": "block",
-   "chain": "EVM chain (default base)"
+   "chain": "EVM chain (default base)",
+   "wallet": "Alias for address (owner wallet)"
   },
   "required": [
    "address",
@@ -359,7 +369,8 @@
   "description": "Detect upgradeable proxies (EIP-1967 transparent/UUPS, beacon, legacy OZ, EIP-1167 minimal clones, EIP-7702) via eth_getStorageAt/eth_getCode: implementation, admin, beacon, and whether the implementation is a live contract. Example: {address:\"0x8335…2913\", chain:\"base\"}. $0.002.",
   "params": {
    "address": "Contract",
-   "chain": "EVM chain (default base)"
+   "chain": "EVM chain (default base)",
+   "wallet": "Alias for address (owner wallet)"
   },
   "required": [
    "address"

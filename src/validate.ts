@@ -19,7 +19,12 @@ export function aliasInput(path: string, b: any) {
   if (["/uk-dd", "/uk-company", "/uk-company-lite", "/uk-watch", "/kyb"].includes(path)) {
     if (!s(b.number) && s(b.company_number)) b.number = s(b.company_number);
   }
-  if ((path.startsWith("/chain/") || path === "/nft") && !s(b.chain) && s(b.network)) b.chain = s(b.network);
+  const chainish = path.startsWith("/chain/") || ["/wallet", "/nft", "/token", "/allowance", "/contract"].includes(path);
+  if (chainish) {
+    if (!s(b.chain) && s(b.network)) b.chain = s(b.network);
+    // Agents often send wallet= for the owner; map even when empty so ?wallet= is free 400 (via address).
+    if (!s(b.address) && Object.prototype.hasOwnProperty.call(b, "wallet")) b.address = s(b.wallet);
+  }
   return b;
 }
 

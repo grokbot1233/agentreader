@@ -14,7 +14,7 @@ import { createMonitor } from "./monitor";
 import { wallet, tx, tokenCheck, fx } from "./onchain";
 import { ens, tokenMeta, allowance, contractInfo, gas, block, nft } from "./micro";
 import { MICRO_DESC } from "./micro-desc";
-import { VALIDATE, TOOL_PATH } from "./validate";
+import { VALIDATE, aliasInput, TOOL_PATH } from "./validate";
 import { search } from "./search";
 import { ukProperty, ukArea } from "./ukdata";
 import { ukCharity } from "./uk-charity";
@@ -57,7 +57,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
   }
   await ready;
   const mk = async (price: string, tool: string, atomic: number) => { const w: any = await mk0(price, tool, atomic); return (h: any) => { const paid = w(h); return async (a: any, extra: any) => {
-    const p = TOOL_PATH[tool]; const e = p && VALIDATE[p] ? VALIDATE[p](a || {}) : null;
+    const p = TOOL_PATH[tool]; if (p) aliasInput(p, a || {}); const e = p && VALIDATE[p] ? VALIDATE[p](a || {}) : null;
     if (e) return { isError: true, content: [{ type: "text" as const, text: JSON.stringify({ error: e, free: true, note: "Input rejected before payment; you were not charged.", example: EXAMPLES[p] || EXAMPLES_CHAIN_GET(p) || null }) }] };
     return paid(a, extra); }; }; };
   const mk0 = async (price: string, tool: string, atomic: number) => createPaymentWrapper(rs, {
@@ -67,7 +67,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       await log({ endpoint: `mcp:${tool}`, payer: settlement?.payer || null, amount: settlement?.amount || String(atomic), network: settlement?.network, tx: settlement?.transaction, success: settlement?.success });
     } },
   } as any);
-  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.24.0" });
+  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.24.1" });
   { const orig = (server as any).tool.bind(server); (server as any).tool = (name: string, desc: any, ...rest: any[]) => orig(name, typeof desc === "string" ? upsell(TOOL_PATH[name] || "", desc) : desc, ...rest); }
   const json = (d: any) => ({ content: [{ type: "text" as const, text: JSON.stringify(d) }] });
   const err = (e: any) => ({ isError: true, content: [{ type: "text" as const, text: String(e?.message || e) }] });

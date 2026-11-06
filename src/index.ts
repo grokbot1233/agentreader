@@ -171,7 +171,7 @@ const monitorOut = { type: "object", properties: {
   last_hash: { type: "string" }, status_url: { type: "string" }, active: { type: "boolean" } } };
 
 const chainP = { type: "string", enum: ["base", "ethereum", "arbitrum", "optimism", "polygon"], description: "EVM chain (default base)" };
-const walletIn = { type: "object", properties: { address: { type: "string", description: "0x EVM wallet address" }, chain: chainP, tokens: { type: "string", description: "Optional comma-separated extra ERC20 contract addresses (max 10)" } }, required: ["address"] };
+const walletIn = { type: "object", properties: { address: { type: "string", description: "0x EVM wallet address" }, wallet: { type: "string", description: "Alias for address" }, chain: chainP, tokens: { type: "string", description: "Optional comma-separated extra ERC20 contract addresses (max 10)" } }, required: ["address"] };
 const walletOut = { type: "object", properties: { chain: { type: "string" }, address: { type: "string" }, block: { type: "integer" }, native: { type: "object" }, nonce: { type: "integer" }, is_contract: { type: "boolean" }, tokens: { type: "array", items: { type: "object" } } } };
 const txIn = { type: "object", properties: { hash: { type: "string", description: "0x transaction hash" }, chain: chainP }, required: ["hash"] };
 const txOut = { type: "object", properties: { status: { type: "string" }, block: { type: ["integer", "null"] }, timestamp: { type: ["string", "null"] }, from: { type: "string" }, to: { type: ["string", "null"] }, value_native: { type: "string" }, fee_native: { type: "string" }, erc20_transfers: { type: "array", items: { type: "object" } } } };
@@ -188,11 +188,11 @@ const fxOut = { type: "object", properties: { base: { type: "string" }, date: { 
 const A = (d: string) => ({ type: "string", description: d });
 const ensIn = { type: "object", properties: { name: A("ENS name to resolve, e.g. vitalik.eth"), address: A("0x address for reverse lookup (primary name)") }, anyOf: [{ required: ["name"] }, { required: ["address"] }] };
 const ensOut = { type: "object", properties: { direction: { type: "string" }, name: { type: ["string", "null"] }, address: { type: ["string", "null"] }, records: { type: "object" }, forward_verified: { type: "boolean" } } };
-const tokenMetaIn = { type: "object", properties: { address: A("0x ERC20 token contract"), chain: chainP }, required: ["address"] };
+const tokenMetaIn = { type: "object", properties: { address: A("0x ERC20 token contract"), wallet: { type: "string", description: "Alias for address" }, chain: chainP }, required: ["address"] };
 const tokenMetaOut = { type: "object", properties: { name: { type: ["string", "null"] }, symbol: { type: ["string", "null"] }, decimals: { type: ["integer", "null"] }, total_supply: { type: ["string", "null"] }, is_erc20_like: { type: "boolean" } } };
 const allowIn = { type: "object", properties: { token: A("0x ERC20 token"), owner: A("0x token holder"), spender: A("0x approved spender (router, Permit2, x402 facilitator…)"), chain: chainP }, required: ["token", "owner", "spender"] };
 const allowOut = { type: "object", properties: { allowance: { type: "string" }, allowance_raw: { type: "string" }, unlimited: { type: "boolean" }, owner_balance: { type: ["string", "null"] }, spendable_now: { type: ["string", "null"] } } };
-const contractIn = { type: "object", properties: { address: A("0x address to inspect"), chain: chainP }, required: ["address"] };
+const contractIn = { type: "object", properties: { address: A("0x address to inspect"), wallet: { type: "string", description: "Alias for address" }, chain: chainP }, required: ["address"] };
 const contractOut = { type: "object", properties: { is_contract: { type: "boolean" }, eip7702_delegate: { type: ["string", "null"] }, bytecode_bytes: { type: "integer" }, proxy: { type: "object" }, owner: { type: ["string", "null"] }, standards: { type: "array" }, verified: { type: ["object", "null"] } } };
 const gasIn = { type: "object", properties: { chain: chainP } };
 const gasOut = { type: "object", properties: { base_fee_gwei: { type: "number" }, priority_fee_gwei: { type: "object" }, suggested_eip1559: { type: "object" }, native_usd: { type: ["number", "null"] }, est_cost: { type: "object" } } };
@@ -476,7 +476,7 @@ function discovery(c: any) {
     contact: CONTACT, ownershipProofs: [] };
 }
 
-app.get("/health", (c) => c.json({ ok: true, version: "1.24.0", ts: new Date().toISOString() }));
+app.get("/health", (c) => c.json({ ok: true, version: "1.24.1", ts: new Date().toISOString() }));
 app.get("/.well-known/x402", (c) => c.json(discovery(c)));
 app.get("/.well-known/x402.json", (c) => c.json(discovery(c)));
 app.get("/.well-known/402index-verify.txt", (c) => c.text("9a944a1ce3c68588c5fb1d104be63981bb5e6b6e302fa0a1bd65b6a3cd5f5372"));
@@ -487,7 +487,7 @@ app.get("/.well-known/agent-card.json", (c) => {
   return c.json({
     protocolVersion: "0.3.0", name: "Axiom Works AgentReader",
     description: "Pay-per-call (x402, USDC on Base) UK Companies House, KYB, SEC EDGAR, EU VAT, web-to-markdown and EVM on-chain lookups for AI agents. HTTP + MCP; no API keys.",
-    url: b, preferredTransport: "HTTP+JSON", version: "1.24.0", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
+    url: b, preferredTransport: "HTTP+JSON", version: "1.24.1", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
     provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk" },
     capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
     defaultInputModes: ["application/json"], defaultOutputModes: ["application/json"],
@@ -500,14 +500,14 @@ app.get("/.well-known/agent.json", (c) => {
   return c.json({
     name: "Axiom Works AgentReader", description: "x402 pay-per-call web reader, email/phone/IBAN validate, company research, UK Companies House + Charity Commission + US SEC EDGAR + EU VIES VAT + OFAC/UK/UN/EU sanctions screening due diligence, document conversion, change monitoring, EVM wallet/tx/token risk checks and ECB FX rates for AI agents.",
     url: b, provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk", email: CONTACT },
-    version: "1.24.0", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
+    version: "1.24.1", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     skills: Object.entries(PRICES).map(([p, price]) => ({ id: p.slice(1), name: p, description: DESC[p], price, endpoint: `${b}${p}` })),
     mcp: `${b}/mcp`, payments: { protocol: "x402", network: NETWORK, asset: USDC, payTo: c.env.PAY_TO },
   });
 });
 app.get("/.well-known/mcp.json", (c) => {
   const b = base(c);
-  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.24.0",
+  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.24.1",
     description: "x402 pay-per-call MCP: web reader, email/phone/IBAN validate, UK/AU/CA registries, SEC, VAT, sanctions, EVM chain data.",
     transport: { type: "streamable-http", url: `${b}/mcp` }, documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     payments: { protocol: "x402", network: NETWORK, asset: USDC } });
@@ -544,7 +544,7 @@ app.get("/openapi.json", (c) => {
     paths[ap] = { get: { summary: `Path alias of ${to} (same price/x402 challenge). ${DESC[to] || ""}`, parameters: [...ks.map((k) => ({ name: k, in: "path", required: true, schema: { type: "string" } })), { name: "chain", in: "query", required: false, schema: { type: "string" } }, { name: "preview", in: "query", required: false, schema: { type: "string", enum: ["1"] } }],
       responses: { "200": { description: "Success", content: { "application/json": { schema: OUT[to] } } }, "402": { description: `Payment required: ${price} USDC on Base (x402)` } }, "x-price": price, "x-alias-of": to } }; }
   paths["/hooks/sink"] = { post: { summary: "Free webhook test sink for /monitor", responses: { "200": { description: "Stored" } }, "x-price": "free" } };
-  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.24.0", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, email-check, domain RDAP, DNS resolve, URL redirects unwrap, page metadata/OG, HTTP security headers, IBAN/phone validate, company research, UK/AU/CA registries, LEI, sanctions, SEC, VIES VAT, document conversion, change monitoring, EVM/FX. Payments: USDC on Base mainnet (eip155:8453)." },
+  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.24.1", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: web reading, email-check, domain RDAP, DNS resolve, URL redirects unwrap, page metadata/OG, HTTP security headers, IBAN/phone validate, company research, UK/AU/CA registries, LEI, sanctions, SEC, VIES VAT, document conversion, change monitoring, EVM/FX. Payments: USDC on Base mainnet (eip155:8453)." },
     servers: [{ url: b }], paths });
 });
 const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
@@ -1251,7 +1251,11 @@ function auSlim(d: any) { return { acn: d.acn, name: d.name, status: d.status, s
 function nftSlim(d: any) { const m = d?.metadata; return { ...slim(d), metadata: m ? { name: m.name ?? null, image: m.image ? String(m.image).slice(0, 60) + "…" : null, attributes_count: Array.isArray(m.attributes) ? m.attributes.length : 0, truncated: "full metadata/attributes in paid call" } : null }; }
 function slim(d: any): any { if (Array.isArray(d)) return d.slice(0, 2); if (d && typeof d === "object") { const o: any = {}; for (const [k, v] of Object.entries(d)) o[k] = Array.isArray(v) ? (v as any[]).slice(0, 2) : (k === "rates" || k === "converted") && v ? Object.fromEntries(Object.entries(v as any).slice(0, 3)) : v; return o; } return d; }
 for (const [p, [fn, keys, ttl, need]] of Object.entries(ONCHAIN)) for (const m of ["get", "post"] as const) app[m](p, async (c) => {
-  const b = await bodyObj(c); const args: any = {}; for (const k of keys) if (b[k] != null && b[k] !== "") args[k] = String(b[k]).trim();
+  const b = await bodyObj(c); aliasInput(p, b);
+  const args: any = {}; for (const k of keys) if (b[k] != null && b[k] !== "") args[k] = String(b[k]).trim();
+  // Prefer canonical address over wallet alias in args (fn reads address)
+  if (args.wallet && !args.address) args.address = args.wallet;
+  if (args.network && !args.chain) args.chain = args.network;
   for (const r of need ?? [keys[0]]) if (!r.split("|").some((k) => args[k])) return c.json({ error: `missing ${r.replace("|", " or ")}`, example: EX[p] }, 400);
   if (c.req.query("preview") === "1" && m === "get") {
     const q = await checkPreviewQuota(c.env, clientIp(c)); if (!q.ok) return c.json(q, 429);

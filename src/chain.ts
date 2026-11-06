@@ -19,7 +19,14 @@ async function decimalsOf(rpc: string, token: string) { const [d, s] = await rpc
 
 export type ChainRoute = { path: string; price: string; atomic: number; ttl: number; keys: string[]; desc: string; in: any; out: any; ex: any; validate: (b: any) => string | null; fn: (b: any) => Promise<any> };
 const R: ChainRoute[] = [];
-const add = (r: ChainRoute) => R.push(r);
+const add = (r: ChainRoute) => {
+  // Document wallet= as alias of address= (onesource / agent-friendly); aliasInput maps it pre-pay.
+  if (r.in?.properties?.address && !r.in.properties.wallet) {
+    r.in.properties.wallet = { type: "string", description: "Alias for address (owner wallet)" };
+    if (!r.keys.includes("wallet")) r.keys = [...r.keys, "wallet"];
+  }
+  R.push(r);
+};
 
 add({ path: "/chain/erc20-balance", price: "$0.001", atomic: 1000, ttl: 15, keys: ["address", "token", "chain"],
   desc: "ERC20 token balance for any wallet on Base/Ethereum/Arbitrum/Optimism/Polygon via balanceOf (eth_call). Returns raw + decimal-formatted balance, symbol, decimals, block. Example: {address:\"0xd8dA…6045\", token:\"0x8335…2913\", chain:\"base\"}. $0.001.",
