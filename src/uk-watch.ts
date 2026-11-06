@@ -1,7 +1,7 @@
 import { UserError } from "./core";
 
 const CH_API = "https://api.company-information.service.gov.uk";
-const UA = "AgentReader/1.9 (+https://api.axiomworks.co.uk; UK company watch)";
+const UA = "AgentReader/1.31 (+https://api.axiomworks.co.uk; UK company watch)";
 const TTL_DAYS = 30;
 const MAX_WATCHES = 40;
 
@@ -54,17 +54,47 @@ async function apiGet(env: EnvKV, path: string) {
   return r.json();
 }
 
+function pscLabel(x: any): string {
+  if (x?.name) return String(x.name);
+  const id = x?.identification;
+  if (id && typeof id === "object") {
+    const parts = [id.name || id.legal_form, id.registration_number, id.place_registered, id.legal_authority]
+      .filter(Boolean).map(String);
+    if (parts.length) return parts.join("/");
+  }
+  return String(x?.identification || "unknown");
+}
+
+function isOutstandingCharge(status: string | null | undefined) {
+  return /outstanding|part[-_ ]?satisfied/i.test(String(status || ""));
+}
+
 async function snapshot(env: EnvKV, number: string) {
-  const [profile, officers, filings] = await Promise.all([
+  const [profile, officers, filings, psc, charges] = await Promise.all([
     apiGet(env, `/company/${number}`),
     apiGet(env, `/company/${number}/officers?items_per_page=20`).catch(() => ({ items: [] })),
     apiGet(env, `/company/${number}/filing-history?items_per_page=10`).catch(() => ({ items: [] })),
+    apiGet(env, `/company/${number}/persons-with-significant-control?items_per_page=25`).catch(() => ({ items: [] })),
+    apiGet(env, `/company/${number}/charges?items_per_page=25`).catch(() => ({ items: [] })),
   ]);
   const officer_names = (officers.items || [])
     .filter((o: any) => !o.resigned_on)
     .map((o: any) => `${o.officer_role}:${o.name}:${o.appointed_on || ""}`)
     .sort();
   const filing_ids = (filings.items || []).map((f: any) => f.transaction_id || `${f.date}:${f.type}`).slice(0, 10);
+  const psc_active = (psc.items || [])
+    .filter((x: any) => !x.ceased_on)
+    .map((x: any) => {
+      const natures = Array.isArray(x.natures_of_control) ? [...x.natures_of_control].map(String).sort().join(",") : "";
+      return `${pscLabel(x)}|${natures}|${x.notified_on || ""}`;
+    })
+    .sort();
+  const outstandingItems = (charges.items || []).filter((c: any) => isOutstandingCharge(c.status));
+  const charges_outstanding = outstandingItems.length;
+  const charges_ids = outstandingItems.slice(0, 10).map((c: any) => {
+    const entitled = (c.persons_entitled || []).map((p: any) => p.name).filter(Boolean).join(",");
+    return `${c.delivered_on || c.created_on || ""}:${c.status || ""}:${entitled}`;
+  });
   const slim = {
     company_number: number,
     name: profile.company_name || null,
@@ -76,6 +106,9 @@ async function snapshot(env: EnvKV, number: string) {
     registered_office: profile.registered_office_address || null,
     officers_active: officer_names,
     recent_filings: filing_ids,
+    psc_active,
+    charges_outstanding,
+    charges_ids,
   };
   const hash = await sha256(JSON.stringify(slim));
   return { slim, hash, profile_name: profile.company_name || null };
@@ -110,10 +143,16 @@ export async function createUkWatch(env: EnvKV, body: { number: string; webhook:
     last_check: now.toISOString(), last_hash: snap.hash, last_change: null,
     checks: 1, changes: 0, last_error: null, active: true, snapshot: snap.slim,
   };
-  await env.LOG.put(`ukwatch:${id}`, JSON.stringify(watch), {
-    expirationTtl: (TTL_DAYS + 1) * 86400,
-    metadata: { id, expires: watch.expires, number, active: true },
-  });
+  // Customer paid — create MUST persist; never silently succeed if KV put fails.
+  try {
+    await env.LOG.put(`ukwatch:${id}`, JSON.stringify(watch), {
+      expirationTtl: (TTL_DAYS + 1) * 86400,
+      metadata: { id, expires: watch.expires, number, active: true },
+    });
+  } catch (e: any) {
+    console.log("ukwatch create put failed", e?.message || e);
+    throw new UserError("watch storage unavailable; payment not consumed — retry shortly", 503);
+  }
   return { ...watch, snapshot: snap.slim };
 }
 
@@ -133,7 +172,11 @@ export async function runUkWatches(env: EnvKV) {
     if (!watch || !watch.active) continue;
     if (new Date(watch.expires).getTime() < now) {
       watch.active = false;
-      await env.LOG.put(k.name, JSON.stringify(watch), { expirationTtl: 7 * 86400, metadata: { id: watch.id, active: false, expired: true } });
+      try {
+        await env.LOG.put(k.name, JSON.stringify(watch), { expirationTtl: 7 * 86400, metadata: { id: watch.id, active: false, expired: true } });
+      } catch (e: any) {
+        console.log("ukwatch expire put failed", watch.id, e?.message || e);
+      }
       continue;
     }
     ran++;
@@ -174,7 +217,11 @@ export async function runUkWatches(env: EnvKV) {
       watch.last_check = new Date().toISOString();
     }
     const ttl = Math.max(60, Math.floor((new Date(watch.expires).getTime() - now) / 1000) + 86400);
-    await env.LOG.put(k.name, JSON.stringify(watch), { expirationTtl: ttl, metadata: { id: watch.id, expires: watch.expires, active: true } });
+    try {
+      await env.LOG.put(k.name, JSON.stringify(watch), { expirationTtl: ttl, metadata: { id: watch.id, expires: watch.expires, active: true } });
+    } catch (e: any) {
+      console.log("ukwatch run put failed", watch.id, e?.message || e);
+    }
   }
   return { ran, changes, errors };
 }

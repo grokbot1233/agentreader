@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const ORIGIN = process.env.AGENTREADER_ORIGIN || "https://api.axiomworks.co.uk";
-export const VERSION = "1.30.0";
+export const VERSION = "1.31.0";
 import CHAIN from "./chain-routes.json";
 
 const CH = z.enum(["base", "ethereum", "arbitrum", "optimism", "polygon"]).optional();
@@ -617,7 +617,7 @@ const ALL_TOOLS: ToolDef[] = [
   },
   {
     name: "uk_watch",
-    description: "Watch one UK company 30 days: hourly CH poll → webhook on change. $5.00/30d USDC.",
+    description: "Watch one UK company 30 days: hourly CH poll of status/officers/filings/PSC/charges → webhook on change. $5.00/30d USDC.",
     price: "$5.00",
     schema: { number: z.string(),
       company_number: z.string().optional(), webhook: z.string().url() },
