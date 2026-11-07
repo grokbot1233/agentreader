@@ -744,7 +744,7 @@ You are only charged on HTTP 2xx: 4xx/5xx responses are never settled. Every 402
 
 | Need | Endpoint | Price |
 |---|---|---|
-| One-shot agent KYB pack (UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE registry + VAT + website + sanctions + LEI) | ${b}/kyb?number=00445790 | $2.50 |
+| One-shot agent KYB pack (UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE/SK + US-state NY/CO/CT/OR/TX registry + VAT + website + sanctions + LEI) | ${b}/kyb?number=00445790 | $2.50 |
 | UK due-diligence job (full Companies House pack + sanctions on entity and officers) | ${b}/uk-dd?number=00445790 | $1.00 |
 | UK company watch (hourly status/officers/filings/PSC/charges → webhook) | POST ${b}/uk-watch | $5.00/30d |
 | UK leads search by SIC/area | ${b}/uk-leads?sic=62012 | $1.00 |
@@ -817,7 +817,7 @@ Supporting real-data checks: /uk-company-lite, /uk-charity, /sanctions, /au-comp
 | UK leads daily feed | POST ${b}/uk-leads-feed | $25.00/30d | Daily webhook of new matches |
 | UK company watch | POST ${b}/uk-watch | $5.00/30d | Hourly CH status/officers/filings/PSC/charges → webhook |
 | UK DD job | ${b}/uk-dd?number=00445790 (optional name=/domain=) | $1.00 | Full CH pack + sanctions (entity+officers) + optional RDAP/website → trust flag. Free preview: ${b}/uk-dd?number=00445790&preview=1 |
-| Agent KYB pack | ${b}/kyb?number=00445790 (or acn=/ca_number=/siren=/orgnr=/cvr=/ytunnus=/uid=/krs=/nip=/ico=/cz=/enterprise_number=/be=/vat=/domain=) | $2.50 | UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE + VAT + website + sanctions + director appointments + trust flag. Free preview: ${b}/kyb?number=00445790&preview=1 (lite UK + entity sanctions; pay for full pack) |
+| Agent KYB pack | ${b}/kyb?number=00445790 (or acn=/ca_number=/siren=/orgnr=/cvr=/ytunnus=/uid=/krs=/nip=/ico=/cz=/enterprise_number=/be=/sk=/us_state=+us_id=/us_name=/vat=/domain=; e.g. ${b}/kyb?us_state=CO&us_id=20211537536 or ${b}/kyb?sk=31322832) | $2.50 | UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE/SK + US-state (NY/CO/CT/OR/TX SOS) + VAT + website + sanctions + director appointments + trust flag. Free preview: ${b}/kyb?number=00445790&preview=1 (lite UK + entity sanctions; pay for full pack) |
 | French company | ${b}/fr-company?siren=443061841 (or siret=/name=) | $0.25 | Official Recherche d'entreprises: name, status, NAF, siège, dirigeants, finances. Free preview: ${b}/fr-company?siren=443061841&preview=1 |
 | Norwegian company | ${b}/no-company?orgnr=923609016 (or name=) | $0.25 | Brønnøysundregistrene Enhetsregisteret: name, status/konkurs, orgform, NACE, address, ansatte. Free preview: ${b}/no-company?orgnr=923609016&preview=1 |
 | Danish company | ${b}/dk-company?cvr=24256790 (or name=) | $0.25 | CVR via apicvr.dk / Erhvervsstyrelsen: name, status, type, address, industry, employees, direktion/ejere. Free preview: ${b}/dk-company?cvr=24256790&preview=1 |

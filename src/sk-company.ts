@@ -239,7 +239,7 @@ async function rpoEntity(id: number | string): Promise<{ data: any; url: string 
 
 const UPSELL = {
   kyb: { path: "/kyb", price: "$2.50", why: "attach SK IČO into one-shot KYB with VAT + LEI + sanctions" },
-  registry_batch: { path: "/registry-batch", price: "$0.30", why: "batch SK IČO with UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE ids" },
+  registry_batch: { path: "/registry-batch", price: "$0.30", why: "batch SK IČO with UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE + US-state ids" },
   eu_vat: { path: "/eu-vat", price: "$0.01", why: "validate SK VAT via VIES (SK + IČO)" },
   sanctions: { path: "/sanctions", price: "$0.05", why: "screen entity name" },
 };

@@ -12,7 +12,7 @@ No API keys, no accounts. Agents pay per request in **USDC on Base mainnet** usi
 
 | Product | Price | What you get |
 |---|---|---|
-| `/kyb` | $2.50 | One-shot KYB pack: UK/AU/CA registry + VAT + website + sanctions + LEI → trust flag |
+| `/kyb` | $2.50 | One-shot KYB pack: UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE/SK + US-state (NY/CO/CT/OR/TX, `us_state`+`us_id` or `us_name`) registry + EU VAT + website + sanctions + LEI → trust flag. Sample: [`/samples/kyb`](https://api.axiomworks.co.uk/samples/kyb) |
 | `/uk-dd` | $1.00 | UK due-diligence job: full Companies House + sanctions on entity and officers |
 | `/uk-company` | $0.50 | Full Companies House report + insolvency + red flags |
 | `/uk-watch` | $5.00 / 30d | Hourly status/officer/filing changes → webhook |

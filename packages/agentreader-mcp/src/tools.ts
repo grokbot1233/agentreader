@@ -376,7 +376,7 @@ const ALL_TOOLS: ToolDef[] = [
   },
   {
     name: "company_full",
-    description: "Website company research + multi-registry DD (UK/FR/NO/DK/FI/CH/PL/CZ/BE/AU/CA/charity when signals) ($0.65).",
+    description: "Website company research + multi-registry DD (UK/FR/NO/DK/FI/CH/PL/CZ/BE/SK/AU/CA/charity when signals) ($0.65).",
     price: "$0.65",
     schema: { domain: z.string() },
     http: (a) => `${ORIGIN}/company-full?domain=${encodeURIComponent(a.domain)}`,
@@ -704,7 +704,7 @@ const ALL_TOOLS: ToolDef[] = [
   },
   {
     name: "kyb_report",
-    description: "Agent KYB pack: UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE registry + EU VAT + optional GLEIF LEI (parents) + website + sanctions + director appointments → trust flag. Screening only. $2.50 USDC.",
+    description: "Agent KYB pack: UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE/SK + US-state (NY/CO/CT/OR/TX) registry + EU VAT + optional GLEIF LEI (parents) + website + sanctions + director appointments → trust flag. Screening only. $2.50 USDC.",
     price: "$2.50",
     schema: {
       domain: z.string().optional(),
