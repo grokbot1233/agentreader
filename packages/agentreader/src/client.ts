@@ -4,7 +4,7 @@ import { privateKeyToAccount } from "viem/accounts";
 import type { Chain, ClientOptions, RequestOpts } from "./types.js";
 
 const DEFAULT_ORIGIN = "https://api.axiomworks.co.uk";
-const VERSION = "1.34.0";
+const VERSION = "1.34.1";
 
 function normalizeKey(raw?: string): `0x${string}` | undefined {
   if (!raw) return undefined;

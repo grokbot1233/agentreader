@@ -259,7 +259,71 @@ export async function companyResearch(opts: { domain?: string; name?: string }) 
 
   const home = await fetchPage(homeUrl);
   sources.homepage_final = home.finalUrl;
-  if (!home.ok) throw new UserError(`homepage unreachable (HTTP ${home.status})`, 502);
+  // Soft-fail when bots are blocked (403/401/451/5xx) or site is down — still return
+  // DNS/RDAP/SSL/news so paid callers are not charged for a hard 502. Mirrors /company-full.
+  if (!home.ok) {
+    const [mxR, txtR, dmarcR, aR] = await Promise.all([
+      doh(domain, "MX").catch(() => null),
+      doh(domain, "TXT").catch(() => null),
+      doh(`_dmarc.${domain}`, "TXT").catch(() => null),
+      doh(domain, "A").catch(() => null),
+    ]);
+    sources.dns = "https://cloudflare-dns.com/dns-query";
+    const unq = (s: string) => s.replace(/^"|"$/g, "").replace(/" "/g, "");
+    const mx = (mxR?.Answer || []).filter((a: any) => a.type === 15).map((a: any) => a.data);
+    const txt = (txtR?.Answer || []).filter((a: any) => a.type === 16).map((a: any) => unq(a.data));
+    const spf = txt.filter((t: string) => t.toLowerCase().startsWith("v=spf1"));
+    const dmarc = (dmarcR?.Answer || []).filter((a: any) => a.type === 16).map((a: any) => unq(a.data)).filter((t: string) => t.toLowerCase().startsWith("v=dmarc1"));
+    const ips = (aR?.Answer || []).filter((a: any) => a.type === 1).map((a: any) => a.data);
+    const [rdapInfo, news, sitemap, sslProbe] = await Promise.all([
+      rdap(domain),
+      newsFor(`"${domain}" OR ${domain.replace(/\./g, " ")}`),
+      sitemapSize(new URL(homeUrl).origin),
+      (async () => {
+        try {
+          const { res, finalUrl } = await safeFetch(homeUrl);
+          try { await res.body?.cancel(); } catch {}
+          return {
+            https_reachable: res.status < 500, final_url: finalUrl, status: res.status,
+            hsts: res.headers.get("strict-transport-security"),
+            note: res.status >= 400
+              ? `homepage returned HTTP ${res.status} (TLS handshake ok; body blocked or error)`
+              : "TLS validity inferred from successful certificate-verified HTTPS fetch",
+            source: homeUrl,
+          };
+        } catch (e: any) {
+          return { https_reachable: false, error: String(e?.message || e), source: homeUrl };
+        }
+      })(),
+    ]);
+    if (rdapInfo.source) sources.rdap = rdapInfo.source;
+    sources.news = news.source;
+    if (sitemap.source) sources.sitemap = sitemap.source;
+    return {
+      domain,
+      queried_at: new Date().toISOString(),
+      homepage: {
+        url: home.finalUrl, status: home.status, reachable: false,
+        error: `homepage unreachable (HTTP ${home.status})`,
+        title: null, description: null, headers: home.headers, source: home.finalUrl,
+      },
+      homepage_unreachable: true,
+      key_pages: {},
+      tech_stack: { detected: [], source: null, note: "skipped — homepage unreachable" },
+      social_links: { source: null, note: "skipped — homepage unreachable" },
+      contacts: { emails: [], phones: [], sources: [], note: "skipped — homepage unreachable" },
+      dns: {
+        a: ips, mx, spf, dmarc, dmarc_policy: dmarc[0]?.match(/;\s*p=(\w+)/i)?.[1] || null,
+        email_provider: emailProvider(mx), source: sources.dns,
+      },
+      domain_registration: rdapInfo,
+      ssl: sslProbe,
+      sitemap,
+      news,
+      sources,
+      note: `Homepage returned HTTP ${home.status}; returned DNS/RDAP/SSL/news without HTML scrape. Prefer /company-full or a registry route when the site blocks bots.`,
+    };
+  }
 
   const { document } = parseHTML(home.html);
   const keyCandidates = pickKeyPages(document, home.finalUrl);
