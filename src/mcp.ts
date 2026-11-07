@@ -87,7 +87,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       await log({ endpoint: `mcp:${tool}`, payer: settlement?.payer || null, amount: settlement?.amount || String(atomic), network: settlement?.network, tx: settlement?.transaction, success: settlement?.success });
     } },
   } as any);
-  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.36.0" }, { instructions: "Start with the big hitters: kyb ($2.50 one-shot KYB pack), uk_dd ($1 UK due diligence), uk_company ($0.50), uk_watch ($5/30d), uk_leads ($1), uk_leads_feed ($25/30d), company_research ($0.25), company_full ($0.65), sanctions_batch ($1), uk_charity_full ($0.25), fr_company ($0.25), no_company ($0.25), dk_company ($0.25), fi_company ($0.25), ch_company ($0.25), pl_company ($0.25), registry_batch ($0.30), uk_officer ($0.15). Call pricing for the full list." });
+  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.36.1" }, { instructions: "Start with the big hitters: kyb ($2.50 one-shot KYB pack), uk_dd ($1 UK due diligence), uk_company ($0.50), uk_watch ($5/30d), uk_leads ($1), uk_leads_feed ($25/30d), company_research ($0.25), company_full ($0.65), sanctions_batch ($1), uk_charity_full ($0.25), fr_company ($0.25), no_company ($0.25), dk_company ($0.25), fi_company ($0.25), ch_company ($0.25), pl_company ($0.25), registry_batch ($0.30), uk_officer ($0.15). Call pricing for the full list." });
   const HIDDEN_TOOLS = new Set(["iban_validate","phone_check","uk_postcode_validate","siren_validate","siret_validate","partita_iva_validate","orgnr_se_validate","bn_ca_validate","cvr_dk_validate","fn_at_validate","cin_in_validate","kvk_nl_validate","hr_de_validate","nif_es_validate","cnpj_validate","nip_pl_validate","uid_ch_validate"]);
   { const _tool = server.tool.bind(server); (server as any).tool = (n: string, ...r: any[]) => HIDDEN_TOOLS.has(n) ? undefined : (_tool as any)(n, ...r); }
   { const orig = (server as any).tool.bind(server); (server as any).tool = (name: string, desc: any, ...rest: any[]) => orig(name, typeof desc === "string" ? upsell(TOOL_PATH[name] || "", desc) : desc, ...rest); }
@@ -217,7 +217,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
     (await mk("$0.05", "uk_company_lite", 50000))(async (a: any) => { try { return json(await ukCompany(env, { number: a.number, name: a.name, lite: true })); } catch (e) { return err(e); } }) as any);
 
   server.tool("company_full",
-    "Use this for website company research + multi-registry DD in one call ($0.65). Soft-attaches UK CH, FR, NO, AU, CA, and UK charity when domain/page signals match. Example: {domain:\"tesco.com\"} → {company, uk, fr, no, au, ca, charity, *_included}. $0.65 USDC.",
+    "Use this for website company research + multi-registry DD in one call ($0.65). Soft-attaches UK CH, FR, NO, DK, FI, CH Zefix, PL KRS, AU, CA, and UK charity when domain/page signals match. Example: {domain:\"tesco.com\"} → {company, uk, fr, no, dk, fi, ch, pl, au, ca, charity, *_included}. $0.65 USDC.",
     { domain: z.string() },
     (await mk("$0.65", "company_full", 650000))(async (a: any) => { try { return json(await companyFull(env, { domain: a.domain }, bindingRegistries(env))); } catch (e) { return err(e); } }) as any);
 

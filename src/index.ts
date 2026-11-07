@@ -236,6 +236,7 @@ const companyFullOut = { type: "object", properties: {
   dk: { type: ["object", "null"] }, dk_included: { type: "boolean" }, dk_skip_reason: { type: ["string", "null"] },
   fi: { type: ["object", "null"] }, fi_included: { type: "boolean" }, fi_skip_reason: { type: ["string", "null"] },
   ch: { type: ["object", "null"] }, ch_included: { type: "boolean" }, ch_skip_reason: { type: ["string", "null"] },
+  pl: { type: ["object", "null"] }, pl_included: { type: "boolean" }, pl_skip_reason: { type: ["string", "null"] },
   au: { type: ["object", "null"] }, au_included: { type: "boolean" }, au_skip_reason: { type: ["string", "null"] },
   ca: { type: ["object", "null"] }, ca_included: { type: "boolean" }, ca_skip_reason: { type: ["string", "null"] },
   registries_attached: { type: "array", items: { type: "string" } }, note: { type: "string" } } };
@@ -452,7 +453,7 @@ const DESC: Record<string, string> = {
   "/company": "Use this when researching any company from its website domain — not Companies House. Returns sourced tech stack, socials, emails/phones, DNS/MX/SPF/DMARC, RDAP age/registrar, SSL, sitemap, news. No LLM inventing facts. Example: {domain:\"stripe.com\"} → {homepage, tech_stack, contacts, dns, news, sources}. Prefer /uk-company* for UK filings. $0.25.",
   "/uk-company": "Use this for UK due diligence on a Companies House number or name: official API profile, officers, PSCs, filings, charges, insolvency + rule-based red flags (overdue, dissolved, churn, mass-formation office). Sourced JSON. Example: {number:\"00445790\"} or {name:\"TESCO\"}. Prefer /uk-company-lite ($0.05) for status/flags only. $0.50.",
   "/uk-company-lite": "Use this for a cheap UK company snapshot before paying for the full pack: status, SIC, office, compliance overdue, mass-formation check, red-flag names. Example: {number:\"00445790\"} → {name,status,red_flags,compliance}. Upsell: /uk-company for officers/PSC/filings/charges/insolvency. $0.05.",
-  "/company-full": "Use this when you have a company website and want registry DD auto-attached in one call ($0.65). Runs /company then soft-attaches UK Companies House, FR Recherche d'entreprises, NO Brreg, DK CVR, FI PRH, AU ASIC, CA Corporations Canada, and UK Charity Commission when domain TLD or page signals (SIREN/orgnr/CVR/Y-tunnus/ACN/CH number/etc.) match. Soft-skips with *_skip_reason — never fails the bundle. Example: {domain:\"tesco.com\"} → {company, uk, fr, no, dk, fi, au, ca, charity, *_included}. $0.65.",
+  "/company-full": "Use this when you have a company website and want registry DD auto-attached in one call ($0.65). Runs /company then soft-attaches UK Companies House, FR Recherche d'entreprises, NO Brreg, DK CVR, FI PRH, CH Zefix, PL KRS, AU ASIC, CA Corporations Canada, and UK Charity Commission when domain TLD or page signals (SIREN/orgnr/CVR/Y-tunnus/CHE UID/KRS/NIP/ACN/CH number/etc.) match. Soft-skips with *_skip_reason — never fails the bundle. Example: {domain:\"tesco.com\"} → {company, uk, fr, no, dk, fi, ch, pl, au, ca, charity, *_included}. $0.65.",
   "/convert": "Use this when an agent needs PDF/DOCX/HTML/text as clean markdown or plain text (RAG, summarisation). PDF via unpdf; DOCX via mammoth. Example: {url, format:\"markdown\"} → {detected_format, markdown, pages, word_count}. $0.03.",
   "/monitor": "Use this when you need 30 days of hourly page-change alerts to your webhook (pricing pages, status, jobs). Returns id; GET /monitor/:id free. Example POST {url, webhook, selector?}. $1.00/30d.",
   "/uk-leads-lite": "Use this for cheap UK new-incorporation lead lists filtered by SIC and/or location/postcode area (1-7 day lookback). Returns up to 100 companies: number, name, SIC, office, mass-formation flag. No directors. Example: {sic:\"62012\",days:1}. Upsell /uk-leads for directors. $0.25.",
@@ -611,7 +612,7 @@ function discovery(c: any) {
     contact: CONTACT, ownershipProofs: [] };
 }
 
-app.get("/health", (c) => c.json({ ok: true, version: "1.36.0", ts: new Date().toISOString() }));
+app.get("/health", (c) => c.json({ ok: true, version: "1.36.1", ts: new Date().toISOString() }));
 app.get("/.well-known/x402", (c) => c.json(discovery(c)));
 app.get("/.well-known/x402.json", (c) => c.json(discovery(c)));
 app.get("/.well-known/402index-verify.txt", (c) => c.text("9a944a1ce3c68588c5fb1d104be63981bb5e6b6e302fa0a1bd65b6a3cd5f5372"));
@@ -622,7 +623,7 @@ app.get("/.well-known/agent-card.json", (c) => {
   return c.json({
     protocolVersion: "0.3.0", name: "Axiom Works AgentReader",
     description: "Pay-per-call (x402, USDC on Base) UK Companies House, KYB, SEC EDGAR, EU VAT, web-to-markdown and EVM on-chain lookups for AI agents. HTTP + MCP; no API keys.",
-    url: b, preferredTransport: "HTTP+JSON", version: "1.36.0", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
+    url: b, preferredTransport: "HTTP+JSON", version: "1.36.1", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
     provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk" },
     capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
     defaultInputModes: ["application/json"], defaultOutputModes: ["application/json"],
@@ -635,14 +636,14 @@ app.get("/.well-known/agent.json", (c) => {
   return c.json({
     name: "Axiom Works AgentReader", description: "x402 pay-per-call web reader, KYB packs, UK due diligence, company research, UK Companies House + Charity Commission + US SEC EDGAR + EU VIES VAT + OFAC/UK/UN/EU sanctions screening due diligence, document conversion, change monitoring, EVM wallet/tx/token risk checks and ECB FX rates for AI agents.",
     url: b, provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk", email: CONTACT },
-    version: "1.36.0", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
+    version: "1.36.1", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     skills: LISTED_PRICES().map(([p, price]) => ({ id: p.slice(1), name: p, description: DESC[p], price, endpoint: `${b}${p}` })),
     mcp: `${b}/mcp`, payments: { protocol: "x402", network: NETWORK, asset: USDC, payTo: c.env.PAY_TO },
   });
 });
 app.get("/.well-known/mcp.json", (c) => {
   const b = base(c);
-  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.36.0",
+  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.36.1",
     description: "x402 pay-per-call MCP: KYB, UK due diligence, UK/AU/CA registries, web reader, SEC, VAT, sanctions, EVM chain data.",
     transport: { type: "streamable-http", url: `${b}/mcp` }, documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     payments: { protocol: "x402", network: NETWORK, asset: USDC } });
@@ -679,7 +680,7 @@ app.get("/openapi.json", (c) => {
     paths[ap] = { get: { summary: `Path alias of ${to} (same price/x402 challenge). ${DESC[to] || ""}`, parameters: [...ks.map((k) => ({ name: k, in: "path", required: true, schema: { type: "string" } })), { name: "chain", in: "query", required: false, schema: { type: "string" } }, { name: "preview", in: "query", required: false, schema: { type: "string", enum: ["1"] } }],
       responses: { "200": { description: "Success", content: { "application/json": { schema: OUT[to] } } }, "402": { description: `Payment required: ${price} USDC on Base (x402)` } }, "x-price": price, "x-alias-of": to } }; }
   paths["/hooks/sink"] = { post: { summary: "Free webhook test sink for /monitor", responses: { "200": { description: "Stored" } }, "x-price": "free" } };
-  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.36.0", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: KYB packs, UK due diligence, company research, UK/AU/CA/FR/NO/DK/FI/CH/PL registries, LEI, sanctions, SEC EDGAR, VIES VAT, web reading, document conversion, change monitoring, EVM/FX. Big hitters first (/kyb, /uk-dd, /uk-company, /uk-watch, /uk-leads, /company-full, /sanctions-batch). Payments: USDC on Base mainnet (eip155:8453)." },
+  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.36.1", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: KYB packs, UK due diligence, company research, UK/AU/CA/FR/NO/DK/FI/CH/PL registries, LEI, sanctions, SEC EDGAR, VIES VAT, web reading, document conversion, change monitoring, EVM/FX. Big hitters first (/kyb, /uk-dd, /uk-company, /uk-watch, /uk-leads, /company-full, /sanctions-batch). Payments: USDC on Base mainnet (eip155:8453)." },
     servers: [{ url: b }], paths });
 });
 const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
@@ -698,7 +699,7 @@ const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
 | UK leads daily webhook feed | POST ${b}/uk-leads-feed | $25.00/30d |
 | UK company full report | ${b}/uk-company?number=00445790 | $0.50 |
 | Company research from a domain | ${b}/company?domain=stripe.com | $0.25 |
-| Company research + multi-registry pack (UK/FR/NO/DK/FI/AU/CA/charity when signals match) | ${b}/company-full?domain=tesco.com | $0.65 |
+| Company research + multi-registry pack (UK/FR/NO/DK/FI/CH/PL/AU/CA/charity when signals match) | ${b}/company-full?domain=tesco.com | $0.65 |
 | Sanctions batch (OFAC/UK/UN/EU) | POST ${b}/sanctions-batch | $1.00 |
 | UK charity full (trustees + 5y financials + red flags) | ${b}/uk-charity-full?number=1089464 | $0.25 |
 | French company (SIREN/SIRET/name → dirigeants + siège + NAF) | ${b}/fr-company?siren=443061841 | $0.25 |
@@ -730,7 +731,7 @@ Supporting real-data checks: /uk-company-lite, /uk-charity, /sanctions, /au-comp
 | UK CH full DD | ${b}/uk-company?number=\|name= | $0.50 | Official API: officers/PSC/filings/charges/insolvency + red flags |
 | UK officer search | ${b}/uk-officer?name= | $0.15 | Reverse officer name → appointments + high-appt/mass-formation flags |
 | UK CH cheap snapshot | ${b}/uk-company-lite?number=\|name= | $0.05 | Status + compliance flags; upsell full pack |
-| Website + multi-registry DD bundle | ${b}/company-full?domain= | $0.65 | Auto-attaches UK/FR/NO/DK/FI/CH/AU/CA/charity when TLD/page signals match |
+| Website + multi-registry DD bundle | ${b}/company-full?domain= | $0.65 | Auto-attaches UK/FR/NO/DK/FI/CH/PL/AU/CA/charity when TLD/page signals match |
 | PDF/DOCX → text | ${b}/convert?url= | $0.03 | Structured markdown/text for RAG |
 | EVM wallet balances | ${b}/wallet?address=&chain=base | $0.003 | Native + 7 stablecoins/majors, 5 chains, one call |
 | Tx / payment receipt | ${b}/tx?hash=&chain=base | $0.003 | Status, confirmations, fee, decoded USDC transfers |
@@ -941,8 +942,8 @@ async function readTreasuryBalances(payTo: string): Promise<{ treasury_usdc: num
 }
 
 app.get("/dashboard/data", async (c) => {
-  const t = Date.now(); let health: any = { ok: true, version: "1.36.0" };
-  try { await c.env.LOG.get("health-probe"); health.kv_ms = Date.now() - t; } catch (e: any) { health = { ok: false, version: "1.36.0", error: String(e) }; }
+  const t = Date.now(); let health: any = { ok: true, version: "1.36.1" };
+  try { await c.env.LOG.get("health-probe"); health.kv_ms = Date.now() - t; } catch (e: any) { health = { ok: false, version: "1.36.1", error: String(e) }; }
   health.facilitator = (c.env as any).CDP_API_KEY_ID ? "Coinbase CDP" : "PayAI";
   const meta = (await c.env.LOG.get("meta:dashboard", "json")) || {};
   // Keep in sync with HIDDEN_TOOLS in mcp.ts — unlisted $0.001 format validators stay off discovery surfaces.
