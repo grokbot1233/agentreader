@@ -3,7 +3,7 @@ import { UserError } from "./core";
 const RESOURCE = "25e80bf3-f107-4ab4-89ef-251b5b9374e9";
 const API = "https://data.gov.lv/dati/api/3/action/datastore_search";
 const DATASET = "https://data.gov.lv/dati/eng/dataset/uz/resource/25e80bf3-f107-4ab4-89ef-251b5b9374e9";
-const TIMEOUT_MS = 7000;
+const TIMEOUT_MS = 15000;
 const UA = "AgentReader/1.43 (+https://api.axiomworks.co.uk; Latvian company research via data.gov.lv)";
 const DISCLAIMER =
   "Latvian company profile from the official Register of Enterprises open dataset on data.gov.lv (CKAN). Screening aid only — not a KYB/AML determination, credit score, or legal advice. Confirm identifiers at ur.gov.lv before onboarding, contracting, or paying. Source: official open data (CC0-1.0).";

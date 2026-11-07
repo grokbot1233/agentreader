@@ -270,7 +270,7 @@ const companyFullOut = { type: "object", properties: {
   pl: { type: ["object", "null"] }, pl_included: { type: "boolean" }, pl_skip_reason: { type: ["string", "null"] },
   cz: { type: ["object", "null"] }, cz_included: { type: "boolean" }, cz_skip_reason: { type: ["string", "null"] },
   be: { type: ["object", "null"] }, be_included: { type: "boolean" }, be_skip_reason: { type: ["string", "null"] },
-  sk: { type: ["object", "null"] }, sk_included: { type: "boolean" }, sk_skip_reason: { type: ["string", "null"] }, ie: { type: ["object", "null"] }, ee: { type: ["object", "null"] }, lv: { type: ["object", "null"] },
+  sk: { type: ["object", "null"] }, sk_included: { type: "boolean" }, sk_skip_reason: { type: ["string", "null"] },
   ie: { type: ["object", "null"] }, ie_included: { type: "boolean" }, ie_skip_reason: { type: ["string", "null"] },
   ee: { type: ["object", "null"] }, ee_included: { type: "boolean" }, ee_skip_reason: { type: ["string", "null"] },
   lv: { type: ["object", "null"] }, lv_included: { type: "boolean" }, lv_skip_reason: { type: ["string", "null"] },
