@@ -10,6 +10,9 @@ import { plCompany, normalizeKrs, nipCheckDigitOk } from "./pl-company";
 import { czCompany, normalizeIco, icoCheckDigitOk } from "./cz-company";
 import { beCompany, normalizeEnterpriseNumber, enterpriseCheckDigitOk } from "./be-company";
 import { skCompany, normalizeSkIco } from "./sk-company";
+import { ieCompany, normalizeIeNumber } from "./ie-company";
+import { eeCompany, normalizeEeRegCode } from "./ee-company";
+import { lvCompany, normalizeLvRegcode } from "./lv-company";
 import { usEntity } from "./us-entity";
 import { formatUid } from "./ch-uid";
 import { luhnOk } from "./fr-company-id";
@@ -24,6 +27,9 @@ const CH_TLDS = /\.(ch|swiss)$/i;
 const CZ_TLDS = /\.(cz)$/i;
 const BE_TLDS = /\.(be)$/i;
 const SK_TLDS = /\.(sk)$/i;
+const IE_TLDS = /\.(ie)$/i;
+const EE_TLDS = /\.(ee)$/i;
+const LV_TLDS = /\.(lv)$/i;
 const US_TLDS = /\.us$/i;
 const PL_TLDS = /\.pl$/i;
 const AU_TLDS = /\.(com\.au|net\.au|org\.au|edu\.au|gov\.au|au)$/i;
@@ -610,7 +616,104 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     sk = null;
   }
 
+  let ie: any = null;
+  let ie_skip_reason: string | null = null;
+  let ieNum: string | null = null;
+  for (const m of blob.matchAll(/\b(?:CRO|company\s+number|co(?:mpany)?\s*no\.?|registration\s+number)[:\s#]*(\d{1,8})\b/gi)) {
+    try { ieNum = normalizeIeNumber(m[1]); break; } catch { /* continue */ }
+  }
+  const looksIe = IE_TLDS.test(domain) || /\b(ireland|irish|dublin|cro\.ie|companies\s+registration\s+office)\b/i.test(blob + " " + desc);
+  try {
+    if (ieNum) {
+      ie = await ieCompany({ number: ieNum, lite: true });
+    } else if (looksIe) {
+      const titleGuess = extractPossibleName(company);
+      const cleanedTitle = titleGuess ? titleGuess.replace(/^(welcome\s+to|official\s+site\s+of)\s+/i, "").trim() : null;
+      const candidates = [cleanedTitle, titleGuess, sld.replace(/\s+/g, " ")].filter((x): x is string => !!x && x.length >= 3);
+      let lastErr: any = null;
+      for (const name of [...new Set(candidates)]) {
+        try {
+          const hit = await ieCompany({ name, lite: true });
+          const nm = String(hit?.name || "").toLowerCase();
+          const q = name.toLowerCase();
+          if (nm && (nm === q || nm.startsWith(q) || nm.includes(q) || q.includes(nm.split(" ")[0]))) { ie = hit; lastErr = null; break; }
+          lastErr = new Error(`IE name soft-attach rejected weak match for "${name}" → ${hit?.name}`);
+        } catch (e: any) { lastErr = e; }
+      }
+      if (!ie && lastErr) throw lastErr;
+    } else {
+      ie_skip_reason = "No Irish company signals (.ie TLD, CRO number, or IE keywords).";
+    }
+  } catch (e: any) {
+    ie_skip_reason = `IE lookup skipped: ${e?.message || e}`;
+    ie = null;
+  }
 
+  let ee: any = null;
+  let ee_skip_reason: string | null = null;
+  let eeCode: string | null = null;
+  for (const m of blob.matchAll(/\b(?:reg(?:istry|istration)?\s*code|äriregister|ariregister)[:\s#]*(\d{8})\b/gi)) {
+    try { eeCode = normalizeEeRegCode(m[1]); break; } catch { /* continue */ }
+  }
+  const looksEe = EE_TLDS.test(domain) || /\b(estonia|estonian|eesti|tallinn|äriregister|ariregister)\b/i.test(blob + " " + desc);
+  try {
+    if (eeCode) {
+      ee = await eeCompany({ registry_code: eeCode, lite: true });
+    } else if (looksEe) {
+      const titleGuess = extractPossibleName(company);
+      const cleanedTitle = titleGuess ? titleGuess.replace(/^(welcome\s+to|official\s+site\s+of)\s+/i, "").trim() : null;
+      const candidates = [cleanedTitle, titleGuess, sld.replace(/\s+/g, " ")].filter((x): x is string => !!x && x.length >= 3);
+      let lastErr: any = null;
+      for (const name of [...new Set(candidates)]) {
+        try {
+          const hit = await eeCompany({ name, lite: true });
+          const nm = String(hit?.name || "").toLowerCase();
+          const q = name.toLowerCase();
+          if (nm && (nm === q || nm.startsWith(q) || nm.includes(q) || q.includes(nm.split(" ")[0]))) { ee = hit; lastErr = null; break; }
+          lastErr = new Error(`EE name soft-attach rejected weak match for "${name}" → ${hit?.name}`);
+        } catch (e: any) { lastErr = e; }
+      }
+      if (!ee && lastErr) throw lastErr;
+    } else {
+      ee_skip_reason = "No Estonian company signals (.ee TLD, registry code, or EE keywords).";
+    }
+  } catch (e: any) {
+    ee_skip_reason = `EE lookup skipped: ${e?.message || e}`;
+    ee = null;
+  }
+
+  let lv: any = null;
+  let lv_skip_reason: string | null = null;
+  let lvNum: string | null = null;
+  for (const m of blob.matchAll(/\b(?:reg(?:istration)?\s*(?:code|number|no\.?))[:\s#]*(\d{11})\b/gi)) {
+    try { lvNum = normalizeLvRegcode(m[1]); break; } catch { /* continue */ }
+  }
+  const looksLv = LV_TLDS.test(domain) || /\b(latvia|latvian|latvija|riga|ur\.gov\.lv)\b/i.test(blob + " " + desc);
+  try {
+    if (lvNum) {
+      lv = await lvCompany({ registration_number: lvNum, lite: true });
+    } else if (looksLv) {
+      const titleGuess = extractPossibleName(company);
+      const cleanedTitle = titleGuess ? titleGuess.replace(/^(welcome\s+to|official\s+site\s+of)\s+/i, "").trim() : null;
+      const candidates = [cleanedTitle, titleGuess, sld.replace(/\s+/g, " ")].filter((x): x is string => !!x && x.length >= 3);
+      let lastErr: any = null;
+      for (const name of [...new Set(candidates)]) {
+        try {
+          const hit = await lvCompany({ name, lite: true });
+          const nm = String(hit?.name || "").toLowerCase();
+          const q = name.toLowerCase();
+          if (nm && (nm === q || nm.startsWith(q) || nm.includes(q) || q.includes(nm.split(" ")[0]))) { lv = hit; lastErr = null; break; }
+          lastErr = new Error(`LV name soft-attach rejected weak match for "${name}" → ${hit?.name}`);
+        } catch (e: any) { lastErr = e; }
+      }
+      if (!lv && lastErr) throw lastErr;
+    } else {
+      lv_skip_reason = "No Latvian company signals (.lv TLD, registration number, or LV keywords).";
+    }
+  } catch (e: any) {
+    lv_skip_reason = `LV lookup skipped: ${e?.message || e}`;
+    lv = null;
+  }
 
   let us: any = null;
   let us_skip_reason: string | null = null;
@@ -712,6 +815,9 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     cz && "CZ",
     be && "BE",
     sk && "SK",
+    ie && "IE",
+    ee && "EE",
+    lv && "LV",
     us && "US",
     au && "AU",
     ca && "CA",
@@ -722,7 +828,7 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     domain,
     bundle: "company-full",
     price: "$0.65",
-    savings_vs_separate: "Cheaper than /company + separate UK/FR/NO/DK/FI/CH/PL/CZ/BE/SK/US/AU/CA/charity calls when those registries auto-attach",
+    savings_vs_separate: "Cheaper than /company + separate UK/FR/NO/DK/FI/CH/PL/CZ/BE/SK/IE/EE/LV/US/AU/CA/charity calls when those registries auto-attach",
     company,
     company_error,
     uk,
@@ -758,6 +864,15 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     sk,
     sk_included: !!sk,
     sk_skip_reason,
+    ie,
+    ie_included: !!ie,
+    ie_skip_reason,
+    ee,
+    ee_included: !!ee,
+    ee_skip_reason,
+    lv,
+    lv_included: !!lv,
+    lv_skip_reason,
     us,
     us_included: !!us,
     us_skip_reason,
@@ -770,6 +885,6 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     registries_attached: attached,
     note: attached.length
       ? `Includes company research + auto-attached registries: ${attached.join(", ")}. Soft-skipped jurisdictions list *_skip_reason.`
-      : "Includes company research. UK/FR/NO/DK/FI/CH/PL/CZ/BE/SK/US/AU/CA/charity packs attach when domain/page signals match; otherwise see *_skip_reason fields.",
+      : "Includes company research. UK/FR/NO/DK/FI/CH/PL/CZ/BE/SK/IE/EE/LV/US/AU/CA/charity packs attach when domain/page signals match; otherwise see *_skip_reason fields.",
   };
 }

@@ -14,6 +14,9 @@ import { plCompany, normalizeKrs, normalizeNip } from "./pl-company";
 import { czCompany, normalizeIco } from "./cz-company";
 import { beCompany, normalizeEnterpriseNumber } from "./be-company";
 import { skCompany, normalizeSkIco } from "./sk-company";
+import { ieCompany, normalizeIeNumber } from "./ie-company";
+import { eeCompany, normalizeEeRegCode } from "./ee-company";
+import { lvCompany, normalizeLvRegcode } from "./lv-company";
 import { usEntity, parseUsStates } from "./us-entity";
 export function bindingRegistries(env: any): KybRegistries {
   const call = async (q: string) => { if (!env.AU) throw new Error("registry backend not bound"); const r = await env.AU.fetch(`https://au.internal/internal/${q}`, { headers: { "x-internal-key": env.AU_INTERNAL_KEY || "" } }); const j: any = await r.json(); if (!r.ok) throw new Error(r.status === 404 ? "not found in register snapshot" : j?.error || "registry error"); return j; };
@@ -37,7 +40,7 @@ function domainish(v: string) {
 /** Composite agent KYB / due-diligence pack. Screening only — not a regulated determination. */
 export async function kybReport(env: Env, input: {
   domain?: string; number?: string; name?: string; vat?: string; country?: string; vat_number?: string;
-  acn?: string; abn?: string; ca_number?: string; bn?: string; lei?: string; siren?: string; siret?: string; orgnr?: string; cvr?: string; ytunnus?: string; businessId?: string; fi?: string; uid?: string; che?: string; ch?: string; krs?: string; nip?: string; pl?: string; ico?: string; cz?: string; enterprise_number?: string; be?: string; bce?: string; kbo?: string; sk?: string; ico_sk?: string; rpo?: string; preview?: boolean;
+  acn?: string; abn?: string; ca_number?: string; bn?: string; lei?: string; siren?: string; siret?: string; orgnr?: string; cvr?: string; ytunnus?: string; businessId?: string; fi?: string; uid?: string; che?: string; ch?: string; krs?: string; nip?: string; pl?: string; ico?: string; cz?: string; enterprise_number?: string; be?: string; bce?: string; kbo?: string; sk?: string; ico_sk?: string; rpo?: string; ie?: string; ee?: string; lv?: string; preview?: boolean;
 }, reg: KybRegistries = {}) {
   const preview = !!input.preview;
   const acn = s(input.acn) || s(input.abn), caNum = s(input.ca_number), bn = s(input.bn);
@@ -107,6 +110,30 @@ export async function kybReport(env: Env, input: {
       throw e;
     }
   }
+  let ieNum = "";
+  const rawIe = s((input as any).ie);
+  if (rawIe) {
+    try { ieNum = normalizeIeNumber(rawIe); } catch (e: any) {
+      if (e?.status === 400 || e?.name === "UserError") throw e;
+      throw e;
+    }
+  }
+  let eeCode = "";
+  const rawEe = s((input as any).ee);
+  if (rawEe) {
+    try { eeCode = normalizeEeRegCode(rawEe); } catch (e: any) {
+      if (e?.status === 400 || e?.name === "UserError") throw e;
+      throw e;
+    }
+  }
+  let lvNum = "";
+  const rawLv = s((input as any).lv);
+  if (rawLv) {
+    try { lvNum = normalizeLvRegcode(rawLv); } catch (e: any) {
+      if (e?.status === 400 || e?.name === "UserError") throw e;
+      throw e;
+    }
+  }
   const usState = s((input as any).us_state).toUpperCase();
   const usId = s((input as any).us_id).replace(/[^\w-]/g, "");
   const usName = s((input as any).us_name);
@@ -120,15 +147,15 @@ export async function kybReport(env: Env, input: {
   const vat = s(input.vat) || (s(input.country) && s(input.vat_number) ? s(input.country) + s(input.vat_number) : "");
   const lei = s(input.lei).toUpperCase().replace(/[\s-]/g, "");
 
-  if (!domain && !number && !name && !vat && !acn && !caNum && !bn && !lei && !siren && !siret && !orgnr && !cvr && !ytunnus && !uid && !krs && !nip && !ico && !beNum && !skIco && !usWanted) {
-    throw new UserError("provide domain and/or UK company number/name, AU acn/abn, CA ca_number/bn, FR siren/siret, NO orgnr, DK cvr, FI ytunnus/businessId, CH uid, PL krs/nip, CZ ico, BE enterprise_number, SK sk/ico_sk/rpo, US us_state+us_id or us_name, EU VAT and/or lei");
+  if (!domain && !number && !name && !vat && !acn && !caNum && !bn && !lei && !siren && !siret && !orgnr && !cvr && !ytunnus && !uid && !krs && !nip && !ico && !beNum && !skIco && !ieNum && !eeCode && !lvNum && !usWanted) {
+    throw new UserError("provide domain and/or UK company number/name, AU acn/abn, CA ca_number/bn, FR siren/siret, NO orgnr, DK cvr, FI ytunnus/businessId, CH uid, PL krs/nip, CZ ico, BE enterprise_number, SK sk/ico_sk/rpo, IE ie, EE ee, LV lv, US us_state+us_id or us_name, EU VAT and/or lei");
   }
 
   const out: any = {
     product: "kyb",
     price: "$2.50",
     disclaimer: "Screening over public registries and public sanctions lists only. Not a KYC/KYB/AML determination, credit score, or investment advice. Sanctions matches are scored candidates — never a certainty. Confirm identifiers at source before onboarding, contracting, or paying.",
-    inputs: { domain: domain || null, number: number || null, name: name || null, vat: vat || null, acn: acn || null, ca_number: caNum || null, bn: bn || null, lei: lei || null, siren: siren || null, siret: siret || null, orgnr: orgnr || null, cvr: cvr || null, ytunnus: ytunnus || null, uid: uid || null, krs: krs || null, nip: nip || null, ico: ico || null, enterprise_number: beNum || null, sk: skIco || null, us_state: usState || null, us_id: usId || null, us_name: usName || null },
+    inputs: { domain: domain || null, number: number || null, name: name || null, vat: vat || null, acn: acn || null, ca_number: caNum || null, bn: bn || null, lei: lei || null, siren: siren || null, siret: siret || null, orgnr: orgnr || null, cvr: cvr || null, ytunnus: ytunnus || null, uid: uid || null, krs: krs || null, nip: nip || null, ico: ico || null, enterprise_number: beNum || null, sk: skIco || null, ie: ieNum || null, ee: eeCode || null, lv: lvNum || null, us_state: usState || null, us_id: usId || null, us_name: usName || null },
     au: null as any,
     ca: null as any,
     fr: null as any,
@@ -140,6 +167,9 @@ export async function kybReport(env: Env, input: {
     cz: null as any,
     be: null as any,
     sk: null as any,
+    ie: null as any,
+    ee: null as any,
+    lv: null as any,
     us: null as any,
     directors_appointments: null as any,
     website: null as any,
@@ -200,6 +230,9 @@ export async function kybReport(env: Env, input: {
   if (beNum) tasks.push((async () => { try { out.be = await beCompany({ enterprise_number: beNum, lite: preview }); out.sources.be_kbo = true; } catch (e: any) { out.be = { error: String(e?.message || e) }; } })());
   if (usWanted) tasks.push((async () => { try { const r: any = await usEntity({ state: usState || undefined, id: usId || undefined, name: usId ? undefined : usName, limit: 5, lite: preview }); out.us = { ...r.best_match, other_matches: (r.results || []).slice(1, 4).map((x: any) => ({ state: x.state, id: x.id, name: x.name, status: x.status })), red_flags: r.red_flags, per_state: preview ? undefined : r.per_state }; out.sources.us_state_sos = true; } catch (e: any) { out.us = { error: String(e?.message || e) }; } })());
   if (skIco) tasks.push((async () => { try { out.sk = await skCompany({ ico: skIco, lite: preview }); out.sources.sk_rpo = true; } catch (e: any) { out.sk = { error: String(e?.message || e) }; } })());
+  if (ieNum) tasks.push((async () => { try { out.ie = await ieCompany({ number: ieNum, lite: preview }); out.sources.ie_cro = true; } catch (e: any) { out.ie = { error: String(e?.message || e) }; } })());
+  if (eeCode) tasks.push((async () => { try { out.ee = await eeCompany({ registry_code: eeCode, lite: preview }); out.sources.ee_ariregister = true; } catch (e: any) { out.ee = { error: String(e?.message || e) }; } })());
+  if (lvNum) tasks.push((async () => { try { out.lv = await lvCompany({ registration_number: lvNum, lite: preview }); out.sources.lv_ur = true; } catch (e: any) { out.lv = { error: String(e?.message || e) }; } })());
   if (vat) {
     tasks.push((async () => {
       try {
@@ -244,6 +277,9 @@ export async function kybReport(env: Env, input: {
       out.cz?.name ||
       out.be?.name ||
       out.sk?.name ||
+      out.ie?.name ||
+      out.ee?.name ||
+      out.lv?.name ||
       out.us?.name ||
       name ||
       null;
@@ -372,6 +408,27 @@ export async function kybReport(env: Env, input: {
     const skHigh = (out.sk.red_flags || []).filter((f: any) => f.severity === "high").length;
     if (skHigh) { score -= 25 * skHigh; reasons.push(`${skHigh} high-severity SK red flag(s)`); }
   }
+  if (out.ie && !out.ie.error) {
+    const st = String(out.ie.status || "").toLowerCase();
+    if (/normal/i.test(st)) { score += 40; reasons.push("IE CRO status normal"); }
+    else if (st) { score -= 30; reasons.push(`IE CRO status: ${st}`); }
+    const ieHigh = (out.ie.red_flags || []).filter((f: any) => f.severity === "high").length;
+    if (ieHigh) { score -= 25 * ieHigh; reasons.push(`${ieHigh} high-severity IE red flag(s)`); }
+  }
+  if (out.ee && !out.ee.error) {
+    const st = String(out.ee.status || "").toLowerCase();
+    if (st === "registered" || String(out.ee.status_code || "").toUpperCase() === "R") { score += 40; reasons.push("EE äriregister status registered"); }
+    else if (st) { score -= 30; reasons.push(`EE äriregister status: ${st}`); }
+    const eeHigh = (out.ee.red_flags || []).filter((f: any) => f.severity === "high").length;
+    if (eeHigh) { score -= 25 * eeHigh; reasons.push(`${eeHigh} high-severity EE red flag(s)`); }
+  }
+  if (out.lv && !out.lv.error) {
+    const st = String(out.lv.status || "").toLowerCase();
+    if (st === "active") { score += 40; reasons.push("LV Register of Enterprises status active"); }
+    else if (st) { score -= 30; reasons.push(`LV Register of Enterprises status: ${st}`); }
+    const lvHigh = (out.lv.red_flags || []).filter((f: any) => f.severity === "high").length;
+    if (lvHigh) { score -= 25 * lvHigh; reasons.push(`${lvHigh} high-severity LV red flag(s)`); }
+  }
   if (out.us && !out.us.error) {
     const st = String(out.us.status || "").toLowerCase();
     if (/active|good standing/.test(st)) { score += 40; reasons.push(`US ${out.us.state} state registry status: ${out.us.status}`); }
@@ -397,7 +454,7 @@ export async function kybReport(env: Env, input: {
   score = Math.max(0, Math.min(100, score));
   let flag = "INSUFFICIENT_DATA";
   if (out.lei && !out.lei.error && out.lei.lei) { score += 20; reasons.push("GLEIF LEI resolved" + (out.lei.parents?.ultimate?.lei ? " (ultimate parent present)" : out.lei.parents?.direct?.lei ? " (direct parent present)" : "")); }
-  const have = [out.uk && !out.uk.error, out.au && !out.au.error, out.ca && !out.ca.error, out.fr && !out.fr.error, out.no && !out.no.error, out.dk && !out.dk.error, out.fi && !out.fi.error, out.ch && !out.ch.error, out.pl && !out.pl.error, out.cz && !out.cz.error, out.be && !out.be.error, out.sk && !out.sk.error, out.us && !out.us.error, out.eu_vat && !out.eu_vat.error, out.website && !out.website.error, out.lei && !out.lei.error].filter(Boolean).length;
+  const have = [out.uk && !out.uk.error, out.au && !out.au.error, out.ca && !out.ca.error, out.fr && !out.fr.error, out.no && !out.no.error, out.dk && !out.dk.error, out.fi && !out.fi.error, out.ch && !out.ch.error, out.pl && !out.pl.error, out.cz && !out.cz.error, out.be && !out.be.error, out.sk && !out.sk.error, out.ie && !out.ie.error, out.ee && !out.ee.error, out.lv && !out.lv.error, out.us && !out.us.error, out.eu_vat && !out.eu_vat.error, out.website && !out.website.error, out.lei && !out.lei.error].filter(Boolean).length;
   if (have === 0) flag = "INSUFFICIENT_DATA";
   else if (high > 0 || score < 30) flag = "REVIEW";
   else if (score < 55 || medium >= 2) flag = "CAUTION";

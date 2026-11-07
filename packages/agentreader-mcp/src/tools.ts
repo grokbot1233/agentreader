@@ -334,6 +334,30 @@ const ALL_TOOLS: ToolDef[] = [
     previewable: true,
   },
   {
+    name: "ie_company",
+    description: "Irish company lookup via CRO open data by company number or name. Legal name, status, type, address. Example: {number:\"104547\"} (Ryanair DAC). $0.25 USDC.",
+    price: "$0.25",
+    schema: { number: z.string().optional(), company_number: z.string().optional(), ie: z.string().optional(), cro: z.string().optional(), name: z.string().optional(), q: z.string().optional(), limit: z.union([z.string(), z.number()]).optional() },
+    http: (a) => `${ORIGIN}/ie-company?${qs(a)}`,
+    previewable: true,
+  },
+  {
+    name: "ee_company",
+    description: "Estonian company lookup via official äriregister autocomplete by 8-digit registry code or name. Example: {registry_code:\"10060701\"} (Swedbank AS). $0.25 USDC.",
+    price: "$0.25",
+    schema: { registry_code: z.string().optional(), reg_code: z.string().optional(), ee: z.string().optional(), number: z.string().optional(), name: z.string().optional(), q: z.string().optional(), limit: z.union([z.string(), z.number()]).optional() },
+    http: (a) => `${ORIGIN}/ee-company?${qs(a)}`,
+    previewable: true,
+  },
+  {
+    name: "lv_company",
+    description: "Latvian company lookup via Register of Enterprises open data by 11-digit registration number or name. Example: {registration_number:\"40003229495\"}. $0.25 USDC.",
+    price: "$0.25",
+    schema: { registration_number: z.string().optional(), regcode: z.string().optional(), lv: z.string().optional(), number: z.string().optional(), name: z.string().optional(), q: z.string().optional(), limit: z.union([z.string(), z.number()]).optional() },
+    http: (a) => `${ORIGIN}/lv-company?${qs(a)}`,
+    previewable: true,
+  },
+  {
     name: "us_entity",
     description: "US state business-entity (Secretary of State) lookup across NY, CO, CT, OR and TX open-data registries by name or state+id: status/good standing, type, formed, jurisdiction, registered agent, CT principals, red flags. Example: {name:\"Etsy Inc\"} or {state:\"CO\",id:\"20211537536\"}. $0.25 USDC.",
     price: "$0.25",
@@ -343,9 +367,9 @@ const ALL_TOOLS: ToolDef[] = [
   },
   {
     name: "registry_batch",
-    description: "Batch verify up to 25 UK (Companies House, max 10), Australian (ACN/ABN), Canadian (number/BN), French (SIREN), Norwegian (orgnr), Danish (CVR), Finnish (Y-tunnus), Swiss (UID), Polish (KRS), Czech (IČO), Belgian (enterprise number), Slovak (RPO IČO) and US state (us=STATE:ID, e.g. NY:3368051 — NY/CO/CT/OR/TX Secretary of State open data) companies in one call; comma-separated ids, bad items get an inline error. $0.30 USDC.",
+    description: "Batch verify up to 25 UK (Companies House, max 10), Australian (ACN/ABN), Canadian (number/BN), French (SIREN), Norwegian (orgnr), Danish (CVR), Finnish (Y-tunnus), Swiss (UID), Polish (KRS), Czech (IČO), Belgian (enterprise number), Slovak (RPO IČO), Irish (CRO number), Estonian (äriregister code), Latvian (registration number) and US state (us=STATE:ID, e.g. NY:3368051 — NY/CO/CT/OR/TX Secretary of State open data) companies in one call; comma-separated ids, bad items get an inline error. $0.30 USDC.",
     price: "$0.30",
-    schema: { uk: z.string().optional(), au: z.string().optional(), ca: z.string().optional(), fr: z.string().optional(), no: z.string().optional(), dk: z.string().optional(), fi: z.string().optional(), ch: z.string().optional(), pl: z.string().optional(), cz: z.string().optional(), be: z.string().optional(), sk: z.string().optional(), us: z.string().optional() },
+    schema: { uk: z.string().optional(), au: z.string().optional(), ca: z.string().optional(), fr: z.string().optional(), no: z.string().optional(), dk: z.string().optional(), fi: z.string().optional(), ch: z.string().optional(), pl: z.string().optional(), cz: z.string().optional(), be: z.string().optional(), sk: z.string().optional(), ie: z.string().optional(), ee: z.string().optional(), lv: z.string().optional(), us: z.string().optional() },
     http: (a) => `${ORIGIN}/registry-batch?${new URLSearchParams(Object.entries(a).filter(([, v]) => v) as any)}`,
   },
   {

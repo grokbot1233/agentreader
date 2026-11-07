@@ -3,7 +3,7 @@ import { CANONICAL } from "./facilitator";
 const PREVIEW_LIMIT = 8; // per IP per UTC day across all preview kinds
 const PREVIEW_PREFIX = "prev:";
 
-export type PreviewKind = "headers" | "iban" | "phone" | "meta" | "redirects" | "dns" | "au-company" | "ca-company" | "fr-company" | "no-company" | "dk-company" | "fi-company" | "ch-company" | "pl-company" | "cz-company" | "be-company" | "sk-company" | "us-entity" | "registry-batch" | "domain" | "email-check" | "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "uk-leads-feed" | "kyb" | "uk-dd" | "uk-watch" | "sanctions" | "sanctions-batch" | "uk-officer" | "uk-property" | "uk-area" | "uk-postcode" | "siren" | "siret" | "partita-iva" | "orgnr" | "bn-ca" | "cvr" | "fn-at" | "cin-in" | "kvk-nl" | "hr-de" | "nif-es" | "cnpj" | "nip-pl" | "uid-ch";
+export type PreviewKind = "headers" | "iban" | "phone" | "meta" | "redirects" | "dns" | "au-company" | "ca-company" | "fr-company" | "no-company" | "dk-company" | "fi-company" | "ch-company" | "pl-company" | "cz-company" | "be-company" | "sk-company" | "ie-company" | "ee-company" | "lv-company" | "us-entity" | "registry-batch" | "domain" | "email-check" | "read" | "links" | "check" | "company" | "uk-company" | "uk-company-lite" | "convert" | "company-full" | "uk-charity" | "uk-charity-full" | "us-sec" | "us-sec-full" | "eu-vat" | "lei" | "lei-full" | "read-batch" | "uk-leads" | "uk-leads-lite" | "uk-leads-feed" | "kyb" | "uk-dd" | "uk-watch" | "sanctions" | "sanctions-batch" | "uk-officer" | "uk-property" | "uk-area" | "uk-postcode" | "siren" | "siret" | "partita-iva" | "orgnr" | "bn-ca" | "cvr" | "fn-at" | "cin-in" | "kvk-nl" | "hr-de" | "nif-es" | "cnpj" | "nip-pl" | "uid-ch";
 
 const PRICE: Record<PreviewKind, string> = {
   read: "$0.002", links: "$0.001", check: "$0.001",
@@ -11,7 +11,7 @@ const PRICE: Record<PreviewKind, string> = {
   convert: "$0.03", "company-full": "$0.65",
   "uk-charity": "$0.05", "uk-charity-full": "$0.25",
   "us-sec": "$0.05", "us-sec-full": "$0.25", "eu-vat": "$0.01", "lei": "$0.005", "lei-full": "$0.05", "read-batch": "$0.015",
-  "uk-leads": "$1.00", "uk-leads-lite": "$0.25", "uk-leads-feed": "$25.00", kyb: "$2.50", "uk-dd": "$1.00", "uk-watch": "$5.00", "email-check": "$0.002", domain: "$0.002", dns: "$0.001", redirects: "$0.001", meta: "$0.001", headers: "$0.001", iban: "$0.001", phone: "$0.001", "au-company": "$0.02", "ca-company": "$0.02", "fr-company": "$0.25", "no-company": "$0.25", "dk-company": "$0.25", "fi-company": "$0.25", "ch-company": "$0.25", "pl-company": "$0.25", "cz-company": "$0.25", "be-company": "$0.25", "sk-company": "$0.25", "us-entity": "$0.25", "registry-batch": "$0.30",
+  "uk-leads": "$1.00", "uk-leads-lite": "$0.25", "uk-leads-feed": "$25.00", kyb: "$2.50", "uk-dd": "$1.00", "uk-watch": "$5.00", "email-check": "$0.002", domain: "$0.002", dns: "$0.001", redirects: "$0.001", meta: "$0.001", headers: "$0.001", iban: "$0.001", phone: "$0.001", "au-company": "$0.02", "ca-company": "$0.02", "fr-company": "$0.25", "no-company": "$0.25", "dk-company": "$0.25", "fi-company": "$0.25", "ch-company": "$0.25", "pl-company": "$0.25", "cz-company": "$0.25", "be-company": "$0.25", "sk-company": "$0.25", "ie-company": "$0.25", "ee-company": "$0.25", "lv-company": "$0.25", "us-entity": "$0.25", "registry-batch": "$0.30",
   sanctions: "$0.05", "sanctions-batch": "$1.00",
   "uk-officer": "$0.15",
   "uk-property": "$0.01", "uk-area": "$0.005", "uk-postcode": "$0.001", siren: "$0.001", siret: "$0.001", "partita-iva": "$0.001", orgnr: "$0.001", "bn-ca": "$0.001", cvr: "$0.001", "fn-at": "$0.001", "cin-in": "$0.001", "kvk-nl": "$0.001", "hr-de": "$0.001", "nif-es": "$0.001", cnpj: "$0.001", "nip-pl": "$0.001", "uid-ch": "$0.001",
@@ -34,7 +34,7 @@ const PAID_CALL: Record<PreviewKind, string> = {
   "lei": `${CANONICAL}/lei?lei=HWUPKR0MPOU8FGXBT394`,
   "lei-full": `${CANONICAL}/lei-full?name=Apple+Inc.`,
   "read-batch": `${CANONICAL}/read-batch?urls=https://example.com,https://example.org`,
-  "uk-leads": `${CANONICAL}/uk-leads?sic=62012`, "uk-leads-lite": `${CANONICAL}/uk-leads-lite?sic=62`, "uk-leads-feed": `POST ${CANONICAL}/uk-leads-feed {sic,webhook}`, "email-check": `${CANONICAL}/email-check?email=info@stripe.com`, domain: `${CANONICAL}/domain?domain=stripe.com`, dns: `${CANONICAL}/dns?name=example.com`, redirects: `${CANONICAL}/redirects?url=https://example.com`, meta: `${CANONICAL}/meta?url=https://example.com`, headers: `${CANONICAL}/headers?url=https://example.com`, iban: `${CANONICAL}/iban?iban=GB82WEST12345698765432`, phone: `${CANONICAL}/phone?phone=%2B447911123456`, "au-company": `${CANONICAL}/au-company?acn=004028077`, "ca-company": `${CANONICAL}/ca-company?number=8660115`, "fr-company": `${CANONICAL}/fr-company?siren=443061841`, "no-company": `${CANONICAL}/no-company?orgnr=923609016`, "dk-company": `${CANONICAL}/dk-company?cvr=24256790`, "fi-company": `${CANONICAL}/fi-company?businessId=0112038-9`, "ch-company": `${CANONICAL}/ch-company?uid=CHE-105.909.036`, "pl-company": `${CANONICAL}/pl-company?krs=0000001538`, "cz-company": `${CANONICAL}/cz-company?ico=27082440`, "be-company": `${CANONICAL}/be-company?enterprise_number=0202239951`, "sk-company": `${CANONICAL}/sk-company?ico=31322832`, "us-entity": `${CANONICAL}/us-entity?name=Etsy+Inc`, "registry-batch": `${CANONICAL}/registry-batch?no=923609016&us=NY:3368051,OR:8739914,CT:2590243`, kyb: `${CANONICAL}/kyb?domain=tesco.com&number=00445790`,
+  "uk-leads": `${CANONICAL}/uk-leads?sic=62012`, "uk-leads-lite": `${CANONICAL}/uk-leads-lite?sic=62`, "uk-leads-feed": `POST ${CANONICAL}/uk-leads-feed {sic,webhook}`, "email-check": `${CANONICAL}/email-check?email=info@stripe.com`, domain: `${CANONICAL}/domain?domain=stripe.com`, dns: `${CANONICAL}/dns?name=example.com`, redirects: `${CANONICAL}/redirects?url=https://example.com`, meta: `${CANONICAL}/meta?url=https://example.com`, headers: `${CANONICAL}/headers?url=https://example.com`, iban: `${CANONICAL}/iban?iban=GB82WEST12345698765432`, phone: `${CANONICAL}/phone?phone=%2B447911123456`, "au-company": `${CANONICAL}/au-company?acn=004028077`, "ca-company": `${CANONICAL}/ca-company?number=8660115`, "fr-company": `${CANONICAL}/fr-company?siren=443061841`, "no-company": `${CANONICAL}/no-company?orgnr=923609016`, "dk-company": `${CANONICAL}/dk-company?cvr=24256790`, "fi-company": `${CANONICAL}/fi-company?businessId=0112038-9`, "ch-company": `${CANONICAL}/ch-company?uid=CHE-105.909.036`, "pl-company": `${CANONICAL}/pl-company?krs=0000001538`, "cz-company": `${CANONICAL}/cz-company?ico=27082440`, "be-company": `${CANONICAL}/be-company?enterprise_number=0202239951`, "sk-company": `${CANONICAL}/sk-company?ico=31322832`, "ie-company": `${CANONICAL}/ie-company?number=104547`, "ee-company": `${CANONICAL}/ee-company?registry_code=10060701`, "lv-company": `${CANONICAL}/lv-company?registration_number=40003229495`, "us-entity": `${CANONICAL}/us-entity?name=Etsy+Inc`, "registry-batch": `${CANONICAL}/registry-batch?no=923609016&us=NY:3368051,OR:8739914,CT:2590243`, kyb: `${CANONICAL}/kyb?domain=tesco.com&number=00445790`,
   "uk-dd": `${CANONICAL}/uk-dd?number=00445790`,
   "uk-watch": `POST ${CANONICAL}/uk-watch {number,webhook}`,
   sanctions: `${CANONICAL}/sanctions?name=BANCO+NACIONAL+DE+CUBA`, "sanctions-batch": `${CANONICAL}/sanctions-batch`,
@@ -477,6 +477,30 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         red_flags: (data.red_flags || []).slice(0, 2),
         omitted: data.omitted || ["address_detail", "statutory_bodies", "stakeholders", "successors"],
       };
+    case "ie-company":
+      return {
+        ...u, company_number: data.company_number, name: data.name,
+        status: data.status || null, company_type: data.company_type || null,
+        address: data.address || null,
+        red_flags: (data.red_flags || []).slice(0, 2),
+        omitted: data.omitted || ["address_lines", "nace_v2_code", "matches", "last_annual_return"],
+      };
+    case "ee-company":
+      return {
+        ...u, registry_code: data.registry_code, name: data.name,
+        status: data.status || null, address: data.address || null,
+        legal_form: data.legal_form || null,
+        red_flags: (data.red_flags || []).slice(0, 2),
+        omitted: data.omitted || ["historical_names", "matches", "register_url"],
+      };
+    case "lv-company":
+      return {
+        ...u, registration_number: data.registration_number, name: data.name,
+        status: data.status || null, legal_form: data.legal_form || null,
+        address: data.address || null,
+        red_flags: (data.red_flags || []).slice(0, 2),
+        omitted: data.omitted || ["sepa", "matches", "register"],
+      };
     case "us-entity":
       return {
         ...u, product: data.product, query: data.query, states_supported: data.states_supported,
@@ -895,6 +919,22 @@ export const STATIC_SAMPLES: Record<string, any> = {
     ico: "31322832", name: "SLOVNAFT, a.s.", status: "active",
     seat: "Bratislava", legal_form: "Akciová spoločnosť", registration_number: "Sa/426/B",
     red_flags: [], omitted: ["address_detail", "statutory_bodies", "stakeholders", "successors"],
+  },
+  // Real records fetched 2026-11-07 ~16:56 GMT from official CRO / äriregister / data.gov.lv open APIs.
+  "ie-company": {
+    company_number: "104547", name: "RYANAIR DESIGNATED ACTIVITY COMPANY", status: "Normal",
+    company_type: "DAC", address: "RYANAIR DUBLIN OFFICE, AIRSIDE BUSINESS PARK, SWORDS CO. DUBLIN",
+    red_flags: [], omitted: ["address_lines", "nace_v2_code", "matches", "last_annual_return"],
+  },
+  "ee-company": {
+    registry_code: "10060701", name: "Swedbank AS", status: "registered",
+    address: "Harju maakond, Tallinn, Kesklinna linnaosa, Liivalaia tn 34", legal_form: "1",
+    red_flags: [], omitted: ["historical_names", "matches", "register_url"],
+  },
+  "lv-company": {
+    registration_number: "40003229495", name: "Akciju sabiedrība \"Kurzemes degviela\"", status: "active",
+    legal_form: "AS", address: "Saldus nov., Saldus pag., \"Torņi\"",
+    red_flags: [], omitted: ["sepa", "matches", "register"],
   },
   // Real records fetched 2026-11-07 ~14:32 GMT from the official state Socrata APIs (data.ny.gov, data.ct.gov, data.texas.gov, data.colorado.gov, data.oregon.gov).
   "us-entity": {

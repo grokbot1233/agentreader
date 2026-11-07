@@ -287,6 +287,18 @@ export class AgentReaderClient {
   skCompany(input: { ico?: string; identifier?: string; sk?: string; ico_sk?: string; rpo?: string; number?: string; name?: string; q?: string; limit?: number | string }, opts?: RequestOpts) {
     return this.get("/sk-company", input as any, opts);
   }
+  /** Irish company lookup (CRO open data) by company number/name ($0.25). */
+  ieCompany(input: { number?: string; company_number?: string; ie?: string; cro?: string; name?: string; q?: string; limit?: number | string }, opts?: RequestOpts) {
+    return this.get("/ie-company", input as any, opts);
+  }
+  /** Estonian company lookup (äriregister autocomplete) by registry code/name ($0.25). */
+  eeCompany(input: { registry_code?: string; reg_code?: string; ee?: string; number?: string; name?: string; q?: string; limit?: number | string }, opts?: RequestOpts) {
+    return this.get("/ee-company", input as any, opts);
+  }
+  /** Latvian company lookup (Register of Enterprises open data) by registration number/name ($0.25). */
+  lvCompany(input: { registration_number?: string; regcode?: string; lv?: string; number?: string; name?: string; q?: string; limit?: number | string }, opts?: RequestOpts) {
+    return this.get("/lv-company", input as any, opts);
+  }
   /** Australian company lookup (ASIC register) by ACN or ABN ($0.02). */
   auCompany(input: { acn?: string; abn?: string }, opts?: RequestOpts) {
     return this.get("/au-company", input as any, opts);
