@@ -48,3 +48,6 @@ See `research/leads/registry-attempts-2026-11-07-buyer14.txt`. 402index 201×4; 
 
 ## NOTIFY_LIAM
 **false** — no money, no scam, no merge/reply that needs Liam’s personal action. Warm threads (jpverify, Hugo window, payagents) are already handled or waiting on the counterparty.
+
+## Late outcome (same hour)
+- **Sagargupta16/awesome-mcp-servers#331 MERGED** ~14:15 GMT (auto-merge after CI). AgentReader now listed under Finance as Remote MCP.
