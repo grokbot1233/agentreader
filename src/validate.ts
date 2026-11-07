@@ -65,12 +65,12 @@ export function aliasInput(path: string, b: any) {
     if (!s(b.ico) && s(b.dic)) b.ico = s(b.dic);
   }
   if (path === "/be-company") {
-    if (b.number && !b.enterprise_number) b.enterprise_number = b.number;
-    if (b.be && !b.enterprise_number) b.enterprise_number = b.be;
-    if (b.bce && !b.enterprise_number) b.enterprise_number = b.bce;
-    if (b.kbo && !b.enterprise_number) b.enterprise_number = b.kbo;
-    if (b.vat && !b.enterprise_number) b.enterprise_number = b.vat;
-    if (b.q && !b.name) b.name = b.q;
+    if (!s(b.enterprise_number) && !s(b.be) && !s(b.bce) && !s(b.kbo) && Object.prototype.hasOwnProperty.call(b, "number")) b.enterprise_number = s(b.number);
+    if (!s(b.enterprise_number) && s(b.be)) b.enterprise_number = s(b.be);
+    if (!s(b.enterprise_number) && s(b.bce)) b.enterprise_number = s(b.bce);
+    if (!s(b.enterprise_number) && s(b.kbo)) b.enterprise_number = s(b.kbo);
+    if (!s(b.enterprise_number) && s(b.vat)) b.enterprise_number = s(b.vat);
+    if (!s(b.name) && s(b.q)) b.name = s(b.q);
   }
   if (path === "/fn-at") {
     if (!s(b.fn) && Object.prototype.hasOwnProperty.call(b, "number")) b.fn = s(b.number);
@@ -229,7 +229,7 @@ export const VALIDATE: Record<string, (b: any) => string | null> = {
   "/lei": (b) => lei(b),
   "/lei-full": (b) => leiFull(b),
   "/read-batch": (b) => readBatch(b),
-  "/registry-batch": (b) => { const n = (s(b.uk) + "," + s(b.au) + "," + s(b.ca) + "," + s(b.fr) + "," + s(b.no) + "," + s(b.dk) + "," + s(b.fi) + "," + s(b.ch) + "," + s(b.pl) + "," + s(b.cz)).split(/[\s,;]+/).filter((x) => /\d/.test(x)).length; return n === 0 ? "uk, au, ca, fr, no, dk, fi, ch, pl or cz ids required" : n > 25 ? "max 25 ids total" : null; },
+  "/registry-batch": (b) => { const n = (s(b.uk) + "," + s(b.au) + "," + s(b.ca) + "," + s(b.fr) + "," + s(b.no) + "," + s(b.dk) + "," + s(b.fi) + "," + s(b.ch) + "," + s(b.pl) + "," + s(b.cz) + "," + s(b.be)).split(/[\s,;]+/).filter((x) => /\d/.test(x)).length; return n === 0 ? "uk, au, ca, fr, no, dk, fi, ch, pl, cz or be ids required" : n > 25 ? "max 25 ids total" : null; },
   "/ca-company": (b) => { const n = s(b.number).replace(/\D/g, ""), bn = s(b.bn).replace(/\D/g, ""); return (n && n.length <= 8) || bn.length >= 9 ? null : "number (up to 8 digits) or bn (9 digits) required"; },
   "/au-company": (b) => { const r = s(b.acn || b.abn).replace(/\s/g, ""); return /^(\d{9}|\d{11})$/.test(r) ? null : "acn must be 9 digits (or abn 11 digits)"; },
   "/fr-company": (b) => { const siren = s(b.siren).replace(/\D/g, ""), siret = s(b.siret).replace(/\D/g, ""), name = s(b.name || b.q); if (siret) return siret.length === 14 ? null : "siret must be 14 digits"; if (siren) return siren.length === 9 ? null : "siren must be 9 digits"; if (name) return name.length >= 2 ? null : "name too short"; return "siren, siret or name required"; },
@@ -384,7 +384,7 @@ function ukDd(b: any) {
 function kyb(b: any) {
   aliasInput("/kyb", b);
   const domain = s(b.domain), number = s(b.number), name = s(b.name), vat = s(b.vat);
-  if (!domain && !number && !name && !vat && !s(b.acn) && !s(b.abn) && !s(b.ca_number) && !s(b.bn) && !(s(b.country) && s(b.vat_number)) && !s(b.lei) && !s(b.siren) && !s(b.siret) && !s(b.orgnr) && !s(b.cvr) && !s(b.ytunnus) && !s(b.businessId) && !s(b.fi) && !s(b.uid) && !s(b.che) && !s(b.ch) && !s(b.krs) && !s(b.nip) && !s(b.pl) && !s(b.ico) && !s(b.cz)) return "provide domain and/or UK number/name, AU acn/abn, CA ca_number/bn, FR siren/siret, NO orgnr, DK cvr, FI ytunnus/businessId, CH uid, PL krs/nip, CZ ico, EU vat and/or lei";
+  if (!domain && !number && !name && !vat && !s(b.acn) && !s(b.abn) && !s(b.ca_number) && !s(b.bn) && !(s(b.country) && s(b.vat_number)) && !s(b.lei) && !s(b.siren) && !s(b.siret) && !s(b.orgnr) && !s(b.cvr) && !s(b.ytunnus) && !s(b.businessId) && !s(b.fi) && !s(b.uid) && !s(b.che) && !s(b.ch) && !s(b.krs) && !s(b.nip) && !s(b.pl) && !s(b.ico) && !s(b.cz) && !s(b.enterprise_number) && !s(b.be) && !s(b.bce) && !s(b.kbo)) return "provide domain and/or UK number/name, AU acn/abn, CA ca_number/bn, FR siren/siret, NO orgnr, DK cvr, FI ytunnus/businessId, CH uid, PL krs/nip, CZ ico, BE enterprise_number, EU vat and/or lei";
   if (domain) { const d = domainish(domain); if (d) return d; }
   if (number && !CHNUM.test(number)) return "number must be a Companies House number";
   if (vat && (!/^(?:GR|[A-Z]{2})[A-Z0-9]{2,12}$/i.test(vat.replace(/[\s.-]/g, "")) || !/\d/.test(vat.replace(/[\s.-]/g, "").slice(2)))) return "vat must look like DE123456789 or IE6388047V";
@@ -407,6 +407,8 @@ function kyb(b: any) {
   if (s(b.nip)) { let n = s(b.nip).replace(/[\s\-.]/g, "").toUpperCase(); if (n.startsWith("PL")) n = n.slice(2); n = n.replace(/\D/g, ""); if (n.length !== 10) return "nip must be 10 digits"; }
   const czRaw = s(b.ico) || s(b.cz);
   if (czRaw) { const d = czRaw.replace(/[\s\-./]/g, "").replace(/^CZ/i, "").replace(/\D/g, ""); if (!d || d.length > 8) return "ico must be up to 8 digits"; }
+  const beRaw = s(b.enterprise_number) || s(b.be) || s(b.bce) || s(b.kbo);
+  if (beRaw) { let d = beRaw.replace(/[\s\-./]/g, "").replace(/^BE/i, ""); if (!/^\d+$/.test(d)) return "enterprise_number must be digits"; if (d.length === 9) d = "0" + d; if (d.length !== 10) return "enterprise_number must be 9 or 10 digits"; }
   return null;
 }
 
