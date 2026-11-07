@@ -1,0 +1,14 @@
+SELF-CHECK REPORT 2026-11-06 ~21:11 Europe/London (GMT)
+
+Live version + deploy id: 1.31.1 / aa85e99b-cc09-4fb7-b5e2-d4d686ee75b0 (from 1.31.0)
+Commit: 4114312 on master
+
+Health summary: healthy → fixed. Health/OpenAPI/agent 1.31.1. well-known/x402 + llms + dashboard 200. MCP 73 tools. npm @axiomworks/agentreader(+mcp) 1.31.1. Focus POST bare 402 well-formed 11/11 (kyb/uk-dd/uk-company/uk-watch/uk-leads/uk-leads-feed/company/company-full/sanctions-batch/uk-charity-full/no-company). Samples uk-watch+kyb 200. Free 400 on bad uk-company/uk-dd OK. Path-param GET 404s expected. Dashboard renders; data health 1.31.1; meta ops notes stale (KV put blocked).
+
+What was broken/fixed: POST /hooks/sink returned plain 500 Internal Server Error because CF KV daily put limit was exceeded (unguarded LOG.put). Fail-open: accept webhook with stored:false + note. Also fail-open logPay pay: put so payment logging cannot 500 a settled call. Verified live: POST /hooks/sink → 200 {"ok":true,"stored":false,...}.
+
+Dashboard-meta still {"ok":false,"error":"kv_put_failed","detail":"KV put() limit exceeded for the day."} — patch queued research/leads/dashboard-patch-2026-11-06-selfcheck-1311.json (not Liam action). Soft: paid create persist paths (uk-watch/uk-leads-feed/monitor) correctly refuse with 503 if put fails until UTC KV reset; no spend/test settlement this run (payment paths not functionally changed beyond logging resilience).
+
+NOTIFY_LIAM=false
+
+token/treasury notes: payTo 0x88b1c747… Base. Live treasury ~2.588 USDC / ~0.000399 ETH. Outside revenue $0.004 / 3 paid / 1 payer. Below $20 sweep; no funds moved; no Liam spend. npm token expiry 2027-02-03 — not urgent.

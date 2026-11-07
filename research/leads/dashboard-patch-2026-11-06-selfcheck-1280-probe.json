@@ -1,0 +1,8 @@
+{
+  "ops_notes_append": "2026-11-06 ~19:08 GMT self-check probe: testing dashboard-meta KV write after v1.28.0.",
+  "self_check_latest": {
+    "when": "2026-11-06T19:08:00Z",
+    "status": "probing_kv",
+    "openapi": "1.28.0"
+  }
+}

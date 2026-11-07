@@ -1,0 +1,12 @@
+SELF-CHECK REPORT 2026-11-06 ~22:09 Europe/London (GMT)
+
+Live version + deploy id: 1.31.2 / 984dc8ac-3b51-42be-a5e1-42bae2fb374e (from 1.31.1)
+Commit: 6bc14f0 on master
+
+Health summary: improved (routine). Health/OpenAPI/agent 1.31.2. well-known/x402 + llms + dashboard 200. MCP 73 tools. npm @axiomworks/agentreader(+mcp) 1.31.2 (publish done; registry may lag briefly). Focus POST bare 402 well-formed 10/10. Samples uk-watch/kyb/uk-dd/company/sanctions-batch/uk-leads 200. Free 400 on bad uk-company/company/sanctions-batch/uk-watch OK. /hooks/sink free fail-open stored:false (KV put limit; expected). Dashboard renders; meta KV put still blocked (not Liam action).
+
+What improved: GET /uk-watch, /uk-leads-feed, /monitor now return free 405 method_not_allowed with example+price+status_url_template (and uk-watch sample/watches fields) instead of generic 404 — agents self-correct without paying.
+
+NOTIFY_LIAM=false
+
+token/treasury notes: payTo 0x88b1c747… Base. Live treasury ~2.588 USDC / ~0.000399 ETH. No spend/settlement this run. npm token expiry 2027-02-03 — not urgent.
