@@ -1,0 +1,54 @@
+{
+  "ops_notes": "Big-hitter audit 2026-11-07 ~09:00 GMT: all 12 big hitters 402 with correct maxAmountRequired; discovery (openapi/llms/.well-known) prices accurate. Found & fixed in v1.39.1: /sanctions-batch GET comma lists screened as one name (false negative); /registry-batch sk= stalled ~15.4s on hung SK RPO upstream with silent found:false. Commit 2146ac2, deploy f5d011c6-9f9e-4725-932d-c49072f5952f; npm agentreader(+mcp) 1.39.1. PASS402=79 FAIL=0. No spend.",
+  "what_shipped": [
+    "v1.39.1 fix: /sanctions-batch GET parses comma/;/| lists + repeated names= (was silent false negative); /registry-batch 9s per-id cap + per-id error in preview; SK RPO 7s timeout \u2192 clear 504",
+    "v1.39.0 /sk-company Slovak Business Register (ORSR) \u2014 sibling ship; live confirmed this growth sprint",
+    "v1.38.1 fix: /kyb + /company-full docs and MCP kyb_report schema include Belgium CBE (enterprise_number/be)",
+    "v1.38.0 /be-company Belgian CBE/KBO $0.25 \u2014 free official HTML; wired into /kyb (be=), /registry-batch, /company-full soft-attach",
+    "v1.37.x country registries (FI/CH/PL/CZ) + free-400 digit messages \u2014 prior ships this week"
+  ],
+  "checklist": [
+    {
+      "item": "v1.39.1 sanctions-batch GET parsing + registry-batch timeout",
+      "status": "live",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/sanctions-batch?names=BANCO+NACIONAL+DE+CUBA,Vladimir+Putin,Alice+Wonderland&preview=1",
+      "detail": "Deploy f5d011c6-9f9e-4725-932d-c49072f5952f; preview count 3 / 2 possible matches (was 1/0); registry-batch uk+sk 15.4s \u2192 7.7s"
+    },
+    {
+      "item": "v1.39.0 /sk-company Slovak ORSR",
+      "status": "live",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/sk-company?ico=31322832&preview=1",
+      "detail": "Sibling ship during growth sprint; health 1.39.0; empty \u2192 free 400; bare GET \u2192 402"
+    },
+    {
+      "item": "v1.38.1 BE docs/schema sync",
+      "status": "live",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/kyb?enterprise_number=0202239951&preview=1",
+      "detail": "Deploy b89fd317-0ca6-4b88-b356-517234394cd8; MCP 79 tools serverInfo 1.38.1"
+    },
+    {
+      "item": "v1.38.0 /be-company",
+      "status": "live",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/be-company?enterprise_number=0202239951&preview=1",
+      "detail": "Preview Proximus OK; bare 402 maxAmountRequired 250000"
+    },
+    {
+      "item": "Grow/cut 7-day rule",
+      "status": "n/a",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/",
+      "detail": "Big hitters (/kyb /uk-dd /uk-watch /uk-leads /uk-leads-feed /company /company-full /sanctions-batch + country registries) launched within last ~2 days (v1.10\u20131.38). Do NOT cut \u2014 all <7 days."
+    }
+  ],
+  "next_steps": [
+    "Recalibrate /uk-dd + /kyb trust score: Tesco PLC (active, sanctions-clean) shows CAUTION 42/52 because clean sanctions screen adds 0 and number-only uk-dd caps at 45 \u2014 likely hurts conversion",
+    "SK RPO (api.statistics.sk) hanging since ~09:00 GMT \u2014 recheck /sk-company",
+    "Warm buyers for /kyb $2.50, /uk-dd, /uk-watch, /uk-leads-feed, /company-full, /sanctions-batch",
+    "Next free builds: EE credentials, LV CSV snapshot; NL KvK needs key/ToS; DE no free API; SE Liam portal",
+    "Refresh a2aregistry version when /sk-company (1.39.0) lands; keep PayAPI unpaid"
+  ]
+}
