@@ -302,10 +302,18 @@ const ALL_TOOLS: ToolDef[] = [
     previewable: true,
   },
   {
+    name: "pl_company",
+    description: "Polish company lookup via KRS current extract by krs (10 digits) or nip (MF whitelist → KRS). No free-text name search. $0.25 USDC.",
+    price: "$0.25",
+    schema: { krs: z.string().optional(), nip: z.string().optional(), number: z.string().optional(), pl: z.string().optional() },
+    http: (a) => `${ORIGIN}/pl-company?${qs(a)}`,
+    previewable: true,
+  },
+  {
     name: "registry_batch",
-    description: "Batch verify up to 25 UK (Companies House, max 10), Australian (ACN/ABN), Canadian (number/BN), French (SIREN), Norwegian (orgnr), Danish (CVR), Finnish (Y-tunnus) and Swiss (UID) companies in one call; comma-separated ids. $0.30 USDC.",
+    description: "Batch verify up to 25 UK (Companies House, max 10), Australian (ACN/ABN), Canadian (number/BN), French (SIREN), Norwegian (orgnr), Danish (CVR), Finnish (Y-tunnus), Swiss (UID) and Polish (KRS) companies in one call; comma-separated ids. $0.30 USDC.",
     price: "$0.30",
-    schema: { uk: z.string().optional(), au: z.string().optional(), ca: z.string().optional(), fr: z.string().optional(), no: z.string().optional(), dk: z.string().optional(), fi: z.string().optional(), ch: z.string().optional() },
+    schema: { uk: z.string().optional(), au: z.string().optional(), ca: z.string().optional(), fr: z.string().optional(), no: z.string().optional(), dk: z.string().optional(), fi: z.string().optional(), ch: z.string().optional(), pl: z.string().optional() },
     http: (a) => `${ORIGIN}/registry-batch?${new URLSearchParams(Object.entries(a).filter(([, v]) => v) as any)}`,
   },
   {

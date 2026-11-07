@@ -6,6 +6,7 @@ import { noCompany } from "./no-company";
 import { dkCompany } from "./dk-company";
 import { fiCompany, ytunnusCheckDigit } from "./fi-company";
 import { chCompany, normalizeUid } from "./ch-company";
+import { plCompany, normalizeKrs, nipCheckDigitOk } from "./pl-company";
 import { formatUid } from "./ch-uid";
 import { luhnOk } from "./fr-company-id";
 import type { KybRegistries } from "./kyb";
@@ -16,6 +17,7 @@ const NO_TLDS = /\.no$/i;
 const DK_TLDS = /\.dk$/i;
 const FI_TLDS = /\.fi$/i;
 const CH_TLDS = /\.(ch|swiss)$/i;
+const PL_TLDS = /\.pl$/i;
 const AU_TLDS = /\.(com\.au|net\.au|org\.au|edu\.au|gov\.au|au)$/i;
 const CA_TLDS = /\.ca$/i;
 const WELL_KNOWN_UK = /^(tesco|sainsbury|sainsburys|barclays|lloyds|bt|vodafone|easyjet|bbc|revolut|monzo|wise)$/i;
@@ -115,6 +117,35 @@ function swissSignals(domain: string, blob: string, desc: string): boolean {
     !!findChUidInText(blob) ||
     /\b(switzerland|swiss|schweiz|suisse|svizzera|zefix|handelsregister)\b/i.test(blob) ||
     /\bswitzerland\b/i.test(desc)
+  );
+}
+
+function findPlKrsInText(text: string): string | null {
+  for (const m of text.matchAll(/\b(?:KRS|nr\.?\s*KRS|numer\s*KRS)[:\s#]*(\d{1,10})\b/gi)) {
+    try { return normalizeKrs(m[1]); } catch { /* skip */ }
+  }
+  // bare 10-digit zero-padded KRS near polish context words
+  for (const m of text.matchAll(/\b(0\d{9})\b/g)) {
+    try { return normalizeKrs(m[1]); } catch { /* skip */ }
+  }
+  return null;
+}
+
+function findPlNipInText(text: string): string | null {
+  for (const m of text.matchAll(/\b(?:NIP|PL\s*NIP|VAT\s*PL)[:\s#]*((?:PL)?[\s-]?\d{3}[\s-]?\d{3}[\s-]?\d{2}[\s-]?\d{2}|\d{10})\b/gi)) {
+    const d = m[1].replace(/\D/g, "");
+    if (d.length === 10 && nipCheckDigitOk(d)) return d;
+  }
+  return null;
+}
+
+function polishSignals(domain: string, blob: string, desc: string): boolean {
+  return (
+    PL_TLDS.test(domain) ||
+    !!findPlKrsInText(blob) ||
+    !!findPlNipInText(blob) ||
+    /\b(poland|polish|polska|polski|krs|nip)\b/i.test(blob) ||
+    /\bpoland\b/i.test(desc)
   );
 }
 
@@ -370,6 +401,24 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     ch = null;
   }
 
+  let pl: any = null;
+  let pl_skip_reason: string | null = null;
+  const plKrs = findPlKrsInText(blob);
+  const plNip = findPlNipInText(blob);
+  const looksPl = polishSignals(domain, blob, desc);
+  try {
+    if (plKrs || plNip) {
+      pl = await plCompany({ krs: plKrs || undefined, nip: plNip || undefined, lite: true });
+    } else if (PL_TLDS.test(domain) || looksPl) {
+      pl_skip_reason = "Polish signals detected but no KRS/NIP on page (PL attach needs identifier; free-text name search not available — use /pl-company?krs= or /kyb?krs=/nip=).";
+    } else {
+      pl_skip_reason = "No Polish company signals (.pl TLD, KRS, NIP, or PL keywords).";
+    }
+  } catch (e: any) {
+    pl_skip_reason = `PL lookup skipped: ${e?.message || e}`;
+    pl = null;
+  }
+
   let au: any = null;
 
   let au_skip_reason: string | null = null;
@@ -416,6 +465,7 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     dk && "DK",
     fi && "FI",
     ch && "CH",
+    pl && "PL",
     au && "AU",
     ca && "CA",
   ].filter(Boolean);
@@ -425,7 +475,7 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     domain,
     bundle: "company-full",
     price: "$0.65",
-    savings_vs_separate: "Cheaper than /company + separate UK/FR/NO/DK/FI/CH/AU/CA/charity calls when those registries auto-attach",
+    savings_vs_separate: "Cheaper than /company + separate UK/FR/NO/DK/FI/CH/PL/AU/CA/charity calls when those registries auto-attach",
     company,
     company_error,
     uk,
@@ -449,6 +499,9 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     ch,
     ch_included: !!ch,
     ch_skip_reason,
+    pl,
+    pl_included: !!pl,
+    pl_skip_reason,
     au,
     au_included: !!au,
     au_skip_reason,
@@ -458,6 +511,6 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     registries_attached: attached,
     note: attached.length
       ? `Includes company research + auto-attached registries: ${attached.join(", ")}. Soft-skipped jurisdictions list *_skip_reason.`
-      : "Includes company research. UK/FR/NO/DK/FI/AU/CA/charity packs attach when domain/page signals match; otherwise see *_skip_reason fields.",
+      : "Includes company research. UK/FR/NO/DK/FI/CH/PL/AU/CA/charity packs attach when domain/page signals match; otherwise see *_skip_reason fields.",
   };
 }

@@ -55,6 +55,10 @@ export function aliasInput(path: string, b: any) {
     if (!s(b.businessId) && s(b.ytunnus)) b.businessId = s(b.ytunnus);
     if (!s(b.businessId) && s(b.fi)) b.businessId = s(b.fi);
   }
+  if (path === "/pl-company") {
+    if (!s(b.krs) && !s(b.pl) && Object.prototype.hasOwnProperty.call(b, "number")) b.krs = s(b.number);
+    if (!s(b.krs) && s(b.pl)) b.krs = s(b.pl);
+  }
   if (path === "/fn-at") {
     if (!s(b.fn) && Object.prototype.hasOwnProperty.call(b, "number")) b.fn = s(b.number);
     if (!s(b.fn) && Object.prototype.hasOwnProperty.call(b, "firmenbuch")) b.fn = s(b.firmenbuch);
@@ -212,7 +216,7 @@ export const VALIDATE: Record<string, (b: any) => string | null> = {
   "/lei": (b) => lei(b),
   "/lei-full": (b) => leiFull(b),
   "/read-batch": (b) => readBatch(b),
-  "/registry-batch": (b) => { const n = (s(b.uk) + "," + s(b.au) + "," + s(b.ca) + "," + s(b.fr) + "," + s(b.no) + "," + s(b.dk) + "," + s(b.fi) + "," + s(b.ch)).split(/[\s,;]+/).filter((x) => /\d/.test(x)).length; return n === 0 ? "uk, au, ca, fr, no, dk, fi or ch ids required" : n > 25 ? "max 25 ids total" : null; },
+  "/registry-batch": (b) => { const n = (s(b.uk) + "," + s(b.au) + "," + s(b.ca) + "," + s(b.fr) + "," + s(b.no) + "," + s(b.dk) + "," + s(b.fi) + "," + s(b.ch) + "," + s(b.pl)).split(/[\s,;]+/).filter((x) => /\d/.test(x)).length; return n === 0 ? "uk, au, ca, fr, no, dk, fi, ch or pl ids required" : n > 25 ? "max 25 ids total" : null; },
   "/ca-company": (b) => { const n = s(b.number).replace(/\D/g, ""), bn = s(b.bn).replace(/\D/g, ""); return (n && n.length <= 8) || bn.length >= 9 ? null : "number (up to 8 digits) or bn (9 digits) required"; },
   "/au-company": (b) => { const r = s(b.acn || b.abn).replace(/\s/g, ""); return /^(\d{9}|\d{11})$/.test(r) ? null : "acn must be 9 digits (or abn 11 digits)"; },
   "/fr-company": (b) => { const siren = s(b.siren).replace(/\D/g, ""), siret = s(b.siret).replace(/\D/g, ""), name = s(b.name || b.q); if (siret) return siret.length === 14 ? null : "siret must be 14 digits"; if (siren) return siren.length === 9 ? null : "siren must be 9 digits"; if (name) return name.length >= 2 ? null : "name too short"; return "siren, siret or name required"; },
@@ -220,6 +224,7 @@ export const VALIDATE: Record<string, (b: any) => string | null> = {
   "/dk-company": (b) => { let cvr = s(b.cvr || b.number || b.vat).replace(/[\s\-.]/g, "").toUpperCase(); if (cvr.startsWith("DK")) cvr = cvr.slice(2); cvr = cvr.replace(/\D/g, ""); const name = s(b.name || b.q); if (cvr) return cvr.length === 8 ? null : "cvr must be 8 digits"; if (name) return name.length >= 2 ? null : "name too short"; return "cvr or name required"; },
   "/ch-company": (b) => { aliasInput("/ch-company", b); const raw = s(b.uid || b.che || b.number); const name = s(b.name || b.q); const eh = s(b.ehraid); if (raw) { const d = raw.replace(/\D/g, ""); return d.length === 9 ? null : "uid must be 9 digits after optional CHE- prefix"; } if (eh) return /^\d+$/.test(eh) ? null : "ehraid must be numeric"; if (name) return name.length >= 2 ? null : "name too short"; return "uid/che/number, ehraid, or name required"; },
   "/fi-company": (b) => { aliasInput("/fi-company", b); const raw = s(b.businessId || b.ytunnus || b.fi || b.number); const name = s(b.name || b.q); if (raw) { const d = raw.replace(/\D/g, ""); return d.length === 8 ? null : "ytunnus/businessId must be 7 digits + check digit (e.g. 0112038-9)"; } if (name) return name.length >= 2 ? null : "name too short"; return "businessId/ytunnus/fi or name required"; },
+  "/pl-company": (b) => { aliasInput("/pl-company", b); const krs = s(b.krs || b.pl || b.number).replace(/\D/g, ""); const nip = s(b.nip).replace(/[\s\-.]/g, "").replace(/^PL/i, "").replace(/\D/g, ""); if (krs) return krs.length <= 10 && krs.length >= 1 ? null : "krs must be up to 10 digits"; if (nip) return nip.length === 10 ? null : "nip must be 10 digits"; return "krs or nip required (no free-text name search for PL)"; },
   "/monitor": (b) => first(url(b.url), url(b.webhook, "webhook"), s(b.webhook) && !s(b.webhook).startsWith("https://") ? "webhook must be https" : null),
   "/wallet": (b) => first(addr(b.address, "address"), chain(b.chain), s(b.tokens) && s(b.tokens).split(",").some((t) => !ADDR.test(t.trim())) ? "tokens must be comma-separated 0x addresses" : null, s(b.tokens).split(",").length > 10 ? "max 10 tokens" : null),
   "/tx": (b) => first(!s(b.hash) ? "missing hash" : HASH.test(s(b.hash)) ? null : "hash must be 0x + 64 hex chars", chain(b.chain)),
@@ -364,7 +369,7 @@ function ukDd(b: any) {
 function kyb(b: any) {
   aliasInput("/kyb", b);
   const domain = s(b.domain), number = s(b.number), name = s(b.name), vat = s(b.vat);
-  if (!domain && !number && !name && !vat && !s(b.acn) && !s(b.abn) && !s(b.ca_number) && !s(b.bn) && !(s(b.country) && s(b.vat_number)) && !s(b.lei) && !s(b.siren) && !s(b.siret) && !s(b.orgnr) && !s(b.cvr) && !s(b.ytunnus) && !s(b.businessId) && !s(b.fi) && !s(b.uid) && !s(b.che) && !s(b.ch)) return "provide domain and/or UK number/name, AU acn/abn, CA ca_number/bn, FR siren/siret, NO orgnr, DK cvr, FI ytunnus/businessId, CH uid, EU vat and/or lei";
+  if (!domain && !number && !name && !vat && !s(b.acn) && !s(b.abn) && !s(b.ca_number) && !s(b.bn) && !(s(b.country) && s(b.vat_number)) && !s(b.lei) && !s(b.siren) && !s(b.siret) && !s(b.orgnr) && !s(b.cvr) && !s(b.ytunnus) && !s(b.businessId) && !s(b.fi) && !s(b.uid) && !s(b.che) && !s(b.ch) && !s(b.krs) && !s(b.nip) && !s(b.pl)) return "provide domain and/or UK number/name, AU acn/abn, CA ca_number/bn, FR siren/siret, NO orgnr, DK cvr, FI ytunnus/businessId, CH uid, PL krs/nip, EU vat and/or lei";
   if (domain) { const d = domainish(domain); if (d) return d; }
   if (number && !CHNUM.test(number)) return "number must be a Companies House number";
   if (vat && (!/^(?:GR|[A-Z]{2})[A-Z0-9]{2,12}$/i.test(vat.replace(/[\s.-]/g, "")) || !/\d/.test(vat.replace(/[\s.-]/g, "").slice(2)))) return "vat must look like DE123456789 or IE6388047V";
@@ -382,9 +387,12 @@ function kyb(b: any) {
   if (fiRaw) { const d = fiRaw.replace(/\D/g, ""); if (d.length !== 8) return "ytunnus/businessId must be 7 digits + check digit (e.g. 0112038-9)"; }
   const chRaw = s(b.uid) || s(b.che) || s(b.ch);
   if (chRaw) { const d = chRaw.replace(/\D/g, ""); if (d.length !== 9) return "uid must be 9 digits after optional CHE- prefix"; }
+  const plKrs = s(b.krs) || s(b.pl);
+  if (plKrs) { const d = plKrs.replace(/\D/g, ""); if (!d || d.length > 10) return "krs must be up to 10 digits"; }
+  if (s(b.nip)) { let n = s(b.nip).replace(/[\s\-.]/g, "").toUpperCase(); if (n.startsWith("PL")) n = n.slice(2); n = n.replace(/\D/g, ""); if (n.length !== 10) return "nip must be 10 digits"; }
   return null;
 }
 
 export const TOOL_PATH: Record<string, string> = { read_url: "/read", extract_links: "/links", check_domain: "/check", company_research: "/company", uk_company: "/uk-company", uk_company_lite: "/uk-company-lite",
-  company_full: "/company-full", convert_document: "/convert", create_monitor: "/monitor", wallet_balances: "/wallet", tx_status: "/tx", token_check: "/token-check", fx_rates: "/fx", au_company: "/au-company", ca_company: "/ca-company", fr_company: "/fr-company", no_company: "/no-company", dk_company: "/dk-company", fi_company: "/fi-company", ch_company: "/ch-company", registry_batch: "/registry-batch",
+  company_full: "/company-full", convert_document: "/convert", create_monitor: "/monitor", wallet_balances: "/wallet", tx_status: "/tx", token_check: "/token-check", fx_rates: "/fx", au_company: "/au-company", ca_company: "/ca-company", fr_company: "/fr-company", no_company: "/no-company", dk_company: "/dk-company", fi_company: "/fi-company", ch_company: "/ch-company", pl_company: "/pl-company", registry_batch: "/registry-batch",
   ens_lookup: "/ens", token_metadata: "/token", token_allowance: "/allowance", contract_info: "/contract", gas_fees: "/gas", block_lookup: "/block", nft_lookup: "/nft", web_search: "/search", uk_property_prices: "/uk-property", uk_area_profile: "/uk-area", uk_charity: "/uk-charity", uk_charity_full: "/uk-charity-full", us_sec: "/us-sec", us_sec_full: "/us-sec-full", eu_vat: "/eu-vat", lei_lookup: "/lei", lei_full: "/lei-full", read_batch: "/read-batch", uk_leads: "/uk-leads", uk_leads_lite: "/uk-leads-lite", uk_leads_feed: "/uk-leads-feed", uk_watch: "/uk-watch", uk_dd: "/uk-dd", kyb_report: "/kyb", email_check: "/email-check", domain_lookup: "/domain", dns_lookup: "/dns", url_redirects: "/redirects", page_meta: "/meta", http_headers: "/headers", iban_validate: "/iban", phone_check: "/phone", uk_postcode_validate: "/uk-postcode", siren_validate: "/siren", siret_validate: "/siret", partita_iva_validate: "/partita-iva", orgnr_se_validate: "/orgnr", bn_ca_validate: "/bn-ca", cvr_dk_validate: "/cvr", fn_at_validate: "/fn-at", cin_in_validate: "/cin-in", kvk_nl_validate: "/kvk-nl", hr_de_validate: "/hr-de", nif_es_validate: "/nif-es", cnpj_validate: "/cnpj", nip_pl_validate: "/nip-pl", uid_ch_validate: "/uid-ch", sanctions_screen: "/sanctions", sanctions_batch: "/sanctions-batch", uk_officer: "/uk-officer" };
