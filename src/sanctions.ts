@@ -402,6 +402,57 @@ function parseEu(xml: string): { entries: SanctionsEntry[]; pub: string | null }
   return { entries, pub };
 }
 
+
+/** OpenSanctions daily mirror of EU FSF (used when webgate XML returns 5xx). */
+function parseEuOpenSanctions(csvText: string): { entries: SanctionsEntry[]; pub: string | null } {
+  const lines = csvText.split(/\r?\n/);
+  if (!lines.length) return { entries: [], pub: null };
+  const header = parseCsvLine(lines[0] || "");
+  const idx = (name: string) => header.findIndex((h) => h.trim() === name);
+  const iId = idx("id");
+  const iSchema = idx("schema");
+  const iName = idx("name");
+  const iAliases = idx("aliases");
+  const iDob = idx("birth_date");
+  const iCountries = idx("countries");
+  const iProgram = idx("program_ids");
+  const iLastSeen = idx("last_seen");
+  const entries: SanctionsEntry[] = [];
+  let pub: string | null = null;
+  for (let li = 1; li < lines.length; li++) {
+    const line = lines[li];
+    if (!line || !line.trim()) continue;
+    const row = parseCsvLine(line);
+    const name = (row[iName] || "").trim();
+    const id = (row[iId] || "").trim();
+    if (!name || !id) continue;
+    const schema = (row[iSchema] || "").toLowerCase();
+    const typ: "individual" | "entity" = schema === "person" ? "individual" : "entity";
+    const aliases = (row[iAliases] || "")
+      .split(";")
+      .map((a) => a.trim())
+      .filter((a) => a && a !== name)
+      .slice(0, 20);
+    const dob = (row[iDob] || "").trim() || null;
+    const nationality = (row[iCountries] || "").trim() || null;
+    const program = (row[iProgram] || "").trim() || null;
+    const seen = (row[iLastSeen] || "").trim();
+    if (seen && (!pub || seen > pub)) pub = seen;
+    entries.push({
+      id,
+      list: "EU-FSF",
+      name,
+      aliases,
+      type: typ,
+      program,
+      dob,
+      nationality,
+      n: tokenSort(name),
+    });
+  }
+  return { entries, pub };
+}
+
 let cached: Indexed | null = null;
 let cachedAt = 0;
 
@@ -524,33 +575,49 @@ export async function refreshSanctionsIndex(env: EnvKV): Promise<{ ok: boolean; 
     }
   }
 
+  const EU_FSF_XML =
+    "https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw";
+  const EU_FSF_OS = "https://data.opensanctions.org/datasets/latest/eu_fsf/targets.simple.csv";
+  try {
     try {
-    const xml = await fetchText(
-      "https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw",
-      180000,
-    );
-    const { entries, pub } = parseEu(xml);
-    all.push(...entries);
-    sources["EU-FSF"] = {
-      url: "https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw",
-      licence: "EU open data (public token download; redistribution of screening results)",
-      count: entries.length,
-      pub,
-    };
+      const xml = await fetchText(EU_FSF_XML, 180000);
+      const { entries, pub } = parseEu(xml);
+      if (entries.length < 500) throw new Error(`official XML too few entries (${entries.length})`);
+      all.push(...entries);
+      sources["EU-FSF"] = {
+        url: EU_FSF_XML,
+        licence: "EU open data (public token download; redistribution of screening results)",
+        count: entries.length,
+        pub,
+      };
+    } catch (officialErr: any) {
+      // Official webgate file hosting has been returning HTTP 500; OpenSanctions mirrors EU FSF daily.
+      const csv = await fetchText(EU_FSF_OS, 180000);
+      const { entries, pub } = parseEuOpenSanctions(csv);
+      if (entries.length < 500) throw new Error(`OpenSanctions mirror too few entries (${entries.length}); official: ${officialErr?.message || officialErr}`);
+      all.push(...entries);
+      sources["EU-FSF"] = {
+        url: EU_FSF_OS,
+        licence: "EU FSF via OpenSanctions mirror (official webgate XML unavailable)",
+        count: entries.length,
+        pub,
+        error: `official XML failed (${String(officialErr?.message || officialErr).slice(0, 160)}); used OpenSanctions mirror`,
+      };
+    }
   } catch (e: any) {
     errors.push(`EU-FSF: ${e?.message || e}`);
     const kept = (prev?.entries || []).filter((x) => x.list === "EU-FSF");
     if (kept.length) {
       all.push(...kept);
       sources["EU-FSF"] = {
-        url: "https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw",
+        url: EU_FSF_XML,
         licence: "EU open data (public token download; redistribution of screening results)",
         count: kept.length,
         error: `refresh failed, kept prior ${kept.length}: ${String(e?.message || e)}`,
       };
     } else {
       sources["EU-FSF"] = {
-        url: "https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw",
+        url: EU_FSF_XML,
         licence: "EU open data (public token download)",
         count: 0,
         error: String(e?.message || e),
