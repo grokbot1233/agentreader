@@ -501,77 +501,88 @@ export async function refreshSanctionsIndex(env: EnvKV): Promise<{ ok: boolean; 
   const prevOfac = (prev?.entries || []).filter((e) => e.list === "OFAC-SDN" || e.list === "OFAC-CONS");
   // UK/UN/EU keep prior rows in their own catch blocks below.
 
-  // OFAC from Workers: prefer OpenSanctions mirrors first. Official treasury.gov / OFAC API
-  // routinely HTTP 525 from CF egress; trying them first burns wall+CPU then still fails (error 1102).
+  // OFAC from Workers: official treasury/OFAC CSV often HTTP 525. Parsing OpenSanctions
+  // us_ofac_sdn (~20k rows / ~7MB) together with UN+UK+EU exceeds Worker CPU (CF 1102).
+  // Strategy: short-timeout official → keep prior if healthy → OpenSanctions only when no prior
+  // (cold start / expired KV). EU-FSF still uses the lighter OS mirror fallback below.
   try {
     try {
-      const csv = await fetchText(OFAC_SDN_OS, 90000);
-      const { entries, pub } = parseOpenSanctionsSimple(csv, "OFAC-SDN");
-      if (entries.length < 1000) throw new Error(`OpenSanctions SDN mirror too few entries (${entries.length})`);
-      all.push(...entries);
-      sources["OFAC-SDN"] = {
-        url: OFAC_SDN_OS,
-        licence: "US OFAC SDN via OpenSanctions mirror (Worker-reachable; official treasury often 525 from CF)",
-        count: entries.length,
-        pub,
-      };
-    } catch (osErr: any) {
-      const [sdn, alt] = await Promise.all([fetchTextFirst(OFAC_SDN, 20000), fetchTextFirst(OFAC_ALT, 20000)]);
+      const [sdn, alt] = await Promise.all([fetchTextFirst(OFAC_SDN, 15000), fetchTextFirst(OFAC_ALT, 15000)]);
       const entries = parseOfacSdn(sdn.text, alt.text);
-      if (entries.length < 1000) throw new Error(`official SDN too few (${entries.length}); OS: ${osErr?.message || osErr}`);
+      if (entries.length < 1000) throw new Error(`official SDN too few entries (${entries.length})`);
       all.push(...entries);
       sources["OFAC-SDN"] = {
         url: sdn.url,
         licence: "US government public domain",
         count: entries.length,
-        error: `OpenSanctions mirror failed (${String(osErr?.message || osErr).slice(0, 120)}); used official`,
       };
+    } catch (officialErr: any) {
+      const kept = prevOfac.filter((e) => e.list === "OFAC-SDN");
+      if (kept.length >= 1000) {
+        all.push(...kept);
+        sources["OFAC-SDN"] = {
+          url: OFAC_SDN_OS,
+          licence: "US government public domain",
+          count: kept.length,
+          error: `official SDN failed (${String(officialErr?.message || officialErr).slice(0, 120)}); kept prior ${kept.length}`,
+        };
+      } else {
+        const csv = await fetchText(OFAC_SDN_OS, 90000);
+        const { entries, pub } = parseOpenSanctionsSimple(csv, "OFAC-SDN");
+        if (entries.length < 1000) throw new Error(`OpenSanctions SDN too few (${entries.length}); official: ${officialErr?.message || officialErr}`);
+        all.push(...entries);
+        sources["OFAC-SDN"] = {
+          url: OFAC_SDN_OS,
+          licence: "US OFAC SDN via OpenSanctions mirror (cold start; official treasury often 525 from CF)",
+          count: entries.length,
+          pub,
+          error: `official SDN failed (${String(officialErr?.message || officialErr).slice(0, 120)}); used OpenSanctions cold-start mirror`,
+        };
+      }
     }
   } catch (e: any) {
     errors.push(`OFAC-SDN: ${e?.message || e}`);
     const kept = prevOfac.filter((e) => e.list === "OFAC-SDN");
     if (kept.length) {
       all.push(...kept);
-      sources["OFAC-SDN"] = { url: OFAC_SDN_OS, licence: "US government public domain", count: kept.length, error: `refresh failed, kept prior ${kept.length}: ${String(e?.message || e)}` };
+      sources["OFAC-SDN"] = { url: OFAC_SDN_OS, licence: "US government public domain", count: kept.length, error: `refresh failed, kept prior ${kept.length}: ${String(e?.message || e).slice(0, 180)}` };
     } else {
       sources["OFAC-SDN"] = { url: OFAC_SDN_OS, licence: "US government public domain", count: 0, error: String(e?.message || e) };
     }
   }
 
-  // CONS is secondary to SDN. Parsing OS CONS + OS SDN + EU + UN + UK in one HTTP
-  // request exceeds Worker CPU (CF 1102). Keep prior CONS when healthy; refresh via OS only if empty.
   try {
     const keptCons = prevOfac.filter((e) => e.list === "OFAC-CONS");
-    if (keptCons.length >= 50) {
-      all.push(...keptCons);
+    try {
+      const cons = await fetchTextFirst(OFAC_CONS, 15000);
+      const entries = parseOfacCons(cons.text);
+      if (entries.length < 50) throw new Error(`official CONS too few entries (${entries.length})`);
+      all.push(...entries);
       sources["OFAC-CONS"] = {
-        url: OFAC_CONS_OS,
+        url: cons.url,
         licence: "US government public domain",
-        count: keptCons.length,
-        error: `kept prior CONS ${keptCons.length} (skip OS/official parse to stay under Worker HTTP CPU; SDN uses OpenSanctions)`,
+        count: entries.length,
       };
-    } else {
-      try {
+    } catch (officialErr: any) {
+      if (keptCons.length >= 50) {
+        all.push(...keptCons);
+        sources["OFAC-CONS"] = {
+          url: OFAC_CONS_OS,
+          licence: "US government public domain",
+          count: keptCons.length,
+          error: `official CONS failed (${String(officialErr?.message || officialErr).slice(0, 100)}); kept prior ${keptCons.length}`,
+        };
+      } else {
         const csv = await fetchText(OFAC_CONS_OS, 60000);
         const { entries, pub } = parseOpenSanctionsSimple(csv, "OFAC-CONS");
-        if (entries.length < 50) throw new Error(`OpenSanctions CONS mirror too few entries (${entries.length})`);
+        if (entries.length < 50) throw new Error(`OpenSanctions CONS too few (${entries.length}); official: ${officialErr?.message || officialErr}`);
         all.push(...entries);
         sources["OFAC-CONS"] = {
           url: OFAC_CONS_OS,
-          licence: "US OFAC CONS via OpenSanctions mirror (Worker-reachable; official treasury often 525 from CF)",
+          licence: "US OFAC CONS via OpenSanctions mirror (cold start)",
           count: entries.length,
           pub,
-        };
-      } catch (osErr: any) {
-        const cons = await fetchTextFirst(OFAC_CONS, 20000);
-        const entries = parseOfacCons(cons.text);
-        if (entries.length < 50) throw new Error(`official CONS too few (${entries.length}); OS: ${osErr?.message || osErr}`);
-        all.push(...entries);
-        sources["OFAC-CONS"] = {
-          url: cons.url,
-          licence: "US government public domain",
-          count: entries.length,
-          error: `OpenSanctions mirror failed (${String(osErr?.message || osErr).slice(0, 120)}); used official`,
+          error: `official CONS failed (${String(officialErr?.message || officialErr).slice(0, 100)}); used OpenSanctions cold-start mirror`,
         };
       }
     }
@@ -580,7 +591,7 @@ export async function refreshSanctionsIndex(env: EnvKV): Promise<{ ok: boolean; 
     const kept = prevOfac.filter((e) => e.list === "OFAC-CONS");
     if (kept.length) {
       all.push(...kept);
-      sources["OFAC-CONS"] = { url: OFAC_CONS_OS, licence: "US government public domain", count: kept.length, error: `refresh failed, kept prior ${kept.length}: ${String(e?.message || e)}` };
+      sources["OFAC-CONS"] = { url: OFAC_CONS_OS, licence: "US government public domain", count: kept.length, error: `refresh failed, kept prior ${kept.length}: ${String(e?.message || e).slice(0, 180)}` };
     } else {
       sources["OFAC-CONS"] = { url: OFAC_CONS_OS, licence: "US government public domain", count: 0, error: String(e?.message || e) };
     }
