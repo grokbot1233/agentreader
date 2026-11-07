@@ -1,0 +1,28 @@
+{
+  "self_check_latest": {
+    "at": "2026-11-07T16:06:00Z",
+    "live_version": "1.42.0",
+    "status": "improved",
+    "PASS402": 80,
+    "FAIL402": 0,
+    "mcp_tools": 81,
+    "note": "PASS402 80/80. Discovery+dashboard 200. Big-hitter previews OK (kyb/uk-company/uk-dd/uk-leads/uk-leads-feed/company/company-full/sanctions/sanctions-batch/uk-charity-full/us-entity/registry-batch). Schema fix: /kyb OpenAPI/buy/MCP now list US SOS + generic country+id aliases. Treasury ETH 0.00039894 / USDC 2.588. Known: EU FSF webgate 500 mitigated; OFAC treasury 525 mitigated; /fr-company intermittent 429.",
+    "deploy": "38cf78dd-ef0e-40f2-a2fd-224c9237609a",
+    "commit": "137f8a0",
+    "treasury_eth": 0.00039894,
+    "treasury_usdc": 2.588,
+    "spend_usd": 0,
+    "npm": "@axiomworks/agentreader@1.42.0"
+  },
+  "what_shipped_prepend": {
+    "when": "2026-11-07 16:05 GMT",
+    "version": "1.42.0",
+    "items": [
+      "fix(kyb): OpenAPI + /buy/kyb + MCP kyb_report schemas now document us_state/us_id/us_name and generic country+id aliases (id/registration_number/company_id/jurisdiction/state) \u2014 runtime already accepted these since 7baa1c0"
+    ],
+    "deploy": "38cf78dd-ef0e-40f2-a2fd-224c9237609a",
+    "commit": "137f8a0",
+    "npm": "@axiomworks/agentreader@1.42.0 + mcp 1.42.0 (published earlier; npm package bump not needed for Worker schema)",
+    "notes": "Hourly self-check; PASS402 80/80; $0 spent; payment paths untouched."
+  }
+}

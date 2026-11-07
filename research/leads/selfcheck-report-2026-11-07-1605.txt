@@ -1,0 +1,26 @@
+SELF-CHECK REPORT 2026-11-07 ~16:05 Europe/London (GMT)
+
+Live version + deploy id: 1.42.0 / 38cf78dd-ef0e-40f2-a2fd-224c9237609a
+Commit: 137f8a0 on master (synced with origin/master)
+Overall status: improved
+
+PASS402: 80/80
+FAIL402: 0
+MCP: 81 tools; /health version 1.42.0
+Discovery: well-known/x402 (80 items) + agent.json + openapi (118 paths) + llms + dashboard 200
+npm: @axiomworks/agentreader@1.42.0 + mcp 1.42.0 in sync
+Stats: 3 paid / $0.004 / 1 payer (unchanged)
+Treasury: ~2.588 USDC / ~0.000399 ETH (payTo 0x88b1c747… Base) — gas OK for sweep
+
+Big-hitter samples/previews: all 200 (kyb, uk-company, uk-dd, uk-leads, uk-leads-feed, company, company-full, sanctions, sanctions-batch, uk-charity-full, us-entity, registry-batch). Bad input free 400s OK. Generic /kyb?country=+id/registration_number previews 200.
+
+This run improvement:
+- 137f8a0 fix(kyb): OpenAPI/buy/MCP schemas document us_state/us_id/us_name + generic country+id aliases (deploy 38cf78dd)
+
+Known upstream (non-route) notes:
+- Official EU FSF XML (webgate) still HTTP 500; mitigated by OpenSanctions eu_fsf CSV / keep-prior.
+- OFAC treasury/API often HTTP 525 from Workers; hybrid keep-prior.
+- /fr-company preview intermittent upstream 429 (known).
+
+Spend: $0
+NOTIFY_LIAM: false
