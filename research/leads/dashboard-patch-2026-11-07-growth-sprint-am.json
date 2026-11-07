@@ -1,0 +1,60 @@
+{
+  "ops_notes": "Growth sprint 2026-11-07 ~08:40 GMT: live now 1.39.0 (/sk-company sibling ship). Grow/cut N/A (big hitters all <7d). Outside $0.004/3/1. Apify high-ticket public. Soft GH outreach grokbot1233. Spend $0.",
+  "what_shipped": [
+    "v1.39.0 /sk-company Slovak Business Register (ORSR) \u2014 sibling ship; live confirmed this growth sprint",
+    "v1.38.1 fix: /kyb + /company-full docs and MCP kyb_report schema include Belgium CBE (enterprise_number/be)",
+    "v1.38.0 /be-company Belgian CBE/KBO $0.25 \u2014 free official HTML; wired into /kyb (be=), /registry-batch, /company-full soft-attach",
+    "v1.37.x country registries (FI/CH/PL/CZ) + free-400 digit messages \u2014 prior ships this week"
+  ],
+  "checklist": [
+    {
+      "item": "v1.39.0 /sk-company Slovak ORSR",
+      "status": "live",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/sk-company?ico=31322832&preview=1",
+      "detail": "Sibling ship during growth sprint; health 1.39.0; empty \u2192 free 400; bare GET \u2192 402"
+    },
+    {
+      "item": "v1.38.1 BE docs/schema sync",
+      "status": "live",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/kyb?enterprise_number=0202239951&preview=1",
+      "detail": "Deploy b89fd317-0ca6-4b88-b356-517234394cd8; MCP 79 tools serverInfo 1.38.1"
+    },
+    {
+      "item": "v1.38.0 /be-company",
+      "status": "live",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/be-company?enterprise_number=0202239951&preview=1",
+      "detail": "Preview Proximus OK; bare 402 maxAmountRequired 250000"
+    },
+    {
+      "item": "Grow/cut 7-day rule",
+      "status": "n/a",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/",
+      "detail": "Big hitters (/kyb /uk-dd /uk-watch /uk-leads /uk-leads-feed /company /company-full /sanctions-batch + country registries) launched within last ~2 days (v1.10\u20131.38). Do NOT cut \u2014 all <7 days."
+    }
+  ],
+  "next_steps": [
+    "Warm buyers for /kyb $2.50, /uk-dd, /uk-watch, /uk-leads-feed, /company-full, /sanctions-batch",
+    "Next free builds: EE credentials, LV CSV snapshot; NL KvK needs key/ToS; DE no free API; SE Liam portal",
+    "Refresh a2aregistry version when /sk-company (1.39.0) lands; keep PayAPI unpaid"
+  ],
+  "self_check_latest": {
+    "at": "2026-11-07T08:39:00Z",
+    "live_version": "1.39.0",
+    "PASS402": 78,
+    "FAIL402": 0,
+    "outside_revenue_usdc": 0.004,
+    "outside_paid_calls": 3,
+    "outside_payers": 1,
+    "note": "Growth sprint AM: grow/cut N/A (<7d). Live flipped to 1.39.0 with /sk-company during this run. Apify high-ticket public. a2aregistry listed (PUT update Forbidden). PayAPI ignored. Cadauso /kyb pending. Outside $0.004/3/1.",
+    "deploy": "b89fd317-0ca6-4b88-b356-517234394cd8",
+    "commit": "738666a",
+    "treasury_eth": 0.00039894,
+    "treasury_usdc": 2.59,
+    "spend_usd": 0
+  },
+  "grow_cut": "N/A \u2014 do NOT cut. Big hitters and country registries from v1.10\u20131.39 are all <7 days old. Grow: /kyb, /uk-dd, /uk-watch, /uk-leads, /uk-leads-feed, /company, /company-full, /sanctions-batch, /be-company, /sk-company and peer registries. Ignore new $0.001\u2013$0.003 micros."
+}

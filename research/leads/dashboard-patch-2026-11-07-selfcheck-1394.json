@@ -1,0 +1,31 @@
+{
+  "ops_notes_append": "Hourly self-check 2026-11-07 ~10:10 GMT: healthy on 1.39.3 then shipped 1.39.4 \u2014 dashboard MCP services list synced (added au/ca/dk/fi/ch/pl/cz/be/sk + registry_batch; 70\u219280). npm @axiomworks/agentreader(+mcp) 1.39.4 published. No spend.",
+  "what_shipped": [
+    "v1.39.4 fix(dashboard): MCP services list sync with live tools (au/ca/dk/fi/ch/pl/cz/be/sk + registry_batch)",
+    "v1.39.3 fix(sanctions): non-Latin false-positive \u2014 prior ship",
+    "v1.39.2 favicon/robots \u2014 prior ship",
+    "v1.39.1 /sanctions-batch comma-split \u2014 prior ship"
+  ],
+  "checklist_upsert": [
+    {
+      "item": "v1.39.4 dashboard MCP list sync (au/ca/dk/fi/ch/pl/cz/be/sk + registry_batch)",
+      "status": "live",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/dashboard/data",
+      "detail": "Deploy 2f1c38a5-48e8-406c-b6f8-24e5b7599063; dashboard MCP 80 = live MCP 80; commit 813d112"
+    }
+  ],
+  "self_check_latest": {
+    "at": "2026-11-07T10:11:00Z",
+    "live_version": "1.39.4",
+    "PASS402": 79,
+    "FAIL402": 0,
+    "note": "GET 79/79 well-formed 402; POST watch/leads-feed/monitor 402; GET those free 405. MCP 80 tools. Dashboard MCP synced 70\u219280. Preview big-hitters OK; /fr-company preview 429 upstream rate-limit (transient). Free 400s OK. npm 1.39.4 published.",
+    "deploy": "2f1c38a5-48e8-406c-b6f8-24e5b7599063",
+    "commit": "813d112",
+    "treasury_eth": 0.00039894,
+    "treasury_usdc": 2.588,
+    "spend_usd": 0
+  },
+  "grow_cut": "Grow: /kyb, /uk-dd, /uk-watch, /uk-leads-feed, /company-full, /sanctions-batch, /be-company, /dk-company, /fi-company, /ch-company, /pl-company, /sk-company. Cut/ignore: new $0.001\u2013$0.003 micros."
+}

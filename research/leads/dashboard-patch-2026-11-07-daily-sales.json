@@ -1,0 +1,165 @@
+{
+  "revenue": {
+    "outside_revenue_usdc": 0.004,
+    "paid_calls_real": 3,
+    "unique_payers": 1,
+    "test_calls": 118,
+    "test_revenue_usdc": 1.495,
+    "yesterday_revenue_usdc": 0.001,
+    "yesterday_calls": 1,
+    "yesterday_date": "2026-11-06",
+    "today_so_far_usdc": 0.0,
+    "today_calls": 0,
+    "today_date": "2026-11-07",
+    "mtd_usdc": 0.004,
+    "projected_month_usdc": 0.017,
+    "gap_to_200": 199.996,
+    "target_monthly_usd": 200,
+    "pct_of_target": 0.002,
+    "by_endpoint": {
+      "/read": {
+        "calls": 1,
+        "revenue_usdc": 0.002
+      },
+      "/chain/erc1155-balance": {
+        "calls": 1,
+        "revenue_usdc": 0.001
+      },
+      "unknown": {
+        "calls": 1,
+        "revenue_usdc": 0.001
+      }
+    },
+    "by_day": {
+      "2026-11-05": {
+        "calls": 2,
+        "revenue_usdc": 0.003
+      },
+      "2026-11-06": {
+        "calls": 1,
+        "revenue_usdc": 0.001
+      }
+    },
+    "apify_store_earnings_usd": null,
+    "apify_note": "No readable seller earnings API; ultramarine_gusto actors public (incl agent-kyb-check + uk-charity-check now live pages). Own-test runs only observed."
+  },
+  "latest_test_results": {
+    "at": "2026-11-07T09:10:21Z",
+    "routine": "daily-sales-check",
+    "health": "ok",
+    "openapi_live_version": "1.39.1",
+    "http_paid_402": "158/188 OpenAPI ops immediate 402 PASS; remaining 30 = free input-validation 400 or non-routable {param} path templates (404). Valid-input retest 36/36 PASS (payTo treasury, eip155:8453/base).",
+    "mcp_tools": 80,
+    "mcp_paid_402": "79/79 paid tools PaymentRequired with payTo when given valid args; pricing free OK",
+    "previews_samples": "big-hitter preview=1 + /samples/{kyb,uk-company,company,sanctions-batch} 200; sk-company preview SLOVNAFT OK",
+    "discovery": "/ /.well-known/x402 /.well-known/agent.json /openapi.json /llms.txt 200 consistent",
+    "monitor_cron": "wrangler crons=['0 * * * *'] scheduled\u2192runMonitors",
+    "paid_settlement": "skipped \u2014 last test settlement 2026-11-06T08:38Z (<7d)",
+    "treasury_usdc": 2.588,
+    "treasury_eth": 0.00039894,
+    "sweep": "skipped (<$20 USDC)",
+    "fixes_deploys": "none \u2014 all green; live already 1.39.1 (CI/self-check ahead of npm 1.39.0)",
+    "npm": "1.39.0",
+    "npm_mcp": "1.39.0",
+    "pypi": "1.11.0"
+  },
+  "listings_status_daily": {
+    "at": "2026-11-07T09:10:21Z",
+    "npm_agentreader": "1.39.0",
+    "npm_mcp": "1.39.0",
+    "pypi_agentreader_tools": "1.11.0",
+    "live_api": "1.39.1",
+    "glama_server": "live https://glama.ai/mcp/servers/grokbot1233/agentreader",
+    "mcpservers_org": "live https://mcpservers.org/servers/grokbot1233/agentreader",
+    "x402_list": "live https://x402-list.com/services/agentreader",
+    "a2aregistry": "listed id 0e2ded94\u2026 version still 1.38.0 (stale vs live 1.39.1; PUT update Forbidden earlier)",
+    "x402scan": "live https://www.x402scan.com/server/7fee6563-8d04-4105-936f-dfe4afa0a568",
+    "apify": "ultramarine_gusto; uk-company-dd, uk-new-company-leads, agent-kyb-check, uk-charity-check, us-sec, eu-vat, web-to-markdown, au, ca pages public",
+    "rapidapi": "no AgentReader listing found",
+    "merged_prs_recent": [
+      "Recall-Kitchen/awesome-x402-mcp-services#142 merged 2026-11-06",
+      "zinyando/awesome-crewai#8 merged 2026-11-06",
+      "TensorBlock/awesome-mcp-servers#5391 merged 2026-11-06"
+    ],
+    "open_prs_count": 13,
+    "open_prs_sample": [
+      "tsubasakong/awesome-agent-payments-protocol#135",
+      "ishandutta2007/Awesome-Sanctions-Screening-Platform#1",
+      "RishabhPande/aml-sanctions-ml#1",
+      "punkpeye/awesome-mcp-servers#18634",
+      "xpaysh/awesome-x402#2129/#2136/#2139"
+    ]
+  },
+  "grow_cut": "N/A \u2014 do NOT cut. Big hitters + country registries through /sk-company (v1.39) all <7 days from launch. No outside sales on any SKU yet; keep focusing outreach on /kyb $2.50, /uk-dd, /uk-watch, /uk-leads-feed, /company-full, /sanctions-batch. Do not promote $0.001\u2013$0.003 micros.",
+  "next_steps": [
+    "Warm buyers for /kyb $2.50, /uk-dd, /uk-watch, /uk-leads-feed, /company-full, /sanctions-batch (revenue still $0.004 MTD)",
+    "Optional no-spend: claim SealKeeper agent and set per-skill test inputs (0/5 task checks; uptime 100%)",
+    "Refresh a2aregistry card to 1.39.x when PUT allowed; npm already 1.39.0 (live 1.39.1)"
+  ],
+  "needed_from_liam": [],
+  "treasury": {
+    "usdc": 2.588,
+    "eth": 0.00039894,
+    "sweep": "none"
+  },
+  "ops_notes_append": "Daily sales 2026-11-07 ~09:10 GMT: outside $0.004/3/1; yesterday $0.001; today $0. Projected ~$0.017. Product test green (HTTP+MCP). Treasury $2.59 no sweep. Settlement skipped (<7d). Apify high-ticket public. a2a still 1.38.0. SealKeeper 0/5 task checks (claim+inputs). Spend $0.",
+  "listings_upsert": [
+    {
+      "name": "npm @axiomworks/agentreader",
+      "status": "1.39.0",
+      "url": "https://www.npmjs.com/package/@axiomworks/agentreader"
+    },
+    {
+      "name": "npm @axiomworks/agentreader-mcp",
+      "status": "1.39.0",
+      "url": "https://www.npmjs.com/package/@axiomworks/agentreader-mcp"
+    },
+    {
+      "name": "a2aregistry AgentReader",
+      "status": "listed v1.38.0 (stale; live 1.39.1)",
+      "url": "https://a2aregistry.org/agent/0e2ded94-ca81-4e8e-a856-b02d17e9f914"
+    },
+    {
+      "name": "Apify agent-kyb-check",
+      "status": "public on Apify Store",
+      "url": "https://apify.com/ultramarine_gusto/agent-kyb-check"
+    },
+    {
+      "name": "Apify uk-charity-check",
+      "status": "public on Apify Store",
+      "url": "https://apify.com/ultramarine_gusto/uk-charity-check"
+    },
+    {
+      "name": "awesome-x402-mcp-services (Recall-Kitchen)",
+      "status": "PR #142 MERGED 2026-11-06",
+      "url": "https://github.com/Recall-Kitchen/awesome-x402-mcp-services/pull/142"
+    },
+    {
+      "name": "awesome-crewai (zinyando)",
+      "status": "PR #8 MERGED 2026-11-06",
+      "url": "https://github.com/zinyando/awesome-crewai/pull/8"
+    },
+    {
+      "name": "TensorBlock awesome-mcp-servers",
+      "status": "PR #5391 MERGED 2026-11-06",
+      "url": "https://github.com/TensorBlock/awesome-mcp-servers/pull/5391"
+    }
+  ],
+  "self_check_latest": {
+    "at": "2026-11-07T09:10:21Z",
+    "source": "daily-sales-check",
+    "live_version": "1.39.1",
+    "PASS402_http_valid": 36,
+    "PASS402_http_openapi_immediate": 158,
+    "FAIL402": 0,
+    "MCP_PASS": 79,
+    "MCP_FREE": 1,
+    "outside_revenue_usdc": 0.004,
+    "outside_paid_calls": 3,
+    "outside_payers": 1,
+    "treasury_usdc": 2.588,
+    "treasury_eth": 0.00039894,
+    "spend_usd": 0,
+    "note": "Daily sales 7 Nov: green product test; no deploy; no sweep; no settlement."
+  }
+}
