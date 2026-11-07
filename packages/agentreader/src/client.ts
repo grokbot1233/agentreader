@@ -279,6 +279,10 @@ export class AgentReaderClient {
   beCompany(input: { enterprise_number?: string; number?: string; be?: string; bce?: string; kbo?: string; vat?: string; name?: string; q?: string; limit?: number | string }, opts?: RequestOpts) {
     return this.get("/be-company", input as any, opts);
   }
+  /** US state business-entity lookup (NY/CO/CT/OR/TX SOS open data) by name or state+id ($0.25). */
+  usEntity(input: { name?: string; q?: string; company?: string; state?: string; id?: string; number?: string; entity_id?: string; limit?: number | string }, opts?: RequestOpts) {
+    return this.get("/us-entity", input as any, opts);
+  }
   /** Slovak company lookup (RPO) by IČO/name ($0.25). */
   skCompany(input: { ico?: string; identifier?: string; sk?: string; ico_sk?: string; rpo?: string; number?: string; name?: string; q?: string; limit?: number | string }, opts?: RequestOpts) {
     return this.get("/sk-company", input as any, opts);
@@ -431,6 +435,7 @@ export class AgentReaderClient {
     ico?: string; cz?: string;
     enterprise_number?: string; be?: string; bce?: string; kbo?: string;
     sk?: string; ico_sk?: string; rpo?: string;
+    us_state?: string; us_id?: string; us_name?: string;
   }, opts?: RequestOpts) {
     return this.get("/kyb", input as any, opts);
   }

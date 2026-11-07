@@ -499,6 +499,8 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         has_cz: !!data.cz && !data.cz.error,
         has_be: !!data.be && !data.be.error,
         has_sk: !!data.sk && !data.sk.error,
+        has_us: !!data.us && !data.us.error,
+        us: data.us && !data.us.error ? { state: data.us.state, id: data.us.id, name: data.us.name, status: data.us.status, formed: data.us.formed } : undefined,
         has_eu_vat: !!data.eu_vat && !data.eu_vat.error,
         has_au: !!data.au && !data.au.error,
         has_ca: !!data.ca && !data.ca.error,

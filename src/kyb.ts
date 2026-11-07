@@ -14,6 +14,7 @@ import { plCompany, normalizeKrs, normalizeNip } from "./pl-company";
 import { czCompany, normalizeIco } from "./cz-company";
 import { beCompany, normalizeEnterpriseNumber } from "./be-company";
 import { skCompany, normalizeSkIco } from "./sk-company";
+import { usEntity, parseUsStates } from "./us-entity";
 export function bindingRegistries(env: any): KybRegistries {
   const call = async (q: string) => { if (!env.AU) throw new Error("registry backend not bound"); const r = await env.AU.fetch(`https://au.internal/internal/${q}`, { headers: { "x-internal-key": env.AU_INTERNAL_KEY || "" } }); const j: any = await r.json(); if (!r.ok) throw new Error(r.status === 404 ? "not found in register snapshot" : j?.error || "registry error"); return j; };
   return {
@@ -106,6 +107,12 @@ export async function kybReport(env: Env, input: {
       throw e;
     }
   }
+  const usState = s((input as any).us_state).toUpperCase();
+  const usId = s((input as any).us_id).replace(/[^\w-]/g, "");
+  const usName = s((input as any).us_name);
+  if (usState) parseUsStates(usState);
+  if (usId && (!usState || usState.includes(",") || usState === "ALL")) throw new UserError("us_id needs us_state (one of NY, CO, CT, OR, TX)", 400);
+  const usWanted = !!(usId || usName);
   const rawDomain = s(input.domain) || (s(input.name).includes(".") ? s(input.name) : "");
   const domain = domainish(rawDomain);
   const number = s(input.number);
@@ -113,15 +120,15 @@ export async function kybReport(env: Env, input: {
   const vat = s(input.vat) || (s(input.country) && s(input.vat_number) ? s(input.country) + s(input.vat_number) : "");
   const lei = s(input.lei).toUpperCase().replace(/[\s-]/g, "");
 
-  if (!domain && !number && !name && !vat && !acn && !caNum && !bn && !lei && !siren && !siret && !orgnr && !cvr && !ytunnus && !uid && !krs && !nip && !ico && !beNum && !skIco) {
-    throw new UserError("provide domain and/or UK company number/name, AU acn/abn, CA ca_number/bn, FR siren/siret, NO orgnr, DK cvr, FI ytunnus/businessId, CH uid, PL krs/nip, CZ ico, BE enterprise_number, SK sk/ico_sk/rpo, EU VAT and/or lei");
+  if (!domain && !number && !name && !vat && !acn && !caNum && !bn && !lei && !siren && !siret && !orgnr && !cvr && !ytunnus && !uid && !krs && !nip && !ico && !beNum && !skIco && !usWanted) {
+    throw new UserError("provide domain and/or UK company number/name, AU acn/abn, CA ca_number/bn, FR siren/siret, NO orgnr, DK cvr, FI ytunnus/businessId, CH uid, PL krs/nip, CZ ico, BE enterprise_number, SK sk/ico_sk/rpo, US us_state+us_id or us_name, EU VAT and/or lei");
   }
 
   const out: any = {
     product: "kyb",
     price: "$2.50",
     disclaimer: "Screening over public registries and public sanctions lists only. Not a KYC/KYB/AML determination, credit score, or investment advice. Sanctions matches are scored candidates — never a certainty. Confirm identifiers at source before onboarding, contracting, or paying.",
-    inputs: { domain: domain || null, number: number || null, name: name || null, vat: vat || null, acn: acn || null, ca_number: caNum || null, bn: bn || null, lei: lei || null, siren: siren || null, siret: siret || null, orgnr: orgnr || null, cvr: cvr || null, ytunnus: ytunnus || null, uid: uid || null, krs: krs || null, nip: nip || null, ico: ico || null, enterprise_number: beNum || null, sk: skIco || null },
+    inputs: { domain: domain || null, number: number || null, name: name || null, vat: vat || null, acn: acn || null, ca_number: caNum || null, bn: bn || null, lei: lei || null, siren: siren || null, siret: siret || null, orgnr: orgnr || null, cvr: cvr || null, ytunnus: ytunnus || null, uid: uid || null, krs: krs || null, nip: nip || null, ico: ico || null, enterprise_number: beNum || null, sk: skIco || null, us_state: usState || null, us_id: usId || null, us_name: usName || null },
     au: null as any,
     ca: null as any,
     fr: null as any,
@@ -133,6 +140,7 @@ export async function kybReport(env: Env, input: {
     cz: null as any,
     be: null as any,
     sk: null as any,
+    us: null as any,
     directors_appointments: null as any,
     website: null as any,
     uk: null as any,
@@ -190,6 +198,7 @@ export async function kybReport(env: Env, input: {
   if (krs || nip) tasks.push((async () => { try { out.pl = await plCompany({ krs: krs || undefined, nip: nip || undefined, lite: preview }); out.sources.pl_krs = true; } catch (e: any) { out.pl = { error: String(e?.message || e) }; } })());
   if (ico) tasks.push((async () => { try { out.cz = await czCompany({ ico, lite: preview }); out.sources.cz_ares = true; } catch (e: any) { out.cz = { error: String(e?.message || e) }; } })());
   if (beNum) tasks.push((async () => { try { out.be = await beCompany({ enterprise_number: beNum, lite: preview }); out.sources.be_kbo = true; } catch (e: any) { out.be = { error: String(e?.message || e) }; } })());
+  if (usWanted) tasks.push((async () => { try { const r: any = await usEntity({ state: usState || undefined, id: usId || undefined, name: usId ? undefined : usName, limit: 5, lite: preview }); out.us = { ...r.best_match, other_matches: (r.results || []).slice(1, 4).map((x: any) => ({ state: x.state, id: x.id, name: x.name, status: x.status })), red_flags: r.red_flags, per_state: preview ? undefined : r.per_state }; out.sources.us_state_sos = true; } catch (e: any) { out.us = { error: String(e?.message || e) }; } })());
   if (skIco) tasks.push((async () => { try { out.sk = await skCompany({ ico: skIco, lite: preview }); out.sources.sk_rpo = true; } catch (e: any) { out.sk = { error: String(e?.message || e) }; } })());
   if (vat) {
     tasks.push((async () => {
@@ -235,6 +244,7 @@ export async function kybReport(env: Env, input: {
       out.cz?.name ||
       out.be?.name ||
       out.sk?.name ||
+      out.us?.name ||
       name ||
       null;
     const officers = out.uk?.officers?.items || out.uk?.officers || [];
@@ -362,6 +372,12 @@ export async function kybReport(env: Env, input: {
     const skHigh = (out.sk.red_flags || []).filter((f: any) => f.severity === "high").length;
     if (skHigh) { score -= 25 * skHigh; reasons.push(`${skHigh} high-severity SK red flag(s)`); }
   }
+  if (out.us && !out.us.error) {
+    const st = String(out.us.status || "").toLowerCase();
+    if (/active|good standing/.test(st)) { score += 40; reasons.push(`US ${out.us.state} state registry status: ${out.us.status}`); }
+    else if (st) { score -= 30; reasons.push(`US ${out.us.state} state registry status: ${out.us.status}`); }
+    if ((out.us.red_flags || []).some((f: string) => /formed < 6 months/.test(f))) { score -= 10; reasons.push("US entity formed < 6 months ago"); }
+  }
   for (const d of out.directors_appointments || []) if ((d.active_appointments || 0) >= 20) { score -= 10; reasons.push(`director ${d.director} has ${d.active_appointments} active appointments (nominee/formation pattern?)`); }
   if (out.eu_vat && !out.eu_vat.error) {
     if (out.eu_vat.valid === true || out.eu_vat.isValid === true) { score += 30; reasons.push("EU VIES VAT valid"); }
@@ -381,7 +397,7 @@ export async function kybReport(env: Env, input: {
   score = Math.max(0, Math.min(100, score));
   let flag = "INSUFFICIENT_DATA";
   if (out.lei && !out.lei.error && out.lei.lei) { score += 20; reasons.push("GLEIF LEI resolved" + (out.lei.parents?.ultimate?.lei ? " (ultimate parent present)" : out.lei.parents?.direct?.lei ? " (direct parent present)" : "")); }
-  const have = [out.uk && !out.uk.error, out.au && !out.au.error, out.ca && !out.ca.error, out.fr && !out.fr.error, out.no && !out.no.error, out.dk && !out.dk.error, out.fi && !out.fi.error, out.ch && !out.ch.error, out.pl && !out.pl.error, out.cz && !out.cz.error, out.be && !out.be.error, out.sk && !out.sk.error, out.eu_vat && !out.eu_vat.error, out.website && !out.website.error, out.lei && !out.lei.error].filter(Boolean).length;
+  const have = [out.uk && !out.uk.error, out.au && !out.au.error, out.ca && !out.ca.error, out.fr && !out.fr.error, out.no && !out.no.error, out.dk && !out.dk.error, out.fi && !out.fi.error, out.ch && !out.ch.error, out.pl && !out.pl.error, out.cz && !out.cz.error, out.be && !out.be.error, out.sk && !out.sk.error, out.us && !out.us.error, out.eu_vat && !out.eu_vat.error, out.website && !out.website.error, out.lei && !out.lei.error].filter(Boolean).length;
   if (have === 0) flag = "INSUFFICIENT_DATA";
   else if (high > 0 || score < 30) flag = "REVIEW";
   else if (score < 55 || medium >= 2) flag = "CAUTION";
