@@ -658,10 +658,23 @@ export async function screenSanctions(env: EnvKV, input: ScreenInput) {
   };
 }
 
+/**
+ * GET-friendly names parser. JSON array wins; else newline/semicolon/pipe lists; else comma lists
+ * (`names=A,B,C`). Previously a comma list was screened as ONE concatenated name → silent false negatives.
+ * Names that themselves contain commas ("PUTIN, Vladimir") should be sent as JSON or `;`-separated.
+ */
+export function parseNamesString(raw: string): any[] {
+  const t = String(raw || "").trim();
+  if (!t) return [];
+  if (t.startsWith("[")) { try { const j = JSON.parse(t); if (Array.isArray(j)) return j; } catch {} }
+  const sep = /[\n;|]/.test(t) ? /[\n;|]/ : /,/;
+  return t.split(sep).map((x) => x.trim()).filter(Boolean);
+}
+
 export async function screenSanctionsBatch(env: EnvKV, input: { names?: any }) {
   let names = input.names;
   if (typeof names === "string") {
-    try { names = JSON.parse(names); } catch { names = names.split(/\n|;/).map((x: string) => x.trim()).filter(Boolean); }
+    names = parseNamesString(names);
   }
   if (!Array.isArray(names) || !names.length) throw new UserError("missing names array (1-50)");
   if (names.length > 50) throw new UserError("names max 50 per call; split into batches");

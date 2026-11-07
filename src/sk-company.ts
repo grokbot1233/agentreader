@@ -1,6 +1,8 @@
 import { UserError } from "./core";
 
 const API = "https://api.statistics.sk/rpo/v1";
+// Bounded per RPO hop (search + entity) so a slow/hung ŠÚ SR backend cannot stall /kyb or /registry-batch.
+const RPO_TIMEOUT_MS = 7000;
 const UA =
   "AgentReader/1.39 (+https://api.axiomworks.co.uk; Slovak company research via RPO / Statistical Office SR)";
 const DISCLAIMER =
@@ -210,7 +212,7 @@ async function rpoSearch(params: Record<string, string>): Promise<{ results: any
   const url = `${API}/search?${qs}`;
   const r = await fetch(url, {
     headers: { accept: "application/json", "user-agent": UA },
-    signal: AbortSignal.timeout(15000),
+    signal: AbortSignal.timeout(RPO_TIMEOUT_MS),
   });
   if (r.status === 429) throw new UserError("RPO API rate limited — retry shortly", 429);
   if (r.status === 400) throw new UserError("invalid RPO search parameters", 400);
@@ -227,7 +229,7 @@ async function rpoEntity(id: number | string): Promise<{ data: any; url: string 
   const url = `${API}/entity/${id}`;
   const r = await fetch(url, {
     headers: { accept: "application/json", "user-agent": UA },
-    signal: AbortSignal.timeout(15000),
+    signal: AbortSignal.timeout(RPO_TIMEOUT_MS),
   });
   if (r.status === 404) throw new UserError(`no Slovak company found for rpo_id=${id}`, 404);
   if (r.status === 429) throw new UserError("RPO API rate limited — retry shortly", 429);
@@ -354,6 +356,9 @@ export async function skCompany(input: {
     };
   } catch (e: any) {
     if (e instanceof UserError) throw e;
+    if (e?.name === "TimeoutError" || e?.name === "AbortError" || /timeout|aborted/i.test(String(e?.message || ""))) {
+      throw new UserError(`RPO (Štatistický úrad SR) upstream not responding within ${RPO_TIMEOUT_MS / 1000}s — retry shortly; confirm at orsr.sk`, 504);
+    }
     throw new Error(`Slovak company lookup failed: ${e?.message || e}`);
   }
 }

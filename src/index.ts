@@ -394,7 +394,7 @@ const sanctionsOut = { type: "object", properties: {
   match_count: { type: "integer" }, possible_match: { type: "boolean" }, highest_score: { type: "number" },
   matches: { type: "array", items: { type: "object" } }, lists: { type: "object" }, index_built_at: { type: "string" } } };
 const sanctionsBatchIn = { type: "object", properties: {
-  names: { type: "array", description: "1-50 names (strings or {name,country?,dob?,year?,type?} objects)", items: { type: ["string", "object"] } },
+  names: { type: "array", description: "1-50 names (strings or {name,country?,dob?,year?,type?} objects). GET: comma/semicolon/pipe-separated string or repeated names=", items: { type: ["string", "object"] } },
 }, required: ["names"] };
 const sanctionsBatchOut = { type: "object", properties: {
   product: { type: "string" }, disclaimer: { type: "string" }, count: { type: "integer" },
@@ -484,7 +484,7 @@ const DESC: Record<string, string> = {
   "/uk-dd": "Use this for a UK-only due-diligence job: full Companies House pack (profile/officers/PSC/filings/charges/insolvency/red flags) + public sanctions screen (entity + active officers) + optional domain RDAP/website skim → composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not regulated KYC/AML. Between /uk-company ($0.50) and /kyb ($2.50). Path alias /uk-dd/{number}. Example: {number:\"00445790\"} or {name:\"TESCO\",domain:\"tesco.com\"}. $1.00.",
   "/kyb": "Use this for a one-shot agent KYB/due-diligence pack: optional website research + UK Companies House DD and/or Australia ASIC (acn/abn) and/or Canada Corporations Canada (ca_number/bn) and/or France Recherche d'entreprises (siren/siret) and/or Norway Brreg (orgnr) and/or Denmark CVR (cvr) and/or Finland PRH (ytunnus/businessId/fi) and/or Switzerland Zefix (uid/che) and/or Poland KRS (krs/nip/pl) and/or Czech ARES (ico/cz) and/or Belgium CBE/KBO (enterprise_number/be) and/or Slovakia RPO (sk/ico_sk/rpo) + EU VIES VAT + optional GLEIF LEI (with ownership parents) + public sanctions screen (entity + directors) + director appointment skim (nominee/formation pattern) → composite trust flag (CLEAR/CAUTION/REVIEW/INSUFFICIENT_DATA). Screening only, not a regulated determination. Example: {domain:\"tesco.com\",number:\"00445790\"} or {siren:\"443061841\"} or {orgnr:\"923609016\"} or {cvr:\"24256790\"} or {ytunnus:\"0112038-9\"} or {uid:\"CHE-105.909.036\"} or {krs:\"0000001538\"} or {ico:\"27082440\"} or {enterprise_number:\"0202239951\"} or {sk:\"31322832\"} or {lei:\"HWUPKR0MPOU8FGXBT394\"}. $2.50.",
   "/sanctions": "Screen a person or entity name against public OFAC SDN/CONS, UK FCDO, UN SC and EU financial sanctions lists. Fuzzy scored matches with list/programme/id/aliases/DOB/nationality. Screening aid only - not a regulated AML/KYC determination. Example: {name:\"BANCO NACIONAL DE CUBA\"}. $0.05.",
-  "/sanctions-batch": "Screen up to 50 names against OFAC/UK/UN/EU public sanctions lists. Screening aid only. Example: {names:[\"BANCO NACIONAL DE CUBA\",\"Alice Wonderland\"]}. $1.00.",
+  "/sanctions-batch": "Screen up to 50 names against OFAC/UK/UN/EU public sanctions lists. Screening aid only. POST {names:[\"BANCO NACIONAL DE CUBA\",\"Alice Wonderland\"]} or GET ?names=BANCO NACIONAL DE CUBA,Alice Wonderland (comma, ; or | separated; repeated names= also accepted; use ; or JSON when a name contains a comma). $1.00.",
   "/uk-officer": "Use this to reverse-search a UK Companies House officer name to their appointments (company_number, role, appointed/resigned, status). Returns matches with address_snippet, appointment_count, DOB month/year, heuristic high-appointment / mass-formation flags. Public register (OGL); screening/research aid only - not a credit check. Example: {name:\"Ken Olisa\",limit:10}. $0.15.",
 };
 
@@ -636,7 +636,7 @@ function discovery(c: any) {
     contact: CONTACT, ownershipProofs: [] };
 }
 
-app.get("/health", (c) => c.json({ ok: true, version: "1.39.0", ts: new Date().toISOString() }));
+app.get("/health", (c) => c.json({ ok: true, version: "1.39.1", ts: new Date().toISOString() }));
 app.get("/.well-known/x402", (c) => c.json(discovery(c)));
 app.get("/.well-known/x402.json", (c) => c.json(discovery(c)));
 app.get("/.well-known/402index-verify.txt", (c) => c.text("9a944a1ce3c68588c5fb1d104be63981bb5e6b6e302fa0a1bd65b6a3cd5f5372"));
@@ -647,7 +647,7 @@ app.get("/.well-known/agent-card.json", (c) => {
   return c.json({
     protocolVersion: "0.3.0", name: "Axiom Works AgentReader",
     description: "Pay-per-call (x402, USDC on Base) UK Companies House, KYB, SEC EDGAR, EU VAT, web-to-markdown and EVM on-chain lookups for AI agents. HTTP + MCP; no API keys.",
-    url: b, preferredTransport: "HTTP+JSON", version: "1.39.0", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
+    url: b, preferredTransport: "HTTP+JSON", version: "1.39.1", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
     provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk" },
     capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
     defaultInputModes: ["application/json"], defaultOutputModes: ["application/json"],
@@ -660,14 +660,14 @@ app.get("/.well-known/agent.json", (c) => {
   return c.json({
     name: "Axiom Works AgentReader", description: "x402 pay-per-call web reader, KYB packs, UK due diligence, company research, UK Companies House + Charity Commission + US SEC EDGAR + EU VIES VAT + OFAC/UK/UN/EU sanctions screening due diligence, document conversion, change monitoring, EVM wallet/tx/token risk checks and ECB FX rates for AI agents.",
     url: b, provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk", email: CONTACT },
-    version: "1.39.0", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
+    version: "1.39.1", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     skills: LISTED_PRICES().map(([p, price]) => ({ id: p.slice(1), name: p, description: DESC[p], price, endpoint: `${b}${p}` })),
     mcp: `${b}/mcp`, payments: { protocol: "x402", network: NETWORK, asset: USDC, payTo: c.env.PAY_TO },
   });
 });
 app.get("/.well-known/mcp.json", (c) => {
   const b = base(c);
-  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.39.0",
+  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.39.1",
     description: "x402 pay-per-call MCP: KYB, UK due diligence, UK/AU/CA registries, web reader, SEC, VAT, sanctions, EVM chain data.",
     transport: { type: "streamable-http", url: `${b}/mcp` }, documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     payments: { protocol: "x402", network: NETWORK, asset: USDC } });
@@ -704,7 +704,7 @@ app.get("/openapi.json", (c) => {
     paths[ap] = { get: { summary: `Path alias of ${to} (same price/x402 challenge). ${DESC[to] || ""}`, parameters: [...ks.map((k) => ({ name: k, in: "path", required: true, schema: { type: "string" } })), { name: "chain", in: "query", required: false, schema: { type: "string" } }, { name: "preview", in: "query", required: false, schema: { type: "string", enum: ["1"] } }],
       responses: { "200": { description: "Success", content: { "application/json": { schema: OUT[to] } } }, "402": { description: `Payment required: ${price} USDC on Base (x402)` } }, "x-price": price, "x-alias-of": to } }; }
   paths["/hooks/sink"] = { post: { summary: "Free webhook test sink for /monitor", responses: { "200": { description: "Stored" } }, "x-price": "free" } };
-  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.39.0", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: KYB packs, UK due diligence, company research, UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE/SK registries, LEI, sanctions, SEC EDGAR, VIES VAT, web reading, document conversion, change monitoring, EVM/FX. Big hitters first (/kyb, /uk-dd, /uk-company, /uk-watch, /uk-leads, /company-full, /sanctions-batch). Payments: USDC on Base mainnet (eip155:8453)." },
+  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.39.1", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: KYB packs, UK due diligence, company research, UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE/SK registries, LEI, sanctions, SEC EDGAR, VIES VAT, web reading, document conversion, change monitoring, EVM/FX. Big hitters first (/kyb, /uk-dd, /uk-company, /uk-watch, /uk-leads, /company-full, /sanctions-batch). Payments: USDC on Base mainnet (eip155:8453)." },
     servers: [{ url: b }], paths });
 });
 const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
@@ -969,8 +969,8 @@ async function readTreasuryBalances(payTo: string): Promise<{ treasury_usdc: num
 }
 
 app.get("/dashboard/data", async (c) => {
-  const t = Date.now(); let health: any = { ok: true, version: "1.39.0" };
-  try { await c.env.LOG.get("health-probe"); health.kv_ms = Date.now() - t; } catch (e: any) { health = { ok: false, version: "1.39.0", error: String(e) }; }
+  const t = Date.now(); let health: any = { ok: true, version: "1.39.1" };
+  try { await c.env.LOG.get("health-probe"); health.kv_ms = Date.now() - t; } catch (e: any) { health = { ok: false, version: "1.39.1", error: String(e) }; }
   health.facilitator = (c.env as any).CDP_API_KEY_ID ? "Coinbase CDP" : "PayAI";
   const meta = (await c.env.LOG.get("meta:dashboard", "json")) || {};
   // Keep in sync with HIDDEN_TOOLS in mcp.ts — unlisted $0.001 format validators stay off discovery surfaces.
@@ -1575,6 +1575,8 @@ for (const m of ["get", "post"] as const) {
   });
   app[m]("/sanctions-batch", async (c) => {
     const b = await bodyObj(c);
+    // GET: accept repeated ?names=A&names=B and ?name= as well as comma/semicolon lists (parsed in screenSanctionsBatch).
+    if (m === "get") { const rep = c.req.queries("names") || []; if (rep.length > 1) b.names = rep.join(";"); else if (!b.names && b.name) b.names = String(b.name); }
     if (c.req.query("preview") === "1" && m === "get")
       return livePreview(c, "sanctions-batch", () => screenSanctionsBatch(c.env, { names: b.names || ["BANCO NACIONAL DE CUBA", "Alice Wonderland"] }), `${CANONICAL}/sanctions-batch`);
     return screenSanctionsBatch(c.env, { names: b.names }).then((d) => c.json(d)).catch((e: any) => c.json({ error: e?.message || String(e) }, (e instanceof UserError ? e.status : 502) as any));
@@ -1602,11 +1604,13 @@ async function registryBatch(b: any) {
   if (uk.length > 10) throw new UserError("max 10 uk ids", 400);
   if (au.length + ca.length + uk.length + fr.length + no.length + dk.length + fi.length + ch.length + pl.length + cz.length + be.length + sk.length > 25) throw new UserError("max 25 ids total", 400);
   if (!au.length && !ca.length && !uk.length && !fr.length && !no.length && !dk.length && !fi.length && !ch.length && !pl.length && !cz.length && !be.length && !sk.length) throw new UserError("uk, au, ca, fr, no, dk, fi, ch, pl, cz, be or sk ids required", 400);
-  const one = async (country: string, id: string) => { try { const d = country === "UK" ? await ukCompany(currentEnv as any, { number: id.padStart(8, "0"), lite: true }) : country === "AU" ? await auCompany({ acn: id }) : country === "FR" ? await frCompany({ siren: id, lite: true }) : country === "NO" ? await noCompany({ orgnr: id, lite: true }) : country === "DK" ? await dkCompany({ cvr: id, lite: true }) : country === "FI" ? await fiCompany({ businessId: id, lite: true }) : country === "CH" ? await chCompany({ uid: id, lite: true }) : country === "PL" ? await plCompany({ krs: id, lite: true }) : country === "CZ" ? await czCompany({ ico: id, lite: true }) : country === "BE" ? await beCompany({ enterprise_number: id, lite: true }) : country === "SK" ? await skCompany({ ico: id, lite: true }) : await caCompany(id.length === 9 ? { bn: id } : { number: id }); return { country, id, found: true, data: d }; } catch (e: any) { return { country, id, found: false, error: e?.message || String(e) }; } };
+  const RB_ITEM_MS = 9000; // per-id cap so one hung upstream registry cannot stall the whole batch
+  const capped = <T,>(country: string, p: Promise<T>) => Promise.race([p, new Promise<T>((_, rej) => setTimeout(() => rej(new UserError(`${country} registry upstream timeout (${RB_ITEM_MS / 1000}s) — retry this id shortly`, 504)), RB_ITEM_MS))]);
+  const one = async (country: string, id: string) => { try { const d = await capped(country, (async () => country === "UK" ? await ukCompany(currentEnv as any, { number: id.padStart(8, "0"), lite: true }) : country === "AU" ? await auCompany({ acn: id }) : country === "FR" ? await frCompany({ siren: id, lite: true }) : country === "NO" ? await noCompany({ orgnr: id, lite: true }) : country === "DK" ? await dkCompany({ cvr: id, lite: true }) : country === "FI" ? await fiCompany({ businessId: id, lite: true }) : country === "CH" ? await chCompany({ uid: id, lite: true }) : country === "PL" ? await plCompany({ krs: id, lite: true }) : country === "CZ" ? await czCompany({ ico: id, lite: true }) : country === "BE" ? await beCompany({ enterprise_number: id, lite: true }) : country === "SK" ? await skCompany({ ico: id, lite: true }) : await caCompany(id.length === 9 ? { bn: id } : { number: id }))()); return { country, id, found: true, data: d }; } catch (e: any) { return { country, id, found: false, error: e?.message || String(e) }; } };
   const results = await Promise.all([...uk.map((i) => one("UK", i)), ...au.map((i) => one("AU", i)), ...ca.map((i) => one("CA", i)), ...fr.map((i) => one("FR", i)), ...no.map((i) => one("NO", i)), ...dk.map((i) => one("DK", i)), ...fi.map((i) => one("FI", i)), ...ch.map((i) => one("CH", i)), ...pl.map((i) => one("PL", i)), ...cz.map((i) => one("CZ", i)), ...be.map((i) => one("BE", i)), ...sk.map((i) => one("SK", i))]);
   return { count: results.length, found: results.filter((r) => r.found).length, results, sources: ["Companies House (OGL)", "ASIC Company Dataset (CC BY 3.0 AU)", "Corporations Canada open data (OGL-Canada)", "API Recherche d'entreprises (FR)", "Brønnøysundregistrene Enhetsregisteret (NO, NLOD)", "Danish CVR via apicvr.dk / Erhvervsstyrelsen", "PRH / Finnish Trade Register (YTJ open data, CC BY 4.0)", "Zefix (Swiss central business name index / UID register)", "KRS Odpis Aktualny (PL Ministerstwo Sprawiedliwości)", "ARES (CZ MF)", "CBE/KBO Public Search (BE FPS Economy)", "RPO (SK Statistical Office, CC-BY 4.0)"] };
 }
-function rbSlim(d: any) { return { count: d.count, found: d.found, results: d.results.slice(0, 2).map((r: any) => ({ country: r.country, id: r.id, found: r.found, name: r.data?.name ?? r.data?.company_name ?? null })), omitted: "full records + remaining results" }; }
+function rbSlim(d: any) { return { count: d.count, found: d.found, results: d.results.slice(0, 2).map((r: any) => ({ country: r.country, id: r.id, found: r.found, name: r.data?.name ?? r.data?.company_name ?? null, ...(r.found ? {} : { error: String(r.error || "not found").slice(0, 160) }) })), omitted: "full records + remaining results" }; }
 function caSlim(d: any) { const x = d.matches ? d.matches[0] : d; return { corporation_number: x.corporation_number, name: x.name, status: x.status, omitted: ["business_number", "registered_office", "filings", "directors", "governing_legislation"] }; }
 async function auCompany(b: any) {
   const env = currentEnv!; const raw = String(b.acn || b.abn || "").replace(/\s/g, "");
