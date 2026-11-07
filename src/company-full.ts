@@ -283,11 +283,19 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
       const cleanedTitle = titleGuess
         ? titleGuess.replace(/^(tervetuloa|welcome\s+to|official\s+site\s+of)\s+/i, "").trim()
         : null;
-      const candidates = [cleanedTitle, titleGuess, sld.replace(/\s+/g, " ")].filter((x): x is string => !!x && x.length >= 2);
+      // Require length >= 3 so short SLDs like "op" do not attach unrelated YTJ hits
+      const candidates = [cleanedTitle, titleGuess, sld.replace(/\s+/g, " ")].filter((x): x is string => !!x && x.length >= 3);
       let lastErr: any = null;
       for (const name of [...new Set(candidates)]) {
-        try { fi = await fiCompany({ name, lite: true }); lastErr = null; break; }
-        catch (e: any) { lastErr = e; }
+        try {
+          const hit = await fiCompany({ name, lite: true });
+          const nm = String(hit?.name || "").toLowerCase();
+          const q = name.toLowerCase();
+          if (nm && (nm === q || nm.startsWith(q) || nm.includes(q) || q.includes(nm.split(" ")[0]))) {
+            fi = hit; lastErr = null; break;
+          }
+          lastErr = new Error(`FI name soft-attach rejected weak match for "${name}" → ${hit?.name}`);
+        } catch (e: any) { lastErr = e; }
       }
       if (!fi && lastErr) throw lastErr;
     } else {
