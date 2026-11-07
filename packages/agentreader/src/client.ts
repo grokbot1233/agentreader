@@ -264,6 +264,10 @@ export class AgentReaderClient {
   fiCompany(input: { businessId?: string; ytunnus?: string; fi?: string; number?: string; name?: string; q?: string; limit?: number | string }, opts?: RequestOpts) {
     return this.get("/fi-company", input as any, opts);
   }
+  /** Swiss company lookup (Zefix) by UID/name ($0.25). */
+  chCompany(input: { uid?: string; che?: string; number?: string; ehraid?: string | number; name?: string; q?: string; limit?: number | string }, opts?: RequestOpts) {
+    return this.get("/ch-company", input as any, opts);
+  }
   /** Australian company lookup (ASIC register) by ACN or ABN ($0.02). */
   auCompany(input: { acn?: string; abn?: string }, opts?: RequestOpts) {
     return this.get("/au-company", input as any, opts);

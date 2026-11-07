@@ -9,6 +9,7 @@ import { frCompany } from "./fr-company";
 import { noCompany } from "./no-company";
 import { dkCompany } from "./dk-company";
 import { fiCompany, normalizeYtunnus } from "./fi-company";
+import { chCompany, normalizeUid } from "./ch-company";
 export function bindingRegistries(env: any): KybRegistries {
   const call = async (q: string) => { if (!env.AU) throw new Error("registry backend not bound"); const r = await env.AU.fetch(`https://au.internal/internal/${q}`, { headers: { "x-internal-key": env.AU_INTERNAL_KEY || "" } }); const j: any = await r.json(); if (!r.ok) throw new Error(r.status === 404 ? "not found in register snapshot" : j?.error || "registry error"); return j; };
   return {
@@ -31,7 +32,7 @@ function domainish(v: string) {
 /** Composite agent KYB / due-diligence pack. Screening only — not a regulated determination. */
 export async function kybReport(env: Env, input: {
   domain?: string; number?: string; name?: string; vat?: string; country?: string; vat_number?: string;
-  acn?: string; abn?: string; ca_number?: string; bn?: string; lei?: string; siren?: string; siret?: string; orgnr?: string; cvr?: string; ytunnus?: string; businessId?: string; fi?: string; preview?: boolean;
+  acn?: string; abn?: string; ca_number?: string; bn?: string; lei?: string; siren?: string; siret?: string; orgnr?: string; cvr?: string; ytunnus?: string; businessId?: string; fi?: string; uid?: string; che?: string; ch?: string; preview?: boolean;
 }, reg: KybRegistries = {}) {
   const preview = !!input.preview;
   const acn = s(input.acn) || s(input.abn), caNum = s(input.ca_number), bn = s(input.bn);
@@ -48,6 +49,15 @@ export async function kybReport(env: Env, input: {
       throw e;
     }
   }
+
+  let uid = "";
+  const rawCh = s(input.uid) || s(input.che) || s((input as any).ch);
+  if (rawCh) {
+    try { uid = normalizeUid(rawCh); } catch (e: any) {
+      if (e?.status === 400 || e?.name === "UserError" || /uid|CHE|check digit/i.test(String(e?.message || e))) throw e;
+      throw e;
+    }
+  }
   const rawDomain = s(input.domain) || (s(input.name).includes(".") ? s(input.name) : "");
   const domain = domainish(rawDomain);
   const number = s(input.number);
@@ -55,21 +65,22 @@ export async function kybReport(env: Env, input: {
   const vat = s(input.vat) || (s(input.country) && s(input.vat_number) ? s(input.country) + s(input.vat_number) : "");
   const lei = s(input.lei).toUpperCase().replace(/[\s-]/g, "");
 
-  if (!domain && !number && !name && !vat && !acn && !caNum && !bn && !lei && !siren && !siret && !orgnr && !cvr && !ytunnus) {
-    throw new UserError("provide domain and/or UK company number/name, AU acn/abn, CA ca_number/bn, FR siren/siret, NO orgnr, DK cvr, FI ytunnus/businessId, EU VAT and/or lei");
+  if (!domain && !number && !name && !vat && !acn && !caNum && !bn && !lei && !siren && !siret && !orgnr && !cvr && !ytunnus && !uid) {
+    throw new UserError("provide domain and/or UK company number/name, AU acn/abn, CA ca_number/bn, FR siren/siret, NO orgnr, DK cvr, FI ytunnus/businessId, CH uid, EU VAT and/or lei");
   }
 
   const out: any = {
     product: "kyb",
     price: "$2.50",
     disclaimer: "Screening over public registries and public sanctions lists only. Not a KYC/KYB/AML determination, credit score, or investment advice. Sanctions matches are scored candidates — never a certainty. Confirm identifiers at source before onboarding, contracting, or paying.",
-    inputs: { domain: domain || null, number: number || null, name: name || null, vat: vat || null, acn: acn || null, ca_number: caNum || null, bn: bn || null, lei: lei || null, siren: siren || null, siret: siret || null, orgnr: orgnr || null, cvr: cvr || null, ytunnus: ytunnus || null },
+    inputs: { domain: domain || null, number: number || null, name: name || null, vat: vat || null, acn: acn || null, ca_number: caNum || null, bn: bn || null, lei: lei || null, siren: siren || null, siret: siret || null, orgnr: orgnr || null, cvr: cvr || null, ytunnus: ytunnus || null, uid: uid || null },
     au: null as any,
     ca: null as any,
     fr: null as any,
     no: null as any,
     dk: null as any,
     fi: null as any,
+    ch: null as any,
     directors_appointments: null as any,
     website: null as any,
     uk: null as any,
@@ -123,6 +134,7 @@ export async function kybReport(env: Env, input: {
   if (orgnr) tasks.push((async () => { try { out.no = await noCompany({ orgnr, lite: preview }); out.sources.no_brreg = true; } catch (e: any) { out.no = { error: String(e?.message || e) }; } })());
   if (cvr) tasks.push((async () => { try { out.dk = await dkCompany({ cvr, lite: preview }); out.sources.dk_cvr = true; } catch (e: any) { out.dk = { error: String(e?.message || e) }; } })());
   if (ytunnus) tasks.push((async () => { try { out.fi = await fiCompany({ ytunnus, lite: preview }); out.sources.fi_prh = true; } catch (e: any) { out.fi = { error: String(e?.message || e) }; } })());
+  if (uid) tasks.push((async () => { try { out.ch = await chCompany({ uid, lite: preview }); out.sources.ch_zefix = true; } catch (e: any) { out.ch = { error: String(e?.message || e) }; } })());
   if (vat) {
     tasks.push((async () => {
       try {
@@ -162,6 +174,7 @@ export async function kybReport(env: Env, input: {
       out.no?.name ||
       out.dk?.name ||
       out.fi?.name ||
+      out.ch?.name ||
       name ||
       null;
     const officers = out.uk?.officers?.items || out.uk?.officers || [];
@@ -253,6 +266,13 @@ export async function kybReport(env: Env, input: {
     else if (st) { score -= 30; reasons.push(`FI PRH status: ${st}`); }
     const fiHigh = (out.fi.red_flags || []).filter((f: any) => f.severity === "high").length;
     if (fiHigh) { score -= 25 * fiHigh; reasons.push(`${fiHigh} high-severity FI red flag(s)`); }
+  }
+  if (out.ch && !out.ch.error) {
+    const st = String(out.ch.status || "").toLowerCase();
+    if (st === "existing") { score += 40; reasons.push("CH Zefix status existing"); }
+    else if (st) { score -= 30; reasons.push(`CH Zefix status: ${st}`); }
+    const chHigh = (out.ch.red_flags || []).filter((f: any) => f.severity === "high").length;
+    if (chHigh) { score -= 25 * chHigh; reasons.push(`${chHigh} high-severity CH red flag(s)`); }
   }
   for (const d of out.directors_appointments || []) if ((d.active_appointments || 0) >= 20) { score -= 10; reasons.push(`director ${d.director} has ${d.active_appointments} active appointments (nominee/formation pattern?)`); }
   if (out.eu_vat && !out.eu_vat.error) {

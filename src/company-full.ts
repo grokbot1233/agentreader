@@ -5,6 +5,8 @@ import { frCompany } from "./fr-company";
 import { noCompany } from "./no-company";
 import { dkCompany } from "./dk-company";
 import { fiCompany, ytunnusCheckDigit } from "./fi-company";
+import { chCompany, normalizeUid } from "./ch-company";
+import { formatUid } from "./ch-uid";
 import { luhnOk } from "./fr-company-id";
 import type { KybRegistries } from "./kyb";
 
@@ -13,6 +15,7 @@ const FR_TLDS = /\.fr$/i;
 const NO_TLDS = /\.no$/i;
 const DK_TLDS = /\.dk$/i;
 const FI_TLDS = /\.fi$/i;
+const CH_TLDS = /\.(ch|swiss)$/i;
 const AU_TLDS = /\.(com\.au|net\.au|org\.au|edu\.au|gov\.au|au)$/i;
 const CA_TLDS = /\.ca$/i;
 const WELL_KNOWN_UK = /^(tesco|sainsbury|sainsburys|barclays|lloyds|bt|vodafone|easyjet|bbc|revolut|monzo|wise)$/i;
@@ -86,6 +89,32 @@ function finnishSignals(domain: string, blob: string, desc: string): boolean {
     !!findFiYtunnusInText(blob) ||
     /\b(finland|finnish|suomi|suomalainen|y-?tunnus|business\s*id)\b/i.test(blob) ||
     /\bfinland\b/i.test(desc)
+  );
+}
+
+
+function findChUidInText(text: string): string | null {
+  for (const m of text.matchAll(/\b(?:UID|CHE)[:\s#-]*((?:CHE[\s.-]*)?\d{3}[.\s]?\d{3}[.\s]?\d{3})\b/gi)) {
+    try {
+      const d = normalizeUid(m[1]);
+      return formatUid(d);
+    } catch { /* skip */ }
+  }
+  for (const m of text.matchAll(/\bCHE[\s.-]?(\d{3})[.\s-]?(\d{3})[.\s-]?(\d{3})\b/gi)) {
+    try {
+      const d = normalizeUid(`CHE-${m[1]}.${m[2]}.${m[3]}`);
+      return formatUid(d);
+    } catch { /* skip */ }
+  }
+  return null;
+}
+
+function swissSignals(domain: string, blob: string, desc: string): boolean {
+  return (
+    CH_TLDS.test(domain) ||
+    !!findChUidInText(blob) ||
+    /\b(switzerland|swiss|schweiz|suisse|svizzera|zefix|handelsregister)\b/i.test(blob) ||
+    /\bswitzerland\b/i.test(desc)
   );
 }
 
@@ -306,6 +335,41 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     fi = null;
   }
 
+
+  let ch: any = null;
+  let ch_skip_reason: string | null = null;
+  const chUid = findChUidInText(blob);
+  const looksCh = swissSignals(domain, blob, desc);
+  try {
+    if (chUid) {
+      ch = await chCompany({ uid: chUid, lite: true });
+    } else if (CH_TLDS.test(domain) || (looksCh && /\b(uid|che-|zefix|handelsregister)\b/i.test(blob))) {
+      const titleGuess = extractPossibleName(company);
+      const cleanedTitle = titleGuess
+        ? titleGuess.replace(/^(willkommen|bienvenue|welcome\s+to|official\s+site\s+of)\s+/i, "").trim()
+        : null;
+      const candidates = [cleanedTitle, titleGuess, sld.replace(/\s+/g, " ")].filter((x): x is string => !!x && x.length >= 3);
+      let lastErr: any = null;
+      for (const name of [...new Set(candidates)]) {
+        try {
+          const hit = await chCompany({ name, lite: true });
+          const nm = String(hit?.name || "").toLowerCase();
+          const q = name.toLowerCase();
+          if (nm && (nm === q || nm.startsWith(q) || nm.includes(q) || q.includes(nm.split(" ")[0]))) {
+            ch = hit; lastErr = null; break;
+          }
+          lastErr = new Error(`CH name soft-attach rejected weak match for "${name}" → ${hit?.name}`);
+        } catch (e: any) { lastErr = e; }
+      }
+      if (!ch && lastErr) throw lastErr;
+    } else {
+      ch_skip_reason = "No Swiss company signals (.ch TLD, UID/CHE, or CH keywords).";
+    }
+  } catch (e: any) {
+    ch_skip_reason = `CH lookup skipped: ${e?.message || e}`;
+    ch = null;
+  }
+
   let au: any = null;
 
   let au_skip_reason: string | null = null;
@@ -351,6 +415,7 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     no && "NO",
     dk && "DK",
     fi && "FI",
+    ch && "CH",
     au && "AU",
     ca && "CA",
   ].filter(Boolean);
@@ -360,7 +425,7 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     domain,
     bundle: "company-full",
     price: "$0.65",
-    savings_vs_separate: "Cheaper than /company + separate UK/FR/NO/DK/FI/AU/CA/charity calls when those registries auto-attach",
+    savings_vs_separate: "Cheaper than /company + separate UK/FR/NO/DK/FI/CH/AU/CA/charity calls when those registries auto-attach",
     company,
     company_error,
     uk,
@@ -381,6 +446,9 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     fi,
     fi_included: !!fi,
     fi_skip_reason,
+    ch,
+    ch_included: !!ch,
+    ch_skip_reason,
     au,
     au_included: !!au,
     au_skip_reason,

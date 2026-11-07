@@ -294,10 +294,18 @@ const ALL_TOOLS: ToolDef[] = [
     previewable: true,
   },
   {
+    name: "ch_company",
+    description: "Swiss company lookup via Zefix (UID register) by uid/che (e.g. CHE-105.909.036), ehraid, or name. $0.25 USDC.",
+    price: "$0.25",
+    schema: { uid: z.string().optional(), che: z.string().optional(), number: z.string().optional(), ehraid: z.string().optional(), name: z.string().optional(), q: z.string().optional(), limit: z.string().optional() },
+    http: (a) => `${ORIGIN}/ch-company?${qs(a)}`,
+    previewable: true,
+  },
+  {
     name: "registry_batch",
-    description: "Batch verify up to 25 UK (Companies House, max 10), Australian (ACN/ABN), Canadian (number/BN), French (SIREN), Norwegian (orgnr), Danish (CVR) and Finnish (Y-tunnus) companies in one call; comma-separated ids. $0.30 USDC.",
+    description: "Batch verify up to 25 UK (Companies House, max 10), Australian (ACN/ABN), Canadian (number/BN), French (SIREN), Norwegian (orgnr), Danish (CVR), Finnish (Y-tunnus) and Swiss (UID) companies in one call; comma-separated ids. $0.30 USDC.",
     price: "$0.30",
-    schema: { uk: z.string().optional(), au: z.string().optional(), ca: z.string().optional(), fr: z.string().optional(), no: z.string().optional(), dk: z.string().optional(), fi: z.string().optional() },
+    schema: { uk: z.string().optional(), au: z.string().optional(), ca: z.string().optional(), fr: z.string().optional(), no: z.string().optional(), dk: z.string().optional(), fi: z.string().optional(), ch: z.string().optional() },
     http: (a) => `${ORIGIN}/registry-batch?${new URLSearchParams(Object.entries(a).filter(([, v]) => v) as any)}`,
   },
   {
