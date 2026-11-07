@@ -1,0 +1,15 @@
+{
+  "ops_notes_append": "2026-11-07 ~17:50 London: shipped /sg-company $0.25 (Singapore ACRA Entities with UEN via data.gov.sg, Singapore Open Data Licence v1.0) as v1.45.0 (commits 7492bf4 + 82afe06, deploy bc1ffc7d). Wired into /kyb (sg/uen), /registry-batch (sg=), /company-full soft-attach, MCP sg_company, SDK sgCompany. Live 402 $0.25 verified; preview returns DBS BANK LTD. Homepage high-AI line now includes Singapore. No paid test, spend $0.",
+  "listings_upsert": [
+    {
+      "name": "/sg-company $0.25",
+      "status": "live v1.45.0",
+      "url": "https://api.axiomworks.co.uk/sg-company?uen=196800306E",
+      "notes": "Singapore ACRA Entities with UEN via data.gov.sg (Singapore Open Data Licence v1.0); UEN or name; also via /kyb sg=, /registry-batch sg=, /company-full soft-attach; MCP sg_company. Launched 2026-11-07; 7-day grow/cut review 2026-11-14. Paid calls so far: 0.",
+      "launched": "2026-11-07",
+      "review": "2026-11-14"
+    },
+    { "name": "npm @axiomworks/agentreader", "status": "1.45.0", "url": "https://www.npmjs.com/package/@axiomworks/agentreader" },
+    { "name": "npm @axiomworks/agentreader-mcp", "status": "1.45.0", "url": "https://www.npmjs.com/package/@axiomworks/agentreader-mcp" }
+  ]
+}
