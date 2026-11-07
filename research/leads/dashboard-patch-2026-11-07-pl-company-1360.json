@@ -1,0 +1,26 @@
+{
+  "updated": "2026-11-07T03:10:53.197798Z",
+  "what_shipped": [
+    "v1.36.0 /pl-company $0.25 Polish KRS current extract + MF NIP\u2192KRS; wired into /kyb (krs=/nip=/pl=), /registry-batch (pl=), /company-full soft-attach",
+    "v1.35.1 /registry-batch Swiss ch= validator fix",
+    "v1.35.0 /ch-company $0.25 Swiss Zefix",
+    "Focus: big hitters only (/kyb $2.50, /uk-dd $1, /uk-company $0.50, /uk-watch $5, /uk-leads $1, /uk-leads-feed $25, /company $0.25, /company-full $0.65, /sanctions-batch $1, /dk|/fi|/ch|/pl-company $0.25)"
+  ],
+  "checklist": [
+    {
+      "item": "v1.36.0 /pl-company Polish KRS",
+      "status": "live",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/pl-company?krs=0000001538&preview=1",
+      "detail": "Deploy 48cd02cd-3346-45fe-8408-680958939b0d; preview krs+nip \u2192 Bank Handlowy; bare 402 maxAmountRequired 250000; KYB/registry-batch copy mention Poland/KRS/pl="
+    }
+  ],
+  "next_steps": [
+    "Buyer hunt + outreach for /pl-company, /ch-company, /fi-company, /dk-company",
+    "Next free build: BE KBO probe / EE \u00e4riregister; SE Bolagsverket blocked (Liam portal)",
+    "Warm /kyb /uk-dd /uk-watch /uk-leads-feed /company-full on x402 leaderboards"
+  ],
+  "grow_cut": "Grow: /kyb, /uk-dd, /uk-watch, /uk-leads-feed, /company-full, /sanctions-batch, /dk-company, /fi-company, /ch-company, /pl-company. Cut/ignore: new $0.001\u2013$0.003 micros.",
+  "pricing_notes": "Big hitters priced against $200/mo Max plan. Micros frozen per Liam 2026-11-06.",
+  "ops_notes_append": "2026-11-07 ~03:10 GMT continuous-improvement: shipped v1.36.0 /pl-company $0.25 (KRS odpis + MF NIP hop) + KYB/registry-batch/company-full. Commit 1128916; deploy 48cd02cd\u2026; npm @axiomworks/agentreader(+mcp) 1.36.0. Preview Bank Handlowy by krs and nip; 402 250000. No Liam spend. Next free: BE KBO / EE; SE blocked."
+}
