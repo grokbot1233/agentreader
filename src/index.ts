@@ -73,7 +73,7 @@ type Env = { AU?: Fetcher; AU_INTERNAL_KEY?: string; LOG: KVNamespace; STATS_SEC
 const NETWORK = "eip155:8453";
 const USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 // Buyer sheet: everything an agent needs to pay with confidence (exact USDC, atomic units, network, asset, payTo, success-only charging).
-const BUYER_SHEET_ENDPOINTS = ["/uk-company", "/kyb", "/uk-dd", "/company", "/company-full", "/sanctions-batch", "/uk-charity-full", "/registry-batch", "/uk-officer", "/uk-leads", "/uk-watch", "/uk-leads-feed"];
+const BUYER_SHEET_ENDPOINTS = ["/uk-company", "/kyb", "/uk-dd", "/company", "/company-full", "/sanctions-batch", "/uk-charity-full", "/registry-batch", "/uk-officer", "/uk-leads", "/uk-watch", "/uk-leads-feed", "/us-entity", "/ie-company", "/ee-company", "/lv-company", "/sg-company"];
 function pricingBlock(p: string, payTo: string) {
   const atomic = (ATOMIC as any)[p] as number; let usdc = (atomic / 1e6).toFixed(6).replace(/0+$/, ""); if (/\.\d?$/.test(usdc)) usdc = (atomic / 1e6).toFixed(2);
   return { endpoint: p, price_usd: (PRICES as any)[p], amount_usdc: usdc, amount_atomic: String(atomic), asset: { symbol: "USDC", decimals: 6, address: USDC, eip712: { name: "USD Coin", version: "2" } },
