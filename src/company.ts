@@ -142,11 +142,20 @@ function emailProvider(mx: string[]): string | null {
   return mx[0] ? "other" : null;
 }
 
+/** Resolve p, or fallback after ms — keeps optional enrichment from stalling the whole report. */
+function bounded<T>(p: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return new Promise<T>((resolve) => {
+    const t = setTimeout(() => resolve(fallback), ms);
+    p.then((v) => { clearTimeout(t); resolve(v); }, () => { clearTimeout(t); resolve(fallback); });
+  });
+}
+const ENRICH_MS = 4000;
+
 /** Shared RDAP lookup used by /company and /domain. Tries TLD registries then rdap.org. */
 export async function rdap(domain: string) {
   const headers = { accept: "application/rdap+json" };
   const getJson = async (url: string) => {
-    const r = await fetch(url, { signal: AbortSignal.timeout(8000), headers, redirect: "follow" as RequestRedirect });
+    const r = await fetch(url, { signal: AbortSignal.timeout(4000), headers, redirect: "follow" as RequestRedirect });
     if (!r.ok) throw new Error(`rdap http ${r.status}`);
     return r.json();
   };
@@ -207,7 +216,7 @@ export async function rdap(domain: string) {
 async function newsFor(q: string) {
   const url = `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-US&gl=US&ceid=US:en`;
   try {
-    const r = await fetch(url, { headers: { "user-agent": UA, accept: "application/rss+xml, application/xml, text/xml" }, signal: AbortSignal.timeout(8000) });
+    const r = await fetch(url, { headers: { "user-agent": UA, accept: "application/rss+xml, application/xml, text/xml" }, signal: AbortSignal.timeout(3500) });
     if (!r.ok) return { source: url, headlines: [], note: `rss http ${r.status}` };
     const xml = await r.text();
     const items: { title: string; link: string; published: string | null; source_name: string | null }[] = [];
@@ -276,10 +285,10 @@ export async function companyResearch(opts: { domain?: string; name?: string }) 
     const dmarc = (dmarcR?.Answer || []).filter((a: any) => a.type === 16).map((a: any) => unq(a.data)).filter((t: string) => t.toLowerCase().startsWith("v=dmarc1"));
     const ips = (aR?.Answer || []).filter((a: any) => a.type === 1).map((a: any) => a.data);
     const [rdapInfo, news, sitemap, sslProbe] = await Promise.all([
-      rdap(domain),
-      newsFor(`"${domain}" OR ${domain.replace(/\./g, " ")}`),
-      sitemapSize(new URL(homeUrl).origin),
-      (async () => {
+      bounded(rdap(domain), ENRICH_MS * 2, { source: null, registrar: null, registered: null, expires: null, age_days: null, status: [], error: "rdap timed out" } as any),
+      bounded(newsFor(`"${domain}" OR ${domain.replace(/\./g, " ")}`), ENRICH_MS, { source: null as any, headlines: [], note: "news source timed out" }),
+      bounded(sitemapSize(new URL(homeUrl).origin), ENRICH_MS, { source: null, url_count_estimate: null, note: "sitemap timed out" } as any),
+      bounded((async () => {
         try {
           const { res, finalUrl } = await safeFetch(homeUrl);
           try { await res.body?.cancel(); } catch {}
@@ -294,7 +303,7 @@ export async function companyResearch(opts: { domain?: string; name?: string }) 
         } catch (e: any) {
           return { https_reachable: false, error: String(e?.message || e), source: homeUrl };
         }
-      })(),
+      })(), ENRICH_MS, { https_reachable: null, note: "ssl probe timed out", source: homeUrl } as any),
     ]);
     if (rdapInfo.source) sources.rdap = rdapInfo.source;
     sources.news = news.source;
@@ -331,7 +340,7 @@ export async function companyResearch(opts: { domain?: string; name?: string }) 
   const pageEntries = Object.entries(keyCandidates).slice(0, 4);
   const pageResults = await Promise.all(pageEntries.map(async ([k, u]) => {
     try {
-      const p = await fetchPage(u);
+      const p = await Promise.race([fetchPage(u), new Promise<never>((_, rej) => setTimeout(() => rej(new Error("key page timed out")), ENRICH_MS + 1000))]);
       sources[`page_${k}`] = p.finalUrl;
       if (!p.ok || p.finalUrl === home.finalUrl && k !== "about") {
         // avoid counting homepage as pricing etc if redirected home / 404
@@ -392,10 +401,10 @@ export async function companyResearch(opts: { domain?: string; name?: string }) 
   const ips = (aR?.Answer || []).filter((a: any) => a.type === 1).map((a: any) => a.data);
 
   const [rdapInfo, news, sitemap, sslProbe] = await Promise.all([
-    rdap(domain),
-    newsFor(`"${domain}" OR ${domain.replace(/\./g, " ")}`),
-    sitemapSize(new URL(home.finalUrl).origin),
-    (async () => {
+    bounded(rdap(domain), ENRICH_MS * 2, { source: null, registrar: null, registered: null, expires: null, age_days: null, status: [], error: "rdap timed out" } as any),
+    bounded(newsFor(`"${domain}" OR ${domain.replace(/\./g, " ")}`), ENRICH_MS, { source: null as any, headlines: [], note: "news source timed out" }),
+    bounded(sitemapSize(new URL(home.finalUrl).origin), ENRICH_MS, { source: null, url_count_estimate: null, note: "sitemap timed out" } as any),
+    bounded((async () => {
       try {
         const { res, finalUrl } = await safeFetch(homeUrl);
         try { await res.body?.cancel(); } catch {}
@@ -408,7 +417,7 @@ export async function companyResearch(opts: { domain?: string; name?: string }) 
       } catch (e: any) {
         return { https_reachable: false, error: String(e?.message || e), source: homeUrl };
       }
-    })(),
+    })(), ENRICH_MS, { https_reachable: null, note: "ssl probe timed out", source: homeUrl } as any),
   ]);
   if (rdapInfo.source) sources.rdap = rdapInfo.source;
   sources.news = news.source;

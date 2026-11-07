@@ -151,10 +151,10 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         ...u, domain: data.domain,
         homepage: { title: data.homepage?.title, description: (data.homepage?.description || "").slice(0, 160) || null },
         tech_stack_sample: (data.tech_stack?.detected || []).slice(0, 5),
-        social_networks: Object.keys(data.social_links || {}).filter((k) => (data.social_links as any)[k]),
+        social_networks: Object.keys(data.social_links || {}).filter((k) => k !== "source" && (data.social_links as any)[k]),
         contacts: { email_count: (data.contacts?.emails || []).length, phone_count: (data.contacts?.phones || []).length },
         dns: { mx_count: (data.dns?.mx || []).length, spf: !!(data.dns?.spf || []).length, dmarc_policy: data.dns?.dmarc_policy || null },
-        domain_registration: { registrar: data.domain_registration?.registrar || null, created: data.domain_registration?.created || null },
+        domain_registration: { registrar: data.domain_registration?.registrar || null, created: data.domain_registration?.registered || data.domain_registration?.created || null },
         news_sample: (data.news?.headlines || []).slice(0, 1).map((h: any) => ({ title: h.title || h })),
         omitted: ["full emails/phones", "key_pages bodies", "full news", "raw sources", "ssl details", "sitemap urls"],
       };
