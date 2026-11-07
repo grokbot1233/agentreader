@@ -1,0 +1,50 @@
+{
+  "ops_notes": "Hourly self-check 2026-11-07 ~08:07 GMT: healthy on 1.38.0 then shipped docs/schema accuracy 1.38.1 (/kyb+/company-full+/MCP include BE CBE). npm @axiomworks/agentreader(+mcp) 1.38.1 published (registry may lag). No spend.",
+  "what_shipped": [
+    "v1.38.1 fix: /kyb + /company-full docs and MCP kyb_report schema include Belgium CBE (enterprise_number/be)",
+    "v1.38.0 /be-company Belgian CBE/KBO \u2014 prior ship",
+    "v1.37.3 clearer free-400s for non-digit NO/PL/CZ ids \u2014 prior ship",
+    "v1.37.2 /company enrichment latency bounds \u2014 prior ship"
+  ],
+  "checklist": [
+    {
+      "item": "v1.38.1 /kyb+/company-full BE docs + MCP schema",
+      "status": "live",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/kyb?enterprise_number=0202239951&preview=1",
+      "detail": "Deploy b89fd317-0ca6-4b88-b356-517234394cd8; KYB 402 desc lists Belgium CBE; MCP kyb_report accepts enterprise_number/be"
+    },
+    {
+      "item": "v1.38.0 /be-company Belgian CBE/KBO",
+      "status": "live",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/be-company?enterprise_number=0202239951&preview=1",
+      "detail": "Prior ship; preview Proximus OK; bare 402 250000"
+    },
+    {
+      "item": "v1.37.3 NO/PL/CZ free-400 digit messages",
+      "status": "live",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/cz-company?ico=abc&preview=1",
+      "detail": "Prior ship; specific free-400 messages"
+    }
+  ],
+  "next_steps": [
+    "Buyer hunt + outreach for /be-company, /pl-company, /ch-company, /fi-company, /dk-company",
+    "Warm /kyb /uk-dd /uk-watch /uk-leads-feed /company-full on x402 leaderboards",
+    "Move npm publish to GH Actions trusted publishing before Jan 2027 (token expires 2027-02-03)"
+  ],
+  "self_check_latest": {
+    "at": "2026-11-07T08:07:00Z",
+    "live_version": "1.38.1",
+    "PASS402": 78,
+    "FAIL402": 0,
+    "note": "GET 75/78 + POST3 for watch/leads-feed/monitor; all well-formed 402. MCP 79 tools serverInfo 1.38.1. Shipped BE docs/schema sync for /kyb+/company-full+MCP.",
+    "deploy": "b89fd317-0ca6-4b88-b356-517234394cd8",
+    "commit": "738666a",
+    "treasury_eth": 0.00039894,
+    "treasury_usdc": 2.588,
+    "spend_usd": 0
+  },
+  "grow_cut": "Grow: /kyb, /uk-dd, /uk-watch, /uk-leads-feed, /company-full, /sanctions-batch, /be-company, /dk-company, /fi-company, /ch-company, /pl-company. Cut/ignore: new $0.001\u2013$0.003 micros."
+}
