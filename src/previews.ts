@@ -515,7 +515,7 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
       return {
         ...u, count: data.count, found: data.found, query: data.query,
         results: (data.results || []).slice(0, 6).map((r: any) => ({ country: r.country, id: r.id, found: r.found, ...(r.found ? { name: r.data?.name ?? null, status: r.data?.status ?? null } : { error: r.error }) })),
-        us_syntax: "us=STATE:ID (comma-separated; STATE in NY, CO, CT, OR, TX). Malformed or unsupported items return an inline per-item error; the rest of the batch still runs.",
+        us_syntax: "us=STATE:ID (comma-separated; STATE in NY, CO, CT, OR, TX, VA). Malformed or unsupported items return an inline per-item error; the rest of the batch still runs.",
         sources: data.sources, sample_fetched: data.sample_fetched,
         omitted: ["full per-company records (type/act, formed, address, registered agent, red flags)", "remaining results"],
       };
@@ -938,7 +938,7 @@ export const STATIC_SAMPLES: Record<string, any> = {
   },
   // Real records fetched 2026-11-07 ~14:32 GMT from the official state Socrata APIs (data.ny.gov, data.ct.gov, data.texas.gov, data.colorado.gov, data.oregon.gov).
   "us-entity": {
-    product: "us-entity", query: { mode: "name", name: "Etsy Inc", states: ["NY", "CO", "CT", "OR", "TX"] }, states_supported: ["NY", "CO", "CT", "OR", "TX"],
+    product: "us-entity", query: { mode: "name", name: "Etsy Inc", states: ["NY", "CO", "CT", "OR", "TX", "VA"] }, states_supported: ["NY", "CO", "CT", "OR", "TX", "VA"],
     total_results: 17,
     best_match: { state: "CT", id: "2590243", name: "ETSY, INC.", status: "Active", entity_type: "Stock", formed: "2022-06-28", jurisdiction: "DELAWARE" },
     results: [
@@ -961,8 +961,8 @@ export const STATIC_SAMPLES: Record<string, any> = {
       { country: "US", id: "NY:3368051", found: true, data: { name: "ETSY, INC.", status: "active" } },
       { country: "US", id: "OR:8739914", found: true, data: { name: "NIKE, INC.", status: "active" } },
       { country: "US", id: "CT:2590243", found: true, data: { name: "ETSY, INC.", status: "Active" } },
-      { country: "US", id: "ZZ:123", found: false, error: "unsupported US state \"ZZ\" in \"ZZ:123\" — supported: NY, CO, CT, OR, TX" },
-      { country: "US", id: "NY3368051", found: false, error: "invalid us item \"NY3368051\" — use STATE:ID, e.g. NY:3368051 (states: NY, CO, CT, OR, TX)" },
+      { country: "US", id: "ZZ:123", found: false, error: "unsupported US state \"ZZ\" in \"ZZ:123\" — supported: NY, CO, CT, OR, TX, VA" },
+      { country: "US", id: "NY3368051", found: false, error: "invalid us item \"NY3368051\" — use STATE:ID, e.g. NY:3368051 (states: NY, CO, CT, OR, TX, VA)" },
     ],
     sources: ["Brønnøysundregistrene Enhetsregisteret (NO, NLOD)", "US state SOS open data (NY DOS, CO SOS, CT SOTS, OR SOS, TX Comptroller; Socrata)"],
     sample_fetched: "2026-11-07",

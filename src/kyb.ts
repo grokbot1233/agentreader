@@ -138,7 +138,7 @@ export async function kybReport(env: Env, input: {
   const usId = s((input as any).us_id).replace(/[^\w-]/g, "");
   const usName = s((input as any).us_name);
   if (usState) parseUsStates(usState);
-  if (usId && (!usState || usState.includes(",") || usState === "ALL")) throw new UserError("us_id needs us_state (one of NY, CO, CT, OR, TX)", 400);
+  if (usId && (!usState || usState.includes(",") || usState === "ALL")) throw new UserError("us_id needs us_state (one of NY, CO, CT, OR, TX, VA)", 400);
   const usWanted = !!(usId || usName);
   const rawDomain = s(input.domain) || (s(input.name).includes(".") ? s(input.name) : "");
   const domain = domainish(rawDomain);

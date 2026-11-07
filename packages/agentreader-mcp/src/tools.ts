@@ -359,7 +359,7 @@ const ALL_TOOLS: ToolDef[] = [
   },
   {
     name: "us_entity",
-    description: "US state business-entity (Secretary of State) lookup across NY, CO, CT, OR and TX open-data registries by name or state+id: status/good standing, type, formed, jurisdiction, registered agent, CT principals, red flags. Example: {name:\"Etsy Inc\"} or {state:\"CO\",id:\"20211537536\"}. $0.25 USDC.",
+    description: "US state business-entity (Secretary of State) lookup across NY, CO, CT, OR, TX and VA open-data registries by name or state+id: status/good standing, type, formed, jurisdiction, registered agent, CT principals, red flags. Example: {name:\"Etsy Inc\"} or {state:\"CO\",id:\"20211537536\"}. $0.25 USDC.",
     price: "$0.25",
     schema: { name: z.string().optional(), q: z.string().optional(), company: z.string().optional(), state: z.string().optional(), id: z.string().optional(), number: z.string().optional(), entity_id: z.string().optional(), limit: z.union([z.string(), z.number()]).optional() },
     http: (a) => `${ORIGIN}/us-entity?${qs(a)}`,
@@ -367,7 +367,7 @@ const ALL_TOOLS: ToolDef[] = [
   },
   {
     name: "registry_batch",
-    description: "Batch verify up to 25 UK (Companies House, max 10), Australian (ACN/ABN), Canadian (number/BN), French (SIREN), Norwegian (orgnr), Danish (CVR), Finnish (Y-tunnus), Swiss (UID), Polish (KRS), Czech (IČO), Belgian (enterprise number), Slovak (RPO IČO), Irish (CRO number), Estonian (äriregister code), Latvian (registration number) and US state (us=STATE:ID, e.g. NY:3368051 — NY/CO/CT/OR/TX Secretary of State open data) companies in one call; comma-separated ids, bad items get an inline error. $0.30 USDC.",
+    description: "Batch verify up to 25 UK (Companies House, max 10), Australian (ACN/ABN), Canadian (number/BN), French (SIREN), Norwegian (orgnr), Danish (CVR), Finnish (Y-tunnus), Swiss (UID), Polish (KRS), Czech (IČO), Belgian (enterprise number), Slovak (RPO IČO), Irish (CRO number), Estonian (äriregister code), Latvian (registration number) and US state (us=STATE:ID, e.g. NY:3368051 — NY/CO/CT/OR/TX/VA Secretary of State open data) companies in one call; comma-separated ids, bad items get an inline error. $0.30 USDC.",
     price: "$0.30",
     schema: { uk: z.string().optional(), au: z.string().optional(), ca: z.string().optional(), fr: z.string().optional(), no: z.string().optional(), dk: z.string().optional(), fi: z.string().optional(), ch: z.string().optional(), pl: z.string().optional(), cz: z.string().optional(), be: z.string().optional(), sk: z.string().optional(), ie: z.string().optional(), ee: z.string().optional(), lv: z.string().optional(), us: z.string().optional() },
     http: (a) => `${ORIGIN}/registry-batch?${new URLSearchParams(Object.entries(a).filter(([, v]) => v) as any)}`,
@@ -400,7 +400,7 @@ const ALL_TOOLS: ToolDef[] = [
   },
   {
     name: "company_full",
-    description: "Website company research + multi-registry DD (UK/FR/NO/DK/FI/CH/PL/CZ/BE/SK/US NY/CO/CT/OR/TX SOS/AU/CA/charity when signals) ($0.65).",
+    description: "Website company research + multi-registry DD (UK/FR/NO/DK/FI/CH/PL/CZ/BE/SK/US NY/CO/CT/OR/TX/VA SOS/AU/CA/charity when signals) ($0.65).",
     price: "$0.65",
     schema: { domain: z.string() },
     http: (a) => `${ORIGIN}/company-full?domain=${encodeURIComponent(a.domain)}`,
@@ -728,7 +728,7 @@ const ALL_TOOLS: ToolDef[] = [
   },
   {
     name: "kyb_report",
-    description: "Agent KYB pack: UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE/SK + US-state (NY/CO/CT/OR/TX) registry + EU VAT + optional GLEIF LEI (parents) + website + sanctions + director appointments → trust flag. Screening only. $2.50 USDC.",
+    description: "Agent KYB pack: UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE/SK + US-state (NY/CO/CT/OR/TX/VA) registry + EU VAT + optional GLEIF LEI (parents) + website + sanctions + director appointments → trust flag. Screening only. $2.50 USDC.",
     price: "$2.50",
     schema: {
       domain: z.string().optional(),

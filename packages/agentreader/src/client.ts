@@ -279,7 +279,7 @@ export class AgentReaderClient {
   beCompany(input: { enterprise_number?: string; number?: string; be?: string; bce?: string; kbo?: string; vat?: string; name?: string; q?: string; limit?: number | string }, opts?: RequestOpts) {
     return this.get("/be-company", input as any, opts);
   }
-  /** US state business-entity lookup (NY/CO/CT/OR/TX SOS open data) by name or state+id ($0.25). */
+  /** US state business-entity lookup (NY/CO/CT/OR/TX/VA SOS open data) by name or state+id ($0.25). */
   usEntity(input: { name?: string; q?: string; company?: string; state?: string; id?: string; number?: string; entity_id?: string; limit?: number | string }, opts?: RequestOpts) {
     return this.get("/us-entity", input as any, opts);
   }

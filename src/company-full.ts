@@ -756,7 +756,7 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
         } catch (e: any) { lastErr = e; }
       }
       if (!us && lastErr) throw lastErr;
-      if (!us) us_skip_reason = "US signals detected but no strong name/id match across NY/CO/CT/OR/TX open data (use /us-entity or /kyb?us_name=).";
+      if (!us) us_skip_reason = "US signals detected but no strong name/id match across NY/CO/CT/OR/TX/VA open data (use /us-entity or /kyb?us_name=).";
     } else {
       us_skip_reason = "No US company signals (.us TLD, STATE:ID / DOS/entity id, or US incorporation keywords).";
     }

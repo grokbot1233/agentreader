@@ -4,12 +4,13 @@ import { UserError } from "./core";
 const TIMEOUT_MS = 9000;
 const UA = "AgentReader/1.41 (+https://api.axiomworks.co.uk; US state business-entity lookup via official open data)";
 const DISCLAIMER =
-  "US state business-entity records from official state open-data portals (NY Department of State, Colorado Secretary of State, Connecticut Secretary of the State, Oregon Secretary of State, Texas Comptroller franchise-tax roll). Screening aid only — not a KYB/AML determination, good-standing certificate, credit score, or legal advice. Datasets refresh daily–monthly; confirm on the state SOS site before onboarding, contracting, or paying.";
+  "US state business-entity records from official state open-data portals (NY Department of State, Colorado Secretary of State, Connecticut Secretary of the State, Oregon Secretary of State, Texas Comptroller franchise-tax roll, Virginia State Corporation Commission). Screening aid only — not a KYB/AML determination, good-standing certificate, credit score, or legal advice. Datasets refresh daily–monthly; confirm on the state SOS site before onboarding, contracting, or paying.";
 
-export const US_STATES = ["NY", "CO", "CT", "OR", "TX"] as const;
+export const US_STATES = ["NY", "CO", "CT", "OR", "TX", "VA"] as const;
 type St = (typeof US_STATES)[number];
+type SocrataSt = Exclude<St, "VA">;
 
-const SRC: Record<St, { host: string; ds: string; nameCol: string; idCol: string; label: string; coverage: string; lookup: (id: string) => string }> = {
+const SRC: Record<SocrataSt, { host: string; ds: string; nameCol: string; idCol: string; label: string; coverage: string; lookup: (id: string) => string }> = {
   NY: { host: "data.ny.gov", ds: "n9v6-gdp6", nameCol: "current_entity_name", idCol: "dos_id", label: "New York Department of State — Active Corporations", coverage: "active entities only", lookup: () => `https://apps.dos.ny.gov/publicInquiry/` },
   CO: { host: "data.colorado.gov", ds: "4ykn-tg5h", nameCol: "entityname", idCol: "entityid", label: "Colorado Secretary of State — Business Entities", coverage: "all statuses", lookup: (id) => `https://www.coloradosos.gov/biz/BusinessEntityDetail.do?masterFileId=${id}` },
   CT: { host: "data.ct.gov", ds: "n7gp-d28j", nameCol: "name", idCol: "accountnumber", label: "Connecticut Secretary of the State — Business Registry", coverage: "all statuses (+principals, agents)", lookup: () => `https://service.ct.gov/business/s/onlinebusinesssearch` },
@@ -19,6 +20,81 @@ const SRC: Record<St, { host: string; ds: string; nameCol: string; idCol: string
 
 const CO_TYPES: Record<string, string> = { DLLC: "Domestic LLC", FLLC: "Foreign LLC", DPC: "Domestic Profit Corporation", FPC: "Foreign Profit Corporation", DNC: "Domestic Nonprofit Corporation", FNC: "Foreign Nonprofit Corporation", DLP: "Domestic Limited Partnership", FLP: "Foreign Limited Partnership", DLLP: "Domestic LLP", FLLP: "Foreign LLP", DLLLP: "Domestic LLLP", TN: "Trade Name", DCOOP: "Domestic Cooperative" };
 const TX_ORG: Record<string, string> = { CI: "Corporation (Texas)", CF: "Corporation (foreign)", CL: "LLC (Texas)", CM: "LLC (foreign)", PL: "Limited partnership (Texas)", PF: "Limited partnership (foreign)", PB: "Professional association", AB: "Business association", AF: "Foreign association", CT: "Texas professional corporation", PW: "Partnership", TF: "Foreign trust", TR: "Texas trust" };
+
+
+const VA_API = "https://data.virginia.gov/api/3/action/datastore_search";
+const VA_SETS = [
+  { id: "9d79f14f-86cd-4ce2-b2da-2df005958e0d", type: "Corporation" },
+  { id: "6d55efe1-1784-414a-a38e-ce1f6b4be5fe", type: "LLC" },
+  { id: "77a2ff90-e9f8-401a-8a90-5970d48fdbd2", type: "Limited Partnership" },
+  { id: "883ab241-c33f-40e4-892f-03d0c9dbac4a", type: "General Partnership" },
+  { id: "12e41bcc-f4aa-496e-bfd3-bc2329dad3c8", type: "Business Trust" },
+] as const;
+
+function cleanVa(v: any): string | null {
+  if (v == null) return null;
+  const s = String(v).replace(/^\t+/, "").replace(/\s+/g, " ").trim();
+  return s || null;
+}
+
+function mapVa(r: any, entityType: string) {
+  return {
+    state: "VA",
+    id: cleanVa(r.EntityID),
+    name: cleanVa(r.Name),
+    status: cleanVa(r.Status),
+    sub_status: cleanVa(r.StatusReason),
+    entity_type: entityType,
+    formed: day(cleanVa(r.IncorpDate)),
+    jurisdiction: cleanVa(r.IncorpState),
+    address: addr(cleanVa(r.Street1), cleanVa(r.Street2), cleanVa(r.City), cleanVa(r.State), cleanVa(r.Zip)),
+    registered_agent: cleanVa(r["RA-Name"]) ? { name: cleanVa(r["RA-Name"]), address: addr(cleanVa(r["RA-Street1"]), cleanVa(r["RA-Street2"]), cleanVa(r["RA-City"]), cleanVa(r["RA-State"]), cleanVa(r["RA-Zip"])) } : null,
+  };
+}
+
+async function vaCkan(resource: string, q: string, limit: number) {
+  const u = new URL(VA_API);
+  u.searchParams.set("resource_id", resource);
+  u.searchParams.set("q", q);
+  u.searchParams.set("limit", String(limit));
+  const r = await fetch(u.toString(), { headers: { "user-agent": UA, accept: "application/json" }, signal: AbortSignal.timeout(TIMEOUT_MS) });
+  if (!r.ok) throw new Error(`VA open data HTTP ${r.status}`);
+  const j: any = await r.json();
+  if (!j?.success) throw new Error(j?.error?.message || "VA open data request failed");
+  return { records: (j.result?.records || []) as any[], url: u.toString() };
+}
+
+async function vaSearch(input: { name?: string; id?: string; limit: number }) {
+  const q = input.id || input.name || "";
+  const lim = input.id ? 8 : Math.min(input.limit * 2, 15);
+  const settled = await Promise.allSettled(VA_SETS.map(async (s) => {
+    const { records, url } = await vaCkan(s.id, q, lim);
+    let rows = records.map((r) => mapVa(r, s.type));
+    if (input.id) {
+      const want = input.id.toUpperCase();
+      rows = rows.filter((row) => String(row.id || "").toUpperCase() === want);
+    }
+    return { rows, url };
+  }));
+  const mapped: any[] = [];
+  const errors: string[] = [];
+  let query_url = "";
+  let anyOk = false;
+  settled.forEach((p, i) => {
+    if (p.status === "fulfilled") {
+      anyOk = true;
+      mapped.push(...p.value.rows);
+      if (!query_url) query_url = p.value.url;
+    } else errors.push(`${VA_SETS[i].type}: ${p.reason?.message || p.reason}`);
+  });
+  if (!anyOk) throw new Error(errors.join("; ") || "VA open data failed");
+  return { rows: dedupe(mapped), url: query_url };
+}
+
+function lookupUrl(st: string, id: string) {
+  if (st === "VA") return "https://cis.scc.virginia.gov/";
+  return SRC[st as SocrataSt].lookup(id);
+}
 
 function soql(s: string) { return s.replace(/'/g, "''"); }
 function normName(s: string) { return String(s || "").toUpperCase().replace(/[.,]/g, "").replace(/\s+/g, " ").trim(); }
@@ -35,7 +111,13 @@ function exactVariants(name: string) {
   return [...v].slice(0, 8);
 }
 function addr(...p: any[]) { const s = p.filter((x) => x && String(x).trim()).map((x) => String(x).trim()).join(", "); return s || null; }
-function day(s: any) { return s ? String(s).slice(0, 10) : null; }
+function day(s: any) {
+  if (!s) return null;
+  const raw = String(s).trim();
+  const m = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (m) return `${m[3]}-${m[1].padStart(2, "0")}-${m[2].padStart(2, "0")}`;
+  return raw.slice(0, 10) || null;
+}
 
 async function sq(st: St, params: Record<string, string>) {
   const s = SRC[st];
@@ -94,7 +176,7 @@ export function parseUsStates(raw: any): St[] {
   return out as St[];
 }
 
-/** US state business-entity lookup ($0.25): name across NY/CO/CT/OR/TX open-data SOS registries, or state+id. */
+/** US state business-entity lookup ($0.25): name across NY/CO/CT/OR/TX/VA open-data SOS registries, or state+id. */
 export async function usEntity(input: { name?: string; q?: string; company?: string; state?: string; states?: string; id?: string; number?: string; entity_id?: string; limit?: number | string; lite?: boolean; preview?: boolean }) {
   const lite = !!(input.lite || input.preview);
   const name = String(input.name || input.q || input.company || "").trim();
@@ -102,13 +184,23 @@ export async function usEntity(input: { name?: string; q?: string; company?: str
   const states = parseUsStates(input.state || input.states);
   const limit = Math.min(Math.max(Number(input.limit) || 10, 1), 25);
   if (id) {
-    if (states.length !== 1) throw new UserError("id lookup needs exactly one state (state=NY|CO|CT|OR|TX)", 400);
+    if (states.length !== 1) throw new UserError("id lookup needs exactly one state (state=NY|CO|CT|OR|TX|VA)", 400);
   } else if (name.length < 2) throw new UserError("provide name (2+ chars) or state+id", 400);
 
   const q = normName(name);
   const per: Record<string, any> = {};
   const all: any[] = [];
   await Promise.all(states.map(async (st) => {
+    if (st === "VA") {
+      try {
+        const { rows, url } = await vaSearch({ name: id ? undefined : name, id: id || undefined, limit });
+        per[st] = { count: rows.length, source: "Virginia State Corporation Commission — data.virginia.gov", coverage: "corporations, LLCs, LPs, GPs and business trusts as published", query_url: url };
+        all.push(...rows);
+      } catch (e: any) {
+        per[st] = { count: 0, source: "Virginia State Corporation Commission — data.virginia.gov", error: /timeout|abort/i.test(String(e?.name || e?.message)) ? `timeout ${TIMEOUT_MS / 1000}s` : String(e?.message || e) };
+      }
+      return;
+    }
     const s = SRC[st];
     try {
       const where = id ? `${s.idCol}='${soql(id)}'` : `starts_with(upper(${s.nameCol}),'${soql(searchBase(name))}')`;
@@ -124,12 +216,12 @@ export async function usEntity(input: { name?: string; q?: string; company?: str
   }));
   if (Object.values(per).every((x: any) => x.error)) throw new UserError("all US state open-data sources failed — retry shortly", 504);
 
-  const STN: Record<string, string> = { NY: "NEW YORK", CO: "COLORADO", CT: "CONNECTICUT", OR: "OREGON", TX: "TEXAS" };
+  const STN: Record<string, string> = { NY: "NEW YORK", CO: "COLORADO", CT: "CONNECTICUT", OR: "OREGON", TX: "TEXAS", VA: "VIRGINIA" };
   // Tie-break exact-name duplicates toward the domestic (home-state) registration, which carries the formation record.
   const domestic = (r: any) => { const j = String(r.jurisdiction || "").toUpperCase(); return j === r.state || j === STN[r.state] || /^DOMESTIC/i.test(String(r.entity_type || "")); };
   for (const r of all) r._s = id ? 100 : score(q, normName(r.name), r.status) + (domestic(r) ? 4 : 0);
   all.sort((a, b) => b._s - a._s);
-  const results = all.slice(0, limit).map(({ _s, ...r }) => ({ ...r, match: id ? "id" : cmpName(r.name) === cmpName(q) ? "exact" : _s >= 85 ? "prefix_word" : "prefix", lookup_url: SRC[r.state as St].lookup(String(r.id)) }));
+  const results = all.slice(0, limit).map(({ _s, ...r }) => ({ ...r, match: id ? "id" : cmpName(r.name) === cmpName(q) ? "exact" : _s >= 85 ? "prefix_word" : "prefix", lookup_url: lookupUrl(r.state, String(r.id)) }));
   if (!results.length) throw new UserError(`no US state entity found for ${id ? `${states[0]} id=${id}` : `name=${name}`} in ${states.join(",")}`, 404);
   const top = results[0];
   if (top.state === "CT" && !lite) await ctEnrich(top).catch(() => {});
@@ -158,7 +250,7 @@ export async function usEntity(input: { name?: string; q?: string; company?: str
       sanctions: { path: "/sanctions", price: "$0.05", why: "screen entity + agent names (OFAC/UK/EU/UN)" },
       us_sec_full: { path: "/us-sec-full", price: "$0.25", why: "full SEC EDGAR pack (filings + financial facts) for listed parents" },
     },
-    source: "Official state open-data portals (Socrata SODA): data.ny.gov n9v6-gdp6, data.colorado.gov 4ykn-tg5h, data.ct.gov n7gp-d28j (+ka36-64k6, qh2m-n44y), data.oregon.gov tckn-sxa6, data.texas.gov 9cir-efmm",
+    source: "Official state open-data portals: data.ny.gov n9v6-gdp6, data.colorado.gov 4ykn-tg5h, data.ct.gov n7gp-d28j (+ka36-64k6, qh2m-n44y), data.oregon.gov tckn-sxa6, data.texas.gov 9cir-efmm, data.virginia.gov (SCC corporation/LLC/LP/GP/trust extracts)",
     attribution: "Public records published by the respective US state agencies. Confirm on the state SOS website before acting.",
   };
 }

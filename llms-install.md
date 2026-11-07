@@ -48,7 +48,7 @@ Ask Cline: "Use agentreader `uk_company` with number 00445790 in preview mode". 
 
 | Tool | Price | What it returns |
 |---|---|---|
-| `kyb_report` | $2.50 | KYB pack: UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE/SK + US-state (NY/CO/CT/OR/TX) registry, EU VAT, optional GLEIF LEI, website and sanctions screen |
+| `kyb_report` | $2.50 | KYB pack: UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE/SK + US-state (NY/CO/CT/OR/TX/VA) registry, EU VAT, optional GLEIF LEI, website and sanctions screen |
 | `uk_dd` | $1.00 | UK due-diligence job: full Companies House pack, sanctions (entity and officers), optional domain check, trust flag |
 | `uk_company` | $0.50 | Companies House profile, officers, PSCs, filings, charges, insolvency and red flags |
 | `registry_batch` | $0.30 | Batch-verify up to 25 company ids across UK, AU, CA, FR, NO, DK and more |
