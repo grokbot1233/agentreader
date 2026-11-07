@@ -127,10 +127,17 @@ export async function frCompany(input: { siren?: string; siret?: string; name?: 
   const url = `${API}?q=${encodeURIComponent(q)}&per_page=${limit}`;
   let data: any;
   try {
-    const r = await fetch(url, {
-      headers: { accept: "application/json", "user-agent": UA },
-      signal: AbortSignal.timeout(12000),
-    });
+    let r: Response | undefined;
+    // recherche-entreprises rate-limits shared egress (~7 req/s); back off briefly before giving up.
+    for (let attempt = 0; attempt < 3; attempt++) {
+      r = await fetch(url, {
+        headers: { accept: "application/json", "user-agent": UA },
+        signal: AbortSignal.timeout(12000),
+      });
+      if (r.status !== 429) break;
+      await new Promise((res) => setTimeout(res, 400 * (attempt + 1) + Math.floor(Math.random() * 200)));
+    }
+    if (!r) throw new Error("recherche-entreprises no response");
     if (r.status === 429) throw new UserError("French company API rate limited — retry shortly", 429);
     if (!r.ok) throw new Error(`recherche-entreprises http ${r.status}`);
     data = await r.json();
