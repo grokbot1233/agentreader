@@ -88,7 +88,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       await log({ endpoint: `mcp:${tool}`, payer: settlement?.payer || null, amount: settlement?.amount || String(atomic), network: settlement?.network, tx: settlement?.transaction, success: settlement?.success });
     } },
   } as any);
-  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.37.0" }, { instructions: "Start with the big hitters: kyb ($2.50 one-shot KYB pack), uk_dd ($1 UK due diligence), uk_company ($0.50), uk_watch ($5/30d), uk_leads ($1), uk_leads_feed ($25/30d), company_research ($0.25), company_full ($0.65), sanctions_batch ($1), uk_charity_full ($0.25), fr_company ($0.25), no_company ($0.25), dk_company ($0.25), fi_company ($0.25), ch_company ($0.25), pl_company ($0.25), cz_company ($0.25), registry_batch ($0.30), uk_officer ($0.15). Call pricing for the full list." });
+  const server = new McpServer({ name: "agentreader", title: "Axiom Works AgentReader", version: "1.37.1" }, { instructions: "Start with the big hitters: kyb ($2.50 one-shot KYB pack), uk_dd ($1 UK due diligence), uk_company ($0.50), uk_watch ($5/30d), uk_leads ($1), uk_leads_feed ($25/30d), company_research ($0.25), company_full ($0.65), sanctions_batch ($1), uk_charity_full ($0.25), fr_company ($0.25), no_company ($0.25), dk_company ($0.25), fi_company ($0.25), ch_company ($0.25), pl_company ($0.25), cz_company ($0.25), registry_batch ($0.30), uk_officer ($0.15). Call pricing for the full list." });
   const HIDDEN_TOOLS = new Set(["iban_validate","phone_check","uk_postcode_validate","siren_validate","siret_validate","partita_iva_validate","orgnr_se_validate","bn_ca_validate","cvr_dk_validate","fn_at_validate","cin_in_validate","kvk_nl_validate","hr_de_validate","nif_es_validate","cnpj_validate","nip_pl_validate","uid_ch_validate"]);
   { const _tool = server.tool.bind(server); (server as any).tool = (n: string, ...r: any[]) => HIDDEN_TOOLS.has(n) ? undefined : (_tool as any)(n, ...r); }
   { const orig = (server as any).tool.bind(server); (server as any).tool = (name: string, desc: any, ...rest: any[]) => orig(name, typeof desc === "string" ? upsell(TOOL_PATH[name] || "", desc) : desc, ...rest); }
@@ -392,7 +392,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       company_research: { price: "$0.25", when: "website company research (not UK CH)" },
       uk_company: { price: "$0.50", when: "full UK Companies House DD" },
       uk_company_lite: { price: "$0.05", when: "cheap UK status + flags" },
-      company_full: { price: "$0.65", when: "website + multi-registry DD (UK/FR/NO/AU/CA/charity when signals)" },
+      company_full: { price: "$0.65", when: "website + multi-registry DD (UK/FR/NO/DK/FI/CH/PL/CZ/AU/CA/charity when signals)" },
       convert_document: { price: "$0.03", when: "PDF/DOCX → markdown" },
       create_monitor: { price: "$1.00 / 30 days", when: "hourly change webhooks" },
       wallet_balances: { price: "$0.003", when: "EVM wallet balances, 5 chains" },
@@ -424,7 +424,7 @@ export async function handleMcp(req: Request, env: any, log: (rec: any) => Promi
       sanctions_batch: { price: "$1.00", when: "batch <=50 sanctions screens" },
       email_check: { price: "$0.002", when: "validate email before outreach/onboarding" },
       uk_dd: { price: "$1.00", when: "UK-only DD job: full CH + sanctions + optional domain → trust flag" },
-      kyb_report: { price: "$2.50", when: "UK/AU/CA/FR/NO registry+VAT+LEI+website+sanctions+director appointments KYB pack" },
+      kyb_report: { price: "$2.50", when: "UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ registry+VAT+LEI+website+sanctions+director appointments KYB pack" },
       uk_officer: { price: "$0.15", when: "UK officer name → appointments reverse search" },
       ...Object.fromEntries(CHAIN_ROUTES.map((r) => ["chain_" + r.path.slice(7).replace(/-/g, "_"), { price: r.price, when: r.desc.split(".")[0].slice(0, 90) }])),
       pricing: { price: "free" },
