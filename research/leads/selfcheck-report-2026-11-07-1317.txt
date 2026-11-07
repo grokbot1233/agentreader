@@ -1,0 +1,29 @@
+SELF-CHECK REPORT 2026-11-07 ~13:17 Europe/London (GMT)
+
+Live version + deploy id: 1.41.0 / cc8b8821-b4ea-4fa4-b478-70ee77c8469d
+Commit: 15ec607 on master (synced with origin/master)
+Overall status: improved
+
+PASS402: 80/80
+FAIL402: 0
+MCP: 81 tools; /health version 1.41.0
+Discovery: well-known/x402 + agent.json + openapi + llms + dashboard 200
+npm: @axiomworks/agentreader@1.41.0 staged/publishing; mcp may lag briefly
+
+Route failures: none (payment / x402 paths untouched and green).
+New: /us-entity 402 challenge OK; free preview 200; /samples/uk-leads-feed 200 (added in 1.40.3).
+
+Known upstream (non-route) notes:
+- Official EU FSF XML (webgate) still HTTP 500; mitigated by OpenSanctions eu_fsf CSV / keep-prior.
+- OFAC treasury/API often HTTP 525 from Workers; hybrid keep-prior (full OS SDN parse exceeds Worker CPU 1102).
+- /fr-company preview intermittent upstream 429 (known).
+- Admin /admin/sanctions-refresh sync can still hit CF 1102; index from prior refresh remains healthy (BANCO/PUTIN match).
+
+This run contributions:
+- 2e5cff0 feat(samples): /samples/uk-leads-feed — v1.40.3 (deployed earlier this hour)
+- Concurrent hour also shipped OFAC CPU mitigations (1.40.4–1.40.5) + /us-entity v1.41.0
+- npm publish attempted for 1.41.0 (409 already staged)
+
+Spend: $0
+Treasury: ~2.588 USDC / ~0.000399 ETH (payTo 0x88b1c747… Base)
+NOTIFY_LIAM: false

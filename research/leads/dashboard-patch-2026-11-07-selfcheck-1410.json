@@ -1,0 +1,32 @@
+{
+  "what_shipped": [
+    {
+      "when": "2026-11-07 13:17 GMT",
+      "version": "1.41.0",
+      "items": [
+        "feat: /us-entity $0.25 NY/CO/CT/OR/TX SOS business-entity lookup",
+        "feat(samples): /samples/uk-leads-feed for $25 big-hitter (1.40.3)",
+        "fix(sanctions): OFAC hybrid refresh + CONS keep-prior under Worker CPU (1.40.4\u20131.40.5)"
+      ],
+      "deploy": "cc8b8821-b4ea-4fa4-b478-70ee77c8469d",
+      "commit": "15ec607",
+      "npm": "@axiomworks/agentreader@1.41.0 + mcp (publishing/staged)",
+      "notes": "Hourly self-check; $0 spent; payment paths untouched."
+    }
+  ],
+  "self_check_latest": {
+    "at": "2026-11-07T13:17:59Z",
+    "live_version": "1.41.0",
+    "status": "improved",
+    "PASS402": 80,
+    "FAIL402": 0,
+    "mcp_tools": 81,
+    "note": "PASS402 80/80 (+/us-entity). /samples/uk-leads-feed 200. Big-hitter previews OK; /fr-company intermittent upstream 429. Sanctions index healthy (BANCO/PUTIN match); admin full rebuild can CPU 1102 \u2014 OFAC/EU keep-prior hybrid. EU webgate still 500; OFAC treasury often 525. Treasury ETH 0.00039894 / USDC 2.588.",
+    "deploy": "cc8b8821-b4ea-4fa4-b478-70ee77c8469d",
+    "commit": "15ec607",
+    "treasury_eth": 0.00039894,
+    "treasury_usdc": 2.588,
+    "spend_usd": 0,
+    "npm": "@axiomworks/agentreader@1.41.0"
+  }
+}
