@@ -475,6 +475,7 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         has_ch: !!data.ch && !data.ch.error,
         has_pl: !!data.pl && !data.pl.error,
         has_cz: !!data.cz && !data.cz.error,
+        has_be: !!data.be && !data.be.error,
         has_eu_vat: !!data.eu_vat && !data.eu_vat.error,
         has_au: !!data.au && !data.au.error,
         has_ca: !!data.ca && !data.ca.error,
