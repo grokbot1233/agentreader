@@ -180,6 +180,12 @@ tools = agentreader_tools(private_key=KEY, max_price_usd=0.01)
 - [`llama-index-tools-agentreader`](https://pypi.org/project/llama-index-tools-agentreader/) — LlamaIndex `FunctionTool` / ToolSpec
 - [`agentreader-agents`](https://pypi.org/project/agentreader-agents/) — PydanticAI `Tool` + OpenAI Agents SDK `function_tool`
 
+### Pairs well with
+
+- **Japanese suppliers:** [JPVerify](https://github.com/japanverify/jpverify-mcp) checks Japanese corporate numbers (法人番号) and qualified-invoice T-numbers. Resolve the supplier there, then screen its official English / romanized name with [`/sanctions-batch`](https://api.axiomworks.co.uk/sanctions-batch) (OFAC, UK, UN and EU lists; best on Latin-script names, see the note below).
+
+> **Name screening and non-Latin scripts:** the public lists are matched mainly on their Latin-script names and aliases. Submit the romanized or official English name (e.g. `Toyota Motor Corporation`); Japanese, Cyrillic or Arabic script only matches where the list itself carries that script as an alias. Since v1.39.3 non-Latin input no longer produces spurious matches.
+
 ## Limits
 
 Public http(s) URLs only (private/internal IPs blocked), 3 MB max, timeouts 10–120 s by route, 5 redirects, read/links/check cached ~5 min, max 40 active monitors.

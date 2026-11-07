@@ -63,10 +63,17 @@ function s(v: any) {
   return v == null ? "" : String(v).trim();
 }
 
+const TR2: Record<string, string> = { ø: "o", ß: "ss", æ: "ae", œ: "oe", ł: "l", đ: "d", ð: "d", þ: "th", ı: "i" };
+
+// Unicode-aware: Latin diacritics fold to ASCII; non-Latin scripts (CJK, Cyrillic, Arabic, Greek…) are KEPT
+// rather than stripped. Stripping them made every non-Latin query normalise to "" and "match" every
+// non-Latin list entry at score 1 (false positives) — fixed v1.39.3.
 export function normalizeName(raw: string): string {
-  let out = raw.toLowerCase();
+  let out = raw.normalize("NFKC").toLowerCase();
   out = out.replace(/[áàäâãåéèëêíìïîóòöôõøúùüûñçßæœ]/g, (c) => TR[c] || c);
-  out = out.replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+  out = out.replace(/[øßæœłđðþı]/g, (c) => TR2[c] || c);
+  out = out.normalize("NFD").replace(/(\p{Script=Latin})\p{M}+/gu, "$1").normalize("NFC");
+  out = out.replace(/[^\p{L}\p{N}\p{M}\s]/gu, " ").replace(/\s+/g, " ").trim();
   return out;
 }
 
@@ -575,12 +582,15 @@ function scoreEntry(q: string, qn: string, e: SanctionsEntry, opts: { type?: str
     if ((t === "individual" || t === "person") && e.type !== "individual") return 0;
     if ((t === "entity" || t === "company" || t === "organisation" || t === "organization") && e.type !== "entity") return 0;
   }
+  if (!qn) return 0;
+  const nq = normalizeName(q);
   let best = qn === e.n ? 1 : jaccard(qn, e.n);
-  if (normalizeName(q) === normalizeName(e.name)) best = Math.max(best, 1);
+  if (nq && nq === normalizeName(e.name)) best = Math.max(best, 1);
   for (const al of e.aliases) {
     const an = tokenSort(al);
+    if (!an) continue;
     best = Math.max(best, qn === an ? 1 : jaccard(qn, an));
-    if (normalizeName(q) === normalizeName(al)) best = 1;
+    if (nq && nq === normalizeName(al)) best = 1;
   }
   if (opts.country && e.nationality) {
     const c = normalizeName(opts.country);
