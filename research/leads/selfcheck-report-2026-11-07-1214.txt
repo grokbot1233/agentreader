@@ -1,0 +1,31 @@
+SELF-CHECK REPORT 2026-11-07 ~12:14 Europe/London (GMT)
+
+Live version + deploy id: 1.40.1 / e34751c3-6401-426b-82c7-3bc9ba1e262a
+Commit: 48505e6 on master (synced with origin/master)
+Overall status: healthy (improved vs prior hour; upstream EU/OFAC notes below are mitigated, not route failures)
+
+PASS402: 79/79
+FAIL402: 0
+MCP: 80 tools; serverInfo / agent.json /health version 1.40.1
+Discovery: well-known/x402 + agent.json + openapi + llms + dashboard 200
+npm: @axiomworks/agentreader@1.40.1 + @axiomworks/agentreader-mcp@1.40.1 published
+
+Route failures: none (payment / x402 paths untouched and green).
+
+Known upstream (non-route) notes:
+- Official EU FSF XML (webgate) still HTTP 500; mitigated by OpenSanctions eu_fsf CSV mirror (EU-FSF 6163, pub 2026-11-07).
+- OFAC SDN/CONS refresh from Worker got HTTP 525; kept prior counts (19555 / 486).
+- UN-SC 1007 + UK-FCDO 6420 refreshed OK.
+- Zelinsky preview hits EU-FSF after refresh.
+
+Fixes / improvements applied this run:
+- commit 48505e6 — fix(sanctions): OpenSanctions EU-FSF fallback when webgate XML 500 — v1.40.1
+- deploy e34751c3-6401-426b-82c7-3bc9ba1e262a
+- npm SDK+MCP 1.40.1
+
+Spend: $0 (no settlements, no paid listings, no ads)
+Treasury: ~2.588 USDC / ~0.000399 ETH (payTo 0x88b1c747… Base)
+NOTIFY_LIAM: false
+
+Completed when stopped: live verify + sanctions refresh + deploy + npm publish + commit + dashboard patch payload prepared (/tmp/dash-patch2.json).
+Remains (optional ops, not blocking health): ensure dashboard meta self_check_latest upserted to 1.40.1 if cache still shows 11:09/1.40.0; Apify sanctions-screening-batch still private until 2026-11-08 publish window.
