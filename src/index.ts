@@ -1777,7 +1777,13 @@ for (const p of POST_ONLY_PAID) {
     ...(p === "/uk-watch" ? { sample: `${CANONICAL}/samples/uk-watch`, watches: "status/officers/filings/PSC/charges" } : {}),
   }, 405));
 }
-app.notFound((c) => c.json({ error: "not found", see: "/llms.txt" }, 404));
+app.notFound((c) => {
+  // Malformed path-alias id (e.g. /uk-company/!!!) -> free guided 400 instead of a bare 404
+  const path = new URL(c.req.url).pathname; const seg = "/" + (path.split("/")[1] || "");
+  const doc = ALIAS_DOCS.find(([ap]) => ap.startsWith(seg + "/{"));
+  if (doc && path.length > seg.length + 1) return c.json({ error: `malformed identifier for ${doc[1]}: expected ${doc[0]}`, free: true, note: "Input rejected before payment; you were not charged.", canonical: `${doc[1]}?${doc[2].map((k) => `${k}=...`).join("&")}`, preview: `${doc[1]}?${doc[2].map((k) => `${k}=...`).join("&")}&preview=1`, see: "/llms.txt" }, 400);
+  return c.json({ error: "not found", see: "/llms.txt" }, 404);
+});
 
 // Explorer-style path aliases -> canonical paid routes (same x402 price/challenge). e.g. /tx/0xabc -> /tx?hash=0xabc
 const ALIASES: [RegExp, string, (m: RegExpMatchArray) => Record<string, string>][] = [
