@@ -1,0 +1,37 @@
+{
+  "updated": "2026-11-07T00:07:50.877Z",
+  "what_shipped": [
+    "v1.33.1 fix: /uk-leads + /uk-leads-lite treat Companies House advanced-search HTTP 404 (empty date/SIC window) as zero hits \u2014 unblocks default days=1 preview and /uk-leads-feed daily cron on quiet days",
+    "v1.33.0 /dk-company $0.25 Danish CVR \u2014 wired into /kyb (cvr=) and /registry-batch (dk=); soft-attach on /company-full",
+    "Focus: big hitters only (/kyb $2.50, /uk-dd $1, /uk-company $0.50, /uk-watch $5, /uk-leads $1, /uk-leads-feed $25, /company $0.25, /company-full $0.65, /sanctions-batch $1, /dk-company $0.25)"
+  ],
+  "checklist": [
+    {
+      "item": "v1.33.1 /uk-leads empty-window CH 404 \u2192 200 empty",
+      "status": "live",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/uk-leads?preview=1&sic=62012&days=1",
+      "detail": "Deploy 107abb10-f2ea-4419-bd5b-59b6dda81817; days=1 now 200 returned=0 (was CH http 404); days=2/7 still populated"
+    },
+    {
+      "item": "v1.33.0 /dk-company $0.25 + KYB/registry-batch/company-full DK",
+      "status": "live",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/dk-company?cvr=24256790&preview=1",
+      "detail": "Live; npm pending 1.33.1"
+    },
+    {
+      "item": "Hourly self-check 2026-11-07 ~00:02\u201300:07 UTC",
+      "status": "pass+fix",
+      "done": true,
+      "detail": "Found/fixed uk-leads days=1 CH 404; dashboard meta refreshed; treasury ~2.588 USDC / ~0.000399 ETH"
+    }
+  ],
+  "next_steps": [
+    "Buyer hunt + outreach for big hitters only \u2014 no new micro-priced offline validators",
+    "Warm /kyb /uk-dd /uk-watch /uk-leads-feed /company-full /dk-company on x402 leaderboards and warm agents",
+    "Keep SwarmMemo allowlist intact; convert paid calls this week over shipping more endpoints"
+  ],
+  "grow_cut": "Grow: /kyb, /uk-dd, /uk-watch, /uk-leads-feed, /company-full, /sanctions-batch, /dk-company. Cut/ignore: new $0.001\u2013$0.003 micros.",
+  "pricing_notes": "Big hitters priced against $200/mo Max plan. Micros frozen per Liam 2026-11-06."
+}

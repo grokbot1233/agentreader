@@ -1,0 +1,30 @@
+{
+  "updated": "2026-11-07T00:05:11.557Z",
+  "what_shipped": [
+    "v1.33.0 /dk-company $0.25 Danish CVR (apicvr.dk) \u2014 wired into /kyb (cvr=) and /registry-batch (dk=); soft-attach on /company-full when .dk/CVR signals",
+    "v1.32.0 /company-full soft-attaches FR/NO/AU/CA (+ UK CH + charity)",
+    "Focus: big hitters only (/kyb $2.50, /uk-dd $1, /uk-company $0.50, /uk-watch $5, /uk-leads $1, /uk-leads-feed $25, /company $0.25, /company-full $0.65, /sanctions-batch $1, /dk-company $0.25)"
+  ],
+  "next_steps": [
+    "Buyer hunt + outreach for big hitters only \u2014 no new micro-priced offline validators",
+    "Warm /kyb /uk-dd /uk-watch /uk-leads-feed /company-full /dk-company on x402 leaderboards and warm agents",
+    "Keep SwarmMemo allowlist intact; convert paid calls this week over shipping more endpoints"
+  ],
+  "grow_cut": "Grow: /kyb, /uk-dd, /uk-watch, /uk-leads-feed, /company-full, /sanctions-batch, /dk-company. Cut/ignore: new $0.001\u2013$0.003 micros.",
+  "pricing_notes": "Big hitters priced against $200/mo Max plan. Micros frozen per Liam 2026-11-06.",
+  "checklist": [
+    {
+      "item": "v1.33.0 /dk-company $0.25 + KYB/registry-batch/company-full DK",
+      "status": "live",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/dk-company?cvr=24256790&preview=1",
+      "detail": "Live health 1.33.0; npm @axiomworks/agentreader(+mcp) 1.33.0; x402scan registered; preview Novo Nordisk NORMAL Bagsv\u00e6rd"
+    },
+    {
+      "item": "Hourly self-check 2026-11-07 ~00:02 UTC",
+      "status": "pass",
+      "done": true,
+      "detail": "402/preview/400 big hitters OK; MCP 74 tools; treasury ~2.588 USDC / ~0.000399 ETH; facilitator Coinbase CDP"
+    }
+  ]
+}

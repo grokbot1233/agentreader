@@ -70,6 +70,10 @@ async function apiGet(env: EnvKV, path: string): Promise<any> {
     signal: AbortSignal.timeout(15000),
   });
   if (r.status === 429) throw new UserError("Companies House rate limited; retry shortly", 429);
+  // CH advanced-search returns HTTP 404 when the filter/date window matches nothing
+  // (common for days=1 on quiet weekends). Treat as empty result, not a hard failure —
+  // otherwise /uk-leads default preview and /uk-leads-feed daily cron break.
+  if (r.status === 404 && path.startsWith("/advanced-search/")) return { hits: 0, items: [] };
   if (!r.ok) throw new UserError(`Companies House http ${r.status}`, r.status === 404 ? 404 : 502);
   return r.json();
 }
