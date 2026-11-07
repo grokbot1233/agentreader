@@ -539,14 +539,19 @@ const ukDdOut = { type: "object", properties: {
   trust: { type: "object", properties: { flag: { type: "string" }, score: { type: "integer" }, reasons: { type: "array" } } } } };
 const kybIn = { type: "object", properties: {
   domain: { type: "string" }, number: { type: "string" }, company_number: { type: "string", description: "Alias of number" }, name: { type: "string" }, vat: { type: "string" },
-  country: { type: "string" }, vat_number: { type: "string" }, acn: { type: "string", description: "Australian ACN/ABN" }, ca_number: { type: "string", description: "Canadian corporation number" }, bn: { type: "string", description: "Canadian 9-digit BN" }, lei: { type: "string", description: "Optional 20-char GLEIF LEI (attaches parents)" },
+  country: { type: "string", description: "ISO2 (GB/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE/SK/US) or US-XX state; with id/registration_number/company_id routes to the right registry field. Also pairs with vat_number for VIES." },
+  id: { type: "string", description: "Generic registry id; with country= routes to number/acn/siren/orgnr/cvr/…/us_id" },
+  registration_number: { type: "string", description: "Alias of id" }, company_id: { type: "string", description: "Alias of id" }, reg_number: { type: "string", description: "Alias of id" }, registry_id: { type: "string", description: "Alias of id" },
+  jurisdiction: { type: "string", description: "Alias of country" }, country_code: { type: "string", description: "Alias of country" }, state: { type: "string", description: "US state when country=US (e.g. NY); maps to us_state" },
+  vat_number: { type: "string" }, acn: { type: "string", description: "Australian ACN/ABN" }, ca_number: { type: "string", description: "Canadian corporation number" }, bn: { type: "string", description: "Canadian 9-digit BN" }, lei: { type: "string", description: "Optional 20-char GLEIF LEI (attaches parents)" },
   siren: { type: "string", description: "French SIREN (9 digits)" }, siret: { type: "string", description: "French SIRET (14 digits)" },
   orgnr: { type: "string", description: "Norwegian organisasjonsnummer (9 digits)" },
   cvr: { type: "string", description: "Danish CVR (8 digits, optional DK prefix)" },
   ytunnus: { type: "string", description: "Finnish Y-tunnus / business ID (e.g. 0112038-9)" }, businessId: { type: "string", description: "Alias of ytunnus" }, fi: { type: "string", description: "Alias of ytunnus" },
   uid: { type: "string", description: "Swiss UID (e.g. CHE-105.909.036)" }, che: { type: "string", description: "Alias of uid" }, ch: { type: "string", description: "Alias of uid" },
   krs: { type: "string", description: "Polish KRS (10 digits)" }, nip: { type: "string", description: "Polish NIP (10 digits)" }, pl: { type: "string", description: "Alias of krs" }, ico: { type: "string", description: "Czech IČO (8 digits)" }, cz: { type: "string", description: "Alias of ico" }, enterprise_number: { type: "string", description: "Belgian CBE enterprise number (10 digits)" }, be: { type: "string", description: "Alias of enterprise_number" }, bce: { type: "string", description: "Alias of enterprise_number" }, kbo: { type: "string", description: "Alias of enterprise_number" }, sk: { type: "string", description: "Slovak IČO (8 digits) via RPO" }, ico_sk: { type: "string", description: "Alias of sk" }, rpo: { type: "string", description: "Alias of sk" },
-}, description: "Provide domain and/or UK number/name and/or AU/CA/FR/NO/DK/FI/CH/PL/CZ registry ids and/or EU vat and/or lei" };
+  us_state: { type: "string", description: "US state code NY/CO/CT/OR/TX (with us_id)" }, us_id: { type: "string", description: "US state registry entity id" }, us_name: { type: "string", description: "US entity name search across NY/CO/CT/OR/TX" },
+}, description: "Provide domain and/or UK number/name and/or AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE/SK/US registry ids (explicit fields or country+id/registration_number/company_id) and/or EU vat and/or lei" };
 const kybOut = { type: "object", properties: {
   product: { type: "string" }, disclaimer: { type: "string" }, website: {}, uk: {}, eu_vat: {}, lei: {},
   trust: { type: "object", properties: { flag: { type: "string" }, score: { type: "integer" }, reasons: { type: "array" } } } } };
