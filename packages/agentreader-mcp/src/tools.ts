@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const ORIGIN = process.env.AGENTREADER_ORIGIN || "https://api.axiomworks.co.uk";
-export const VERSION = "1.33.1";
+export const VERSION = "1.34.0";
 import CHAIN from "./chain-routes.json";
 
 const CH = z.enum(["base", "ethereum", "arbitrum", "optimism", "polygon"]).optional();
@@ -286,10 +286,18 @@ const ALL_TOOLS: ToolDef[] = [
     previewable: true,
   },
   {
+    name: "fi_company",
+    description: "Finnish company lookup via PRH YTJ open data (CC BY 4.0) by businessId/ytunnus (e.g. 0112038-9) or name. $0.25 USDC.",
+    price: "$0.25",
+    schema: { businessId: z.string().optional(), ytunnus: z.string().optional(), fi: z.string().optional(), number: z.string().optional(), name: z.string().optional(), q: z.string().optional(), limit: z.string().optional() },
+    http: (a) => `${ORIGIN}/fi-company?${qs(a)}`,
+    previewable: true,
+  },
+  {
     name: "registry_batch",
-    description: "Batch verify up to 25 UK (Companies House, max 10), Australian (ACN/ABN), Canadian (number/BN), French (SIREN), Norwegian (orgnr) and Danish (CVR) companies in one call; comma-separated ids. $0.30 USDC.",
+    description: "Batch verify up to 25 UK (Companies House, max 10), Australian (ACN/ABN), Canadian (number/BN), French (SIREN), Norwegian (orgnr), Danish (CVR) and Finnish (Y-tunnus) companies in one call; comma-separated ids. $0.30 USDC.",
     price: "$0.30",
-    schema: { uk: z.string().optional(), au: z.string().optional(), ca: z.string().optional(), fr: z.string().optional(), no: z.string().optional(), dk: z.string().optional() },
+    schema: { uk: z.string().optional(), au: z.string().optional(), ca: z.string().optional(), fr: z.string().optional(), no: z.string().optional(), dk: z.string().optional(), fi: z.string().optional() },
     http: (a) => `${ORIGIN}/registry-batch?${new URLSearchParams(Object.entries(a).filter(([, v]) => v) as any)}`,
   },
   {
@@ -648,7 +656,7 @@ const ALL_TOOLS: ToolDef[] = [
   },
   {
     name: "kyb_report",
-    description: "Agent KYB pack: UK/AU/CA/FR registry + EU VAT + optional GLEIF LEI (parents) + website + sanctions + director appointments → trust flag. Screening only. $2.50 USDC.",
+    description: "Agent KYB pack: UK/AU/CA/FR/NO/DK/FI registry + EU VAT + optional GLEIF LEI (parents) + website + sanctions + director appointments → trust flag. Screening only. $2.50 USDC.",
     price: "$2.50",
     schema: {
       domain: z.string().optional(),
@@ -664,6 +672,11 @@ const ALL_TOOLS: ToolDef[] = [
       lei: z.string().optional(),
       siren: z.string().optional(),
       siret: z.string().optional(),
+      orgnr: z.string().optional(),
+      cvr: z.string().optional(),
+      ytunnus: z.string().optional(),
+      businessId: z.string().optional(),
+      fi: z.string().optional(),
     },
     http: (a) => `${ORIGIN}/kyb?${qs(a)}`,
     previewable: true,

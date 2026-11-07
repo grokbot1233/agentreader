@@ -4,6 +4,7 @@ import { ukCharity } from "./uk-charity";
 import { frCompany } from "./fr-company";
 import { noCompany } from "./no-company";
 import { dkCompany } from "./dk-company";
+import { fiCompany, ytunnusCheckDigit } from "./fi-company";
 import { luhnOk } from "./fr-company-id";
 import type { KybRegistries } from "./kyb";
 
@@ -11,6 +12,7 @@ const UK_TLDS = /\.(co\.uk|org\.uk|me\.uk|gov\.uk|ac\.uk|uk)$/i;
 const FR_TLDS = /\.fr$/i;
 const NO_TLDS = /\.no$/i;
 const DK_TLDS = /\.dk$/i;
+const FI_TLDS = /\.fi$/i;
 const AU_TLDS = /\.(com\.au|net\.au|org\.au|edu\.au|gov\.au|au)$/i;
 const CA_TLDS = /\.ca$/i;
 const WELL_KNOWN_UK = /^(tesco|sainsbury|sainsburys|barclays|lloyds|bt|vodafone|easyjet|bbc|revolut|monzo|wise)$/i;
@@ -59,6 +61,32 @@ function findNoOrgnrInText(text: string): string | null {
     if (d.length === 9) return d;
   }
   return null;
+}
+
+
+function findFiYtunnusInText(text: string): string | null {
+  for (const m of text.matchAll(/\b(?:Y-?tunnus|business\s*id|FI\s*business\s*(?:id|number)|ytunnus)[:\s#]*(\d{7}[-\s]?\d)\b/gi)) {
+    const d = m[1].replace(/\D/g, "");
+    if (d.length === 8) {
+      const expected = ytunnusCheckDigit(d.slice(0, 7));
+      if (expected != null && expected === Number(d[7])) return `${d.slice(0, 7)}-${d[7]}`;
+    }
+  }
+  // bare NNNNNNN-C pattern
+  for (const m of text.matchAll(/\b(\d{7})-(\d)\b/g)) {
+    const expected = ytunnusCheckDigit(m[1]);
+    if (expected != null && expected === Number(m[2])) return `${m[1]}-${m[2]}`;
+  }
+  return null;
+}
+
+function finnishSignals(domain: string, blob: string, desc: string): boolean {
+  return (
+    FI_TLDS.test(domain) ||
+    !!findFiYtunnusInText(blob) ||
+    /\b(finland|finnish|suomi|suomalainen|y-?tunnus|business\s*id)\b/i.test(blob) ||
+    /\bfinland\b/i.test(desc)
+  );
 }
 
 function findDkCvrInText(text: string): string | null {
@@ -242,7 +270,36 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     dk = null;
   }
 
+
+  let fi: any = null;
+  let fi_skip_reason: string | null = null;
+  const ytunnus = findFiYtunnusInText(blob);
+  const looksFi = finnishSignals(domain, blob, desc);
+  try {
+    if (ytunnus) {
+      fi = await fiCompany({ ytunnus, lite: true });
+    } else if (FI_TLDS.test(domain) || (looksFi && /y-?tunnus|business\s*id|finland|suomi/i.test(blob))) {
+      const titleGuess = extractPossibleName(company);
+      const cleanedTitle = titleGuess
+        ? titleGuess.replace(/^(tervetuloa|welcome\s+to|official\s+site\s+of)\s+/i, "").trim()
+        : null;
+      const candidates = [cleanedTitle, titleGuess, sld.replace(/\s+/g, " ")].filter((x): x is string => !!x && x.length >= 2);
+      let lastErr: any = null;
+      for (const name of [...new Set(candidates)]) {
+        try { fi = await fiCompany({ name, lite: true }); lastErr = null; break; }
+        catch (e: any) { lastErr = e; }
+      }
+      if (!fi && lastErr) throw lastErr;
+    } else {
+      fi_skip_reason = "No Finnish company signals (.fi TLD, Y-tunnus, or FI keywords).";
+    }
+  } catch (e: any) {
+    fi_skip_reason = `FI lookup skipped: ${e?.message || e}`;
+    fi = null;
+  }
+
   let au: any = null;
+
   let au_skip_reason: string | null = null;
   const auId = findAuAcnOrAbn(blob);
   try {
@@ -285,6 +342,7 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     fr && "FR",
     no && "NO",
     dk && "DK",
+    fi && "FI",
     au && "AU",
     ca && "CA",
   ].filter(Boolean);
@@ -294,7 +352,7 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     domain,
     bundle: "company-full",
     price: "$0.65",
-    savings_vs_separate: "Cheaper than /company + separate UK/FR/NO/DK/AU/CA/charity calls when those registries auto-attach",
+    savings_vs_separate: "Cheaper than /company + separate UK/FR/NO/DK/FI/AU/CA/charity calls when those registries auto-attach",
     company,
     company_error,
     uk,
@@ -312,6 +370,9 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     dk,
     dk_included: !!dk,
     dk_skip_reason,
+    fi,
+    fi_included: !!fi,
+    fi_skip_reason,
     au,
     au_included: !!au,
     au_skip_reason,
@@ -321,6 +382,6 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     registries_attached: attached,
     note: attached.length
       ? `Includes company research + auto-attached registries: ${attached.join(", ")}. Soft-skipped jurisdictions list *_skip_reason.`
-      : "Includes company research. UK/FR/NO/DK/AU/CA/charity packs attach when domain/page signals match; otherwise see *_skip_reason fields.",
+      : "Includes company research. UK/FR/NO/DK/FI/AU/CA/charity packs attach when domain/page signals match; otherwise see *_skip_reason fields.",
   };
 }

@@ -4,7 +4,7 @@ import { privateKeyToAccount } from "viem/accounts";
 import type { Chain, ClientOptions, RequestOpts } from "./types.js";
 
 const DEFAULT_ORIGIN = "https://api.axiomworks.co.uk";
-const VERSION = "1.33.1";
+const VERSION = "1.34.0";
 
 function normalizeKey(raw?: string): `0x${string}` | undefined {
   if (!raw) return undefined;
@@ -260,6 +260,9 @@ export class AgentReaderClient {
   /** Danish company lookup (CVR via apicvr.dk) by cvr/name ($0.25). */
   dkCompany(input: { cvr?: string; number?: string; vat?: string; name?: string; q?: string; limit?: number | string }, opts?: RequestOpts) {
     return this.get("/dk-company", input as any, opts);
+  }
+  fiCompany(input: { businessId?: string; ytunnus?: string; fi?: string; number?: string; name?: string; q?: string; limit?: number | string }, opts?: RequestOpts) {
+    return this.get("/fi-company", input as any, opts);
   }
   /** Australian company lookup (ASIC register) by ACN or ABN ($0.02). */
   auCompany(input: { acn?: string; abn?: string }, opts?: RequestOpts) {

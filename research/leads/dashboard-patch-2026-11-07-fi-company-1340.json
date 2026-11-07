@@ -1,0 +1,20 @@
+{
+  "updated": "2026-11-07T01:05:00.000Z",
+  "what_shipped": [
+    "v1.34.0 /fi-company $0.25 Finnish PRH YTJ open data (CC BY 4.0) — wired into /kyb (ytunnus=/businessId=/fi=) and /registry-batch (fi=); soft-attach on /company-full for .fi / Y-tunnus signals",
+    "Focus: big hitters only (/kyb $2.50, /uk-dd $1, /uk-company $0.50, /uk-watch $5, /uk-leads $1, /uk-leads-feed $25, /company $0.25, /company-full $0.65, /sanctions-batch $1, /dk-company $0.25, /fi-company $0.25)"
+  ],
+  "checklist": [
+    {
+      "item": "v1.34.0 /fi-company $0.25 + KYB/registry-batch/company-full FI",
+      "status": "shipping",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/fi-company?businessId=0112038-9&preview=1",
+      "detail": "Nokia Oyj via PRH; bare GET 402 maxAmountRequired 250000"
+    }
+  ],
+  "next_steps": [
+    "Buyer hunt / outreach for FI KYB attach",
+    "Watch x402scan + warm buyers for /fi-company"
+  ]
+}
