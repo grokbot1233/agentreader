@@ -72,6 +72,14 @@ export function aliasInput(path: string, b: any) {
     if (!s(b.enterprise_number) && s(b.vat)) b.enterprise_number = s(b.vat);
     if (!s(b.name) && s(b.q)) b.name = s(b.q);
   }
+  if (path === "/sk-company") {
+    if (!s(b.ico) && !s(b.sk) && !s(b.ico_sk) && !s(b.rpo) && !s(b.identifier) && Object.prototype.hasOwnProperty.call(b, "number")) b.ico = s(b.number);
+    if (!s(b.ico) && s(b.identifier)) b.ico = s(b.identifier);
+    if (!s(b.ico) && s(b.sk)) b.ico = s(b.sk);
+    if (!s(b.ico) && s(b.ico_sk)) b.ico = s(b.ico_sk);
+    if (!s(b.ico) && s(b.rpo)) b.ico = s(b.rpo);
+    if (!s(b.name) && s(b.q)) b.name = s(b.q);
+  }
   if (path === "/fn-at") {
     if (!s(b.fn) && Object.prototype.hasOwnProperty.call(b, "number")) b.fn = s(b.number);
     if (!s(b.fn) && Object.prototype.hasOwnProperty.call(b, "firmenbuch")) b.fn = s(b.firmenbuch);
@@ -229,7 +237,7 @@ export const VALIDATE: Record<string, (b: any) => string | null> = {
   "/lei": (b) => lei(b),
   "/lei-full": (b) => leiFull(b),
   "/read-batch": (b) => readBatch(b),
-  "/registry-batch": (b) => { const n = (s(b.uk) + "," + s(b.au) + "," + s(b.ca) + "," + s(b.fr) + "," + s(b.no) + "," + s(b.dk) + "," + s(b.fi) + "," + s(b.ch) + "," + s(b.pl) + "," + s(b.cz) + "," + s(b.be)).split(/[\s,;]+/).filter((x) => /\d/.test(x)).length; return n === 0 ? "uk, au, ca, fr, no, dk, fi, ch, pl, cz or be ids required" : n > 25 ? "max 25 ids total" : null; },
+  "/registry-batch": (b) => { const n = (s(b.uk) + "," + s(b.au) + "," + s(b.ca) + "," + s(b.fr) + "," + s(b.no) + "," + s(b.dk) + "," + s(b.fi) + "," + s(b.ch) + "," + s(b.pl) + "," + s(b.cz) + "," + s(b.be) + "," + s(b.sk)).split(/[\s,;]+/).filter((x) => /\d/.test(x)).length; return n === 0 ? "uk, au, ca, fr, no, dk, fi, ch, pl, cz, be or sk ids required" : n > 25 ? "max 25 ids total" : null; },
   "/ca-company": (b) => { const n = s(b.number).replace(/\D/g, ""), bn = s(b.bn).replace(/\D/g, ""); return (n && n.length <= 8) || bn.length >= 9 ? null : "number (up to 8 digits) or bn (9 digits) required"; },
   "/au-company": (b) => { const r = s(b.acn || b.abn).replace(/\s/g, ""); return /^(\d{9}|\d{11})$/.test(r) ? null : "acn must be 9 digits (or abn 11 digits)"; },
   "/fr-company": (b) => { const siren = s(b.siren).replace(/\D/g, ""), siret = s(b.siret).replace(/\D/g, ""), name = s(b.name || b.q); if (siret) return siret.length === 14 ? null : "siret must be 14 digits"; if (siren) return siren.length === 9 ? null : "siren must be 9 digits"; if (name) return name.length >= 2 ? null : "name too short"; return "siren, siret or name required"; },
@@ -240,6 +248,7 @@ export const VALIDATE: Record<string, (b: any) => string | null> = {
   "/pl-company": (b) => { aliasInput("/pl-company", b); const krsRaw = s(b.krs || b.pl || b.number); const nipRaw = s(b.nip); const krs = krsRaw.replace(/\D/g, ""); const nip = nipRaw.replace(/[\s\-.]/g, "").replace(/^PL/i, "").replace(/\D/g, ""); if (krs) return krs.length <= 10 && krs.length >= 1 ? null : "krs must be up to 10 digits"; if (nip) return nip.length === 10 ? null : "nip must be 10 digits"; if (krsRaw) return "krs must be up to 10 digits"; if (nipRaw) return "nip must be 10 digits"; return "krs or nip required (no free-text name search for PL)"; },
   "/cz-company": (b) => { aliasInput("/cz-company", b); const icoRaw = s(b.ico || b.cz || b.number || b.dic); const raw = icoRaw.replace(/[\s\-./]/g, "").replace(/^CZ/i, "").replace(/\D/g, ""); const name = s(b.name || b.q); if (raw) return raw.length <= 8 && raw.length >= 1 ? null : "ico must be up to 8 digits"; if (icoRaw) return "ico must be up to 8 digits (e.g. 27082440)"; if (name) return name.length >= 2 ? null : "name too short"; return "ico or name required"; },
   "/be-company": (b) => { aliasInput("/be-company", b); const entRaw = s(b.enterprise_number || b.be || b.bce || b.kbo || b.number || b.vat); let raw = entRaw.replace(/[\s\-./]/g, "").replace(/^BE/i, ""); const name = s(b.name || b.q); if (raw) { if (!/^\d+$/.test(raw)) return "enterprise_number must be digits"; if (raw.length === 9) raw = "0" + raw; return raw.length === 10 ? null : "enterprise_number must be 9 or 10 digits"; } if (entRaw) return "enterprise_number must be 9 or 10 digits (e.g. 0202239951)"; if (name) return name.length >= 2 ? null : "name too short"; return "enterprise_number or name required"; },
+  "/sk-company": (b) => { aliasInput("/sk-company", b); const icoRaw = s(b.ico || b.identifier || b.sk || b.ico_sk || b.rpo || b.number); const raw = icoRaw.replace(/[\s\-./]/g, "").replace(/^SK/i, "").replace(/\D/g, ""); const name = s(b.name || b.q); if (raw) return raw.length <= 8 && raw.length >= 1 ? null : "ico must be up to 8 digits"; if (icoRaw) return "ico must be up to 8 digits (e.g. 31322832)"; if (name) return name.length >= 2 ? null : "name too short"; return "ico or name required"; },
   "/monitor": (b) => first(url(b.url), url(b.webhook, "webhook"), s(b.webhook) && !s(b.webhook).startsWith("https://") ? "webhook must be https" : null),
   "/wallet": (b) => first(addr(b.address, "address"), chain(b.chain), s(b.tokens) && s(b.tokens).split(",").some((t) => !ADDR.test(t.trim())) ? "tokens must be comma-separated 0x addresses" : null, s(b.tokens).split(",").length > 10 ? "max 10 tokens" : null),
   "/tx": (b) => first(!s(b.hash) ? "missing hash" : HASH.test(s(b.hash)) ? null : "hash must be 0x + 64 hex chars", chain(b.chain)),
@@ -384,7 +393,7 @@ function ukDd(b: any) {
 function kyb(b: any) {
   aliasInput("/kyb", b);
   const domain = s(b.domain), number = s(b.number), name = s(b.name), vat = s(b.vat);
-  if (!domain && !number && !name && !vat && !s(b.acn) && !s(b.abn) && !s(b.ca_number) && !s(b.bn) && !(s(b.country) && s(b.vat_number)) && !s(b.lei) && !s(b.siren) && !s(b.siret) && !s(b.orgnr) && !s(b.cvr) && !s(b.ytunnus) && !s(b.businessId) && !s(b.fi) && !s(b.uid) && !s(b.che) && !s(b.ch) && !s(b.krs) && !s(b.nip) && !s(b.pl) && !s(b.ico) && !s(b.cz) && !s(b.enterprise_number) && !s(b.be) && !s(b.bce) && !s(b.kbo)) return "provide domain and/or UK number/name, AU acn/abn, CA ca_number/bn, FR siren/siret, NO orgnr, DK cvr, FI ytunnus/businessId, CH uid, PL krs/nip, CZ ico, BE enterprise_number, EU vat and/or lei";
+  if (!domain && !number && !name && !vat && !s(b.acn) && !s(b.abn) && !s(b.ca_number) && !s(b.bn) && !(s(b.country) && s(b.vat_number)) && !s(b.lei) && !s(b.siren) && !s(b.siret) && !s(b.orgnr) && !s(b.cvr) && !s(b.ytunnus) && !s(b.businessId) && !s(b.fi) && !s(b.uid) && !s(b.che) && !s(b.ch) && !s(b.krs) && !s(b.nip) && !s(b.pl) && !s(b.ico) && !s(b.cz) && !s(b.enterprise_number) && !s(b.be) && !s(b.bce) && !s(b.kbo) && !s(b.sk) && !s(b.ico_sk) && !s(b.rpo)) return "provide domain and/or UK number/name, AU acn/abn, CA ca_number/bn, FR siren/siret, NO orgnr, DK cvr, FI ytunnus/businessId, CH uid, PL krs/nip, CZ ico, BE enterprise_number, SK sk/ico_sk/rpo, EU vat and/or lei";
   if (domain) { const d = domainish(domain); if (d) return d; }
   if (number && !CHNUM.test(number)) return "number must be a Companies House number";
   if (vat && (!/^(?:GR|[A-Z]{2})[A-Z0-9]{2,12}$/i.test(vat.replace(/[\s.-]/g, "")) || !/\d/.test(vat.replace(/[\s.-]/g, "").slice(2)))) return "vat must look like DE123456789 or IE6388047V";
@@ -409,9 +418,11 @@ function kyb(b: any) {
   if (czRaw) { const d = czRaw.replace(/[\s\-./]/g, "").replace(/^CZ/i, "").replace(/\D/g, ""); if (!d || d.length > 8) return "ico must be up to 8 digits"; }
   const beRaw = s(b.enterprise_number) || s(b.be) || s(b.bce) || s(b.kbo);
   if (beRaw) { let d = beRaw.replace(/[\s\-./]/g, "").replace(/^BE/i, ""); if (!/^\d+$/.test(d)) return "enterprise_number must be digits"; if (d.length === 9) d = "0" + d; if (d.length !== 10) return "enterprise_number must be 9 or 10 digits"; }
+  const skRaw = s(b.sk) || s(b.ico_sk) || s(b.rpo);
+  if (skRaw) { const d = skRaw.replace(/[\s\-./]/g, "").replace(/^SK/i, "").replace(/\D/g, ""); if (!d || d.length > 8) return "sk/ico_sk/rpo must be up to 8 digits"; }
   return null;
 }
 
 export const TOOL_PATH: Record<string, string> = { read_url: "/read", extract_links: "/links", check_domain: "/check", company_research: "/company", uk_company: "/uk-company", uk_company_lite: "/uk-company-lite",
-  company_full: "/company-full", convert_document: "/convert", create_monitor: "/monitor", wallet_balances: "/wallet", tx_status: "/tx", token_check: "/token-check", fx_rates: "/fx", au_company: "/au-company", ca_company: "/ca-company", fr_company: "/fr-company", no_company: "/no-company", dk_company: "/dk-company", fi_company: "/fi-company", ch_company: "/ch-company", pl_company: "/pl-company", cz_company: "/cz-company", be_company: "/be-company", registry_batch: "/registry-batch",
+  company_full: "/company-full", convert_document: "/convert", create_monitor: "/monitor", wallet_balances: "/wallet", tx_status: "/tx", token_check: "/token-check", fx_rates: "/fx", au_company: "/au-company", ca_company: "/ca-company", fr_company: "/fr-company", no_company: "/no-company", dk_company: "/dk-company", fi_company: "/fi-company", ch_company: "/ch-company", pl_company: "/pl-company", cz_company: "/cz-company", be_company: "/be-company", sk_company: "/sk-company", registry_batch: "/registry-batch",
   ens_lookup: "/ens", token_metadata: "/token", token_allowance: "/allowance", contract_info: "/contract", gas_fees: "/gas", block_lookup: "/block", nft_lookup: "/nft", web_search: "/search", uk_property_prices: "/uk-property", uk_area_profile: "/uk-area", uk_charity: "/uk-charity", uk_charity_full: "/uk-charity-full", us_sec: "/us-sec", us_sec_full: "/us-sec-full", eu_vat: "/eu-vat", lei_lookup: "/lei", lei_full: "/lei-full", read_batch: "/read-batch", uk_leads: "/uk-leads", uk_leads_lite: "/uk-leads-lite", uk_leads_feed: "/uk-leads-feed", uk_watch: "/uk-watch", uk_dd: "/uk-dd", kyb_report: "/kyb", email_check: "/email-check", domain_lookup: "/domain", dns_lookup: "/dns", url_redirects: "/redirects", page_meta: "/meta", http_headers: "/headers", iban_validate: "/iban", phone_check: "/phone", uk_postcode_validate: "/uk-postcode", siren_validate: "/siren", siret_validate: "/siret", partita_iva_validate: "/partita-iva", orgnr_se_validate: "/orgnr", bn_ca_validate: "/bn-ca", cvr_dk_validate: "/cvr", fn_at_validate: "/fn-at", cin_in_validate: "/cin-in", kvk_nl_validate: "/kvk-nl", hr_de_validate: "/hr-de", nif_es_validate: "/nif-es", cnpj_validate: "/cnpj", nip_pl_validate: "/nip-pl", uid_ch_validate: "/uid-ch", sanctions_screen: "/sanctions", sanctions_batch: "/sanctions-batch", uk_officer: "/uk-officer" };

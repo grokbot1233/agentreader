@@ -279,6 +279,10 @@ export class AgentReaderClient {
   beCompany(input: { enterprise_number?: string; number?: string; be?: string; bce?: string; kbo?: string; vat?: string; name?: string; q?: string; limit?: number | string }, opts?: RequestOpts) {
     return this.get("/be-company", input as any, opts);
   }
+  /** Slovak company lookup (RPO) by IČO/name ($0.25). */
+  skCompany(input: { ico?: string; identifier?: string; sk?: string; ico_sk?: string; rpo?: string; number?: string; name?: string; q?: string; limit?: number | string }, opts?: RequestOpts) {
+    return this.get("/sk-company", input as any, opts);
+  }
   /** Australian company lookup (ASIC register) by ACN or ABN ($0.02). */
   auCompany(input: { acn?: string; abn?: string }, opts?: RequestOpts) {
     return this.get("/au-company", input as any, opts);
