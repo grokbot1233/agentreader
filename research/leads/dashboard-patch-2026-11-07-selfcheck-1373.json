@@ -1,0 +1,54 @@
+{
+  "updated": "2026-11-07T07:08:40.790272Z",
+  "self_check_latest": {
+    "at": "2026-11-07T07:08:00Z",
+    "live_version": "1.37.3",
+    "PASS402": 77,
+    "FAIL402": 0,
+    "note": "GET 74/77 + POST3 for watch/leads-feed/monitor; all well-formed 402. MCP 78 tools serverInfo 1.37.3. Shipped clearer free-400s for non-digit NO/PL/CZ ids. Prior 1.37.2 latency bounds already live.",
+    "deploy": "575939e6-12e7-4364-af43-1812749606ab",
+    "commit": "dfd013f",
+    "treasury_eth": 0.00039894,
+    "treasury_usdc": 2.588,
+    "spend_usd": 0
+  },
+  "what_shipped": [
+    "v1.37.3 fix: clearer free-400s when orgnr/krs/ico are non-digit garbage (was generic '\u2026 required')",
+    "v1.37.2 fix: bound /company enrichment latency (news/RDAP/sitemap/SSL) \u2014 prior ship",
+    "v1.37.1 /company-full+/kyb CZ docs \u2014 prior ship",
+    "v1.37.0 /cz-company Czech ARES \u2014 prior ship"
+  ],
+  "checklist": [
+    {
+      "item": "v1.37.3 NO/PL/CZ free-400 digit messages",
+      "status": "live",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/cz-company?ico=abc&preview=1",
+      "detail": "Deploy 575939e6-12e7-4364-af43-1812749606ab; ico=abc\u2192'ico must be up to 8 digits'; krs=abc/orgnr=abc similarly specific"
+    },
+    {
+      "item": "v1.37.2 /company enrichment latency bounds",
+      "status": "live",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/company?domain=example.com&preview=1",
+      "detail": "Prior ship 27115cd; previews ~1.4\u20136s after Google News RSS hang fix"
+    },
+    {
+      "item": "v1.37.0 /cz-company Czech ARES",
+      "status": "live",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/cz-company?ico=27082440&preview=1",
+      "detail": "Prior ship; preview Alza.cz OK; bare 402 250000"
+    }
+  ],
+  "needed_from_liam": [],
+  "ops_notes": "Hourly self-check 2026-11-07 ~07:08 GMT: healthy on 1.37.2 then shipped validation-message 1.37.3. npm @axiomworks/agentreader(+mcp) 1.37.3 published (registry may lag). No spend. Tree left with untracked research files.",
+  "treasury": {
+    "usdc": 2.588,
+    "eth": 0.00039894,
+    "payTo": "0x88b1c747c33A5868A34057D8C57318E5602b3ff6",
+    "note": "Below $20 sweep threshold; ETH for gas. No funds moved.",
+    "checked_at": "2026-11-07T07:06:00Z",
+    "source": "Base public RPC 1rpc.io/base read-only"
+  }
+}

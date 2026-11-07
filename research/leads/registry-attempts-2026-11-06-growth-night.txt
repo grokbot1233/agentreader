@@ -1,0 +1,51 @@
+== 2026-11-06T23:33:22Z growth-night discovery registry ==
+-- 402index.io big hitters --
+/kyb: 400 {"error":"Missing required fields: protocol","required":["url","name","protocol"]}
+/uk-dd: 400 {"error":"Missing required fields: protocol","required":["url","name","protocol"]}
+/uk-company: 400 {"error":"Missing required fields: protocol","required":["url","name","protocol"]}
+/uk-watch: 400 {"error":"Missing required fields: protocol","required":["url","name","protocol"]}
+/uk-leads: 400 {"error":"Missing required fields: protocol","required":["url","name","protocol"]}
+/uk-leads-feed: 400 {"error":"Missing required fields: protocol","required":["url","name","protocol"]}
+/company: 400 {"error":"Missing required fields: protocol","required":["url","name","protocol"]}
+/company-full: 400 {"error":"Missing required fields: protocol","required":["url","name","protocol"]}
+/sanctions-batch: 400 {"error":"Missing required fields: protocol","required":["url","name","protocol"]}
+/uk-charity-full: 400 {"error":"Missing required fields: protocol","required":["url","name","protocol"]}
+/registry-batch: 400 {"error":"Missing required fields: protocol","required":["url","name","protocol"]}
+/uk-officer: 400 {"error":"Missing required fields: protocol","required":["url","name","protocol"]}
+/fr-company: 400 {"error":"Missing required fields: protocol","required":["url","name","protocol"]}
+/no-company: 400 {"error":"Missing required fields: protocol","required":["url","name","protocol"]}
+/au-company: 400 {"error":"Missing required fields: protocol","required":["url","name","protocol"]}
+/ca-company: 400 {"error":"Missing required fields: protocol","required":["url","name","protocol"]}
+-- a2a-registry.org --
+<html>
+<head><title>301 Moved Permanently</title></head>
+<body>
+<center><h1>301 Moved Permanently</h1></center>
+<hr><center>cloudflare</center>
+</body>
+</html>
+
+-- a2aregistry.org --
+HTTP HTTP/2 404  Retry-After= body={"detail":"Resource not found","path":"http://a2aregistry.org/api/v1/agents"}
+== 2026-11-06T23:34:57Z growth-night discovery registry (retry w/ protocol) ==
+-- 402index.io --
+/kyb: 201 {"message":"Service registered and live (domain verified).","service":{"id":"e8e8dcd9-c425-4e58-bc0a-9b313831bd9b","name":"Axiom Works AgentReader /kyb","description":"KYB report: UK Companies House + EU VIES VAT + domain/DNS + risk flags",
+/uk-dd: 201 {"message":"Service registered and live (domain verified).","service":{"id":"cfd8eeee-1278-49d1-a0ea-89f14967c388","name":"Axiom Works AgentReader /uk-dd","description":"UK company due diligence pack (CH profile, officers, filings, red flag
+/uk-company: 201 {"message":"Service registered and live (domain verified).","service":{"id":"3c50c75f-ea88-4bb9-96f3-d3362317fbe2","name":"Axiom Works AgentReader /uk-company","description":"UK Companies House company profile by number or name","url":"http
+/uk-watch: 201 {"message":"Service registered and live (domain verified).","service":{"id":"a56d480a-c269-4833-9d3f-9f892bc36e23","name":"Axiom Works AgentReader /uk-watch","description":"Watch a UK company for filings/officer/status changes; webhook aler
+/uk-leads: 201 {"message":"Service registered and live (domain verified).","service":{"id":"0ccda457-c36c-4e94-b765-d7f1bfda60d1","name":"Axiom Works AgentReader /uk-leads","description":"New UK company leads by SIC/location with officers + contact signal
+/uk-leads-feed: 201 {"message":"Service registered and live (domain verified).","service":{"id":"1a14e0fa-7492-4e1e-90ef-c1ad001272c9","name":"Axiom Works AgentReader /uk-leads-feed","description":"Daily webhook feed of new UK companies matching SIC/location (
+/company: 201 {"message":"Service registered and live (domain verified).","service":{"id":"22afac21-f5a1-4633-a1a6-a7bcbc1174c7","name":"Axiom Works AgentReader /company","description":"Company enrichment from domain (registry + web signals)","url":"http
+/company-full: 201 {"message":"Service registered and live (domain verified).","service":{"id":"15fa2e8e-177e-4da9-aeae-8fcf1995a568","name":"Axiom Works AgentReader /company-full","description":"Full company pack: domain + multi-registry soft attach","url":"
+/sanctions-batch: 201 {"message":"Service registered and live","service":{"id":"221edb29-9d8a-449c-9cc5-e4da84c694e8","name":"Axiom Works AgentReader /sanctions-batch","description":"Batch sanctions screening (OFAC/UK/UN/EU)","url":"https://api.axiomworks.co.uk/
+/uk-charity-full: 201 {"message":"Service registered and live (domain verified).","service":{"id":"4582da79-5e3f-4bd1-b5e5-bae7eba9f841","name":"Axiom Works AgentReader /uk-charity-full","description":"UK Charity Commission full profile","url":"https://api.axiom
+/registry-batch: 201 {"message":"Service registered and live (domain verified).","service":{"id":"6461eb0f-b9fc-400a-a068-0fd8db31e1fc","name":"Axiom Works AgentReader /registry-batch","description":"Batch multi-jurisdiction company registry lookups","url":"htt
+/uk-officer: 422 {"error":"x402 verification failed","detail":"Your endpoint returned HTTP 400 instead of 402. x402 endpoints must return 402 Payment Required for unauthenticated requests.","probe":{"httpStatus":400,"headersPresent":{"WWW-Authenticate":fals
+/fr-company: 201 {"message":"Service registered and live (domain verified).","service":{"id":"e819a175-52eb-4e74-858e-741937d85d1d","name":"Axiom Works AgentReader /fr-company","description":"French company registry (SIREN) lookup","url":"https://api.axiomw
+/no-company: 201 {"message":"Service registered and live (domain verified).","service":{"id":"7bee31d2-2a21-438d-8222-9f2b371aecf8","name":"Axiom Works AgentReader /no-company","description":"Norwegian Brreg Enhetsregisteret company lookup","url":"https://a
+/au-company: 201 {"message":"Service registered and live (domain verified).","service":{"id":"bb151dad-34cb-49f8-9d31-0289b5cd5845","name":"Axiom Works AgentReader /au-company","description":"Australian ASIC company lookup","url":"https://api.axiomworks.co.
+/ca-company: 422 {"error":"x402 verification failed","detail":"Your endpoint returned HTTP 400 instead of 402. x402 endpoints must return 402 Payment Required for unauthenticated requests.","probe":{"httpStatus":400,"headersPresent":{"WWW-Authenticate":fals
+== a2a-registry.org
+{"success":true,"data":{"id":"b6fdf1bb-8cd2-4af4-99cb-310d083ce0b4","package_name":"uk.co.axiomworks.axiom_works_agentreader","status":"updated","refreshed":true,"message":"Unclaimed agent refreshed with the latest manifest."},"status":200}
+== a2aregistry.org
+{"detail":"The registry has reached its review capacity for now, so it is not accepting submissions. Retry after the time in the Retry-After header."}

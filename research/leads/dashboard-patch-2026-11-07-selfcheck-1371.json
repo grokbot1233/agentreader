@@ -1,0 +1,37 @@
+{
+  "updated": "2026-11-07T06:09:47.210189Z",
+  "self_check_latest": {
+    "at": "2026-11-07T06:09:00Z",
+    "live_version": "1.37.1",
+    "PASS402": 77,
+    "FAIL402": 0,
+    "note": "GET 74/77 + POST3 for watch/leads-feed/monitor; all well-formed 402. MCP 78 tools serverInfo 1.37.1. Shipped docs fix for company-full+kyb CZ ARES.",
+    "deploy": "7bc32f81-a378-4f1b-8ddd-835cc4f81306",
+    "commit": "d8f04aa",
+    "treasury_eth": 0.00039894,
+    "treasury_usdc": 2.588,
+    "spend_usd": 0
+  },
+  "what_shipped": [
+    "v1.37.1 fix: /company-full + /kyb DESC/llms/kybIn + MCP pricing blurbs document Czech ARES (ico/cz) already wired in v1.37.0",
+    "v1.37.0 /cz-company $0.25 Czech ARES + KYB/registry-batch/company-full (prior ship)"
+  ],
+  "checklist": [
+    {
+      "item": "v1.37.1 /company-full+/kyb CZ docs",
+      "status": "live",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/company-full",
+      "detail": "Deploy 7bc32f81-a378-4f1b-8ddd-835cc4f81306; 402+llms+agent.json mention CZ ARES; KYB ico=/cz= in examples"
+    },
+    {
+      "item": "v1.37.0 /cz-company Czech ARES",
+      "status": "live",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/cz-company?ico=27082440&preview=1",
+      "detail": "Prior ship; preview Alza.cz OK; bare 402 250000"
+    }
+  ],
+  "needed_from_liam": [],
+  "ops_notes": "Hourly self-check 2026-11-07 ~06:09 GMT: healthy on 1.37.0 then shipped docs-only 1.37.1. npm @axiomworks/agentreader(+mcp) 1.37.1. No spend. Tree left with untracked research files."
+}

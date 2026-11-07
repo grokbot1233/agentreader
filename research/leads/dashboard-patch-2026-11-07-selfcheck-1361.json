@@ -1,0 +1,37 @@
+{
+  "updated": "2026-11-07T04:07:37.982394Z",
+  "self_check_latest": {
+    "at": "2026-11-07T04:07:37Z",
+    "live_version": "1.36.1",
+    "PASS402": 76,
+    "FAIL402": 0,
+    "note": "GET 73/76 + POST3 for watch/leads-feed/monitor; all well-formed 402. MCP 77 tools serverInfo 1.36.1. Shipped docs/schema fix for company-full CH+PL.",
+    "deploy": "7ee3938e-7ee6-4c08-9b2d-26f90ded28b4",
+    "commit": "d26fb03",
+    "treasury_eth": 0.00039894,
+    "treasury_usdc": 2.588,
+    "spend_usd": 0
+  },
+  "what_shipped": [
+    "v1.36.1 fix: /company-full DESC+MCP+llms+OpenAPI output schema now document CH Zefix + PL KRS soft-attach (pl_* fields were missing from companyFullOut)",
+    "v1.36.0 /pl-company $0.25 Polish KRS + KYB/registry-batch/company-full (prior ship)"
+  ],
+  "checklist": [
+    {
+      "item": "v1.36.1 /company-full CH+PL docs+schema",
+      "status": "live",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/company-full",
+      "detail": "Deploy 7ee3938e-7ee6-4c08-9b2d-26f90ded28b4; 402+OpenAPI mention CH Zefix/PL KRS; pl_included in output schema; MCP company_full text updated"
+    },
+    {
+      "item": "v1.36.0 /pl-company Polish KRS",
+      "status": "live",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/pl-company?krs=0000001538&preview=1",
+      "detail": "Prior ship; preview krs+nip OK; bare 402 250000"
+    }
+  ],
+  "needed_from_liam": [],
+  "ops_notes": "Hourly self-check 2026-11-07 ~04:07 GMT: healthy. npm @axiomworks/agentreader(+mcp) 1.36.1. No spend. Tree had only untracked research files (left alone)."
+}
