@@ -1,5 +1,6 @@
 // Free input validation that runs BEFORE x402 payment, so bad input never costs the caller.
 import { PC } from "./ukdata";
+import { parseUsBatch } from "./us-entity";
 import { isPhoneCountry, PHONE_ISO_CODES } from "./phone";
 const CH = ["base", "ethereum", "arbitrum", "optimism", "polygon"];
 const ADDR = /^0x[0-9a-fA-F]{40}$/, HASH = /^0x[0-9a-fA-F]{64}$/;
@@ -237,7 +238,7 @@ export const VALIDATE: Record<string, (b: any) => string | null> = {
   "/lei": (b) => lei(b),
   "/lei-full": (b) => leiFull(b),
   "/read-batch": (b) => readBatch(b),
-  "/registry-batch": (b) => { const n = (s(b.uk) + "," + s(b.au) + "," + s(b.ca) + "," + s(b.fr) + "," + s(b.no) + "," + s(b.dk) + "," + s(b.fi) + "," + s(b.ch) + "," + s(b.pl) + "," + s(b.cz) + "," + s(b.be) + "," + s(b.sk)).split(/[\s,;]+/).filter((x) => /\d/.test(x)).length; return n === 0 ? "uk, au, ca, fr, no, dk, fi, ch, pl, cz, be or sk ids required" : n > 25 ? "max 25 ids total" : null; },
+  "/registry-batch": (b) => { const n = (s(b.uk) + "," + s(b.au) + "," + s(b.ca) + "," + s(b.fr) + "," + s(b.no) + "," + s(b.dk) + "," + s(b.fi) + "," + s(b.ch) + "," + s(b.pl) + "," + s(b.cz) + "," + s(b.be) + "," + s(b.sk)).split(/[\s,;]+/).filter((x) => /\d/.test(x)).length; const us = parseUsBatch(b.us), usOk = us.filter((x) => !x.error).length; if (n + us.length > 25) return "max 25 ids total"; if (n + usOk === 0) return us.length ? `no valid ids: ${us.map((x) => x.error).join("; ")}` : "uk, au, ca, fr, no, dk, fi, ch, pl, cz, be, sk or us (STATE:ID, e.g. us=NY:3368051) ids required"; return null; },
   "/ca-company": (b) => { const n = s(b.number).replace(/\D/g, ""), bn = s(b.bn).replace(/\D/g, ""); return (n && n.length <= 8) || bn.length >= 9 ? null : "number (up to 8 digits) or bn (9 digits) required"; },
   "/au-company": (b) => { const r = s(b.acn || b.abn).replace(/\s/g, ""); return /^(\d{9}|\d{11})$/.test(r) ? null : "acn must be 9 digits (or abn 11 digits)"; },
   "/fr-company": (b) => { const siren = s(b.siren).replace(/\D/g, ""), siret = s(b.siret).replace(/\D/g, ""), name = s(b.name || b.q); if (siret) return siret.length === 14 ? null : "siret must be 14 digits"; if (siren) return siren.length === 9 ? null : "siren must be 9 digits"; if (name) return name.length >= 2 ? null : "name too short"; return "siren, siret or name required"; },

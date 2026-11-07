@@ -242,8 +242,8 @@ export class AgentReaderClient {
   ukOfficer(input: { name: string; limit?: number | string }, opts?: RequestOpts) {
     return this.get("/uk-officer", input as any, opts);
   }
-  /** Batch verify up to 25 UK (max 10) / AU / CA company ids, comma-separated ($0.30). */
-  registryBatch(input: { uk?: string; au?: string; ca?: string; fr?: string; no?: string; dk?: string }, opts?: RequestOpts) {
+  /** Batch verify up to 25 UK (max 10) / AU / CA / FR / NO / DK / FI / CH / PL / CZ / BE / SK ids and US state entities (us: "NY:3368051,OR:8739914"), comma-separated ($0.30). */
+  registryBatch(input: { uk?: string; au?: string; ca?: string; fr?: string; no?: string; dk?: string; fi?: string; ch?: string; pl?: string; cz?: string; be?: string; sk?: string; us?: string }, opts?: RequestOpts) {
     return this.get("/registry-batch", input as any, opts);
   }
   /** Canadian federal corporation lookup (Corporations Canada) by number or BN ($0.02). */

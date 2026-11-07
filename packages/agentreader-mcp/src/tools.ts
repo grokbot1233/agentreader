@@ -343,9 +343,9 @@ const ALL_TOOLS: ToolDef[] = [
   },
   {
     name: "registry_batch",
-    description: "Batch verify up to 25 UK (Companies House, max 10), Australian (ACN/ABN), Canadian (number/BN), French (SIREN), Norwegian (orgnr), Danish (CVR), Finnish (Y-tunnus), Swiss (UID), Polish (KRS), Czech (IČO), Belgian (enterprise number) and Slovak (RPO IČO) companies in one call; comma-separated ids. $0.30 USDC.",
+    description: "Batch verify up to 25 UK (Companies House, max 10), Australian (ACN/ABN), Canadian (number/BN), French (SIREN), Norwegian (orgnr), Danish (CVR), Finnish (Y-tunnus), Swiss (UID), Polish (KRS), Czech (IČO), Belgian (enterprise number), Slovak (RPO IČO) and US state (us=STATE:ID, e.g. NY:3368051 — NY/CO/CT/OR/TX Secretary of State open data) companies in one call; comma-separated ids, bad items get an inline error. $0.30 USDC.",
     price: "$0.30",
-    schema: { uk: z.string().optional(), au: z.string().optional(), ca: z.string().optional(), fr: z.string().optional(), no: z.string().optional(), dk: z.string().optional(), fi: z.string().optional(), ch: z.string().optional(), pl: z.string().optional(), cz: z.string().optional(), be: z.string().optional(), sk: z.string().optional() },
+    schema: { uk: z.string().optional(), au: z.string().optional(), ca: z.string().optional(), fr: z.string().optional(), no: z.string().optional(), dk: z.string().optional(), fi: z.string().optional(), ch: z.string().optional(), pl: z.string().optional(), cz: z.string().optional(), be: z.string().optional(), sk: z.string().optional(), us: z.string().optional() },
     http: (a) => `${ORIGIN}/registry-batch?${new URLSearchParams(Object.entries(a).filter(([, v]) => v) as any)}`,
   },
   {

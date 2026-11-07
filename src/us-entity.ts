@@ -167,3 +167,26 @@ export function usEntitySlim(d: any) {
   const t = d.best_match || {};
   return { state: t.state, id: t.id, name: t.name, status: t.status, entity_type: t.entity_type, formed: t.formed, jurisdiction: t.jurisdiction, total_results: d.total_results, other_matches: (d.results || []).slice(1, 3).map((r: any) => ({ state: r.state, id: r.id, name: r.name, status: r.status })), red_flags: (d.red_flags || []).slice(0, 2), omitted: ["registered_agent", "address", "principals", "per_state", "full results"] };
 }
+
+// ---- /registry-batch US support: us=STATE:ID (entity ids collide across states, so the state prefix is mandatory) ----
+export type UsBatchItem = { raw: string; state?: St; id?: string; error?: string };
+/** Split `us=` into items; each is `STATE:ID` (e.g. NY:3368051). Bad tokens keep a per-item error instead of failing the batch. */
+export function parseUsBatch(raw: any): UsBatchItem[] {
+  return String(raw || "").split(/[\s,;]+/).map((x) => x.trim()).filter(Boolean).map((tok) => {
+    const m = tok.match(/^([A-Za-z]{2}):([A-Za-z0-9-]{1,20})$/);
+    if (!m) return { raw: tok, error: `invalid us item "${tok.slice(0, 40)}" — use STATE:ID, e.g. NY:3368051 (states: ${US_STATES.join(", ")})` };
+    const st = m[1].toUpperCase();
+    if (!(US_STATES as readonly string[]).includes(st)) return { raw: tok, error: `unsupported US state "${st}" in "${tok.slice(0, 40)}" — supported: ${US_STATES.join(", ")}` };
+    return { raw: tok, state: st as St, id: m[2] };
+  });
+}
+/** One registry-batch US row: lite state+id lookup → compact record (or inline error). */
+export async function usBatchOne(it: UsBatchItem, wrap: <T>(p: Promise<T>) => Promise<T> = (p) => p) {
+  const id = it.state ? `${it.state}:${it.id}` : it.raw;
+  if (it.error || !it.state) return { country: "US", id, found: false, error: it.error || "invalid us item" };
+  try {
+    const d: any = await wrap(usEntity({ state: it.state, id: it.id, lite: true }));
+    const t = d.best_match || {};
+    return { country: "US", id, found: true, data: { state: t.state, id: t.id, name: t.name, status: t.status, sub_status: t.sub_status ?? undefined, entity_type: t.entity_type, formed: t.formed, jurisdiction: t.jurisdiction, address: t.address ?? null, process_address: t.process_address ?? undefined, registered_agent: t.registered_agent ?? null, associated: t.associated ? t.associated.slice(0, 3) : undefined, sos_file_number: t.sos_file_number ?? undefined, annual_report_due: t.annual_report_due ?? undefined, red_flags: d.red_flags, lookup_url: t.lookup_url, source: d.per_state?.[it.state]?.source } };
+  } catch (e: any) { return { country: "US", id, found: false, error: e?.message || String(e) }; }
+}

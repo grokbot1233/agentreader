@@ -22,8 +22,9 @@ No API keys, no accounts. Agents pay per request in **USDC on Base mainnet** usi
 | `/company-full` | $0.65 | Website research + multi-registry DD (UK/FR/NO/AU/CA/charity when signals) |
 | `/sanctions-batch` | $1.00 | Up to 50 names vs OFAC/UK/UN/EU |
 | `/uk-charity-full` | $0.25 | Charity trustees, 5y finances, red flags |
-| `/registry-batch` | $0.30 | Up to 25 UK/AU/CA companies in one call |
+| `/registry-batch` | $0.30 | Up to 25 UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE/SK + US-state companies in one call (US as `us=STATE:ID`, e.g. `us=NY:3368051,OR:8739914` — NY/CO/CT/OR/TX SOS open data; bad items get an inline per-item error). Sample: [`/samples/registry-batch`](https://api.axiomworks.co.uk/samples/registry-batch) |
 | `/uk-officer` | $0.15 | UK officer search + appointments + flags |
+| `/us-entity` | $0.25 | US state business entity (NY/CO/CT/OR/TX Secretary of State open data) by name or state+id. Sample: [`/samples/us-entity`](https://api.axiomworks.co.uk/samples/us-entity) |
 
 Supporting real-data checks: `/uk-company-lite`, `/uk-charity`, `/sanctions`, `/au-company`, `/ca-company`, `/us-sec`, `/lei-full`, `/eu-vat`.
 
@@ -129,7 +130,7 @@ docker run -i --rm agentreader-mcp
 
 Copy-paste clients in [`examples/`](./examples/): MCP (Claude Desktop / Cursor), `@x402/fetch`, `x402-axios`, Python x402, LangChain, Vercel AI SDK, OpenAI Agents SDK, CrewAI.
 
-Free quality proof: [`/samples/company`](https://api.axiomworks.co.uk/samples/company) (and `uk-company`, `uk-company-lite`, `convert`, `read`) — truncated, rate-limited, with the exact paid call to make. Or add `&preview=1` on a paid GET.
+Free quality proof: [`/samples/company`](https://api.axiomworks.co.uk/samples/company) (and `uk-company`, `uk-company-lite`, `convert`, `read`, `kyb`, `us-entity`, `registry-batch`) — truncated, rate-limited, with the exact paid call to make. Or add `&preview=1` on a paid GET.
 
 ### npm packages (Axiom Works)
 
