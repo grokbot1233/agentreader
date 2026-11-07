@@ -1,20 +1,26 @@
-CONTINUOUS-IMPROVEMENT REPORT 2026-11-07 ~13:12 Europe/London (GMT)
+CONTINUOUS-IMPROVEMENT REPORT 2026-11-07 ~13:15 Europe/London (GMT)
 
-Live version + deploy: 1.40.3 (includes v1.40.2 OFAC OpenSanctions work; concurrent ship added /samples/uk-leads-feed)
-Commits: 9a02e8b (OFAC OS fallback v1.40.2), 38b0607 (prefer OS-first on Workers)
-Overall status: improved — OFAC SDN/CONS now Worker-reachable via OpenSanctions mirrors
+Live version + deploy: 1.40.4 / 30c9b9c5-0d6b-479b-8df0-aa4c7c8c8cb7
+Commits: 9a02e8b (OFAC OS v1.40.2) → 38b0607 (OS-first) → 5ea15ff (CONS keep-prior + admin async waitUntil — v1.40.4)
+Overall status: improved
 
 PASS402: 79/79
 FAIL402: 0
-Discovery: health 1.40.3; big-hitter previews OK (kyb/uk-dd/sanctions-batch)
-npm: @axiomworks/agentreader@1.40.3 already on registry (concurrent); our publish hit E409
+npm: @axiomworks/agentreader@1.40.4 published; mcp 1.40.4 published earlier in run (registry may lag)
 
 Chose: OFAC reliability for KYB ($2.50) / uk-dd ($1) / sanctions-batch ($1)
-Why: selfcheck ~12:14 noted OFAC refresh HTTP 525 from Worker (kept prior). Same pattern as EU-FSF fix.
-Change: parseOpenSanctionsSimple shared helper; prefer us_ofac_sdn + us_ofac_cons mirrors; short-timeout official fallback; prior KV last resort.
+Why: ~12:14 selfcheck OFAC refresh HTTP 525 from Worker (kept prior). Mirror EU-FSF OpenSanctions pattern.
+Change:
+- parseOpenSanctionsSimple shared helper
+- Prefer OpenSanctions us_ofac_sdn (Worker-reachable); short-timeout official fallback; prior KV last resort
+- Keep prior OFAC-CONS when healthy (full SDN+CONS+EU+UN+UK rebuild hit CF 1102)
+- Admin /sanctions-refresh defaults to waitUntil async
 
-Live verify: BANCO NACIONAL DE CUBA → OFAC-SDN (NK-…, pub 2026-11-07T12:10:05); Vladimir Vladimirovich Putin → OFAC-SDN + EU-FSF.
-Admin /sanctions-refresh may still CF 1102 on full rebuild CPU; live index already OS-backed; hourly cron waitUntil remains.
+Live verify: BANCO NACIONAL DE CUBA → OFAC-SDN (NK-…); Vladimir Vladimirovich Putin → OFAC-SDN + EU-FSF;
+OJSC EHMZ named after N. D. Zelinsky → EU-FSF (full name). Big-hitter previews OK.
+
+Also noted (not this ship): /samples/registry-batch still 404; llms.txt KYB/registry jurisdictions stale vs live;
+concurrent 1.40.3 added /samples/uk-leads-feed.
 
 Spend: $0
 NOTIFY_LIAM: false
