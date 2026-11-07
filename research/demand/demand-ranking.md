@@ -1,16 +1,17 @@
-# Demand ranking — 2026-11-07 morning refresh
+# Demand ranking — 2026-11-07 PM refresh
 
-Scoring: payment evidence × price/volume potential × our fit (free data, existing code) × unbuilt. **High-ticket first.** Status as of 2026-11-07 ~07:40 Europe/London. Live baseline before this ship: **v1.38.1**; this pass targets **v1.39.0**.
+Scoring: payment evidence × price/volume potential × our fit (free data, existing code) × unbuilt. **High-ticket first.** Status as of 2026-11-07 ~13:35 Europe/London (GMT). Live: **v1.41.0** (`/us-entity`).
 
 **Directive (Liam 2026-11-06):** do not ship $0.001–$0.003 offline format validators. Micros stay HTTP-callable but unlisted from MCP/llms/discovery (since v1.28.0). Focus big hitters + expansions.
 
 | Rank | Need | Payment evidence | Est. price / volume | Fit | Status |
 |---|---|---|---|---|---|
+| 0 | **US state business entity (Secretary of State)** | Apify US SOS cluster **≈728 users / ≈171 in 30d** (pink_comic 239, shelvick 140/64); OpenCorporates now token-only (401) | **$0.25**; attaches to `/kyb` | High — free Socrata SODA NY/CO/CT/OR/TX, no key | **SHIPPED → `/us-entity` $0.25 + `/kyb` us_state+us_id/us_name (v1.41.0)** |
 | 1 | **CH company registry (Zefix UID)** | Apify Zefix scraper **29 users**; GH multi-registry/KYB threads; pairs with offline `/uid-ch` | **$0.25**; attaches to `/kyb` | High — free Zefix REST (no key) | **SHIPPED → `/ch-company` $0.25 + `/kyb` uid= + `/registry-batch` ch= + company-full soft-attach (v1.35.0)** |
 | 1b | **FI company registry (PRH YTJ)** | Nordic KYB demand; GH multi-registry | **$0.25** | High — free PRH open data | **SHIPPED → `/fi-company` (v1.34.0)** |
 | 1c | **DK company registry (CVR)** | Nordic pack completeness | **$0.25** | High — apicvr.dk free | **SHIPPED → `/dk-company` (v1.33.0)** |
 | 1d | **NO / FR company registries** | Nordic + FR KYB | **$0.25** | High — free official | **SHIPPED → `/no-company` `/fr-company`** |
-| 2 | KYB / multi-registry packs | Brazilayer/Lion/Apify ~$0.03–0.05; our pack priced premium | Higher ticket $2.50 | High | Live `/kyb` **$2.50** (UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE/**SK**) |
+| 2 | KYB / multi-registry packs | Brazilayer/Lion/Apify ~$0.03–0.05; our pack priced premium | Higher ticket $2.50 | High | Live `/kyb` **$2.50** (UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE/SK/**US-state**) |
 | 3 | UK DD / watch / leads | NewcoSignal £49–149/mo; Apify CH feed | $1–$25 | High | Live `/uk-dd` `$1`, `/uk-watch` `$5`, `/uk-leads` `$1`, `/uk-leads-feed` `$25` |
 | 4 | Company research / full | Own `/company` band; BuiltWith $0.05 | $0.25–$0.65 | High | Live `/company` `$0.25`, `/company-full` `$0.65` (+CH/+PL/+CZ/+BE/+SK soft-attach) |
 | 5 | Sanctions batch / screening | Toll OFAC ~$0.02–0.023; Relaystation/DEBYKO ~$0.01 | $0.05–$1 | High | Live `/sanctions` `$0.05`, `/sanctions-batch` `$1` |
@@ -21,8 +22,9 @@ Scoring: payment evidence × price/volume potential × our fit (free data, exist
 | 9 | **SE company registry (Bolagsverket)** | Prior ranking “after DK”; Toll orgnr peers | **$0.25** | Medium — **API needs Kundanmälan / client registration** | **Blocked (Liam portal)** — offline `/orgnr` only |
 | 10 | **BE KBO / BCE enterprise number** | Apify KBO scrapers up to **18 users**; EU KYB breadth | **$0.25** | High — free CBE Public Search HTML by number | **SHIPPED → `/be-company` $0.25 + `/kyb` be= + `/registry-batch` be= + company-full soft-attach (v1.38.0)** |
 | 10b | **SK RPO (IČO)** | EU KYB breadth; free official JSON | **$0.25** | High — free RPO JSON (`identifier=`), CC-BY 4.0 | **SHIPPED → `/sk-company` $0.25 + `/kyb` sk= + `/registry-batch` sk= + company-full soft-attach (v1.39.0)** |
-| 11 | IE CRO | EU KYB | Mid | Low tonight — **CSV bulk** via opendata.cro.ie only | Deferred |
-| 12 | EE äriregister | Baltic pack | Mid | Medium — open-data portal up; JSON hop unclear | Probe next |
+| 11 | IE CRO | Apify IE CRO actors 1–3 users | $0.25 | **High — CKAN datastore_search LIVE on opendata.cro.ie (companies + financial statements)** | **Next (#2)** |
+| 12 | EE äriregister | Apify EE actors 1–8 users (foxlabs 8) | $0.25 | **High — free `ariregister.rik.ee/eng/api/autocomplete` JSON + HTML card, no credentials** | **Next (#1)** |
+| 12b | LV Uzņēmumu reģistrs | Apify LV actors 1–2 users | $0.25 | **High — data.gov.lv datastore_search LIVE (490k rows, CC0)** | Next (#3) |
 | 13 | Live wallet balance (native + N ERC20s) | onesource 458–466p @ $0.003 | Micro | High | **SHIPPED** `/chain/live-balance` — keep, no new micros |
 | 14 | On-chain one-fact breadth | onesource 100–574p | Micro ARPU | High | Live `/chain/*` — **do not expand for payer-count alone** |
 | 15 | Web read / search | Exa / ScrapeGraphAI | High volume | High | Live `/read`, `/search`, `/read-batch` |
@@ -36,7 +38,7 @@ Scoring: payment evidence × price/volume potential × our fit (free data, exist
 ## Next passes (spider-web)
 
 1. Grow/sell big hitters: `/kyb` (now +CH/+PL/+CZ/+BE/+SK), `/uk-dd`, `/uk-company`, `/uk-watch`, `/uk-leads(+feed)`, `/company(+full)`, `/sanctions-batch`, `/uk-charity-full`, `/registry-batch`, `/uk-officer`, `/fr-company`, `/no-company`, `/dk-company`, `/fi-company`, `/ch-company`, `/pl-company`, `/cz-company`, `/be-company`, **`/sk-company`**.
-2. Next free builds: **EE äriregister** (credentials); **LV** bulk CSV → Worker KV snapshot; DE still no free live API. (**SK RPO shipped → `/sk-company` v1.39.0**).
-3. Liam blockers: **SE Bolagsverket Kundanmälan**, NZBN portal, BR Receita ToS clarity, EE open-data credentials.
+2. Next free builds: **EE** (autocomplete JSON, no creds) → **IE CRO** (CKAN datastore) → **LV** (CKAN datastore); more US states via Socrata; `/registry-batch us=STATE:ID`. DE still no free live API. (**US SOS shipped → `/us-entity` v1.41.0**).
+3. Liam blockers: **SE Bolagsverket Kundanmälan**, NZBN portal, BR Receita ToS clarity. (EE no longer blocked — lookup JSON is public.)
 4. Re-pull CDP Bazaar filtered to ≥$0.15 **non-LLM / non-people** SKUs each run.
 5. Outreach: soft GH comment on multi-registry/KYB threads; X only via @axiomworksd8z9.
