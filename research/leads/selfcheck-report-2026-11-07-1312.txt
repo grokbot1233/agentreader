@@ -1,0 +1,20 @@
+CONTINUOUS-IMPROVEMENT REPORT 2026-11-07 ~13:12 Europe/London (GMT)
+
+Live version + deploy: 1.40.3 (includes v1.40.2 OFAC OpenSanctions work; concurrent ship added /samples/uk-leads-feed)
+Commits: 9a02e8b (OFAC OS fallback v1.40.2), 38b0607 (prefer OS-first on Workers)
+Overall status: improved — OFAC SDN/CONS now Worker-reachable via OpenSanctions mirrors
+
+PASS402: 79/79
+FAIL402: 0
+Discovery: health 1.40.3; big-hitter previews OK (kyb/uk-dd/sanctions-batch)
+npm: @axiomworks/agentreader@1.40.3 already on registry (concurrent); our publish hit E409
+
+Chose: OFAC reliability for KYB ($2.50) / uk-dd ($1) / sanctions-batch ($1)
+Why: selfcheck ~12:14 noted OFAC refresh HTTP 525 from Worker (kept prior). Same pattern as EU-FSF fix.
+Change: parseOpenSanctionsSimple shared helper; prefer us_ofac_sdn + us_ofac_cons mirrors; short-timeout official fallback; prior KV last resort.
+
+Live verify: BANCO NACIONAL DE CUBA → OFAC-SDN (NK-…, pub 2026-11-07T12:10:05); Vladimir Vladimirovich Putin → OFAC-SDN + EU-FSF.
+Admin /sanctions-refresh may still CF 1102 on full rebuild CPU; live index already OS-backed; hourly cron waitUntil remains.
+
+Spend: $0
+NOTIFY_LIAM: false
