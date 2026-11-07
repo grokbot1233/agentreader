@@ -1,0 +1,32 @@
+{
+  "updated": "2026-11-07T02:10:23.620041Z",
+  "what_shipped": [
+    "v1.35.1 fix: /registry-batch validator ignored Swiss ch= (CH-only batches free-400'd despite handler+docs shipping in 1.35.0) \u2014 now accepts ch UIDs; OpenAPI alias /ch-company/{uid}; llms samples+docs mention CH",
+    "v1.35.0 /ch-company $0.25 Swiss Zefix + KYB/registry-batch/company-full (prior ship)",
+    "v1.34.1 /company soft-fail on blocked homepage",
+    "Focus: big hitters only (/kyb $2.50, /uk-dd $1, /uk-company $0.50, /uk-watch $5, /uk-leads $1, /uk-leads-feed $25, /company $0.25, /company-full $0.65, /sanctions-batch $1, /dk-company $0.25, /fi-company $0.25, /ch-company $0.25)"
+  ],
+  "checklist": [
+    {
+      "item": "v1.35.1 /registry-batch Swiss ch= validator",
+      "status": "live",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/registry-batch?ch=CHE-105.909.036&preview=1",
+      "detail": "Deploy 16aa0b1e-197b-4cd1-8bdc-4fedf28d08fb; CH-only preview \u2192 Nestl\u00e9 AG; empty still free 400 mentioning ch"
+    },
+    {
+      "item": "Hourly self-check 2026-11-07 ~02:04\u201302:10 UTC",
+      "status": "pass+fix",
+      "done": true,
+      "detail": "Found registry-batch ch= rejected; fixed+shipped 1.35.1; npm 1.35.1; bare big-hitters 402 OK; MCP 76; treasury ~2.588 USDC / ~0.000399 ETH"
+    }
+  ],
+  "next_steps": [
+    "Buyer hunt + outreach for big hitters incl /ch-company, /fi-company, /dk-company",
+    "Warm /kyb /uk-dd /uk-watch /uk-leads-feed /company-full on x402 leaderboards",
+    "Keep SwarmMemo allowlist intact; convert paid calls this week"
+  ],
+  "grow_cut": "Grow: /kyb, /uk-dd, /uk-watch, /uk-leads-feed, /company-full, /sanctions-batch, /dk-company, /fi-company, /ch-company. Cut/ignore: new $0.001\u2013$0.003 micros.",
+  "pricing_notes": "Big hitters priced against $200/mo Max plan. Micros frozen per Liam 2026-11-06.",
+  "ops_notes_append": "2026-11-07 ~02:10 GMT self-check: healthy\u2192improved. Live was 1.35.0. Found /registry-batch?ch=CHE-\u2026 free-400 (validate.ts omitted s(b.ch) though handler+docs had CH). Shipped v1.35.1 (deploy 16aa0b1e\u2026): validator+error copy, OpenAPI /ch-company/{uid} alias, llms samples/docs CH, chCompanySlim preview path, MCP example. Verified Nestl\u00e9 AG preview; npm @axiomworks/agentreader(+mcp) 1.35.1. Bare big-hitters 402 PASS; MCP 76 tools; treasury ~2.588 USDC / ~0.000399 ETH. No Liam spend."
+}
