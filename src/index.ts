@@ -636,7 +636,7 @@ function discovery(c: any) {
     contact: CONTACT, ownershipProofs: [] };
 }
 
-app.get("/health", (c) => c.json({ ok: true, version: "1.39.3", ts: new Date().toISOString() }));
+app.get("/health", (c) => c.json({ ok: true, version: "1.39.4", ts: new Date().toISOString() }));
 // Crawler/agent hygiene: robots.txt + favicon (agent.json iconUrl points here). Previously 404 for ~100 crawler hits / 6h.
 const FAVICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#0b1220"/><path d="M18 48 L32 14 L46 48 M23.5 36 H40.5" fill="none" stroke="#3b82f6" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const favicon = (c: any) => { c.header("content-type", "image/svg+xml"); c.header("cache-control", "public, max-age=604800"); return c.body(FAVICON_SVG); };
@@ -654,7 +654,7 @@ app.get("/.well-known/agent-card.json", (c) => {
   return c.json({
     protocolVersion: "0.3.0", name: "Axiom Works AgentReader",
     description: "Pay-per-call (x402, USDC on Base) UK Companies House, KYB, SEC EDGAR, EU VAT, web-to-markdown and EVM on-chain lookups for AI agents. HTTP + MCP; no API keys.",
-    url: b, preferredTransport: "HTTP+JSON", version: "1.39.3", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
+    url: b, preferredTransport: "HTTP+JSON", version: "1.39.4", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
     provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk" },
     capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
     defaultInputModes: ["application/json"], defaultOutputModes: ["application/json"],
@@ -667,14 +667,14 @@ app.get("/.well-known/agent.json", (c) => {
   return c.json({
     name: "Axiom Works AgentReader", description: "x402 pay-per-call web reader, KYB packs, UK due diligence, company research, UK Companies House + Charity Commission + US SEC EDGAR + EU VIES VAT + OFAC/UK/UN/EU sanctions screening due diligence, document conversion, change monitoring, EVM wallet/tx/token risk checks and ECB FX rates for AI agents.",
     url: b, provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk", email: CONTACT },
-    version: "1.39.3", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
+    version: "1.39.4", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     skills: LISTED_PRICES().map(([p, price]) => ({ id: p.slice(1), name: p, description: DESC[p], price, endpoint: `${b}${p}` })),
     mcp: `${b}/mcp`, payments: { protocol: "x402", network: NETWORK, asset: USDC, payTo: c.env.PAY_TO },
   });
 });
 app.get("/.well-known/mcp.json", (c) => {
   const b = base(c);
-  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.39.3",
+  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.39.4",
     description: "x402 pay-per-call MCP: KYB, UK due diligence, UK/AU/CA registries, web reader, SEC, VAT, sanctions, EVM chain data.",
     transport: { type: "streamable-http", url: `${b}/mcp` }, documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     payments: { protocol: "x402", network: NETWORK, asset: USDC } });
@@ -711,7 +711,7 @@ app.get("/openapi.json", (c) => {
     paths[ap] = { get: { summary: `Path alias of ${to} (same price/x402 challenge). ${DESC[to] || ""}`, parameters: [...ks.map((k) => ({ name: k, in: "path", required: true, schema: { type: "string" } })), { name: "chain", in: "query", required: false, schema: { type: "string" } }, { name: "preview", in: "query", required: false, schema: { type: "string", enum: ["1"] } }],
       responses: { "200": { description: "Success", content: { "application/json": { schema: OUT[to] } } }, "402": { description: `Payment required: ${price} USDC on Base (x402)` } }, "x-price": price, "x-alias-of": to } }; }
   paths["/hooks/sink"] = { post: { summary: "Free webhook test sink for /monitor", responses: { "200": { description: "Stored" } }, "x-price": "free" } };
-  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.39.3", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: KYB packs, UK due diligence, company research, UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE/SK registries, LEI, sanctions, SEC EDGAR, VIES VAT, web reading, document conversion, change monitoring, EVM/FX. Big hitters first (/kyb, /uk-dd, /uk-company, /uk-watch, /uk-leads, /company-full, /sanctions-batch). Payments: USDC on Base mainnet (eip155:8453)." },
+  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.39.4", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: KYB packs, UK due diligence, company research, UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE/SK registries, LEI, sanctions, SEC EDGAR, VIES VAT, web reading, document conversion, change monitoring, EVM/FX. Big hitters first (/kyb, /uk-dd, /uk-company, /uk-watch, /uk-leads, /company-full, /sanctions-batch). Payments: USDC on Base mainnet (eip155:8453)." },
     servers: [{ url: b }], paths });
 });
 const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
@@ -976,15 +976,15 @@ async function readTreasuryBalances(payTo: string): Promise<{ treasury_usdc: num
 }
 
 app.get("/dashboard/data", async (c) => {
-  const t = Date.now(); let health: any = { ok: true, version: "1.39.3" };
-  try { await c.env.LOG.get("health-probe"); health.kv_ms = Date.now() - t; } catch (e: any) { health = { ok: false, version: "1.39.3", error: String(e) }; }
+  const t = Date.now(); let health: any = { ok: true, version: "1.39.4" };
+  try { await c.env.LOG.get("health-probe"); health.kv_ms = Date.now() - t; } catch (e: any) { health = { ok: false, version: "1.39.4", error: String(e) }; }
   health.facilitator = (c.env as any).CDP_API_KEY_ID ? "Coinbase CDP" : "PayAI";
   const meta = (await c.env.LOG.get("meta:dashboard", "json")) || {};
   // Keep in sync with HIDDEN_TOOLS in mcp.ts — unlisted $0.001 format validators stay off discovery surfaces.
   const HIDDEN_MCP = new Set(["iban_validate","phone_check","uk_postcode_validate","siren_validate","siret_validate","partita_iva_validate","orgnr_se_validate","bn_ca_validate","cvr_dk_validate","fn_at_validate","cin_in_validate","kvk_nl_validate","hr_de_validate","nif_es_validate","cnpj_validate","nip_pl_validate","uid_ch_validate"]);
   const mcpTools = [
     ["read_url", "$0.002"], ["extract_links", "$0.001"], ["check_domain", "$0.001"], ["dns_lookup", "$0.001"], ["url_redirects", "$0.001"], ["page_meta", "$0.001"], ["http_headers", "$0.001"], ["email_check", "$0.002"], ["domain_lookup", "$0.002"],
-    ["company_research", "$0.25"], ["fr_company", "$0.25"], ["no_company", "$0.25"], ["uk_company", "$0.50"], ["uk_company_lite", "$0.05"], ["company_full", "$0.65"], ["convert_document", "$0.03"], ["create_monitor", "$1.00"],
+    ["company_research", "$0.25"], ["au_company", "$0.02"], ["ca_company", "$0.02"], ["fr_company", "$0.25"], ["no_company", "$0.25"], ["dk_company", "$0.25"], ["fi_company", "$0.25"], ["ch_company", "$0.25"], ["pl_company", "$0.25"], ["cz_company", "$0.25"], ["be_company", "$0.25"], ["sk_company", "$0.25"], ["registry_batch", "$0.30"], ["uk_company", "$0.50"], ["uk_company_lite", "$0.05"], ["company_full", "$0.65"], ["convert_document", "$0.03"], ["create_monitor", "$1.00"],
     ["wallet_balances", "$0.003"], ["tx_status", "$0.003"], ["token_check", "$0.01"], ["fx_rates", "$0.002"], ["ens_lookup", "$0.002"], ["token_metadata", "$0.001"], ["token_allowance", "$0.002"], ["contract_info", "$0.003"], ["gas_fees", "$0.001"], ["block_lookup", "$0.001"], ["nft_lookup", "$0.002"], ["web_search", "$0.003"], ["uk_property_prices", "$0.01"], ["uk_area_profile", "$0.005"], ["uk_charity", "$0.05"], ["uk_charity_full", "$0.25"], ["us_sec", "$0.05"], ["us_sec_full", "$0.25"], ["eu_vat", "$0.01"], ["lei_lookup", "$0.005"], ["lei_full", "$0.05"], ["read_batch", "$0.015"], ["uk_officer", "$0.15"], ["uk_leads_lite", "$0.25"], ["uk_leads", "$1.00"], ["uk_leads_feed", "$25.00"], ["uk_watch", "$5.00"], ["uk_dd", "$1.00"], ["kyb_report", "$2.50"], ["sanctions_screen", "$0.05"], ["sanctions_batch", "$1.00"],
     ...CHAIN_ROUTES.map((r) => ["chain_" + r.path.slice(7).replace(/-/g, "_"), r.price]),
     ["pricing", "free"],
