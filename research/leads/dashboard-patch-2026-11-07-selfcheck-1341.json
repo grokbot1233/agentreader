@@ -1,0 +1,31 @@
+{
+  "updated": "2026-11-07T01:13:55.452966Z",
+  "what_shipped": [
+    "v1.34.1 fix: /company soft-fail on blocked homepage (403/4xx/5xx) \u2192 DNS/RDAP/SSL/news with homepage_unreachable instead of hard 502",
+    "v1.34.0 /fi-company $0.25 Finnish PRH YTJ \u2014 KYB/registry-batch/company-full (shipped by continuous-improvement; npm+x402scan finished this self-check)",
+    "Focus: big hitters only (/kyb $2.50, /uk-dd $1, /uk-company $0.50, /uk-watch $5, /uk-leads $1, /uk-leads-feed $25, /company $0.25, /company-full $0.65, /sanctions-batch $1, /dk-company $0.25, /fi-company $0.25)"
+  ],
+  "checklist": [
+    {
+      "item": "v1.34.1 /company homepage soft-fail",
+      "status": "live",
+      "done": true,
+      "url": "https://api.axiomworks.co.uk/company?domain=tesco.com&preview=1",
+      "detail": "Deploy db729906-1cf5-406f-b85a-a3bf11bf7fbb; tesco.com preview was 502 homepage unreachable HTTP 403 \u2192 now 200 with dns/rdap; stripe.com still full scrape"
+    },
+    {
+      "item": "Hourly self-check 2026-11-07 ~01:07\u201301:14 UTC",
+      "status": "pass+fix",
+      "done": true,
+      "detail": "Found company 502 on bot-blocked homepages; fixed+shipped 1.34.1; npm 1.34.1; x402scan /fi-company 0e754172; bare PASS=75; MCP 75; uk-leads days=1 \u2192 200 returned=0; treasury ~2.588 USDC / ~0.000399 ETH"
+    }
+  ],
+  "next_steps": [
+    "Buyer hunt + outreach for big hitters incl /fi-company and /dk-company",
+    "Warm /kyb /uk-dd /uk-watch /uk-leads-feed /company-full on x402 leaderboards",
+    "Keep SwarmMemo allowlist intact; convert paid calls this week"
+  ],
+  "grow_cut": "Grow: /kyb, /uk-dd, /uk-watch, /uk-leads-feed, /company-full, /sanctions-batch, /dk-company, /fi-company. Cut/ignore: new $0.001\u2013$0.003 micros.",
+  "pricing_notes": "Big hitters priced against $200/mo Max plan. Micros frozen per Liam 2026-11-06.",
+  "ops_notes_append": "2026-11-07 ~01:14 GMT self-check: healthy\u2192improved. Live already 1.34.0 (/fi-company from continuous-improvement). Found /company preview 502 on bot-blocked sites (tesco.com HTTP 403) \u2014 soft-fail to DNS/RDAP/SSL/news as v1.34.1 (deploy db729906\u2026, commit ac0ab76). Bare 75/75 402; MCP 75; uk-leads days=1 \u2192 200 returned=0; npm\u21921.34.1; x402scan fi-company 0e754172. Treasury ~2.588 USDC / ~0.000399 ETH. No Liam spend."
+}
