@@ -1,0 +1,9 @@
+{
+  "version": "1.38.0",
+  "shipped": ["/be-company"],
+  "price_usd": 0.25,
+  "wires": ["/kyb", "/registry-batch", "/company-full"],
+  "source": "CBE/KBO Public Search HTML",
+  "next_free": ["EE ariregister (credentials)", "LV UR CSV→KV snapshot", "SK RPO param hop", "SE Bolagsverket (Liam portal)"],
+  "ops_notes_append": "2026-11-07 ~07:40 GMT demand reverse-engineering: shipped v1.38.0 /be-company $0.25 (CBE/KBO Public Search by enterprise number) + KYB/registry-batch/company-full. Preview Proximus 0202.239.951 + BNP Paribas Fortis. Name search flaky upstream. Spend $0. Next free: EE/LV/SK; SE blocked."
+}

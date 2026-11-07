@@ -8,6 +8,7 @@ import { fiCompany, ytunnusCheckDigit } from "./fi-company";
 import { chCompany, normalizeUid } from "./ch-company";
 import { plCompany, normalizeKrs, nipCheckDigitOk } from "./pl-company";
 import { czCompany, normalizeIco, icoCheckDigitOk } from "./cz-company";
+import { beCompany, normalizeEnterpriseNumber, enterpriseCheckDigitOk } from "./be-company";
 import { formatUid } from "./ch-uid";
 import { luhnOk } from "./fr-company-id";
 import type { KybRegistries } from "./kyb";
@@ -19,6 +20,7 @@ const DK_TLDS = /\.dk$/i;
 const FI_TLDS = /\.fi$/i;
 const CH_TLDS = /\.(ch|swiss)$/i;
 const CZ_TLDS = /\.(cz)$/i;
+const BE_TLDS = /\.(be)$/i;
 const PL_TLDS = /\.pl$/i;
 const AU_TLDS = /\.(com\.au|net\.au|org\.au|edu\.au|gov\.au|au)$/i;
 const CA_TLDS = /\.ca$/i;
@@ -165,6 +167,31 @@ function czechSignals(domain: string, blob: string, desc: string): boolean {
     !!findCzIcoInText(blob) ||
     /\b(czech|czechia|česká|ceska|praha|prague|ares)\b/i.test(blob) ||
     /\bczech/i.test(desc)
+  );
+}
+
+function findBeEnterpriseInText(text: string): string | null {
+  for (const m of text.matchAll(/\b(?:BE\s*)?([01]?\d{3}[.\s]?\d{3}[.\s]?\d{3})\b/gi)) {
+    const raw = m[1];
+    try {
+      const n = normalizeEnterpriseNumber(raw);
+      if (enterpriseCheckDigitOk(n)) return n;
+    } catch { /* continue */ }
+  }
+  for (const m of text.matchAll(/\b(?:enterprise\s*number|ondernemingsnummer|num[ée]ro\s*d['']entreprise|BCE|KBO|CBE)[:\s#]*([01]?[\d.\s]{8,14})\b/gi)) {
+    try {
+      const n = normalizeEnterpriseNumber(m[1]);
+      if (enterpriseCheckDigitOk(n)) return n;
+    } catch { /* continue */ }
+  }
+  return null;
+}
+
+function belgianSignals(domain: string, blob: string, desc: string): boolean {
+  return (
+    BE_TLDS.test(domain) ||
+    /\b(belgium|belgian|belgi[eë]|belgique|bruxelles|brussels|antwerp|antwerpen|kbo|bce|cbe|ondernemingsnummer)\b/i.test(blob) ||
+    /\bbelg/i.test(desc)
   );
 }
 
@@ -474,6 +501,24 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
   }
 
 
+  let be: any = null;
+  let be_skip_reason: string | null = null;
+  const beNum = findBeEnterpriseInText(blob);
+  const looksBe = belgianSignals(domain, blob, desc);
+  try {
+    if (beNum) {
+      be = await beCompany({ enterprise_number: beNum, lite: true });
+    } else if (BE_TLDS.test(domain) || looksBe) {
+      be_skip_reason = "Belgian signals detected but no enterprise number on page (BE attach needs identifier; free-text name search is flaky on CBE — use /be-company?enterprise_number= or /kyb?be=).";
+    } else {
+      be_skip_reason = "No Belgian company signals (.be TLD, enterprise number, or BE keywords).";
+    }
+  } catch (e: any) {
+    be_skip_reason = `BE lookup skipped: ${e?.message || e}`;
+    be = null;
+  }
+
+
   let au: any = null;
 
   let au_skip_reason: string | null = null;
@@ -522,6 +567,7 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     ch && "CH",
     pl && "PL",
     cz && "CZ",
+    be && "BE",
     au && "AU",
     ca && "CA",
   ].filter(Boolean);
@@ -531,7 +577,7 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     domain,
     bundle: "company-full",
     price: "$0.65",
-    savings_vs_separate: "Cheaper than /company + separate UK/FR/NO/DK/FI/CH/PL/CZ/AU/CA/charity calls when those registries auto-attach",
+    savings_vs_separate: "Cheaper than /company + separate UK/FR/NO/DK/FI/CH/PL/CZ/BE/AU/CA/charity calls when those registries auto-attach",
     company,
     company_error,
     uk,
@@ -561,6 +607,9 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     cz,
     cz_included: !!cz,
     cz_skip_reason,
+    be,
+    be_included: !!be,
+    be_skip_reason,
     au,
     au_included: !!au,
     au_skip_reason,
@@ -570,6 +619,6 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     registries_attached: attached,
     note: attached.length
       ? `Includes company research + auto-attached registries: ${attached.join(", ")}. Soft-skipped jurisdictions list *_skip_reason.`
-      : "Includes company research. UK/FR/NO/DK/FI/CH/PL/CZ/AU/CA/charity packs attach when domain/page signals match; otherwise see *_skip_reason fields.",
+      : "Includes company research. UK/FR/NO/DK/FI/CH/PL/CZ/BE/AU/CA/charity packs attach when domain/page signals match; otherwise see *_skip_reason fields.",
   };
 }

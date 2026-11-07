@@ -318,10 +318,18 @@ const ALL_TOOLS: ToolDef[] = [
     previewable: true,
   },
   {
+    name: "be_company",
+    description: "Belgian company lookup via CBE/KBO Public Search by enterprise_number (10 digits) or name. Legal name, VAT, status, legal form, seat, NACE, directors, capital, red flags. Example: {enterprise_number:\"0202239951\"} (Proximus). $0.25 USDC.",
+    price: "$0.25",
+    schema: { enterprise_number: z.string().optional(), number: z.string().optional(), be: z.string().optional(), bce: z.string().optional(), kbo: z.string().optional(), vat: z.string().optional(), name: z.string().optional(), q: z.string().optional(), limit: z.union([z.string(), z.number()]).optional() },
+    http: (a) => `${ORIGIN}/be-company?${qs(a)}`,
+    previewable: true,
+  },
+  {
     name: "registry_batch",
-    description: "Batch verify up to 25 UK (Companies House, max 10), Australian (ACN/ABN), Canadian (number/BN), French (SIREN), Norwegian (orgnr), Danish (CVR), Finnish (Y-tunnus), Swiss (UID), Polish (KRS) and Czech (IČO) companies in one call; comma-separated ids. $0.30 USDC.",
+    description: "Batch verify up to 25 UK (Companies House, max 10), Australian (ACN/ABN), Canadian (number/BN), French (SIREN), Norwegian (orgnr), Danish (CVR), Finnish (Y-tunnus), Swiss (UID), Polish (KRS), Czech (IČO) and Belgian (enterprise number) companies in one call; comma-separated ids. $0.30 USDC.",
     price: "$0.30",
-    schema: { uk: z.string().optional(), au: z.string().optional(), ca: z.string().optional(), fr: z.string().optional(), no: z.string().optional(), dk: z.string().optional(), fi: z.string().optional(), ch: z.string().optional(), pl: z.string().optional() },
+    schema: { uk: z.string().optional(), au: z.string().optional(), ca: z.string().optional(), fr: z.string().optional(), no: z.string().optional(), dk: z.string().optional(), fi: z.string().optional(), ch: z.string().optional(), pl: z.string().optional() , be: z.string().optional() },
     http: (a) => `${ORIGIN}/registry-batch?${new URLSearchParams(Object.entries(a).filter(([, v]) => v) as any)}`,
   },
   {
