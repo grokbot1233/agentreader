@@ -15,11 +15,34 @@ const first = (...e: (string | null)[]) => e.find(Boolean) || null;
 const ISO = /^[A-Z]{3}$/i;
 
 /** Map common agent aliases onto canonical input keys (mutates b). */
+const KYB_COUNTRY_FIELD: Record<string, string> = { GB: "number", UK: "number", AU: "acn", CA: "ca_number", FR: "siren", NO: "orgnr", DK: "cvr", FI: "ytunnus", CH: "uid", PL: "krs", CZ: "ico", BE: "enterprise_number", SK: "sk", US: "us_id" };
+function kybCountryAlias(b: any) {
+  const ctry = s(b.country || b.jurisdiction || b.country_code).toUpperCase().replace(/[^A-Z\-]/g, "");
+  let cc = ctry.slice(0, 2);
+  if (!KYB_COUNTRY_FIELD[cc]) return;
+  if (cc === "US") {
+    const st = ctry.match(/^US-?([A-Z]{2})$/)?.[1] || s(b.state).toUpperCase();
+    if (st && !s(b.us_state)) b.us_state = st;
+  }
+  // Keep country+vat_number (VIES) semantics untouched: only generic id-style keys are mapped.
+  let id = s(b.id) || s(b.registration_number) || s(b.reg_number) || s(b.company_id) || s(b.registry_id);
+  if (!id && cc !== "GB" && cc !== "UK" && s(b.number)) { id = s(b.number); delete b.number; }
+  if (!id) { if (cc === "US" && s(b.name) && !s(b.us_name)) { b.us_name = s(b.name); delete b.name; } return; }
+  let field = KYB_COUNTRY_FIELD[cc];
+  const digits = id.replace(/\D/g, "");
+  if (cc === "FR" && digits.length === 14) field = "siret";
+  if (cc === "PL" && !/^0{3}/.test(digits) && digits.length === 10) field = "nip";
+  if (cc === "AU" && digits.length === 11) field = "abn";
+  if (!s(b[field])) b[field] = id;
+}
+
 export function aliasInput(path: string, b: any) {
   if (!b || typeof b !== "object") return b;
   if (["/uk-dd", "/uk-company", "/uk-company-lite", "/uk-watch", "/kyb"].includes(path)) {
     if (!s(b.number) && s(b.company_number)) b.number = s(b.company_number);
   }
+  // Agents often call /kyb with a generic country + id (or registration_number/company_id); route it to the right registry field.
+  if (path === "/kyb") kybCountryAlias(b);
   const chainish = path.startsWith("/chain/") || ["/wallet", "/nft", "/token", "/allowance", "/contract"].includes(path);
   if (chainish) {
     if (!s(b.chain) && s(b.network)) b.chain = s(b.network);
