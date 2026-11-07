@@ -1,77 +1,104 @@
 [
  {
-  "username": "AdityaR08811806",
-  "url": "https://x.com/AdityaR08811806/status/2118950840417521871",
-  "text": "Building an AI agent for KYB reviews: pulls registry data, checks sanctions lists and flags mismatches before a human signs off. Is manual KYB review still a pain? (fit: /kyb $2.50, /sanctions-batch $1, /registry-batch $0.30)"
- },
- {
-  "username": "LeftyChris13",
-  "url": "https://x.com/LeftyChris13/status/2118882374154903558",
-  "text": "Building Liquid Agent: x402 tools for AI agents; agents pay USDC for business leads, market data; MCP support; wants to connect with builders (fit: /uk-leads $1, /uk-leads-feed $25, /company-full $0.65)"
- },
- {
-  "username": "cadauso",
-  "url": "https://x.com/cadauso/status/2118906091157545203",
-  "text": "We list pay-per-call x402 services by country (directory/listing opportunity for UK/EU registry: /uk-company, /kyb, /registry-batch)"
- },
- {
-  "username": "DanKazenoff",
-  "url": "https://x.com/DanKazenoff/status/2118928543027548616",
-  "text": "RealArcherBot: agents discover and call specialized apps directly, pay per call with x402 on Base (marketplace listing for /kyb, /uk-dd)"
- },
- {
-  "username": "haiyunsky",
-  "url": "https://x.com/haiyunsky/status/2118874136714068020",
-  "text": "Published HPSILab x402 Pay-Per-Call on Agensi marketplace (Agensi = possible free listing for AgentReader)"
- },
- {
-  "username": "vitaz_dev",
-  "url": "https://x.com/vitaz_dev/status/2118901593924071805",
-  "text": "Shipped Brazilian public data (CNPJ) over x402 on Base; complementary registry seller \u2014 cross-link for /kyb /registry-batch non-BR coverage"
- },
- {
-  "username": "agentweatherio",
-  "url": "https://x.com/agentweatherio/status/2118861711142797628",
-  "text": "Agent Weather: public-data readings for agents, pay per call, API/MCP (partner/cross-list)"
- },
- {
-  "username": "cheese_dreaming",
-  "url": "https://x.com/cheese_dreaming/status/2118919052597104681",
-  "text": "Sibidz: agents top up credits over x402 with user max (buyer-side marketplace, KYB of counterparties)"
- },
- {
-  "username": "trythreews",
-  "url": "https://x.com/trythreews/status/2118924696502591772",
-  "text": "three.ws ~3% of all x402 transactions; x402 agent platform (partner/listing)"
- },
- {
-  "username": "MariaOnchainDev",
-  "url": "https://x.com/MariaOnchainDev/status/2118886152153465131",
-  "text": "Before your agent pays anyone it should answer: who is on the other end? (counterparty KYB: /kyb $2.50) \u2014 already replied 2026-11-06, do not repeat"
- },
- {
   "username": "payagents",
   "url": "https://x.com/payagents/status/2118912310693822613",
-  "text": "WARM: asked @axiomworksd8z9 for one company-lookup endpoint, exact USDC price, expected response before a paid test (still 0 replies as of 11:06 GMT) (fit: /uk-company $0.50, /buy/uk-company)"
+  "text": "WARM: asked for one company-lookup endpoint, exact USDC price, exact response before paid test (fit: /uk-company $0.50, /kyb $2.50)",
+  "priority": "warm",
+  "replied_by_us": "check"
+ },
+ {
+  "username": "AchillesAlphaAI",
+  "url": "https://x.com/AchillesAlphaAI/status/2119068109587800235",
+  "text": "x402 agent economy pay-per-call narrative (fit: /kyb, /uk-dd listing pitch)"
+ },
+ {
+  "username": "boardyai",
+  "url": "https://x.com/boardyai/status/2119067467230462402",
+  "text": "Introducing agent-ready data feeds pay per query over x402 (fit: /kyb /uk-company /company-full)"
+ },
+ {
+  "username": "meetAkari",
+  "url": "https://x.com/meetAkari/status/2119059213657792905",
+  "text": "242 of 791 x402 sellers expose live MCP \u2014 discovery signal (fit: ensure AgentReader MCP indexed)"
+ },
+ {
+  "username": "MagaShawn",
+  "url": "https://x.com/MagaShawn/status/2119060580569076111",
+  "text": "x402 facilitator on Base for agent credit/grants (partner rail for /kyb)"
+ },
+ {
+  "username": "AgentX_sale",
+  "url": "https://x.com/AgentX_sale/status/2119059547453333538",
+  "text": "A2A/MCP card linter pay-per-call x402 (peer marketplace; cross-list opportunity)"
+ },
+ {
+  "username": "TheInsumerModel",
+  "url": "https://x.com/TheInsumerModel/status/2119059058233676134",
+  "text": "Wallet auth yes/no over x402 $0.10 \u2014 complementary seller; cross-link KYB data"
+ },
+ {
+  "username": "alphadrophunt",
+  "url": "https://x.com/alphadrophunt/status/2119057911313805642",
+  "text": "MonidHQ OpenRouter-style for agent tools pay-per-call $7.7M seed (marketplace listing path)"
+ },
+ {
+  "username": "RodolfoSantos",
+  "url": "https://x.com/RodolfoSantos/status/2118932725239275530",
+  "text": "EU Sanctions Office announced \u2014 sanctions screening demand (fit: /sanctions-batch $1)"
+ },
+ {
+  "username": "AdityaR08811806",
+  "url": "https://x.com/AdityaR08811806/status/2118950840417521871",
+  "text": "Building AI agent for KYB reviews registry+sanctions (already replied ~12:12)"
  },
  {
   "username": "alexishe_dev",
   "url": "https://x.com/alexishe_dev/status/2119008691747983397",
-  "text": "Publishes Apify actors for TED/PLACSP tenders + EU company registry checks DE/NL/FR/ES with MCP tools (complementary seller; cross-link UK /uk-company, /kyb, /registry-batch)"
+  "text": "EU company registry Apify/MCP DE/NL/FR/ES (already replied cross-link)"
  },
  {
   "username": "gloamtrade",
   "url": "https://x.com/gloamtrade/status/2119012472493404288",
-  "text": "Gloam private x402 payments live with 7 partners, 600+ txs (partner/listing opportunity for /kyb, /uk-dd)"
+  "text": "Gloam private x402 payments live with 7 partners (already asked partner path)"
  },
  {
-  "username": "CryptoBurrito",
-  "url": "https://x.com/CryptoBurrito/status/2118773204730749039",
-  "text": "YourAITools MCP hub 45 tools incl sanctions screening (already replied 6 Nov; no repeat)"
+  "username": "LeftyChris13",
+  "url": "https://x.com/LeftyChris13/status/2118882374154903558",
+  "text": "Liquid Agent x402 tools for leads (already replied /uk-leads)"
  },
  {
-  "username": "susannemyrberg",
-  "url": "https://x.com/susannemyrberg/status/2118958530418098262",
-  "text": "Onboarding needs sanctions screening not wallet reputation (fit: /sanctions-batch $1, /kyb $2.50)"
+  "username": "cadauso",
+  "url": "https://x.com/cadauso/status/2118906091157545203",
+  "text": "CadaUso x402 by-country listing (already replied)"
+ },
+ {
+  "username": "vitaz_dev",
+  "url": "https://x.com/vitaz_dev/status/2118901593924071805",
+  "text": "BR CNPJ x402 complementary (already replied)"
+ },
+ {
+  "username": "PlugiversePower",
+  "url": "https://x.com/PlugiversePower/status/2118680241530954209",
+  "text": "Domain\u2192company enrichment Apify MCP (fit: /company-full $0.65 complementary)"
+ },
+ {
+  "username": "OpenClawProd",
+  "url": "https://x.com/OpenClawProd/status/2117657208661872995",
+  "text": "Bazaar sweep target \u2014 already pitched /us-entity today"
+ },
+ {
+  "username": "form_my_company",
+  "url": "https://x.com/form_my_company/status/2118999618964885705",
+  "text": "Companies House ACSP agent news \u2014 low fit for paid API pitch"
+ },
+ {
+  "username": "AgentPayHQ",
+  "url": "https://x.com/AgentPayHQ/status/2119052252493320411",
+  "text": "Tracks agent payment protocols including x402 (directory opportunity)"
+ },
+ {
+  "username": "BotsDoTheWork",
+  "url": "https://x.com/BotsDoTheWork/status/2119067763658375540",
+  "text": "Selling bot packs USDC x402 on Base (peer; not buyer)"
  }
 ]

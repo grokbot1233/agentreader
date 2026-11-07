@@ -1,0 +1,23 @@
+== 402index.io (run.sh ~14:05 GMT)
+/kyb: 201 registered & live (domain verified)
+/uk-leads: 201 registered & live (domain verified)
+/uk-leads-feed: 201 registered & live (domain verified)
+/uk-watch: 201 registered & live (domain verified)
+
+== a2a-registry.org
+{"success":true,"status":"updated","refreshed":true,"package_name":"uk.co.axiomworks.axiom_works_agentreader"}
+
+== a2aregistry.org
+Already registered id=0e2ded94-ca81-4e8e-a856-b02d17e9f914; POST returns "use PUT"; PUT needs owner auth (403 previously). Listing live.
+
+== apis.io
+Form API POST /api/v1/submit → 422 turnstile_required. Used GitHub inbox instead: api-search/inbox#63 [add] AgentReader.
+
+== other free probes
+- awesome.tools MCP reachable (submit needs tool call / form; no free unauthenticated POST found this run)
+- MonidHQ site TLS/522 from box — no API submit
+- AgentIndex x402 register path 404
+- PayAPI Market funding asks: IGNORED (no spend)
+- Archer/Agensi: still need browser sign-in (prior note)
+- APIbase.pro sub_197302473499 still under review (prior)
+- cadauso /kyb still pending (prior)
