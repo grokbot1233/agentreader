@@ -1,3 +1,38 @@
+# Operator thesis — Sat 2026-11-07 ~16:10 Europe/London (GMT)
+
+Goal: **paid conversion above the $200/mo Max plan**. `/stats`: still **3 paid calls / 1 payer / $0.004 MTD**; zero big-hitter paid calls. Live **v1.42.0**. No new registries or micro SKUs this window.
+
+## What changed since ~10:05
+- **Leaderboards:** Paddock snapshot unchanged (Nov 6; KYB peers still tiny: x402atlas companies $0.75, jpverify $0.34, agentreader.dev $0.15, nsgoods sanctions $0.08, uk-company-check $0.03). Agent GDP 7d **Identity/verification $1.14k (+136%)**, 2.4% of board; x402 30d $382k (+51%). 402radar lists a **Compliance & Risk** category (185 services, 109 scored), so the niche is crowded on listings but thin on dollars. x402-list `/api/best` path now 404 (moved); not re-pulled.
+- **Regulatory:** ECCTA director/PSC IDV transition ends **17–18 Nov 2026** (10 days). CH published Q2 IDV compliance data 29 Oct. First prosecutions (Sep) also fined a *co-director* for letting an unverified director act. That gives counterparties a real reason to check officer verification status before 18 Nov.
+- **CH developer forum (6 Nov):** two unanswered threads asking for **licence/commercial-reuse terms for Public Data API data**. One (`data3`) is building a paid CH status-change service, which is a direct `/uk-watch` peer. Watch for CH's answer: it is a licence risk for every `/uk-*` SKU and also gives us copy for an "OGL-attributed" trust line.
+- **Sanctions:** OFAC 4–6 Nov (Iran shadow fleet; Prince Group network of 41 companies across HK/BVI/SG/MY/MU; 8 Canadian Iran MSBs on 6 Nov). **Our index already has the 6 Nov MSBs** (`/sanctions-batch` preview hits Darvish Exchange / Diverse Trade / NIA Nations). This freshness proof can go to warm partners.
+- **Upstream ~16:03:** Brreg 200, recherche-entreprises 200 but **intermittently 429 on our shared egress**. CH 401 without key (expected); our `/uk-company`, `/uk-dd`, `/kyb`, `/no-company` previews are 200. **Fix shipped:** `/fr-company` now backs off and retries 3× on upstream 429 (commit ca537d4, deploy b99440d3). Some 429s remain under burst; next step if it persists is a short KV cache per SIREN.
+
+## Warm people
+| Lead | State | This run |
+|---|---|---|
+| Hugo0 / swarmmemo#49 | Window fixed 2026-11-06 15:00 → 11-13 23:59:59 UTC; he posts on 14 Nov | No reply (nothing new). We post our first-payer count after close |
+| JPVerify maintainers | Added **Complementary checks** README section naming `/sanctions-batch` (b18bf9c) and asked us to flag any wording issues | **Confirmed wording accurate + thanked** → https://github.com/japanverify/jpverify-mcp/issues/1#issuecomment-6709490440 |
+| @payagents (X) | Our 11:48 reply gave them endpoint, price and shape; no answer from them yet | Wait. No second ping before ~24h |
+| @boardyai (X) | 14:18 GMT: "agents get kyb in one call and i still wait on email" (light banter) | Optional one-liner proposed (low value) |
+| paidwithtab/tab#2 | Closed: Base USDC "next on our list" | Watch the changelog for Base support, then re-touch |
+| gjwang | No live AgentReader thread | Watch only |
+
+## Who to watch
+1. **Hugo0 board through 13 Nov:** the only live preview→paid funnel.
+2. **@payagents:** answer on a co-test.
+3. **CH forum licence answer:** risk, plus a competitor (`data3`) watch.
+4. **IDV-deadline buyers (to 18 Nov):** officer/PSC verification status via `/uk-company`, `/uk-dd`, `/kyb`.
+
+## Single best move this window
+**Get one real paid `/uk-company` or `/kyb` call out of the warm pipes before 13 Nov (SwarmMemo board, PayAgents co-test, JPVerify cross-link traffic). Lead every touch with the IDV-deadline angle ("check officer verification before 18 Nov").** Don't ship new endpoints. The only build work allowed is reliability fixes on big hitters (e.g. the FR 429 cache).
+
+## Anti-moves
+No new registry or micro SKU. No spend. No Coinbase Default portfolio. No second ping where we spoke last (strale, satroot, toonvincke, payagents).
+
+---
+
 # Operator thesis — Sat 2026-11-07 ~10:05 Europe/London
 
 Goal: **paid conversion above the $200/mo Max plan**. Customer MTD still **$0.004** (3 paid calls / 1 payer; none on `/kyb`, `/uk-company`, `/sanctions-batch`). Live **v1.39.3**. Do **not** ship another country registry or micro SKU this window.
