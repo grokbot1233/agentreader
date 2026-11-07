@@ -13,6 +13,7 @@ import { skCompany, normalizeSkIco } from "./sk-company";
 import { ieCompany, normalizeIeNumber } from "./ie-company";
 import { eeCompany, normalizeEeRegCode } from "./ee-company";
 import { lvCompany, normalizeLvRegcode } from "./lv-company";
+import { sgCompany, normalizeSgUen } from "./sg-company";
 import { usEntity } from "./us-entity";
 import { formatUid } from "./ch-uid";
 import { luhnOk } from "./fr-company-id";
@@ -30,6 +31,7 @@ const SK_TLDS = /\.(sk)$/i;
 const IE_TLDS = /\.(ie)$/i;
 const EE_TLDS = /\.(ee)$/i;
 const LV_TLDS = /\.(lv)$/i;
+const SG_TLDS = /\.(sg|com\.sg)$/i;
 const US_TLDS = /\.us$/i;
 const PL_TLDS = /\.pl$/i;
 const AU_TLDS = /\.(com\.au|net\.au|org\.au|edu\.au|gov\.au|au)$/i;
@@ -715,6 +717,39 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     lv = null;
   }
 
+  let sg: any = null;
+  let sg_skip_reason: string | null = null;
+  let sgUen: string | null = null;
+  for (const m of blob.matchAll(/\b(?:UEN|unique\s+entity\s+number|(?:company\s+)?reg(?:istration)?\.?\s*(?:no\.?|number))[:\s#]*((?:\d{8,9}|[STR]\d{2}[A-Z]{2}\d{4})[A-Z])\b/gi)) {
+    try { sgUen = normalizeSgUen(m[1]); break; } catch { /* continue */ }
+  }
+  const looksSg = SG_TLDS.test(domain) || /\b(singapore|acra|bizfile)\b/i.test(blob + " " + desc);
+  try {
+    if (sgUen) {
+      sg = await sgCompany({ uen: sgUen, lite: true });
+    } else if (looksSg) {
+      const titleGuess = extractPossibleName(company);
+      const cleanedTitle = titleGuess ? titleGuess.replace(/^(welcome\s+to|official\s+site\s+of)\s+/i, "").trim() : null;
+      const candidates = [cleanedTitle, titleGuess, sld.replace(/\s+/g, " ")].filter((x): x is string => !!x && x.length >= 3);
+      let lastErr: any = null;
+      for (const name of [...new Set(candidates)].slice(0, 2)) {
+        try {
+          const hit = await sgCompany({ name, lite: true });
+          const nm = String(hit?.name || "").toLowerCase();
+          const q = name.toLowerCase();
+          if (nm && (nm === q || nm.startsWith(q) || nm.includes(q) || q.includes(nm.split(" ")[0]))) { sg = hit; lastErr = null; break; }
+          lastErr = new Error(`SG name soft-attach rejected weak match for "${name}" → ${hit?.name}`);
+        } catch (e: any) { lastErr = e; }
+      }
+      if (!sg && lastErr) throw lastErr;
+    } else {
+      sg_skip_reason = "No Singapore company signals (.sg TLD, UEN, or SG keywords).";
+    }
+  } catch (e: any) {
+    sg_skip_reason = `SG lookup skipped: ${e?.message || e}`;
+    sg = null;
+  }
+
   let us: any = null;
   let us_skip_reason: string | null = null;
   const usId = findUsStateIdInText(blob);
@@ -818,6 +853,7 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     ie && "IE",
     ee && "EE",
     lv && "LV",
+    sg && "SG",
     us && "US",
     au && "AU",
     ca && "CA",
@@ -828,7 +864,7 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     domain,
     bundle: "company-full",
     price: "$0.65",
-    savings_vs_separate: "Cheaper than /company + separate UK/FR/NO/DK/FI/CH/PL/CZ/BE/SK/IE/EE/LV/US/AU/CA/charity calls when those registries auto-attach",
+    savings_vs_separate: "Cheaper than /company + separate UK/FR/NO/DK/FI/CH/PL/CZ/BE/SK/IE/EE/LV/SG/US/AU/CA/charity calls when those registries auto-attach",
     company,
     company_error,
     uk,
@@ -873,6 +909,9 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     lv,
     lv_included: !!lv,
     lv_skip_reason,
+    sg,
+    sg_included: !!sg,
+    sg_skip_reason,
     us,
     us_included: !!us,
     us_skip_reason,
@@ -885,6 +924,6 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     registries_attached: attached,
     note: attached.length
       ? `Includes company research + auto-attached registries: ${attached.join(", ")}. Soft-skipped jurisdictions list *_skip_reason.`
-      : "Includes company research. UK/FR/NO/DK/FI/CH/PL/CZ/BE/SK/IE/EE/LV/US/AU/CA/charity packs attach when domain/page signals match; otherwise see *_skip_reason fields.",
+      : "Includes company research. UK/FR/NO/DK/FI/CH/PL/CZ/BE/SK/IE/EE/LV/SG/US/AU/CA/charity packs attach when domain/page signals match; otherwise see *_skip_reason fields.",
   };
 }

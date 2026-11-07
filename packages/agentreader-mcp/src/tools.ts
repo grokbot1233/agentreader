@@ -358,6 +358,14 @@ const ALL_TOOLS: ToolDef[] = [
     previewable: true,
   },
   {
+    name: "sg_company",
+    description: "Use this for a Singapore company lookup from ACRA via data.gov.sg (Entities with UEN, Singapore Open Data Licence v1.0) by UEN or name: legal name, UEN status, entity type, issue date, registered address, red flags. Example: {uen:\"196800306E\"} (DBS BANK LTD.). $0.25 USDC.",
+    price: "$0.25",
+    schema: { uen: z.string().optional(), sg: z.string().optional(), number: z.string().optional(), company_number: z.string().optional(), name: z.string().optional(), q: z.string().optional(), limit: z.union([z.string(), z.number()]).optional() },
+    http: (a) => `${ORIGIN}/sg-company?${qs(a)}`,
+    previewable: true,
+  },
+  {
     name: "us_entity",
     description: "US state business-entity (Secretary of State) lookup across NY, CO, CT, OR, TX and VA open-data registries by name or state+id: status/good standing, type, formed, jurisdiction, registered agent, CT principals, red flags. Example: {name:\"Etsy Inc\"} or {state:\"CO\",id:\"20211537536\"}. $0.25 USDC.",
     price: "$0.25",
@@ -367,9 +375,9 @@ const ALL_TOOLS: ToolDef[] = [
   },
   {
     name: "registry_batch",
-    description: "Batch verify up to 25 UK (Companies House, max 10), Australian (ACN/ABN), Canadian (number/BN), French (SIREN), Norwegian (orgnr), Danish (CVR), Finnish (Y-tunnus), Swiss (UID), Polish (KRS), Czech (IČO), Belgian (enterprise number), Slovak (RPO IČO), Irish (CRO number), Estonian (äriregister code), Latvian (registration number) and US state (us=STATE:ID, e.g. NY:3368051 — NY/CO/CT/OR/TX/VA Secretary of State open data) companies in one call; comma-separated ids, bad items get an inline error. $0.30 USDC.",
+    description: "Batch verify up to 25 UK (Companies House, max 10), Australian (ACN/ABN), Canadian (number/BN), French (SIREN), Norwegian (orgnr), Danish (CVR), Finnish (Y-tunnus), Swiss (UID), Polish (KRS), Czech (IČO), Belgian (enterprise number), Slovak (RPO IČO), Irish (CRO number), Estonian (äriregister code), Latvian (registration number), Singapore ACRA (sg=UEN) and US state (us=STATE:ID, e.g. NY:3368051 — NY/CO/CT/OR/TX/VA Secretary of State open data) companies in one call; comma-separated ids, bad items get an inline error. $0.30 USDC.",
     price: "$0.30",
-    schema: { uk: z.string().optional(), au: z.string().optional(), ca: z.string().optional(), fr: z.string().optional(), no: z.string().optional(), dk: z.string().optional(), fi: z.string().optional(), ch: z.string().optional(), pl: z.string().optional(), cz: z.string().optional(), be: z.string().optional(), sk: z.string().optional(), ie: z.string().optional(), ee: z.string().optional(), lv: z.string().optional(), us: z.string().optional() },
+    schema: { uk: z.string().optional(), au: z.string().optional(), ca: z.string().optional(), fr: z.string().optional(), no: z.string().optional(), dk: z.string().optional(), fi: z.string().optional(), ch: z.string().optional(), pl: z.string().optional(), cz: z.string().optional(), be: z.string().optional(), sk: z.string().optional(), ie: z.string().optional(), ee: z.string().optional(), lv: z.string().optional(), sg: z.string().optional(), us: z.string().optional() },
     http: (a) => `${ORIGIN}/registry-batch?${new URLSearchParams(Object.entries(a).filter(([, v]) => v) as any)}`,
   },
   {
@@ -728,7 +736,7 @@ const ALL_TOOLS: ToolDef[] = [
   },
   {
     name: "kyb_report",
-    description: "Agent KYB pack: UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE/SK + US-state (NY/CO/CT/OR/TX/VA) registry + EU VAT + optional GLEIF LEI (parents) + website + sanctions + director appointments → trust flag. Screening only. $2.50 USDC.",
+    description: "Agent KYB pack: UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE/SK/IE/EE/LV/SG + US-state (NY/CO/CT/OR/TX/VA) registry + EU VAT + optional GLEIF LEI (parents) + website + sanctions + director appointments → trust flag. Screening only. $2.50 USDC.",
     price: "$2.50",
     schema: {
       domain: z.string().optional(),
@@ -764,6 +772,11 @@ const ALL_TOOLS: ToolDef[] = [
       sk: z.string().optional(),
       ico_sk: z.string().optional(),
       rpo: z.string().optional(),
+      ie: z.string().optional(),
+      ee: z.string().optional(),
+      lv: z.string().optional(),
+      sg: z.string().optional(),
+      uen: z.string().optional(),
       us_state: z.string().optional(),
       us_id: z.string().optional(),
       us_name: z.string().optional(),

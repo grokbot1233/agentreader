@@ -243,7 +243,7 @@ export class AgentReaderClient {
     return this.get("/uk-officer", input as any, opts);
   }
   /** Batch verify up to 25 UK (max 10) / AU / CA / FR / NO / DK / FI / CH / PL / CZ / BE / SK ids and US state entities (us: "NY:3368051,OR:8739914"), comma-separated ($0.30). */
-  registryBatch(input: { uk?: string; au?: string; ca?: string; fr?: string; no?: string; dk?: string; fi?: string; ch?: string; pl?: string; cz?: string; be?: string; sk?: string; us?: string }, opts?: RequestOpts) {
+  registryBatch(input: { uk?: string; au?: string; ca?: string; fr?: string; no?: string; dk?: string; fi?: string; ch?: string; pl?: string; cz?: string; be?: string; sk?: string; ie?: string; ee?: string; lv?: string; sg?: string; us?: string }, opts?: RequestOpts) {
     return this.get("/registry-batch", input as any, opts);
   }
   /** Canadian federal corporation lookup (Corporations Canada) by number or BN ($0.02). */
@@ -298,6 +298,10 @@ export class AgentReaderClient {
   /** Latvian company lookup (Register of Enterprises open data) by registration number/name ($0.25). */
   lvCompany(input: { registration_number?: string; regcode?: string; lv?: string; number?: string; name?: string; q?: string; limit?: number | string }, opts?: RequestOpts) {
     return this.get("/lv-company", input as any, opts);
+  }
+  /** Singapore company lookup (ACRA Entities with UEN via data.gov.sg) by UEN/name ($0.25). */
+  sgCompany(input: { uen?: string; sg?: string; number?: string; company_number?: string; name?: string; q?: string; limit?: number | string }, opts?: RequestOpts) {
+    return this.get("/sg-company", input as any, opts);
   }
   /** Australian company lookup (ASIC register) by ACN or ABN ($0.02). */
   auCompany(input: { acn?: string; abn?: string }, opts?: RequestOpts) {
@@ -447,6 +451,7 @@ export class AgentReaderClient {
     ico?: string; cz?: string;
     enterprise_number?: string; be?: string; bce?: string; kbo?: string;
     sk?: string; ico_sk?: string; rpo?: string;
+    ie?: string; ee?: string; lv?: string; sg?: string; uen?: string;
     us_state?: string; us_id?: string; us_name?: string;
   }, opts?: RequestOpts) {
     return this.get("/kyb", input as any, opts);
