@@ -146,6 +146,9 @@ const OFAC_CONS = [
   "https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/CONS_PRIM.CSV",
   "https://www.treasury.gov/ofac/downloads/consolidated/cons_prim.csv",
 ];
+/** OpenSanctions daily mirrors — used when treasury.gov / OFAC API returns 5xx (often 525 from Workers). */
+const OFAC_SDN_OS = "https://data.opensanctions.org/datasets/latest/us_ofac_sdn/targets.simple.csv";
+const OFAC_CONS_OS = "https://data.opensanctions.org/datasets/latest/us_ofac_cons/targets.simple.csv";
 
 async function gzipJson(obj: any): Promise<ArrayBuffer> {
   const bytes = new TextEncoder().encode(JSON.stringify(obj));
@@ -403,8 +406,8 @@ function parseEu(xml: string): { entries: SanctionsEntry[]; pub: string | null }
 }
 
 
-/** OpenSanctions daily mirror of EU FSF (used when webgate XML returns 5xx). */
-function parseEuOpenSanctions(csvText: string): { entries: SanctionsEntry[]; pub: string | null } {
+/** OpenSanctions targets.simple.csv → SanctionsEntry[] (EU FSF / OFAC SDN / OFAC CONS mirrors). */
+function parseOpenSanctionsSimple(csvText: string, list: string): { entries: SanctionsEntry[]; pub: string | null } {
   const lines = csvText.split(/\r?\n/);
   if (!lines.length) return { entries: [], pub: null };
   const header = parseCsvLine(lines[0] || "");
@@ -440,7 +443,7 @@ function parseEuOpenSanctions(csvText: string): { entries: SanctionsEntry[]; pub
     if (seen && (!pub || seen > pub)) pub = seen;
     entries.push({
       id,
-      list: "EU-FSF",
+      list,
       name,
       aliases,
       type: typ,
@@ -451,6 +454,11 @@ function parseEuOpenSanctions(csvText: string): { entries: SanctionsEntry[]; pub
     });
   }
   return { entries, pub };
+}
+
+/** OpenSanctions daily mirror of EU FSF (used when webgate XML returns 5xx). */
+function parseEuOpenSanctions(csvText: string): { entries: SanctionsEntry[]; pub: string | null } {
+  return parseOpenSanctionsSimple(csvText, "EU-FSF");
 }
 
 let cached: Indexed | null = null;
@@ -494,14 +502,30 @@ export async function refreshSanctionsIndex(env: EnvKV): Promise<{ ok: boolean; 
   // UK/UN/EU keep prior rows in their own catch blocks below.
 
   try {
-    const [sdn, alt] = await Promise.all([fetchTextFirst(OFAC_SDN), fetchTextFirst(OFAC_ALT)]);
-    const entries = parseOfacSdn(sdn.text, alt.text);
-    all.push(...entries);
-    sources["OFAC-SDN"] = {
-      url: sdn.url,
-      licence: "US government public domain",
-      count: entries.length,
-    };
+    try {
+      const [sdn, alt] = await Promise.all([fetchTextFirst(OFAC_SDN), fetchTextFirst(OFAC_ALT)]);
+      const entries = parseOfacSdn(sdn.text, alt.text);
+      if (entries.length < 1000) throw new Error(`official SDN too few entries (${entries.length})`);
+      all.push(...entries);
+      sources["OFAC-SDN"] = {
+        url: sdn.url,
+        licence: "US government public domain",
+        count: entries.length,
+      };
+    } catch (officialErr: any) {
+      // treasury.gov / OFAC API often HTTP 525 from Workers; OpenSanctions mirrors SDN daily.
+      const csv = await fetchText(OFAC_SDN_OS, 180000);
+      const { entries, pub } = parseOpenSanctionsSimple(csv, "OFAC-SDN");
+      if (entries.length < 1000) throw new Error(`OpenSanctions SDN mirror too few entries (${entries.length}); official: ${officialErr?.message || officialErr}`);
+      all.push(...entries);
+      sources["OFAC-SDN"] = {
+        url: OFAC_SDN_OS,
+        licence: "US OFAC SDN via OpenSanctions mirror (official treasury feed unavailable)",
+        count: entries.length,
+        pub,
+        error: `official SDN failed (${String(officialErr?.message || officialErr).slice(0, 160)}); used OpenSanctions mirror`,
+      };
+    }
   } catch (e: any) {
     errors.push(`OFAC-SDN: ${e?.message || e}`);
     const kept = prevOfac.filter((e) => e.list === "OFAC-SDN");
@@ -514,14 +538,29 @@ export async function refreshSanctionsIndex(env: EnvKV): Promise<{ ok: boolean; 
   }
 
   try {
-    const cons = await fetchTextFirst(OFAC_CONS);
-    const entries = parseOfacCons(cons.text);
-    all.push(...entries);
-    sources["OFAC-CONS"] = {
-      url: cons.url,
-      licence: "US government public domain",
-      count: entries.length,
-    };
+    try {
+      const cons = await fetchTextFirst(OFAC_CONS);
+      const entries = parseOfacCons(cons.text);
+      if (entries.length < 50) throw new Error(`official CONS too few entries (${entries.length})`);
+      all.push(...entries);
+      sources["OFAC-CONS"] = {
+        url: cons.url,
+        licence: "US government public domain",
+        count: entries.length,
+      };
+    } catch (officialErr: any) {
+      const csv = await fetchText(OFAC_CONS_OS, 180000);
+      const { entries, pub } = parseOpenSanctionsSimple(csv, "OFAC-CONS");
+      if (entries.length < 50) throw new Error(`OpenSanctions CONS mirror too few entries (${entries.length}); official: ${officialErr?.message || officialErr}`);
+      all.push(...entries);
+      sources["OFAC-CONS"] = {
+        url: OFAC_CONS_OS,
+        licence: "US OFAC CONS via OpenSanctions mirror (official treasury feed unavailable)",
+        count: entries.length,
+        pub,
+        error: `official CONS failed (${String(officialErr?.message || officialErr).slice(0, 160)}); used OpenSanctions mirror`,
+      };
+    }
   } catch (e: any) {
     errors.push(`OFAC-CONS: ${e?.message || e}`);
     const kept = prevOfac.filter((e) => e.list === "OFAC-CONS");
