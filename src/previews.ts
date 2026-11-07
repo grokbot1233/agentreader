@@ -219,10 +219,11 @@ export function truncateSample(kind: PreviewKind, data: any, exampleCall?: strin
         fr_preview: data.fr ? { siren: data.fr.siren, name: data.fr.name, status: data.fr.status } : { included: false, reason: data.fr_skip_reason || "no FR signals" },
         no_preview: data.no ? { orgnr: data.no.orgnr, name: data.no.name, status: data.no.status } : { included: false, reason: data.no_skip_reason || "no NO signals" },
         dk_preview: data.dk ? { cvr: data.dk.cvr, name: data.dk.name, status: data.dk.status } : { included: false, reason: data.dk_skip_reason || "no DK signals" },
+        fi_preview: data.fi ? { business_id: data.fi.business_id, name: data.fi.name, status: data.fi.status, city: data.fi.city } : { included: false, reason: data.fi_skip_reason || "no FI signals" },
         au_preview: data.au ? { acn: data.au.acn || data.au.ACN, name: data.au.name, status: data.au.status } : { included: false, reason: data.au_skip_reason || "no AU signals" },
         ca_preview: data.ca ? { corporation_number: data.ca.corporation_number, name: data.ca.name, status: data.ca.status } : { included: false, reason: data.ca_skip_reason || "no CA signals" },
         registries_attached: data.registries_attached || [],
-        omitted: ["full company research", "full UK/FR/NO/DK/AU/CA registry packs", "full charity profile"],
+        omitted: ["full company research", "full UK/FR/NO/DK/FI/AU/CA registry packs", "full charity profile"],
       };
 
     case "us-sec":
@@ -875,6 +876,7 @@ export const STATIC_SAMPLES: Record<string, any> = {
     fr_included: false, fr_skip_reason: "No French company signals (.fr TLD, SIREN/SIRET, or FR keywords).",
     no_included: false, no_skip_reason: "No Norwegian company signals (.no TLD, orgnr, or NO keywords).",
     dk_included: false, dk_skip_reason: "No Danish company signals (.dk TLD, CVR, or DK keywords).",
+    fi_included: false, fi_skip_reason: "No Finnish company signals (.fi TLD, Y-tunnus, or FI keywords).",
     au_included: false, au_skip_reason: "No Australian company signals (.com.au TLD or ACN/ABN).",
     ca_included: false, ca_skip_reason: "No Canadian company signals (.ca TLD or corporation number/BN).",
     registries_attached: ["UK CH"],
