@@ -19,7 +19,7 @@ No API keys, no accounts. Agents pay per request in **USDC on Base mainnet** usi
 | `/uk-leads` | $1.00 | New UK incorporations + directors + mass-formation flags |
 | `/uk-leads-feed` | $25.00 / 30d | Daily webhook of new UK leads for your filter |
 | `/company` | $0.25 | Company research from a domain, with sources |
-| `/company-full` | $0.65 | Website research + multi-registry DD (UK/FR/NO/AU/CA/charity when signals) |
+| `/company-full` | $0.65 | Website research + multi-registry DD (UK/FR/NO/DK/FI/CH/PL/CZ/BE/SK/US/AU/CA/charity when signals) |
 | `/sanctions-batch` | $1.00 | Up to 50 names vs OFAC/UK/UN/EU |
 | `/uk-charity-full` | $0.25 | Charity trustees, 5y finances, red flags |
 | `/registry-batch` | $0.30 | Up to 25 UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE/SK + US-state companies in one call (US as `us=STATE:ID`, e.g. `us=NY:3368051,OR:8739914` — NY/CO/CT/OR/TX SOS open data; bad items get an inline per-item error). Sample: [`/samples/registry-batch`](https://api.axiomworks.co.uk/samples/registry-batch) |
@@ -44,7 +44,7 @@ Supporting real-data checks: `/uk-company-lite`, `/uk-charity`, `/sanctions`, `/
 | `GET/POST /uk-company?number=` / `?name=` | `uk_company` | $0.50 | Full UK Companies House due-diligence (API) + insolvency + red flags |
 | `GET/POST /uk-company-lite?number=` / `?name=` | `uk_company_lite` | $0.05 | UK company snapshot: profile, status, compliance + red flags |
 | `GET/POST /uk-dd?number=` / `?name=` | `uk_dd` | $1.00 | UK DD job: full CH + sanctions + optional domain → trust flag |
-| `GET/POST /company-full?domain=` | `company_full` | $0.65 | Bundle: website research + UK/FR/NO/AU/CA/charity auto-attach when TLD/page signals match |
+| `GET/POST /company-full?domain=` | `company_full` | $0.65 | Bundle: website research + UK/FR/NO/DK/FI/CH/PL/CZ/BE/SK/US(NY/CO/CT/OR/TX)/AU/CA/charity auto-attach when TLD/page signals match |
 | `GET/POST /uk-charity?number=` / `?name=` | `uk_charity` | $0.05 | UK Charity Commission snapshot (status, income, trustees count, activities) |
 | `GET/POST /uk-charity-full?number=` / `?name=` | `uk_charity_full` | $0.25 | Full charity DD: trustees, 5y finances, assets, governance, regulatory + red flags |
 | `GET/POST /convert?url=` | `convert_document` | $0.03 | PDF/DOCX/HTML → markdown or text |

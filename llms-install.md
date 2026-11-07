@@ -52,7 +52,7 @@ Ask Cline: "Use agentreader `uk_company` with number 00445790 in preview mode". 
 | `uk_dd` | $1.00 | UK due-diligence job: full Companies House pack, sanctions (entity and officers), optional domain check, trust flag |
 | `uk_company` | $0.50 | Companies House profile, officers, PSCs, filings, charges, insolvency and red flags |
 | `registry_batch` | $0.30 | Batch-verify up to 25 company ids across UK, AU, CA, FR, NO, DK and more |
-| `company_full` | $0.65 | Website company research plus multi-registry due diligence |
+| `company_full` | $0.65 | Website company research + UK/FR/NO/DK/FI/CH/PL/CZ/BE/SK/US/AU/CA/charity soft-attach |
 | `uk_leads` | $1.00 | New UK incorporations by SIC / location, with active director names |
 | `uk_watch` | $5.00 / 30 days | Watches one UK company hourly and sends a webhook on status, officer, filing, PSC or charge changes |
 

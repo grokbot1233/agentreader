@@ -376,7 +376,7 @@ const ALL_TOOLS: ToolDef[] = [
   },
   {
     name: "company_full",
-    description: "Website company research + multi-registry DD (UK/FR/NO/DK/FI/CH/PL/CZ/BE/SK/AU/CA/charity when signals) ($0.65).",
+    description: "Website company research + multi-registry DD (UK/FR/NO/DK/FI/CH/PL/CZ/BE/SK/US NY/CO/CT/OR/TX SOS/AU/CA/charity when signals) ($0.65).",
     price: "$0.65",
     schema: { domain: z.string() },
     http: (a) => `${ORIGIN}/company-full?domain=${encodeURIComponent(a.domain)}`,

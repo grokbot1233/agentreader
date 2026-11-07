@@ -10,6 +10,7 @@ import { plCompany, normalizeKrs, nipCheckDigitOk } from "./pl-company";
 import { czCompany, normalizeIco, icoCheckDigitOk } from "./cz-company";
 import { beCompany, normalizeEnterpriseNumber, enterpriseCheckDigitOk } from "./be-company";
 import { skCompany, normalizeSkIco } from "./sk-company";
+import { usEntity } from "./us-entity";
 import { formatUid } from "./ch-uid";
 import { luhnOk } from "./fr-company-id";
 import type { KybRegistries } from "./kyb";
@@ -23,6 +24,7 @@ const CH_TLDS = /\.(ch|swiss)$/i;
 const CZ_TLDS = /\.(cz)$/i;
 const BE_TLDS = /\.(be)$/i;
 const SK_TLDS = /\.(sk)$/i;
+const US_TLDS = /\.us$/i;
 const PL_TLDS = /\.pl$/i;
 const AU_TLDS = /\.(com\.au|net\.au|org\.au|edu\.au|gov\.au|au)$/i;
 const CA_TLDS = /\.ca$/i;
@@ -218,7 +220,39 @@ function slovakSignals(domain: string, blob: string, desc: string): boolean {
   );
 }
 
+export function findUsStateIdInText(text: string): { state: string; id: string } | null {
+  // Explicit STATE:ID tokens (same shape as /registry-batch us=)
+  for (const m of text.matchAll(/\b(NY|CO|CT|OR|TX)\s*[:/#]\s*([A-Za-z0-9-]{3,20})\b/gi)) {
+    return { state: m[1].toUpperCase(), id: m[2] };
+  }
+  const labeled: Array<{ re: RegExp; state: string }> = [
+    { re: /\b(?:NY\s+)?DOS\s*ID[:\s#]*([0-9]{5,10})\b/i, state: "NY" },
+    { re: /\bColorado\s+(?:entity|file)\s*(?:id|number|#)[:\s#]*([0-9]{5,15})\b/i, state: "CO" },
+    { re: /\b(?:CT|Connecticut)\s+(?:account|business)\s*(?:number|id|#)[:\s#]*([A-Za-z0-9-]{3,20})\b/i, state: "CT" },
+    { re: /\bOregon\s+(?:registry|business)\s*(?:number|id|#)[:\s#]*([0-9]{5,15})\b/i, state: "OR" },
+    { re: /\b(?:TX|Texas)\s+(?:taxpayer|SOS\s*file)\s*(?:number|id|#)[:\s#]*([0-9]{5,15})\b/i, state: "TX" },
+    { re: /\b(?:SOS|Secretary\s+of\s+State)\s+file\s*(?:number|no\.?|#)[:\s#]*([0-9]{5,15})\b/i, state: "CO" },
+  ];
+  for (const { re, state } of labeled) {
+    const m = text.match(re);
+    if (m) return { state, id: m[1] };
+  }
+  return null;
+}
 
+export function looksUsEntityName(name: string | null | undefined): boolean {
+  return /\b(inc\.?|incorporated|llc|l\.l\.c\.?|corp\.?|corporation|l\.?p\.?|ltd\.?\s*partnership)\b/i.test(name || "");
+}
+
+export function usSignals(domain: string, blob: string, desc: string, title?: string | null): boolean {
+  return (
+    US_TLDS.test(domain) ||
+    !!findUsStateIdInText(blob) ||
+    looksUsEntityName(title) ||
+    /\b(united\s+states|u\.s\.a\.?|delaware\s+(corporation|llc|inc)|secretary\s+of\s+state|incorporated\s+in\s+(delaware|new\s+york|colorado|connecticut|oregon|texas)|good\s+standing|file\s+number)\b/i.test(blob) ||
+    /\bunited\s+states\b/i.test(desc)
+  );
+}
 
 function findDkCvrInText(text: string): string | null {
   for (const m of text.matchAll(/\b(?:CVR|CVR-?nr\.?|CVR\s*(?:no\.?|nummer))[:\s#]*(?:DK)?[\s-]*(\d{2}\s?\d{2}\s?\d{2}\s?\d{2}|\d{8})\b/gi)) {
@@ -577,6 +611,57 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
   }
 
 
+
+  let us: any = null;
+  let us_skip_reason: string | null = null;
+  const usId = findUsStateIdInText(blob);
+  const looksUs = usSignals(domain, blob, desc, company?.homepage?.title || extractPossibleName(company));
+  try {
+    if (usId) {
+      const r: any = await usEntity({ state: usId.state, id: usId.id, lite: true });
+      us = {
+        ...r.best_match,
+        other_matches: (r.results || []).slice(1, 3).map((x: any) => ({ state: x.state, id: x.id, name: x.name, status: x.status })),
+        red_flags: r.red_flags,
+        source: "us-entity",
+      };
+    } else if (US_TLDS.test(domain) || looksUs) {
+      const titleGuess = extractPossibleName(company);
+      const cleanedTitle = titleGuess
+        ? titleGuess.replace(/^(welcome\s+to|official\s+site\s+of|home\s+of)\s+/i, "").trim()
+        : null;
+      const candidates = [cleanedTitle, titleGuess, sld.replace(/\s+/g, " ")].filter((x): x is string => !!x && x.length >= 3);
+      let lastErr: any = null;
+      for (const name of [...new Set(candidates)]) {
+        try {
+          const r: any = await usEntity({ name, lite: true, limit: 5 });
+          const hit = r?.best_match;
+          const nm = String(hit?.name || "").toLowerCase();
+          const q = name.toLowerCase();
+          const strong = nm && (nm === q || nm.startsWith(q) || nm.includes(q) || q.includes(nm.split(" ")[0]) || r?.results?.[0]?.match === "exact");
+          if (strong) {
+            us = {
+              ...hit,
+              other_matches: (r.results || []).slice(1, 3).map((x: any) => ({ state: x.state, id: x.id, name: x.name, status: x.status })),
+              red_flags: r.red_flags,
+              source: "us-entity",
+            };
+            lastErr = null;
+            break;
+          }
+          lastErr = new Error(`US name soft-attach rejected weak match for "${name}" → ${hit?.name}`);
+        } catch (e: any) { lastErr = e; }
+      }
+      if (!us && lastErr) throw lastErr;
+      if (!us) us_skip_reason = "US signals detected but no strong name/id match across NY/CO/CT/OR/TX open data (use /us-entity or /kyb?us_name=).";
+    } else {
+      us_skip_reason = "No US company signals (.us TLD, STATE:ID / DOS/entity id, or US incorporation keywords).";
+    }
+  } catch (e: any) {
+    us_skip_reason = `US lookup skipped: ${e?.message || e}`;
+    us = null;
+  }
+
   let au: any = null;
 
   let au_skip_reason: string | null = null;
@@ -627,6 +712,7 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     cz && "CZ",
     be && "BE",
     sk && "SK",
+    us && "US",
     au && "AU",
     ca && "CA",
   ].filter(Boolean);
@@ -636,7 +722,7 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     domain,
     bundle: "company-full",
     price: "$0.65",
-    savings_vs_separate: "Cheaper than /company + separate UK/FR/NO/DK/FI/CH/PL/CZ/BE/SK/AU/CA/charity calls when those registries auto-attach",
+    savings_vs_separate: "Cheaper than /company + separate UK/FR/NO/DK/FI/CH/PL/CZ/BE/SK/US/AU/CA/charity calls when those registries auto-attach",
     company,
     company_error,
     uk,
@@ -672,6 +758,9 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     sk,
     sk_included: !!sk,
     sk_skip_reason,
+    us,
+    us_included: !!us,
+    us_skip_reason,
     au,
     au_included: !!au,
     au_skip_reason,
@@ -681,6 +770,6 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     registries_attached: attached,
     note: attached.length
       ? `Includes company research + auto-attached registries: ${attached.join(", ")}. Soft-skipped jurisdictions list *_skip_reason.`
-      : "Includes company research. UK/FR/NO/DK/FI/CH/PL/CZ/BE/SK/AU/CA/charity packs attach when domain/page signals match; otherwise see *_skip_reason fields.",
+      : "Includes company research. UK/FR/NO/DK/FI/CH/PL/CZ/BE/SK/US/AU/CA/charity packs attach when domain/page signals match; otherwise see *_skip_reason fields.",
   };
 }

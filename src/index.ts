@@ -262,6 +262,7 @@ const companyFullOut = { type: "object", properties: {
   cz: { type: ["object", "null"] }, cz_included: { type: "boolean" }, cz_skip_reason: { type: ["string", "null"] },
   be: { type: ["object", "null"] }, be_included: { type: "boolean" }, be_skip_reason: { type: ["string", "null"] },
   sk: { type: ["object", "null"] }, sk_included: { type: "boolean" }, sk_skip_reason: { type: ["string", "null"] },
+  us: { type: ["object", "null"] }, us_included: { type: "boolean" }, us_skip_reason: { type: ["string", "null"] },
   au: { type: ["object", "null"] }, au_included: { type: "boolean" }, au_skip_reason: { type: ["string", "null"] },
   ca: { type: ["object", "null"] }, ca_included: { type: "boolean" }, ca_skip_reason: { type: ["string", "null"] },
   registries_attached: { type: "array", items: { type: "string" } }, note: { type: "string" } } };
@@ -490,7 +491,7 @@ const DESC: Record<string, string> = {
   "/company": "Use this when researching any company from its website domain — not Companies House. Returns sourced tech stack, socials, emails/phones, DNS/MX/SPF/DMARC, RDAP age/registrar, SSL, sitemap, news. No LLM inventing facts. Example: {domain:\"stripe.com\"} → {homepage, tech_stack, contacts, dns, news, sources}. Prefer /uk-company* for UK filings. $0.25.",
   "/uk-company": "Use this for UK due diligence on a Companies House number or name: official API profile, officers, PSCs, filings, charges, insolvency + rule-based red flags (overdue, dissolved, churn, mass-formation office). Sourced JSON. Example: {number:\"00445790\"} or {name:\"TESCO\"}. Prefer /uk-company-lite ($0.05) for status/flags only. $0.50.",
   "/uk-company-lite": "Use this for a cheap UK company snapshot before paying for the full pack: status, SIC, office, compliance overdue, mass-formation check, red-flag names. Example: {number:\"00445790\"} → {name,status,red_flags,compliance}. Upsell: /uk-company for officers/PSC/filings/charges/insolvency. $0.05.",
-  "/company-full": "Use this when you have a company website and want registry DD auto-attached in one call ($0.65). Runs /company then soft-attaches UK Companies House, FR Recherche d'entreprises, NO Brreg, DK CVR, FI PRH, CH Zefix, PL KRS, CZ ARES, BE CBE/KBO, AU ASIC, CA Corporations Canada, and UK Charity Commission when domain TLD or page signals (SIREN/orgnr/CVR/Y-tunnus/CHE UID/KRS/NIP/IČO/BE enterprise number/ACN/CH number/etc.) match. Soft-skips with *_skip_reason — never fails the bundle. Example: {domain:\"tesco.com\"} → {company, uk, fr, no, dk, fi, ch, pl, cz, be, au, ca, charity, *_included}. $0.65.",
+  "/company-full": "Use this when you have a company website and want registry DD auto-attached in one call ($0.65). Runs /company then soft-attaches UK Companies House, FR Recherche d'entreprises, NO Brreg, DK CVR, FI PRH, CH Zefix, PL KRS, CZ ARES, BE CBE/KBO, SK RPO, US state SOS (NY/CO/CT/OR/TX via /us-entity), AU ASIC, CA Corporations Canada, and UK Charity Commission when domain TLD or page signals (SIREN/orgnr/CVR/Y-tunnus/CHE UID/KRS/NIP/IČO/BE enterprise number/SK IČO/US STATE:ID or DOS/entity id/ACN/CH number/etc.) match. Soft-skips with *_skip_reason — never fails the bundle. Example: {domain:\"tesco.com\"} → {company, uk, fr, no, dk, fi, ch, pl, cz, be, sk, us, au, ca, charity, *_included}. $0.65.",
   "/convert": "Use this when an agent needs PDF/DOCX/HTML/text as clean markdown or plain text (RAG, summarisation). PDF via unpdf; DOCX via mammoth. Example: {url, format:\"markdown\"} → {detected_format, markdown, pages, word_count}. $0.03.",
   "/monitor": "Use this when you need 30 days of hourly page-change alerts to your webhook (pricing pages, status, jobs). Returns id; GET /monitor/:id free. Example POST {url, webhook, selector?}. $1.00/30d.",
   "/uk-leads-lite": "Use this for cheap UK new-incorporation lead lists filtered by SIC and/or location/postcode area (1-7 day lookback). Returns up to 100 companies: number, name, SIC, office, mass-formation flag. No directors. Example: {sic:\"62012\",days:1}. Upsell /uk-leads for directors. $0.25.",
@@ -756,7 +757,7 @@ You are only charged on HTTP 2xx: 4xx/5xx responses are never settled. Every 402
 | UK leads daily webhook feed | POST ${b}/uk-leads-feed | $25.00/30d |
 | UK company full report | ${b}/uk-company?number=00445790 | $0.50 |
 | Company research from a domain | ${b}/company?domain=stripe.com | $0.25 |
-| Company research + multi-registry pack (UK/FR/NO/DK/FI/CH/PL/CZ/AU/CA/charity when signals match) | ${b}/company-full?domain=tesco.com | $0.65 |
+| Company research + multi-registry pack (UK/FR/NO/DK/FI/CH/PL/CZ/BE/SK/US/AU/CA/charity when signals match) | ${b}/company-full?domain=tesco.com | $0.65 |
 | Sanctions batch (OFAC/UK/UN/EU) | POST ${b}/sanctions-batch | $1.00 |
 | UK charity full (trustees + 5y financials + red flags) | ${b}/uk-charity-full?number=1089464 | $0.25 |
 | French company (SIREN/SIRET/name → dirigeants + siège + NAF) | ${b}/fr-company?siren=443061841 | $0.25 |
@@ -792,7 +793,7 @@ Supporting real-data checks: /uk-company-lite, /uk-charity, /sanctions, /au-comp
 | UK CH full DD | ${b}/uk-company?number=\|name= | $0.50 | Official API: officers/PSC/filings/charges/insolvency + red flags |
 | UK officer search | ${b}/uk-officer?name= | $0.15 | Reverse officer name → appointments + high-appt/mass-formation flags |
 | UK CH cheap snapshot | ${b}/uk-company-lite?number=\|name= | $0.05 | Status + compliance flags; upsell full pack |
-| Website + multi-registry DD bundle | ${b}/company-full?domain= | $0.65 | Auto-attaches UK/FR/NO/DK/FI/CH/PL/CZ/AU/CA/charity when TLD/page signals match |
+| Website + multi-registry DD bundle | ${b}/company-full?domain= | $0.65 | Auto-attaches UK/FR/NO/DK/FI/CH/PL/CZ/BE/SK/US(NY/CO/CT/OR/TX)/AU/CA/charity when TLD/page signals match |
 | PDF/DOCX → text | ${b}/convert?url= | $0.03 | Structured markdown/text for RAG |
 | EVM wallet balances | ${b}/wallet?address=&chain=base | $0.003 | Native + 7 stablecoins/majors, 5 chains, one call |
 | Tx / payment receipt | ${b}/tx?hash=&chain=base | $0.003 | Status, confirmations, fee, decoded USDC transfers |
