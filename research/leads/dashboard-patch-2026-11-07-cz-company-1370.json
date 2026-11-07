@@ -1,0 +1,9 @@
+{
+  "version": "1.37.0",
+  "shipped": ["/cz-company"],
+  "price_usd": 0.25,
+  "wired": ["/kyb ico=/cz=", "/registry-batch cz=", "/company-full soft-attach .cz/ICO"],
+  "fixtures": {"ico": "27082440", "name": "Alza.cz a.s."},
+  "next_free": ["BE KBO (portal or stable HTML)", "EE ariregister (credentials)", "SE Bolagsverket (Liam portal)"],
+  "ops_notes_append": "2026-11-07 ~05:15 GMT continuous-improvement: shipped v1.37.0 /cz-company $0.25 (ARES REST) + KYB/registry-batch/company-full. SE/BE/EE still blocked or hostile. No Liam spend."
+}

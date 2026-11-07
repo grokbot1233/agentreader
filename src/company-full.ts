@@ -7,6 +7,7 @@ import { dkCompany } from "./dk-company";
 import { fiCompany, ytunnusCheckDigit } from "./fi-company";
 import { chCompany, normalizeUid } from "./ch-company";
 import { plCompany, normalizeKrs, nipCheckDigitOk } from "./pl-company";
+import { czCompany, normalizeIco, icoCheckDigitOk } from "./cz-company";
 import { formatUid } from "./ch-uid";
 import { luhnOk } from "./fr-company-id";
 import type { KybRegistries } from "./kyb";
@@ -17,6 +18,7 @@ const NO_TLDS = /\.no$/i;
 const DK_TLDS = /\.dk$/i;
 const FI_TLDS = /\.fi$/i;
 const CH_TLDS = /\.(ch|swiss)$/i;
+const CZ_TLDS = /\.(cz)$/i;
 const PL_TLDS = /\.pl$/i;
 const AU_TLDS = /\.(com\.au|net\.au|org\.au|edu\.au|gov\.au|au)$/i;
 const CA_TLDS = /\.ca$/i;
@@ -148,6 +150,24 @@ function polishSignals(domain: string, blob: string, desc: string): boolean {
     /\bpoland\b/i.test(desc)
   );
 }
+
+function findCzIcoInText(text: string): string | null {
+  for (const m of text.matchAll(/\b(?:I[ČC]O|I\.?[ČC]\.?O\.?|DIC|DI[ČC]|VAT\s*CZ)[:\s#]*((?:CZ)?[\s-]?\d{8}|\d{8})\b/gi)) {
+    const d = m[1].replace(/\D/g, "");
+    if (d.length === 8 && icoCheckDigitOk(d)) return d;
+  }
+  return null;
+}
+
+function czechSignals(domain: string, blob: string, desc: string): boolean {
+  return (
+    CZ_TLDS.test(domain) ||
+    !!findCzIcoInText(blob) ||
+    /\b(czech|czechia|česká|ceska|praha|prague|ares)\b/i.test(blob) ||
+    /\bczech/i.test(desc)
+  );
+}
+
 
 function findDkCvrInText(text: string): string | null {
   for (const m of text.matchAll(/\b(?:CVR|CVR-?nr\.?|CVR\s*(?:no\.?|nummer))[:\s#]*(?:DK)?[\s-]*(\d{2}\s?\d{2}\s?\d{2}\s?\d{2}|\d{8})\b/gi)) {
@@ -419,6 +439,41 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     pl = null;
   }
 
+  let cz: any = null;
+  let cz_skip_reason: string | null = null;
+  const czIco = findCzIcoInText(blob);
+  const looksCz = czechSignals(domain, blob, desc);
+  try {
+    if (czIco) {
+      cz = await czCompany({ ico: czIco, lite: true });
+    } else if (CZ_TLDS.test(domain) || (looksCz && /\b(i[čc]o|ares|czech)/i.test(blob))) {
+      const titleGuess = extractPossibleName(company);
+      const cleanedTitle = titleGuess
+        ? titleGuess.replace(/^(vítejte|vitejte|welcome\s+to|official\s+site\s+of)\s+/i, "").trim()
+        : null;
+      const candidates = [cleanedTitle, titleGuess, sld.replace(/\s+/g, " ")].filter((x): x is string => !!x && x.length >= 3);
+      let lastErr: any = null;
+      for (const name of [...new Set(candidates)]) {
+        try {
+          const hit = await czCompany({ name, lite: true });
+          const nm = String(hit?.name || "").toLowerCase();
+          const q = name.toLowerCase();
+          if (nm && (nm === q || nm.startsWith(q) || nm.includes(q) || q.includes(nm.split(" ")[0]))) {
+            cz = hit; lastErr = null; break;
+          }
+          lastErr = new Error(`CZ name soft-attach rejected weak match for "${name}" → ${hit?.name}`);
+        } catch (e: any) { lastErr = e; }
+      }
+      if (!cz && lastErr) throw lastErr;
+    } else {
+      cz_skip_reason = "No Czech company signals (.cz TLD, IČO, or CZ keywords).";
+    }
+  } catch (e: any) {
+    cz_skip_reason = `CZ lookup skipped: ${e?.message || e}`;
+    cz = null;
+  }
+
+
   let au: any = null;
 
   let au_skip_reason: string | null = null;
@@ -466,6 +521,7 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     fi && "FI",
     ch && "CH",
     pl && "PL",
+    cz && "CZ",
     au && "AU",
     ca && "CA",
   ].filter(Boolean);
@@ -475,7 +531,7 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     domain,
     bundle: "company-full",
     price: "$0.65",
-    savings_vs_separate: "Cheaper than /company + separate UK/FR/NO/DK/FI/CH/PL/AU/CA/charity calls when those registries auto-attach",
+    savings_vs_separate: "Cheaper than /company + separate UK/FR/NO/DK/FI/CH/PL/CZ/AU/CA/charity calls when those registries auto-attach",
     company,
     company_error,
     uk,
@@ -502,6 +558,9 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     pl,
     pl_included: !!pl,
     pl_skip_reason,
+    cz,
+    cz_included: !!cz,
+    cz_skip_reason,
     au,
     au_included: !!au,
     au_skip_reason,
@@ -511,6 +570,6 @@ export async function companyFull(env: any, opts: { domain: string }, reg: KybRe
     registries_attached: attached,
     note: attached.length
       ? `Includes company research + auto-attached registries: ${attached.join(", ")}. Soft-skipped jurisdictions list *_skip_reason.`
-      : "Includes company research. UK/FR/NO/DK/FI/CH/PL/AU/CA/charity packs attach when domain/page signals match; otherwise see *_skip_reason fields.",
+      : "Includes company research. UK/FR/NO/DK/FI/CH/PL/CZ/AU/CA/charity packs attach when domain/page signals match; otherwise see *_skip_reason fields.",
   };
 }

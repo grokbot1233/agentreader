@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const ORIGIN = process.env.AGENTREADER_ORIGIN || "https://api.axiomworks.co.uk";
-export const VERSION = "1.34.1";
+export const VERSION = "1.37.0";
 import CHAIN from "./chain-routes.json";
 
 const CH = z.enum(["base", "ethereum", "arbitrum", "optimism", "polygon"]).optional();
@@ -310,8 +310,16 @@ const ALL_TOOLS: ToolDef[] = [
     previewable: true,
   },
   {
+    name: "cz_company",
+    description: "Czech company lookup via ARES by ico (8 digits) or name. $0.25 USDC.",
+    price: "$0.25",
+    schema: { ico: z.string().optional(), number: z.string().optional(), cz: z.string().optional(), dic: z.string().optional(), name: z.string().optional(), q: z.string().optional(), limit: z.union([z.string(), z.number()]).optional() },
+    http: (a) => `${ORIGIN}/cz-company?${qs(a)}`,
+    previewable: true,
+  },
+  {
     name: "registry_batch",
-    description: "Batch verify up to 25 UK (Companies House, max 10), Australian (ACN/ABN), Canadian (number/BN), French (SIREN), Norwegian (orgnr), Danish (CVR), Finnish (Y-tunnus), Swiss (UID) and Polish (KRS) companies in one call; comma-separated ids. $0.30 USDC.",
+    description: "Batch verify up to 25 UK (Companies House, max 10), Australian (ACN/ABN), Canadian (number/BN), French (SIREN), Norwegian (orgnr), Danish (CVR), Finnish (Y-tunnus), Swiss (UID), Polish (KRS) and Czech (IČO) companies in one call; comma-separated ids. $0.30 USDC.",
     price: "$0.30",
     schema: { uk: z.string().optional(), au: z.string().optional(), ca: z.string().optional(), fr: z.string().optional(), no: z.string().optional(), dk: z.string().optional(), fi: z.string().optional(), ch: z.string().optional(), pl: z.string().optional() },
     http: (a) => `${ORIGIN}/registry-batch?${new URLSearchParams(Object.entries(a).filter(([, v]) => v) as any)}`,

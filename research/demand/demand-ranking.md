@@ -17,6 +17,7 @@ Scoring: payment evidence × price/volume potential × our fit (free data, exist
 | 6 | UK company / charity / officer | CH demand on GH | $0.15–$0.50 | High | Live `/uk-company` `$0.50`, `/uk-charity-full` `$0.25`, `/uk-officer` `$0.15` |
 | 7 | Registry batch multi-country | Batch DX for agents | $0.30 | High | Live `/registry-batch` `$0.30` (**+CH/+PL**) |
 | 8 | **PL KRS full extract** | Large EU market; free `api-krs.ms.gov.pl` odpisy 200 | **$0.25** | High — free official JSON by KRS number | **SHIPPED → `/pl-company` $0.25 + `/kyb` krs=/nip= + `/registry-batch` pl= + company-full soft-attach (v1.36.0)** |
+| 8b | **CZ company registry (ARES IČO)** | EU KYB breadth; free official REST | **$0.25** | High — free ARES JSON, no key | **SHIPPED → `/cz-company` $0.25 + `/kyb` ico= + `/registry-batch` cz= + company-full soft-attach (v1.37.0)** |
 | 9 | **SE company registry (Bolagsverket)** | Prior ranking “after DK”; Toll orgnr peers | **$0.25** | Medium — **API needs Kundanmälan / client registration** | **Blocked (Liam portal)** — offline `/orgnr` only |
 | 10 | BE KBO / BCE | EU KYB breadth | Mid | Medium — open data is **bulk XML download**, not live lookup | Probe next; may need Worker KV snapshot |
 | 11 | IE CRO | EU KYB | Mid | Low tonight — **CSV bulk** via opendata.cro.ie only | Deferred |
@@ -34,7 +35,7 @@ Scoring: payment evidence × price/volume potential × our fit (free data, exist
 ## Next passes (spider-web)
 
 1. Grow/sell big hitters: `/kyb` (now +CH/+PL), `/uk-dd`, `/uk-company`, `/uk-watch`, `/uk-leads(+feed)`, `/company(+full)`, `/sanctions-batch`, `/uk-charity-full`, `/registry-batch`, `/uk-officer`, `/fr-company`, `/no-company`, `/dk-company`, `/fi-company`, `/ch-company`, **`/pl-company`**.
-2. Next free builds: **BE KBO** probe (bulk XML may need Worker KV snapshot); **EE äriregister** if JSON hop found; SE still blocked on Liam portal.
+2. Next free builds: **BE KBO** (HTML flaky / open-data signup); **EE äriregister** (needs credentials); SE still blocked on Liam portal.
 3. Liam blockers: **SE Bolagsverket Kundanmälan**, NZBN portal, BR Receita ToS clarity.
 4. Re-pull CDP Bazaar filtered to ≥$0.15 **non-LLM / non-people** SKUs each run.
 5. Outreach: soft GH comment on multi-registry/KYB threads; X only via @axiomworksd8z9.
