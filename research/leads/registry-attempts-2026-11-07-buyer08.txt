@@ -1,0 +1,8 @@
+== 2026-11-07 ~08:00 GMT buyer hunt: registries ==
+402index.io (run.sh): /kyb /uk-leads /uk-leads-feed /uk-watch -> 201 registered & live (domain verified)
+a2a-registry.org (run.sh): success, unclaimed agent refreshed (uk.co.axiomworks.axiom_works_agentreader)
+a2aregistry.org (run.sh POST /api/agents/register): accepted; GET /api/agents?search=axiom lists "Axiom Works AgentReader" v1.38.0  (previously 404 on /api/v1/agents)
+payapi.market (NEW, POST /api/agent/submit-listing, 8 GET big-hitter routes): all rejected. Routes priced above $0.10 need the provider to send USDC (test price + 20%) to 0x171d8021b98c53DCbB3c9C30CBbBeb1b01850fCA. NOT PAID (no-spend rule). /uk-watch and /uk-leads-feed are POST-only (405 on GET), not submitted.
+cadauso.com (NEW, POST /api/submit form): /kyb submitted (Global, Compliance, x402 $2.50) -> 303 /en/add-service/thanks (pending review)
+archerprotocol.com (NEW): needs browser-issued API key; not done (drafts file)
+agensi.io (NEW): needs OAuth account; not done (drafts file)
