@@ -57,6 +57,7 @@ import { handleMcp } from "./mcp";
 import { upsell } from "./upsell";
 import { facilitatorClient, CANONICAL, CONTACT } from "./facilitator";
 import EXAMPLES from "./examples.json";
+import PAID_EXAMPLES from "./paid-examples.json";
 import { CHAIN_ROUTES } from "./chain";
 import { v1Reqs, v1Body, decodeV1, handleV1 } from "./v1";
 import { dashboardHtml } from "./dashboard";
@@ -66,6 +67,15 @@ import { ens, tokenMeta, allowance, contractInfo, gas, block, nft } from "./micr
 type Env = { AU?: Fetcher; AU_INTERNAL_KEY?: string; LOG: KVNamespace; STATS_SECRET: string; DASHBOARD_KEY: string; PAY_TO: string; FACILITATOR_URL: string; CDP_API_KEY_ID?: string; CDP_API_KEY_SECRET?: string; FACILITATOR?: string; CH_API_KEY?: string; CHARITY_KEY?: string };
 const NETWORK = "eip155:8453";
 const USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+// Buyer sheet: everything an agent needs to pay with confidence (exact USDC, atomic units, network, asset, payTo, success-only charging).
+const BUYER_SHEET_ENDPOINTS = ["/uk-company", "/kyb", "/uk-dd", "/company", "/company-full", "/sanctions-batch", "/uk-charity-full", "/registry-batch", "/uk-officer", "/uk-leads", "/uk-watch", "/uk-leads-feed"];
+function pricingBlock(p: string, payTo: string) {
+  const atomic = (ATOMIC as any)[p] as number; let usdc = (atomic / 1e6).toFixed(6).replace(/0+$/, ""); if (/\.\d?$/.test(usdc)) usdc = (atomic / 1e6).toFixed(2);
+  return { endpoint: p, price_usd: (PRICES as any)[p], amount_usdc: usdc, amount_atomic: String(atomic), asset: { symbol: "USDC", decimals: 6, address: USDC, eip712: { name: "USD Coin", version: "2" } },
+    network: { name: "Base mainnet", caip2: NETWORK, x402_v1: "base", chain_id: 8453 }, pay_to: payTo, scheme: "exact", max_timeout_seconds: 120,
+    charged_only_on_success: true, charging_rule: "Payment settles only after a 2xx response. 4xx/5xx (bad input, not found, upstream down) are never settled, so you are not charged.",
+    protocols: ["x402 v2: PAYMENT-REQUIRED header -> retry with PAYMENT-SIGNATURE", "x402 v1: 402 JSON accepts[] -> retry with X-PAYMENT"] };
+}
 
 const PRICES = {
   "/au-company": "$0.02",
@@ -636,7 +646,7 @@ function discovery(c: any) {
     contact: CONTACT, ownershipProofs: [] };
 }
 
-app.get("/health", (c) => c.json({ ok: true, version: "1.39.4", ts: new Date().toISOString() }));
+app.get("/health", (c) => c.json({ ok: true, version: "1.40.0", ts: new Date().toISOString() }));
 // Crawler/agent hygiene: robots.txt + favicon (agent.json iconUrl points here). Previously 404 for ~100 crawler hits / 6h.
 const FAVICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#0b1220"/><path d="M18 48 L32 14 L46 48 M23.5 36 H40.5" fill="none" stroke="#3b82f6" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const favicon = (c: any) => { c.header("content-type", "image/svg+xml"); c.header("cache-control", "public, max-age=604800"); return c.body(FAVICON_SVG); };
@@ -654,7 +664,7 @@ app.get("/.well-known/agent-card.json", (c) => {
   return c.json({
     protocolVersion: "0.3.0", name: "Axiom Works AgentReader",
     description: "Pay-per-call (x402, USDC on Base) UK Companies House, KYB, SEC EDGAR, EU VAT, web-to-markdown and EVM on-chain lookups for AI agents. HTTP + MCP; no API keys.",
-    url: b, preferredTransport: "HTTP+JSON", version: "1.39.4", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
+    url: b, preferredTransport: "HTTP+JSON", version: "1.40.0", documentationUrl: `${b}/llms.txt`, iconUrl: `${b}/favicon.ico`,
     provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk" },
     capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
     defaultInputModes: ["application/json"], defaultOutputModes: ["application/json"],
@@ -667,14 +677,14 @@ app.get("/.well-known/agent.json", (c) => {
   return c.json({
     name: "Axiom Works AgentReader", description: "x402 pay-per-call web reader, KYB packs, UK due diligence, company research, UK Companies House + Charity Commission + US SEC EDGAR + EU VIES VAT + OFAC/UK/UN/EU sanctions screening due diligence, document conversion, change monitoring, EVM wallet/tx/token risk checks and ECB FX rates for AI agents.",
     url: b, provider: { organization: "Axiom Works", url: "https://axiomworks.co.uk", email: CONTACT },
-    version: "1.39.4", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
+    version: "1.40.0", documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     skills: LISTED_PRICES().map(([p, price]) => ({ id: p.slice(1), name: p, description: DESC[p], price, endpoint: `${b}${p}` })),
     mcp: `${b}/mcp`, payments: { protocol: "x402", network: NETWORK, asset: USDC, payTo: c.env.PAY_TO },
   });
 });
 app.get("/.well-known/mcp.json", (c) => {
   const b = base(c);
-  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.39.4",
+  return c.json({ name: "io.github.axiomworks/agentreader", title: "Axiom Works AgentReader", version: "1.40.0",
     description: "x402 pay-per-call MCP: KYB, UK due diligence, UK/AU/CA registries, web reader, SEC, VAT, sanctions, EVM chain data.",
     transport: { type: "streamable-http", url: `${b}/mcp` }, documentationUrl: `${b}/llms.txt`, openapi: `${b}/openapi.json`,
     payments: { protocol: "x402", network: NETWORK, asset: USDC } });
@@ -697,10 +707,10 @@ app.get("/openapi.json", (c) => {
     const params = Object.entries(IN[p].properties || {}).map(([k, v]: any) => ({
       name: k, in: "query", required: (IN[p].required || []).includes(k), schema: { type: "string" }, description: v.description,
     }));
-    const resp = { "200": { description: "Success", content: { "application/json": { schema: OUT[p] } } }, "402": { description: `Payment required: ${price} USDC on Base (x402 v2, see PAYMENT-REQUIRED header)` }, "400": { description: "Bad input" } };
+    const pex = (PAID_EXAMPLES as any)[p]; const resp = { "200": { description: "Success", content: { "application/json": pex ? { schema: OUT[p], example: pex } : { schema: OUT[p] } } }, "402": { description: `Payment required: ${price} USDC on Base (x402 v2, see PAYMENT-REQUIRED header)` }, "400": { description: "Bad input" } };
     paths[p] = {};
     const payInfo = { mode: "fixed", currency: "USD", amount: price.replace("$", ""), network: NETWORK, asset: USDC, payTo: c.env.PAY_TO, amountAtomic: String(ATOMIC[p]) };
-    if (METHODS[p].includes("GET")) paths[p].get = { summary: DESC[p], parameters: params, responses: resp, "x-price": price, "x-payment-info": payInfo, "x-402": { network: NETWORK, asset: USDC, amount: String(ATOMIC[p]) } };
+    if (METHODS[p].includes("GET")) paths[p].get = { summary: DESC[p], parameters: params, responses: resp, "x-price": price, "x-payment-info": payInfo, "x-402": { network: NETWORK, asset: USDC, amount: String(ATOMIC[p]) }, "x-buyer-sheet": `${b}/buy${p}` };
     if (METHODS[p].includes("POST")) paths[p].post = { summary: DESC[p], requestBody: { content: { "application/json": { schema: IN[p] } } }, responses: resp, "x-price": price, "x-payment-info": payInfo, "x-402": { network: NETWORK, asset: USDC, amount: String(ATOMIC[p]) } };
   }
   paths["/uk-leads-feed/{id}"] = { get: { summary: "Free UK leads-feed status (id is the secret)", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { "200": { description: "Feed status" }, "404": { description: "Not found" } }, "x-price": "free" } };
@@ -711,13 +721,17 @@ app.get("/openapi.json", (c) => {
     paths[ap] = { get: { summary: `Path alias of ${to} (same price/x402 challenge). ${DESC[to] || ""}`, parameters: [...ks.map((k) => ({ name: k, in: "path", required: true, schema: { type: "string" } })), { name: "chain", in: "query", required: false, schema: { type: "string" } }, { name: "preview", in: "query", required: false, schema: { type: "string", enum: ["1"] } }],
       responses: { "200": { description: "Success", content: { "application/json": { schema: OUT[to] } } }, "402": { description: `Payment required: ${price} USDC on Base (x402)` } }, "x-price": price, "x-alias-of": to } }; }
   paths["/hooks/sink"] = { post: { summary: "Free webhook test sink for /monitor", responses: { "200": { description: "Stored" } }, "x-price": "free" } };
-  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.39.4", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: KYB packs, UK due diligence, company research, UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE/SK registries, LEI, sanctions, SEC EDGAR, VIES VAT, web reading, document conversion, change monitoring, EVM/FX. Big hitters first (/kyb, /uk-dd, /uk-company, /uk-watch, /uk-leads, /company-full, /sanctions-batch). Payments: USDC on Base mainnet (eip155:8453)." },
+  return c.json({ openapi: "3.1.0", info: { title: "Axiom Works AgentReader", version: "1.40.0", contact: { email: CONTACT, url: "https://github.com/grokbot1233/agentreader" }, description: "x402 pay-per-call APIs for AI agents: KYB packs, UK due diligence, company research, UK/AU/CA/FR/NO/DK/FI/CH/PL/CZ/BE/SK registries, LEI, sanctions, SEC EDGAR, VIES VAT, web reading, document conversion, change monitoring, EVM/FX. Big hitters first (/kyb, /uk-dd, /uk-company, /uk-watch, /uk-leads, /company-full, /sanctions-batch). Payments: USDC on Base mainnet (eip155:8453)." },
     servers: [{ url: b }], paths });
 });
 const llms = (b: string, payTo: string) => `# Axiom Works AgentReader
 
 > Pay-per-call tools for AI agents. No API keys: x402 (HTTP 402) + USDC on Base (eip155:8453), payTo ${payTo}.
 > Free truncated samples: ${b}/samples/{read|links|check|company|company-full|uk-company|uk-company-lite|convert|uk-charity|uk-charity-full|us-sec|us-sec-full|eu-vat|lei|lei-full|read-batch|uk-leads|uk-leads-lite|kyb|uk-dd|uk-watch|email-check|domain|dns|redirects|meta|headers|au-company|ca-company|fr-company|no-company|dk-company|fi-company|ch-company|pl-company|cz-company|be-company|sk-company|uk-officer|uk-property|uk-area|sanctions|sanctions-batch} (8/IP/day). Or add &preview=1 on paid GETs (same limit).
+
+## Buy with confidence (free, no quota)
+Buyer sheet per endpoint = exact price in USDC + atomic units (6 decimals), network (Base mainnet, eip155:8453 / v1 "base"), asset, payTo, example call, free preview, inputs, and the expected PAID response shape: ${b}/buy (index), e.g. ${b}/buy/uk-company ($0.50 = 500000 atomic), ${b}/buy/kyb ($2.50 = 2500000), ${b}/buy/uk-dd ($1.00 = 1000000).
+You are only charged on HTTP 2xx: 4xx/5xx responses are never settled. Every 402 body also carries a "pricing" block with the same fields.
 
 ## Big hitters (start here)
 
@@ -976,8 +990,8 @@ async function readTreasuryBalances(payTo: string): Promise<{ treasury_usdc: num
 }
 
 app.get("/dashboard/data", async (c) => {
-  const t = Date.now(); let health: any = { ok: true, version: "1.39.4" };
-  try { await c.env.LOG.get("health-probe"); health.kv_ms = Date.now() - t; } catch (e: any) { health = { ok: false, version: "1.39.4", error: String(e) }; }
+  const t = Date.now(); let health: any = { ok: true, version: "1.40.0" };
+  try { await c.env.LOG.get("health-probe"); health.kv_ms = Date.now() - t; } catch (e: any) { health = { ok: false, version: "1.40.0", error: String(e) }; }
   health.facilitator = (c.env as any).CDP_API_KEY_ID ? "Coinbase CDP" : "PayAI";
   const meta = (await c.env.LOG.get("meta:dashboard", "json")) || {};
   // Keep in sync with HIDDEN_TOOLS in mcp.ts — unlisted $0.001 format validators stay off discovery surfaces.
@@ -1085,6 +1099,32 @@ app.get("/hooks/sink", async (c) => {
   return c.json({ last: id, payload: raw });
 });
 
+// Free buyer sheets (no quota): exact price + payment details + expected paid response shape, one URL per endpoint.
+app.get("/buy", (c) => c.json({ about: "One page per endpoint with everything needed to pay: exact USDC + atomic amount, network, asset, payTo, example call, free preview, input params, expected paid response. Free, no rate limit.",
+  start_here: BUYER_SHEET_ENDPOINTS.map((p) => ({ endpoint: p, price_usd: (PRICES as any)[p], amount_atomic: String((ATOMIC as any)[p]), sheet: `${CANONICAL}/buy${p}` })),
+  all_endpoints: `${CANONICAL}/.well-known/x402`, charged_only_on_success: true }));
+app.get("/buy/:ep{.+}", (c) => {
+  const p = "/" + c.req.param("ep").replace(/^\/+/, "");
+  if (!(p in PRICES)) return c.json({ error: "unknown endpoint", see: `${CANONICAL}/buy` }, 404);
+  const get = METHODS[p].includes("GET"); const q = new URLSearchParams(Object.fromEntries(Object.entries(EX[p] || {}).map(([k, v]) => [k, Array.isArray(v) ? (v as any[]).join(";") : typeof v === "object" ? JSON.stringify(v) : String(v)])));
+  const paidEx = (PAID_EXAMPLES as any)[p];
+  return c.json({
+    endpoint: `${CANONICAL}${p}`, methods: METHODS[p], what_you_get: DESC[p],
+    pricing: pricingBlock(p, c.env.PAY_TO),
+    example_call: get ? `${CANONICAL}${p}?${q}` : { method: "POST", url: `${CANONICAL}${p}`, json: EX[p] },
+    free_preview: get ? `${CANONICAL}${p}?${q}&preview=1` : null, free_preview_limit: "8 previews/IP/UTC day (truncated; never the full paid payload)",
+    input: IN[p], output_schema: OUT[p],
+    expected_response: paidEx || (EXAMPLES as any)[p] || null,
+    expected_response_kind: paidEx ? "paid (full report shape, arrays trimmed)" : (EXAMPLES as any)[p] ? "preview-derived (truncated; paid adds the omitted fields listed in output_schema)" : "see output_schema",
+    how_to_pay: [
+      `1. Call ${CANONICAL}${p} without payment -> HTTP 402 with PAYMENT-REQUIRED header (x402 v2) and a v1 JSON body (accepts[0].maxAmountRequired = ${(ATOMIC as any)[p]}).`,
+      "2. Sign an EIP-3009 USDC transferWithAuthorization for exactly that amount on Base to payTo (any x402 client does this: @x402/fetch, x402-fetch, x402 Python, AgentKit, @axiomworks/agentreader).",
+      "3. Retry the same request with PAYMENT-SIGNATURE (v2) or X-PAYMENT (v1). 2xx -> settled, response carries PAYMENT-RESPONSE with the tx hash. Non-2xx -> not settled.",
+    ],
+    sdk: { npm: "npm i @axiomworks/agentreader", mcp: `${CANONICAL}/mcp` }, contact: CONTACT,
+  });
+});
+
 // Free truncated samples (rate-limited) — never full paid payloads
 app.get("/samples", (c) => c.json({
   samples: Object.keys(STATIC_SAMPLES),
@@ -1153,13 +1193,13 @@ for (const p of Object.keys(PRICES)) app.use(p, async (c, next) => {
 });
 // Paid routes: payment middleware first, except ?preview=1 (free truncated). v1 X-PAYMENT handled by ./v1; 402 body carries v1 accepts.
 async function paid(c: any, next: any, p: string) {
-  const req = v1Reqs({ url: `${CANONICAL}${p}`, method: c.req.method === "POST" ? "POST" : "GET", atomic: ATOMIC[p], desc: upsell(p, DESC[p]), payTo: c.env.PAY_TO, input: IN[p]?.properties || IN[p], output: { example: (EXAMPLES as any)[p], schema: OUT[p] } });
+  const req = v1Reqs({ url: `${CANONICAL}${p}`, method: c.req.method === "POST" ? "POST" : "GET", atomic: ATOMIC[p], desc: upsell(p, DESC[p]), payTo: c.env.PAY_TO, input: IN[p]?.properties || IN[p], output: { example: (PAID_EXAMPLES as any)[p] || (EXAMPLES as any)[p], schema: OUT[p] } });
   const v1 = decodeV1(c.req.header("x-payment"));
   if (v1) return handleV1(c, next, v1, req, (r) => logPay(c.env, r));
   const out = await getMw(c.env)(c, next); const res: Response = out instanceof Response ? out : c.res;
   if (res.status === 402 && res.headers.get("payment-required")) {
     const h = new Headers(res.headers); h.set("content-type", "application/json");
-    return new Response(JSON.stringify({ ...v1Body(req), x402_v2: "see PAYMENT-REQUIRED header (base64 JSON)", example_call: `${CANONICAL}${p}?${new URLSearchParams(EX[p])}`, free_preview: c.req.method === "GET" ? `${CANONICAL}${p}?${new URLSearchParams(EX[p])}&preview=1` : undefined }), { status: 402, headers: h });
+    return new Response(JSON.stringify({ ...v1Body(req), x402_v2: "see PAYMENT-REQUIRED header (base64 JSON)", example_call: `${CANONICAL}${p}?${new URLSearchParams(EX[p])}`, free_preview: c.req.method === "GET" ? `${CANONICAL}${p}?${new URLSearchParams(EX[p])}&preview=1` : undefined, pricing: pricingBlock(p, c.env.PAY_TO), buyer_sheet: `${CANONICAL}/buy${p}` }), { status: 402, headers: h });
   }
   return out;
 }
@@ -1556,11 +1596,13 @@ for (const m of ["get", "post"] as const) {
 
   app[m]("/kyb", async (c) => {
     const b = await bodyObj(c); aliasInput("/kyb", b);
-    const key = `domain=${b.domain||""}&number=${b.number||""}&name=${b.name||""}&vat=${b.vat||""}&acn=${b.acn||b.abn||""}&ca_number=${b.ca_number||""}&bn=${b.bn||""}&lei=${b.lei||""}&siren=${b.siren||""}&siret=${b.siret||""}&orgnr=${b.orgnr||""}&cvr=${b.cvr||""}&ytunnus=${b.ytunnus||b.businessId||b.fi||""}`;
+    // Pass EVERY supported identifier (paid path used to drop uid/krs/nip/ico/enterprise_number/sk → paid CH/PL/CZ/BE/SK KYB returned 400).
+    const inp: any = {}; for (const k of KYB_KEYS) { const v = b[k]; if (v != null && String(v).trim() !== "") inp[k] = String(v).trim(); }
+    const key = new URLSearchParams(inp).toString();
     const KREG = bindingRegistries(c.env);
     if (c.req.query("preview") === "1" && m === "get")
-      return livePreview(c, "kyb", () => kybReport(c.env, { ...b, preview: true }, KREG), `${CANONICAL}/kyb?${key}`);
-    return cached(c, `kyb?${encodeURIComponent(key)}`, () => kybReport(c.env, { domain: b.domain, number: b.number, name: b.name, vat: b.vat, country: b.country, vat_number: b.vat_number, acn: b.acn || b.abn, ca_number: b.ca_number, bn: b.bn, lei: b.lei, siren: b.siren, siret: b.siret, orgnr: b.orgnr, cvr: b.cvr, ytunnus: b.ytunnus || b.businessId || b.fi }, KREG), 120);
+      return livePreview(c, "kyb", () => kybReport(c.env, { ...inp, preview: true }, KREG), `${CANONICAL}/kyb?${key}`);
+    return cached(c, `kyb2?${encodeURIComponent(key)}`, () => kybReport(c.env, inp, KREG), 120);
   });
 
 
@@ -1590,6 +1632,8 @@ for (const m of ["get", "post"] as const) {
   });
 
 }
+
+const KYB_KEYS = ["domain", "number", "name", "vat", "country", "vat_number", "acn", "abn", "ca_number", "bn", "lei", "siren", "siret", "orgnr", "cvr", "ytunnus", "businessId", "fi", "uid", "che", "ch", "krs", "nip", "pl", "ico", "cz", "enterprise_number", "be", "bce", "kbo", "sk", "ico_sk", "rpo"];
 
 async function caCompany(b: any) {
   const env = currentEnv!; const bn = String(b.bn || "").replace(/\D/g, "").slice(0, 9); const num = String(b.number || "").replace(/\D/g, "");

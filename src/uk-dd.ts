@@ -69,13 +69,14 @@ export async function ukDdReport(env: Env, input: {
       // Bound payload: keep summary fields, drop heavy page bodies
       out.website = {
         domain: research.domain || domain,
-        homepage: research.homepage ? { title: research.homepage.title, url: research.homepage.url } : null,
-        tech_stack: research.tech_stack ? Object.keys(research.tech_stack).slice(0, 12) : [],
+        homepage: research.homepage ? { title: research.homepage.title, url: research.homepage.url, status: research.homepage.status ?? null } : null,
+        // was Object.keys(tech_stack) → ["detected","source"]; return the detected technologies themselves
+        tech_stack: Array.isArray(research.tech_stack?.detected) ? research.tech_stack.detected.slice(0, 12) : [],
         contacts: {
           email_count: (research.contacts?.emails || []).length,
           phone_count: (research.contacts?.phones || []).length,
         },
-        dns_issues: (research.dns?.issues || research.issues || []).slice?.(0, 5) || research.dns?.issues || null,
+        dns: research.dns ? { mx_count: (research.dns.mx || []).length, email_provider: research.dns.email_provider || null, spf: (research.dns.spf || []).length > 0, dmarc_policy: research.dns.dmarc_policy || null } : null,
         domain_registration: research.domain_registration || null,
         sources: research.sources || true,
       };
