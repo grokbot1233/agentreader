@@ -1,0 +1,31 @@
+{
+  "ops_notes_append": "Hourly self-check 2026-11-07 ~11:05 GMT: live already 1.40.0 (CI KYB foreign-id paid-path fix + /buy sheets). Self-check verified 79/79 x402; published npm @axiomworks/agentreader(+mcp) 1.40.0 (was stuck 1.39.4) and typed SDK kybReport foreign registry IDs. No spend.",
+  "what_shipped": [
+    "v1.40.0 npm @axiomworks/agentreader(+mcp) published; SDK kybReport types include uid/krs/nip/ico/enterprise_number/sk/orgnr/cvr/\u2026 (HTTP already live from CI)",
+    "v1.40.0 fix(kyb) paid path foreign IDs + /buy sheets \u2014 CI prior ship",
+    "v1.39.4 dashboard MCP list sync \u2014 prior ship",
+    "v1.39.3 sanctions non-Latin false-positive \u2014 prior ship"
+  ],
+  "checklist_upsert": [
+    {
+      "item": "v1.40.0 npm publish + SDK kybReport foreign-id types",
+      "status": "live",
+      "done": true,
+      "url": "https://www.npmjs.com/package/@axiomworks/agentreader",
+      "detail": "Live worker 1.40.0 deploy 3de47c30; npm 1.40.0; self-check PASS402 79/79; MCP 80; commit after publish"
+    }
+  ],
+  "self_check_latest": {
+    "at": "2026-11-07T11:09:00Z",
+    "live_version": "1.40.0",
+    "PASS402": 79,
+    "FAIL402": 0,
+    "note": "79/79 well-formed 402. MCP 80 tools serverInfo 1.40.0. Discovery+dashboard 200. Previews OK; /fr-company intermittent 429 upstream. Free 400s OK. Buy sheets /buy/{ep} 200. npm 1.40.0 published (was lagging). SDK kybReport types aligned to foreign registry IDs.",
+    "deploy": "3de47c30-c0f3-4bfe-a2d7-23284006c5fc",
+    "commit": "826ac8a",
+    "treasury_eth": 0.00039894,
+    "treasury_usdc": 2.588,
+    "spend_usd": 0
+  },
+  "grow_cut": "Grow: /kyb, /uk-dd, /uk-watch, /uk-leads-feed, /company-full, /sanctions-batch, /be-company, /dk-company, /fi-company, /ch-company, /pl-company, /sk-company. Cut/ignore: new $0.001\u2013$0.003 micros."
+}

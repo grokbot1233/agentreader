@@ -421,7 +421,17 @@ export class AgentReaderClient {
   ukDd(input: { number?: string; name?: string; domain?: string }, opts?: RequestOpts) {
     return this.get("/uk-dd", input as any, opts);
   }
-  kybReport(input: { domain?: string; number?: string; name?: string; vat?: string; country?: string; vat_number?: string; acn?: string; ca_number?: string; bn?: string; lei?: string ; siren?: string; siret?: string }, opts?: RequestOpts) {
+  kybReport(input: {
+    domain?: string; number?: string; name?: string; vat?: string; country?: string; vat_number?: string;
+    acn?: string; ca_number?: string; bn?: string; lei?: string;
+    siren?: string; siret?: string; orgnr?: string; cvr?: string;
+    ytunnus?: string; businessId?: string; fi?: string;
+    uid?: string; che?: string; ch?: string;
+    krs?: string; nip?: string; pl?: string;
+    ico?: string; cz?: string;
+    enterprise_number?: string; be?: string; bce?: string; kbo?: string;
+    sk?: string; ico_sk?: string; rpo?: string;
+  }, opts?: RequestOpts) {
     return this.get("/kyb", input as any, opts);
   }
 }

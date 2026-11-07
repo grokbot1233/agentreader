@@ -1,0 +1,12 @@
+SELF-CHECK REPORT 2026-11-07 ~11:09 Europe/London (GMT)
+
+Live version + deploy id: 1.40.0 / 3de47c30-c0f3-4bfe-a2d7-23284006c5fc (already live from CI ~11:04)
+Commit base: 826ac8a on master (+ npm/SDK follow-up this run)
+
+Health summary: PASS402 79/79; FAIL402 0. MCP 80 tools serverInfo 1.40.0. well-known/x402 + llms + agent + mcp.json + robots + favicon + dashboard 200. Free 400s OK on bad input. Buy sheets /buy /buy/uk-company|/kyb|/uk-dd 200. Previews big-hitters OK; /fr-company intermittent 429 upstream (known). KYB preview with uid=CHE-105.909.036 OK (has_ch).
+
+What improved: published npm @axiomworks/agentreader(+mcp) 1.40.0 (packages had lagged at 1.39.4 after CI worker ship); SDK kybReport TypeScript input now includes foreign registry IDs (uid/krs/nip/ico/enterprise_number/sk/orgnr/cvr/…).
+
+NOTIFY_LIAM=false
+
+token/treasury notes: payTo 0x88b1c747… Base. Live treasury ~2.588 USDC / ~0.000399 ETH. No spend/settlement this run.
