@@ -1,0 +1,19 @@
+{
+  "actorOutputSchemaVersion": 1,
+  "title": "Sanctions screening output",
+  "description": "Scored candidate matches per name against OFAC, UK, UN and EU lists.",
+  "properties": {
+    "results": {
+      "type": "string",
+      "title": "Results",
+      "description": "One row per name (overview table).",
+      "template": "{{links.apiDefaultDatasetUrl}}/items?view=overview"
+    },
+    "summary": {
+      "type": "string",
+      "title": "Run summary & list versions",
+      "description": "Counts, list sizes and publication dates.",
+      "template": "{{links.apiDefaultKeyValueStoreUrl}}/records/OUTPUT"
+    }
+  }
+}

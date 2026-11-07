@@ -1,0 +1,46 @@
+{
+  "title": "EU company registry batch lookup",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "companies": {
+      "title": "Companies",
+      "type": "array",
+      "editor": "json",
+      "description": "Array of {country, id}. country: NO, DK, FI, CH, PL, CZ, BE, SK or FR. id: NO orgnr (9 digits), DK CVR (8), FI Y-tunnus (1234567-8), CH UID (CHE-123.456.789), PL KRS (10) or NIP, CZ IČO (8), BE enterprise number (0403.170.701), SK IČO (8), FR SIREN (9) or SIRET (14). Strings like \"DK:24256790\" also work.",
+      "prefill": [
+        {
+          "country": "DK",
+          "id": "24256790"
+        },
+        {
+          "country": "NO",
+          "id": "923609016"
+        },
+        {
+          "country": "CZ",
+          "id": "27082440"
+        }
+      ]
+    },
+    "includeRaw": {
+      "title": "Include full source record",
+      "type": "boolean",
+      "editor": "checkbox",
+      "default": true,
+      "description": "Adds a `details` object with every field the registry returned (capital, NACE codes, owners, history...)."
+    },
+    "maxCompanies": {
+      "title": "Max companies",
+      "type": "integer",
+      "editor": "number",
+      "default": 500,
+      "minimum": 1,
+      "maximum": 1000,
+      "description": "Safety cap per run."
+    }
+  },
+  "required": [
+    "companies"
+  ]
+}

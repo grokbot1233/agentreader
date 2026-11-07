@@ -1,0 +1,40 @@
+{
+  "actorSpecification": 1,
+  "title": "Sanctions screening results",
+  "fields": {},
+  "views": {
+    "overview": {
+      "title": "Overview",
+      "description": "One row per screened name",
+      "transformation": {
+        "fields": [
+          "name",
+          "possible_match",
+          "highest_score",
+          "match_count",
+          "top_match"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "name": {
+            "label": "Name"
+          },
+          "possible_match": {
+            "label": "Possible match"
+          },
+          "highest_score": {
+            "label": "Highest score"
+          },
+          "match_count": {
+            "label": "Candidates"
+          },
+          "top_match": {
+            "label": "Top candidate"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://apify.com/schemas/v1/actor.ide.json",
+  "actorSpecification": 1,
+  "name": "sanctions-screening-batch",
+  "title": "Sanctions Screening Batch — OFAC, UK, UN & EU Lists",
+  "description": "Fuzzy-screen person or company names against official OFAC SDN + non-SDN, UK FCDO/OFSI, UN Security Council and EU consolidated sanctions lists, downloaded fresh each run. Scored candidates with programmes, aliases, DOB. For KYB, AML and AI agents.",
+  "version": "1.0",
+  "buildTag": "latest",
+  "meta": {
+    "templateId": "js-empty",
+    "generatedBy": "axiom-works"
+  },
+  "dockerfile": "../Dockerfile",
+  "categories": [
+    "BUSINESS",
+    "AI"
+  ],
+  "inputSchema": "./input_schema.json",
+  "output": "./output_schema.json",
+  "storages": {
+    "dataset": "./dataset_schema.json"
+  }
+}

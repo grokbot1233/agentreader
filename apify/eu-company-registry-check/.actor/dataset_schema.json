@@ -1,0 +1,56 @@
+{
+  "actorSpecification": 1,
+  "title": "EU company registry records",
+  "fields": {},
+  "views": {
+    "overview": {
+      "title": "Overview",
+      "description": "One normalised record per company",
+      "transformation": {
+        "fields": [
+          "country",
+          "company_id",
+          "name",
+          "status",
+          "legal_form",
+          "incorporation_date",
+          "registered_address",
+          "found",
+          "error"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "country": {
+            "label": "Country"
+          },
+          "company_id": {
+            "label": "Company ID"
+          },
+          "name": {
+            "label": "Name"
+          },
+          "status": {
+            "label": "Status"
+          },
+          "legal_form": {
+            "label": "Legal form"
+          },
+          "incorporation_date": {
+            "label": "Incorporated"
+          },
+          "registered_address": {
+            "label": "Registered address"
+          },
+          "found": {
+            "label": "Found"
+          },
+          "error": {
+            "label": "Error"
+          }
+        }
+      }
+    }
+  }
+}

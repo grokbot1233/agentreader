@@ -1,0 +1,7 @@
+# Growth sprint — 2026-11-07 midday
+
+## Apify storefront strands for the high-ticket line (~11:30–12:00 GMT)
+- **eu-company-registry-check** (id DgtCkSsKIrPOKTJjx) — PUBLIC: https://apify.com/ultramarine_gusto/eu-company-registry-check (HTTP 200). Batch {country,id} across NO/DK/FI/CH/PL/CZ/BE/SK/FR using the same keyless fetchers as /xx-company (bundled from src/*.ts via apify/_build/build.mjs). Apify test run LcoQqCRtAkwlHDt83: DK 24256790, NO 923609016, CZ 27082440 → 3/3 found. Local run: all 9 countries found. README points to /xx-company $0.25, /registry-batch $0.30, /kyb $2.50, /sanctions-batch $1, MCP.
+- **sanctions-screening-batch** (id V9mEwQsrVMq0AWSCe) — built + tested, **still private**: Apify returned `daily-publication-limit-exceeded` (5 publications/day). Publish on 2026-11-08 (`PUT /v2/acts/V9mEwQsrVMq0AWSCe {"isPublic":true}`). Test run 4aHtktya2Nx94WosU: BANCO NACIONAL DE CUBA → score 1, OFAC-SDN / CUBA; Alice Wonderland → no candidates. Lists loaded: OFAC-SDN 19,563, OFAC-CONS 486, UN-SC 1,007, UK-FCDO 6,420; **EU-FSF HTTP 500 upstream** (all webgate FSF variants 500 at 11:35 GMT) — actor reports it in `lists_unavailable` rather than claiming it screened EU.
+- Suggested PPE (Console, manual): `company-record` $0.03; `name-screened` $0.01. Not set yet. Spend $0 (Apify free plan, ~$0.0004 of the $5 monthly free credit used by test runs).
+- Dashboard listings upserted (research/leads/dashboard-patch-2026-11-07-apify-eu-sanctions.json).

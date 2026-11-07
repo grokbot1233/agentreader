@@ -1,0 +1,17 @@
+{
+  "name": "sanctions-screening-batch",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Fuzzy-screen person or company names against official OFAC SDN + non-SDN, UK FCDO/OFSI, UN Security Council and EU consolidated sanctions lists, downloaded fresh each run. Scored candidates with programmes, aliases, DOB. For KYB, AML and AI agents.",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "apify": "^3.7.0"
+  },
+  "scripts": {
+    "start": "node ./src/main.js"
+  },
+  "author": "Axiom Works <info@axiomworks.co.uk>",
+  "license": "Apache-2.0"
+}

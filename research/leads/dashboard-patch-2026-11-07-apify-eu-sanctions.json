@@ -1,0 +1,15 @@
+{
+  "listings_upsert": [
+    {
+      "name": "Apify: eu-company-registry-check",
+      "status": "public 2026-11-07 (NO/DK/FI/CH/PL/CZ/BE/SK/FR batch; test run 3/3 found; PPE price not yet set in Console)",
+      "url": "https://apify.com/ultramarine_gusto/eu-company-registry-check"
+    },
+    {
+      "name": "Apify: sanctions-screening-batch",
+      "status": "built + test run OK 2026-11-07, PRIVATE: Apify daily limit of 5 publications reached; publish on 2026-11-08",
+      "url": "https://console.apify.com/actors/V9mEwQsrVMq0AWSCe"
+    }
+  ],
+  "ops_notes_append": "2026-11-07: Apify actors added — eu-company-registry-check public (https://apify.com/ultramarine_gusto/eu-company-registry-check); sanctions-screening-batch built and tested but still private (daily publication limit), publish 2026-11-08. EU FSF sanctions download returned HTTP 500 upstream during test; OFAC/UK/UN loaded."
+}

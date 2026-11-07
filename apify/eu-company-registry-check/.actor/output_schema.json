@@ -1,0 +1,19 @@
+{
+  "actorOutputSchemaVersion": 1,
+  "title": "EU company registry check output",
+  "description": "Normalised KYB-ready company records from official EU/EEA open registries.",
+  "properties": {
+    "results": {
+      "type": "string",
+      "title": "Results",
+      "description": "Company records (overview table).",
+      "template": "{{links.apiDefaultDatasetUrl}}/items?view=overview"
+    },
+    "summary": {
+      "type": "string",
+      "title": "Run summary",
+      "description": "Counts of found/failed lookups.",
+      "template": "{{links.apiDefaultKeyValueStoreUrl}}/records/OUTPUT"
+    }
+  }
+}

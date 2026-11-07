@@ -1,0 +1,23 @@
+{
+  "$schema": "https://apify.com/schemas/v1/actor.ide.json",
+  "actorSpecification": 1,
+  "name": "eu-company-registry-check",
+  "title": "EU Company Registry Check — Batch KYB Lookup (9 Countries)",
+  "description": "Batch company lookup in 9 official open registries: Norway, Denmark, Finland, Switzerland, Poland, Czechia, Belgium, Slovakia, France. Normalised KYB-ready JSON: name, status, address, legal form, incorporation date, directors. No API keys.",
+  "version": "1.0",
+  "buildTag": "latest",
+  "meta": {
+    "templateId": "js-empty",
+    "generatedBy": "axiom-works"
+  },
+  "dockerfile": "../Dockerfile",
+  "categories": [
+    "BUSINESS",
+    "AI"
+  ],
+  "inputSchema": "./input_schema.json",
+  "output": "./output_schema.json",
+  "storages": {
+    "dataset": "./dataset_schema.json"
+  }
+}
